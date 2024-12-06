@@ -1,0 +1,4 @@
+*.tsv.gz filter=lfs diff=lfs merge=lfs -text
+GALAXY_load.tsv.gz filter=lfs diff=lfs merge=lfs -text
+GALAXY_mOTUs_v25.tsv.gz filter=lfs diff=lfs merge=lfs -text
+motus2GTDB.txt.gz filter=lfs diff=lfs merge=lfs -text

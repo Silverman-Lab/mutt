@@ -5,5 +5,9 @@ Use Git LFS for large files: https://docs.github.com/en/repositories/working-wit
 
 According to Maxwell, metagenomic data is huge. So lets keep this to count tables for the moment (already processed data). 
 
+# Notes
+- A growing list of studies and relevant metadata is being maintained here: https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing
+
 # Format to Maintain
 - Each dataset gets its own directory with an informative name (all lower-case), "year_name_journal_keyword"
+- datasets should be compressed (and again, stored using Git LFS: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage)
