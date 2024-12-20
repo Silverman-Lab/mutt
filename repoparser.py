@@ -9,7 +9,7 @@ def main():
     output_csv = "silvermanrepo_parse_results.csv"
     results = []
 
-    headers = ["study", "scale", "metadata", "proportions", "taxa"]
+    headers = ["study", "scale", "metadata", "proportions", "taxa", "sequences", "phylo"]
 
     for entry in os.listdir(repo_path):
         full_path = os.path.join(repo_path, entry)
@@ -48,9 +48,11 @@ def main():
                 scale_ok = 1 if "scale" in data and has_data(data["scale"]) else 0
                 metadata_ok = 1 if "metadata" in data and has_data(data["metadata"]) else 0
                 proportions_ok = 1 if "proportions" in data and has_data(data["proportions"]) else 0
-                taxa_ok = 1 if "taxa" in data and has_data(data["taxa"]) else 0
+                taxa_ok = 1 if "tax" in data and has_data(data["tax"]) else 0
+                sequences_ok = 1 if "sequences" in data and has_data(data["sequences"]) else 0
+                phylo_ok = 1 if "phylo" in data and has_data(data["phylo"]) else 0
 
-                results.append([entry, scale_ok, metadata_ok, proportions_ok, taxa_ok])
+                results.append([entry, scale_ok, metadata_ok, proportions_ok, taxa_ok, sequences_ok, phylo_ok])
 
     with open(output_csv, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
