@@ -7,6 +7,7 @@ According to Maxwell, metagenomic data is huge. So lets keep this to count table
 
 # Notes
 - A growing list of studies and relevant metadata is being maintained here: https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing
+- An extra column in a count table that contains non-meaningful information (e.g., all values are -1) and is not present in the taxa table indicates that the corresponding taxa are unassigned.
 
 # Format to Maintain
 - Each dataset gets its own directory with an informative name (all lower-case), "year_name_journal_keyword". Try to be concise (don't use date ranges e.g., 2020-2024 but just choose a single date for the study). 
