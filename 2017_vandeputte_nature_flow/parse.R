@@ -4,7 +4,7 @@ require(readxl)
 require(stringr)
 
 parse_2017_vandeputte_nature_flow <- function() {
-  local <- "2021_nature_flow/"  
+  local <- "2017_vandeputte_nature_flow/"  
   
   # Initialize the output list
   out <- list()
