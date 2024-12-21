@@ -30,7 +30,25 @@ git remote -v
 # Update the repository while preserving local changes
 echo "Updating the repository..."
 git stash save "Backup before pull" &> /dev/null || echo "No changes to stash."
-git pull origin main || echo "Error pulling from remote repository. Please check the connection."
+git fetch origin main
+LOCAL=$(git rev-parse HEAD)
+REMOTE=$(git rev-parse origin/main)
+BASE=$(git merge-base HEAD origin/main)
+
+if [ "$LOCAL" = "$REMOTE" ]; then
+    echo "Branch is up to date. Ready to push."
+elif [ "$LOCAL" = "$BASE" ]; then
+    echo "Local branch is behind remote. Pulling updates..."
+    git pull --rebase origin main
+elif [ "$REMOTE" = "$BASE" ]; then
+    echo "Local branch is ahead of remote. Ready to push."
+else
+    echo "Branches have diverged. Attempting to resolve..."
+    git pull --rebase origin main || {
+        echo "Manual resolution required. Please fix conflicts."
+        exit 1
+    }
+fi
 git stash pop &> /dev/null || echo "No stash to apply."
 
 # Process repository files
@@ -85,5 +103,11 @@ fi
 
 # Push changes to the remote repository
 echo "Pushing changes to the repository..."
-git push origin main || echo "Error pushing to remote repository. Please check your connection."
+if ! git push origin main; then
+    echo "Push failed. Attempting to resolve..."
+    git pull --rebase origin main && git push origin main || {
+        echo "Push failed again. Manual intervention required."
+        exit 1
+    }
+fi
 
