@@ -7,6 +7,27 @@ parse_2021_forslund_nature_metacardis <- function() {
   local <- "2021_forslund_nature_metacardis/"  
 
   out <- list()
+
+  #-------------------------------------------------------------
+  # Read counts
+  #-------------------------------------------------------------
+  counts_zip <- paste0(local, "MetaCardis_mOTUs_v25.tsv.zip")
+    if (file.exists(counts_zip)) {
+    message("Reading counts from ", counts_zip)
+
+    # Read counts file
+    counts_df <- read.table(unz(counts_zip, "MetaCardis_mOTUs_v25.tsv"), 
+                            header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
+    counts <- as.matrix(counts_df)
+    out$counts <- counts
+
+    row_sums <- rowSums(counts)
+    proportions <- sweep(counts, 1, row_sums, FUN = "/")
+    proportions[is.nan(proportions)] <- 0  
+    out$proportions <- proportions
+    } else {
+    warning("Counts file not found: ", counts_zip)
+    }
   
   #-------------------------------------------------------------
   # Read reduced_feature counts
@@ -24,7 +45,7 @@ parse_2021_forslund_nature_metacardis <- function() {
       load(rdata_file, envir = env)
 
       if (exists("reduced_feature", envir = env)) {
-        out$counts <- env$reduced_feature
+        out$reduced_feature <- env$reduced_feature
       } else {
         warning("reduced_feature not found in ", rdata_file)
       }
