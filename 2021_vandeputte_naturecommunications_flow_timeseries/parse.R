@@ -1,10 +1,10 @@
-# parse_mydata.R
+# parse.R
 
 require(readxl)
 require(stringr)
 
 parse_2021_vandeputte_naturecommunications_flow_timeseries <- function() {
-  local <- "2021__naturecommunications_flow_timeseries/"  
+  local <- "2021_naturecommunications_flow_timeseries/"  
   
   # Initialize the output list
   out <- list()
