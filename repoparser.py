@@ -44,7 +44,7 @@ def main():
                     if isinstance(obj, list):
                         return len(obj) > 0
                     return bool(obj)
-
+                counts_ok = 1 if "counts" in data and has_data(data["counts"]) else 0
                 scale_ok = 1 if "scale" in data and has_data(data["scale"]) else 0
                 metadata_ok = 1 if "metadata" in data and has_data(data["metadata"]) else 0
                 proportions_ok = 1 if "proportions" in data and has_data(data["proportions"]) else 0
