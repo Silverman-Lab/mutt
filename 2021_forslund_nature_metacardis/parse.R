@@ -3,15 +3,15 @@
 require(readxl)
 require(stringr)
 
-parse_2022_fromentin_naturemedicine_metacardissubset <- function() {
-  local <- "2022_fromentin_naturemedicine_metacardissubset/"  
+parse_2021_forslund_nature_metacardis <- function() {
+  local <- "2021_forslund_nature_metacardis/"  
 
   out <- list()
   
   #-------------------------------------------------------------
-  # Read reduced_feature counts from zipped RData
+  # Read reduced_feature counts
   #-------------------------------------------------------------
-  reduced_feature_zip <- paste0(local, "reduced_feature (1).RData.zip")
+  reduced_feature_zip <- paste0(local, "reduced_feature.RData.zip")
   if (file.exists(reduced_feature_zip)) {
     message("Extracting and loading reduced_feature data from ", reduced_feature_zip)
     
@@ -34,9 +34,9 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function() {
   }
   
   #-------------------------------------------------------------
-  # Read metamatmetformin metadata from zipped RData
+  # Read metamatmetformin metadata 
   #-------------------------------------------------------------
-  metamatmetformin_zip <- paste0(local, "metaMatMetformin (1).RData.zip")
+  metamatmetformin_zip <- paste0(local, "metaMatMetformin.RData.zip")
   if (file.exists(metamatmetformin_zip)) {
     message("Extracting and loading metamatmetformin data from ", metamatmetformin_zip)
     
@@ -57,11 +57,27 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function() {
   } else {
     warning("Metamatmetformin zip file not found: ", metamatmetformin_zip)
   }
-  
+
   #-------------------------------------------------------------
-  # Read metadata from zipped Excel file
+  # Scale data
   #-------------------------------------------------------------
-  metadata_zip <- paste0(local, "41591_2022_1688_MOESM3_ESM.xlsx.zip")
+    scale_file <- paste0(local, "MetaCardis_load.tsv.zip")
+    if (file.exists(scale_file)) {
+    message("Reading scale from ", scale_file)
+
+    # Read scale file
+    scale_df <- read.table(unz(scale_file, "MetaCardis_load.tsv"), 
+                            header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
+    scale <- as.matrix(scale_df)
+    out$scale <- scale
+    } else {
+    warning("TScale file not found: ", scale_file)
+    }
+
+  #-------------------------------------------------------------
+  # Read metadata 
+  #-------------------------------------------------------------
+  metadata_zip <- paste0(local, "41586_2021_4177_MOESM3_ESM.xlsx.zip")
   if (file.exists(metadata_zip)) {
     message("Extracting and reading metadata from ", metadata_zip)
 
@@ -71,26 +87,12 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function() {
     
     if (length(excel_files) > 0) {
       metadata_file <- excel_files[1]  
-      metadata_sheets <- c("ST10", "ST11", "ST12", "ST13", "ST14")
+      metadata_sheets <- c("ST1b", "ST2b", "ST2c", "ST2d", "ST3b")
       
       metadata_list <- lapply(metadata_sheets, function(sheet) {
         read_excel(metadata_file, sheet = sheet)
       })
       names(metadata_list) <- metadata_sheets
-      if ("ST10" %in% names(metadata_list)) {
-        if (all(c("ID", "Status", "Microbial load") %in% colnames(metadata_list$"ST10"))) {
-            out$scale <- data.frame(
-            ID = metadata_list$"ST10"$ID,
-            Status = metadata_list$"ST10"$Status,
-            MicrobialLoad = metadata_list$"ST10"$"Microbial load",
-            stringsAsFactors = FALSE
-            )
-        } else {
-            warning("Columns 'ID', 'Status', or 'Microbial load' are missing in ST10 metadata.")
-        }
-        } else {
-        warning("ST10 sheet not found in metadata_list.")
-        }
       out$metadata <- metadata_list
     } else {
       warning("No .xlsx file found in ", metadata_zip)
