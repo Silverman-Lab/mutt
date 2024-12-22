@@ -98,7 +98,21 @@ git add .
 if git diff-index --quiet HEAD; then
     echo "No changes to commit."
 else
-    git commit -m "Zip files and track with Git LFS"
+    # Get the current date and time
+    CURRENT_DATE=$(date +"%Y-%m-%d %H:%M:%S")
+    
+    # Get the GitHub username
+    GITHUB_USERNAME=$(git config user.name)
+    
+    # Prompt for the commit message
+    echo "Enter a commit message: "
+    read -r COMMIT_MESSAGE
+    
+    # Combine the commit message with the date, time, and username
+    FINAL_MESSAGE="[$CURRENT_DATE] [$GITHUB_USERNAME] $COMMIT_MESSAGE"
+    
+    # Commit the changes
+    git commit -m "$FINAL_MESSAGE"
 fi
 
 # Push changes to the remote repository
