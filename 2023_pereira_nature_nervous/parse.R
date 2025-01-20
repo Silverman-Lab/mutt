@@ -15,7 +15,7 @@ parse_2023_pereira_nature_nervous <- function(rootPath = getwd(), paths = NULL) 
   totalCounts$index <- paste(totalCounts$index, totalCounts$replicate, sep = "_")
   totalCounts <- totalCounts[, c("index", "Cells/mL")]
   
-  sampleMetadata <- readxl::read_xlsx(decompressed_file, sheet = "Sup. Table 2", skip = 3)
+  sampleMetadata <- readxl::read_xlsx(paste0(localPath, "all-relevant-data.xlsx"), sheet = "Sup. Table 2", skip = 3)
   
   # Step 1: Process sampleMetadata
   sampleMetadata <- sampleMetadata %>%
@@ -35,8 +35,8 @@ parse_2023_pereira_nature_nervous <- function(rootPath = getwd(), paths = NULL) 
     pivot_wider(names_from = "Sequencing sample ID", values_from = `Cells/mL`) %>%
     as.matrix()
   
-  relativeAbundances <- readxl::read_xlsx(decompressed_file, sheet = "Sup. Table 3", skip = 3)
-  absoluteAbundances <- readxl::read_xlsx(decompressed_file, sheet = "Sup. Table 4", skip = 3)
+  relativeAbundances <- readxl::read_xlsx(paste0(localPath, "all-relevant-data.xlsx"), sheet = "Sup. Table 3", skip = 3)
+  absoluteAbundances <- readxl::read_xlsx(paste0(localPath, "all-relevant-data.xlsx"), sheet = "Sup. Table 4", skip = 3)
   
   absoluteAbundances <- absoluteAbundances %>%
     rename(ASV_ID = `...1`)
@@ -44,10 +44,11 @@ parse_2023_pereira_nature_nervous <- function(rootPath = getwd(), paths = NULL) 
   relativeAbundances <- relativeAbundances %>%
     rename(ASV_ID = `...1`)
   
-  counts <- absoluteAbundances %>%
-    dplyr::select(-c(Phylum, Class, Order, Family, Genus)) %>%
-    column_to_rownames("ASV_ID") %>%
-    as.matrix()
+  countsDataFile <- unzip(paste0(localPath, "DADA2_counts_as_matrix_Drugs.txt.zip"))
+  
+  countsData <- read.table(countsDataFile, header = TRUE, sep = "\t")
+  
+  counts <- countsData %>% column_to_rownames("X") %>% as.matrix()
   
   proportions <- relativeAbundances %>%
     dplyr::select(-c(Phylum, Class, Order, Family, Genus)) %>%
@@ -62,6 +63,7 @@ parse_2023_pereira_nature_nervous <- function(rootPath = getwd(), paths = NULL) 
     column_to_rownames("ASV_ID")
   
   unlink(decompressed_file)
+  unlink(countsDataFile)
   
   return(list(counts = counts, scale = scale, proportions = proportions, tax = tax, metadata = metadata))
 }
