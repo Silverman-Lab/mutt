@@ -1,7 +1,7 @@
 require(stringr)
 library(readxl)
 parse_2024_jin_natureComm_technicalReplicates <- function(paths = NULL) {
-  local <- "2024_jin_natureComm_technicalReplicates/"
+  local <- "2022_jin_natureComm_technicalReplicates/"
   
   dat <- readxl::read_xlsx(paste0(local, "Supplementary Data 8.xlsx"), sheet = "Sequencing-determined counts", skip = 1)
   counts <- as.matrix(dat[,2:56])
@@ -44,3 +44,5 @@ parse_2024_jin_natureComm_technicalReplicates <- function(paths = NULL) {
   
   return(list(scale=scale, metadata=metadata, counts=counts, abs_counts = abs_counts, tax=tax))
 }
+
+
