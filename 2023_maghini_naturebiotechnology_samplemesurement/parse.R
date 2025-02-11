@@ -40,8 +40,7 @@ parse_2023_maghini_naturebio_metagenomic <- function(YourFolderPaths = NULL){
 
         # exrtact metadata
         metadata <- qPCR %>% 
-                 dplyr::select(ID,Donor,Condition,Replicate) 
-                 %>% distinct()
+                 dplyr::select(ID,Donor,Condition,Replicate)%>% distinct()
 
         all.equal(nrow(scale),nrow(metadata))
         all.equal(nrow(scale),ncol(count$family)) 
