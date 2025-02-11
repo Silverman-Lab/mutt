@@ -19,10 +19,10 @@ parse_2023_maghini_naturebio_metagenomic <- function(YourFolderPaths = NULL){
         # merge qPCR data into one table
         plate_list <- list.files(path = base_path, pattern ="qPCR_plate", full.names = TRUE)
         qPCR <- plate_list %>% 
-        map_dfr(read_csv)%>% # create NA if there is no data in the column in one of the files
-        mutate(ID = gsub("_","-",SampleName))%>% # match the ID in the count table
-        dplyr::select(Plate,ID,Donor,Condition,PCR_Replicate,Replicate,logCopyNumber,CopyNumber) %>%
-        filter(!Condition %in% c("B1","B2","B3","B4")) #have no idea what they are but they are not donor samples so I remove them
+                map_dfr(read_csv)%>% # create NA if there is no data in the column in one of the files
+                mutate(ID = gsub("_","-",SampleName))%>% # match the ID in the count table
+                dplyr::select(Plate,ID,Donor,Condition,PCR_Replicate,Replicate,logCopyNumber,CopyNumber) %>%
+                filter(!Condition %in% c("B1","B2","B3","B4")) #have no idea what they are but they are not donor samples so I remove them
 
         # there are few samples (water and buffer) that are not in the taxonomic data, remove them
         filtersample <- setdiff(qPCR$ID,colnames(tax_list$family)) 
@@ -34,10 +34,14 @@ parse_2023_maghini_naturebio_metagenomic <- function(YourFolderPaths = NULL){
 
         # Note: There are two PCR_replicate, so that in the qPCR sample, the total obs is 410, but the unique obs is 205 in the taxonomic data.
         # I am not sure which replicate to remove, so I will keep the first one but you can change to another based on the PCR_replicate column.
-        scale <- qPCR %>% filter(PCR_Replicate == "Rep1") %>% dplyr::select(ID,logCopyNumber,CopyNumber)
+        scale <- qPCR %>% 
+                 filter(PCR_Replicate == "Rep1") %>% 
+                 dplyr::select(ID,logCopyNumber,CopyNumber)
 
         # exrtact metadata
-        metadata <- qPCR %>% dplyr::select(ID,Donor,Condition,Replicate) %>% distinct()
+        metadata <- qPCR %>% 
+                 dplyr::select(ID,Donor,Condition,Replicate) 
+                 %>% distinct()
 
         all.equal(nrow(scale),nrow(metadata))
         all.equal(nrow(scale),ncol(count$family)) 
