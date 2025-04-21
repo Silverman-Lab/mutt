@@ -16,10 +16,10 @@ parse_2020_zemb_microOpen_spike <- function() {
     library(readr)
 
     # --- Metadata ---
-    metadata_zip <- "2020_zemb_microOpen_spike/zemb_metadata.csv.zip"
-    metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
-    metadata_path <- unzip(metadata_zip, files = metadata_csv, exdir = tempdir(), overwrite = TRUE)
-    metadata <- read.csv(metadata_path, row.names = 1, stringsAsFactors = FALSE)
+    metadata_zip <- "2020_barlow_naturecommunications_miceGI/metadata.xlsx.zip"
+    metadata_xlsx <- unzip(metadata_zip, list = TRUE)$Name[1]
+    metadata_path <- unzip(metadata_zip, files = metadata_xlsx, exdir = tempdir(), overwrite = TRUE)
+    metadata <- read_excel(metadata_path, sheet="Sheet1")
 
     sra_metadata_zip <- "2020_zemb_microOpen_spike/SraRunTable.csv.zip"
     sra_metadata_csv <- unzip(sra_metadata_zip, list = TRUE)$Name[1]
