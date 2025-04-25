@@ -1,63 +1,178 @@
-library(dplyr)
-library(tidyr)
-library(readr)
-library(tidyverse)
+parse_2023_maghini_naturebio_metagenomic <- function() {
+  required_pkgs <- c("tibble", "tidyverse", "readr", "purrr")
+  missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
+  if (length(missing_pkgs) > 0) {
+    stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
+         ". Please install them before running this function.")
+  }
+  library(tibble)
+  library(tidyverse)
+  library(readr)
+  library(purrr)
 
-parse_2023_maghini_naturebio_metagenomic <- function(YourFolderPaths = NULL){
+  local           <- "2023_maghini_naturebiotechnology_samplemeasurement/"
+  motus_zip       <- paste0(local, "PRJNA940499_motus_merged.tsv.zip")
+  metaphlan4_zip  <- paste0(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")
 
-        # save all data in one folder and change the path to the directory to that path
-        base_path <-YourFolderPaths
+  # ----- Initialize everything as NA -----
+  counts_original <- NA
+  proportions_original <- NA
+  tax_original <- NA
+  mOTU3_counts <- NA
+  mOTU3_proportions <- NA
+  mOTU3_tax <- NA
+  MetaPhlAn4_counts <- NA
+  MetaPhlAn4_proportions <- NA
+  MetaPhlAn4_tax <- NA
 
-        # merge count data with taxonomic level into a list, if you want to call the data for genus, use tax_list$genus for example.
-        tax_level <- c("class","family","genus","kingdom","order","phylum")
-        file_path <- paste0(path = base_path, pattern ="/bracken_",tax_level,"_reads.txt")
-        tax_list <- lapply(file_path, function(file) {
-        read.table(file,header = TRUE, sep = "\t", row.names = 1, check.names = FALSE, stringsAsFactors = FALSE)
-        })
-        names(tax_list) <- tax_level
+  # ----- Read taxonomic counts -----
+  tax_files  <- paste0(local, "/bracken_", tax_levels, "_reads.txt")
+  tax_levels <- c("kingdom", "phylum", "class", "order", "family", "genus")
+  raw_counts <- setNames(lapply(tax_files, function(f) {
+    read.table(f, header = TRUE, sep = "\t", row.names = 1,
+             check.names = FALSE, stringsAsFactors = FALSE)
+  }), tax_levels)
 
-        # merge qPCR data into one table
-        plate_list <- list.files(path = base_path, pattern ="qPCR_plate", full.names = TRUE)
-        qPCR <- plate_list %>% 
-                map_dfr(read_csv)%>% # create NA if there is no data in the column in one of the files
-                mutate(ID = gsub("_","-",SampleName))%>% # match the ID in the count table
-                dplyr::select(Plate,ID,Donor,Condition,PCR_Replicate,Replicate,logCopyNumber,CopyNumber) %>%
-                filter(!Condition %in% c("B1","B2","B3","B4")) #have no idea what they are but they are not donor samples so I remove them
+  renamed <- imap(raw_counts, function(df, level) {
+    orig <- rownames(df)
+    new  <- paste0("Taxon_", seq_along(orig))
+    list(
+      counts = `rownames<-`(df, new),
+      tax    = tibble(Taxon = new, OriginalName = orig)
+    )
+  })
+         
+  counts_original  <- map(renamed, "counts")
+  tax_original     <- map(renamed, "tax")
 
-        # there are few samples (water and buffer) that are not in the taxonomic data, remove them
-        filtersample <- setdiff(qPCR$ID,colnames(tax_list$family)) 
-        qPCR <- qPCR %>% filter(!ID %in% filtersample)
+  # ------- Proportions ----------
+  proportions_original <- map(counts_original, function(df) {
+    rsums <- rowSums(df)
+    prop  <- sweep(df, 1, rsums, FUN = "/")
+    prop[is.nan(prop)] <- 0
+    return(as_tibble(prop, rownames = "Taxon"))
+  })
 
-        # remove non-donor samples from the taxonomic data
-        filtersample <- setdiff(colnames(tax_list$family),qPCR$ID)
-        count <- lapply(tax_list, function(x) x[,-which(colnames(x) %in% filtersample)])
+  # ----- Read and filter qPCR data -----
+  plate_list <- list.files(path = base_path, pattern = "qPCR_plate", full.names = TRUE)
+  qPCR <- plate_list %>%
+    map_dfr(read_csv) %>%
+    mutate(ID = gsub("_", "-", SampleName)) %>%
+    dplyr::select(Plate, ID, Donor, Condition, PCR_Replicate, Replicate, logCopyNumber, CopyNumber) 
 
-        # Note: There are two PCR_replicate, so that in the qPCR sample, the total obs is 410, but the unique obs is 205 in the taxonomic data.
-        # I am not sure which replicate to remove, so I will keep the first one but you can change to another based on the PCR_replicate column.
-        scale <- qPCR %>% 
-                 filter(PCR_Replicate == "Rep1") %>% 
-                 dplyr::select(ID,logCopyNumber,CopyNumber)
+  scale = qPCR %>%  
+    dplyr::select(ID, logCopyNumber, CopyNumber)
+    group_by(ID) %>%
+    summarise(
+      mean_CopyNumber     = mean(CopyNumber, na.rm = TRUE),
+      sd_CopyNumber       = sd(CopyNumber, na.rm = TRUE),
+      mean_logCopyNumber  = mean(logCopyNumber, na.rm = TRUE),
+      sd_logCopyNumber    = sd(logCopyNumber, na.rm = TRUE),
+      n_reps              = n()
+     )
 
+<<<<<<< Updated upstream
         # exrtact metadata
         metadata <- qPCR %>% 
                  dplyr::select(ID,Donor,Condition,Replicate)%>% distinct()
+=======
+  # ----- Extract and deduplicate metadata -----
+  metadata <- qPCR %>%
+    dplyr::select(ID, Donor, Condition, Replicate) %>%
+    distinct()
+>>>>>>> Stashed changes
 
-        all.equal(nrow(scale),nrow(metadata))
-        all.equal(nrow(scale),ncol(count$family)) 
+  # ----- SRA metadata and merge -----
+  metadatafromsra_path <- paste0(base_path, "/SraRunTable (3).csv")
+  metadatafromsra <- read.csv(metadatafromsra_path, check.names = FALSE) %>%
+    mutate(Library.Name = gsub("(_DNA)", "", Library.Name))
 
-        warning("NOTE1:The data is ready to be used, since the author upload count data with different taxonomic level, 
-                I put them in a list, so you can call the count data based on the taxonomic level such as count$genus; 
-                if you need the taxa name, just call the rownames(count$genus) to get the taxa name.")
+  scale$ID <- gsub("-", "_", scale$ID)
+  metadata$ID <- gsub("-", "_", metadata$ID)
 
-        warning("NOTE2: Below are the information for metadata$condition:
-                N = no preservative
-                O = Omni preservative
-                Z = Zymo preservative
-                F = Frozen (-80C) right away
-                H = hot temperature (40C)
-                R = room temperature (23C))")
+  metadata <- merge(
+    metadatafromsra, metadata,
+    by.x = "Library.Name",
+    by.y = "ID",
+    all = TRUE
+  )
 
-    return(list(scale=scale,count=count,metadata=metadata))
+  # ----- mOTU3 Reprocessed -----
+  if (file.exists(motus_zip)) {
+    motus_files <- unzip(motus_zip, list = TRUE)
+    motus_filename <- motus_files$Name[grepl("\\.tsv$", motus_files$Name)][1]
+    if (!is.na(motus_filename)) {
+        temp_dir <- tempdir()
+        unzip(motus_zip, files = motus_filename, exdir = temp_dir, overwrite = TRUE)
+        motus_path <- file.path(temp_dir, motus_filename)
+        df <- read_tsv(motus_path)
+        rownames(df) <- df[[1]]
+        df[[1]] <- NULL
+        proportions <- apply(df, 2, function(col) col / sum(col))
+        tax_df <- data.frame(taxa = rownames(df)) %>%
+        mutate(taxa = str_trim(taxa)) %>%
+        separate(taxa,
+                into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
+                sep = "\\s*;\\s*", extra = "drop", fill = "right")
+        rownames(tax_df) <- rownames(df)
 
+        mOTU3_counts <- df
+        mOTU3_proportions <- proportions
+        mOTU3_tax <- tax_df
+    }
+  }
+
+  # ----- MetaPhlAn4 Reprocessed -----
+  if (file.exists(metaphlan4_zip)) {
+    metaphlan4_files <- unzip(metaphlan4_zip, list = TRUE)
+    metaphlan4_filename <- metaphlan4_files$Name[grepl("\\.tsv$", metaphlan4_files$Name)][1]
+    if (!is.na(metaphlan4_filename)) {
+        temp_dir <- tempdir()
+        unzip(metaphlan4_zip, files = metaphlan4_filename, exdir = temp_dir, overwrite = TRUE)
+        path <- file.path(temp_dir, metaphlan4_filename)
+        df <- read_tsv(path)
+        rownames(df) <- df[[1]]
+        df[[1]] <- NULL
+        proportions <- apply(df, 2, function(col) col / sum(col))
+        tax_df <- data.frame(taxa = rownames(df)) %>%
+        mutate(taxa = str_trim(taxa)) %>%
+        separate(taxa,
+                into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
+                sep = "\\s*;\\s*", extra = "drop", fill = "right")
+        rownames(tax_df) <- rownames(df)
+
+        MetaPhlAn4_counts <- df
+        MetaPhlAn4_proportions <- proportions
+        MetaPhlAn4_tax <- tax_df
+    }
+  }
+
+  # ----- Return -----
+  return(list(
+    counts = list(
+      original = counts_original,
+      reprocessed = list(
+        mOTU3 = mOTU3_counts,
+        MetaPhlAn4 = MetaPhlAn4_counts
+      )
+    ),
+    proportions = list(
+      original = proportions_original,
+      reprocessed = list(
+        mOTU3 = mOTU3_proportions,
+        MetaPhlAn4 = MetaPhlAn4_proportions
+      )
+    ),
+    tax = list(
+      original = tax_original,
+      reprocessed = list(
+        mOTU3 = mOTU3_tax,
+        MetaPhlAn4 = MetaPhlAn4_tax
+      )
+    ),
+    scale = scale,
+    metadata = metadata
+  ))
 }
+
 

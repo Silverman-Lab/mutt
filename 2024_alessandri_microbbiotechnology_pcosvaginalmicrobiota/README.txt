@@ -7,6 +7,13 @@ paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC11450379/#sec25
 
 Ten patients with clinical signs of PCOS were enrolled for the in vivo pilot study at Agunco Obstetric and Gynecologic Centre (Rome, Italy). evaluate the possible impact of orally administrated α‐LA on vaginal microbiota in such patients, all the women underwent a 30‐day oral administration of α‐LA (300 mg/twice a day), and two vaginal swabs were collected from each patient: one before (baseline—T0) and one after (T1) α‐LA administration.
 
+Count tables/relative abundances/ASV-sequences processed by Maxwell Konnaris 04/09/25. Count tables and taxa sequences not provided by the study.
+
+Relative Abundances are provided by the study, but Maxwell reprocessed. Theirs is in Table S9
+
+all data collected by Maxwell Konnaris
+
+parse.R finished 04/09/25
 
 
 

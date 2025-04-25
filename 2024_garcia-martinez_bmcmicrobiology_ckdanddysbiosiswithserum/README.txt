@@ -9,5 +9,11 @@ Demographic and clinical parameters were retrieved from the subjects’ medical 
 Serum concentrations of lanthionine were quantified 
 Serum H2S was quantified using the methylene blue method 
 
+Count tables/relative abundances/ASV-sequences processed by Maxwell Konnaris 04/09/25 and not provided by the study.
+
+all data collected by Maxwell Konnaris
+
+parse.R finished 04/09/25
+
 
 
