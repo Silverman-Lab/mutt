@@ -71,16 +71,10 @@ parse_2023_maghini_naturebio_metagenomic <- function() {
       n_reps              = n()
      )
 
-<<<<<<< Updated upstream
-        # exrtact metadata
-        metadata <- qPCR %>% 
-                 dplyr::select(ID,Donor,Condition,Replicate)%>% distinct()
-=======
   # ----- Extract and deduplicate metadata -----
   metadata <- qPCR %>%
     dplyr::select(ID, Donor, Condition, Replicate) %>%
     distinct()
->>>>>>> Stashed changes
 
   # ----- SRA metadata and merge -----
   metadatafromsra_path <- paste0(base_path, "/SraRunTable (3).csv")
