@@ -9,13 +9,16 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function() {
   library(tidyverse)
   library(readxl)
 
-  # ----- File paths -----
-  metadata_zip        <- "2022_dreier_bmcmicrobiology_cheeseqpcr/SraRunTable (30).csv"
-  scale_zip           <- "2022_dreier_bmcmicrobiology_cheeseqpcr/V18-22-21_htqpcr_rawdata.csv.zip"
-  orig_counts_zip     <- "2022_dreier_bmcmicrobiology_cheeseqpcr/V18-22-21_ASV_counts_table.csv.zip"
-  orig_prop_zip       <- NA
-  repro_counts_rds_zip<- "2022_dreier_bmcmicrobiology_cheeseqpcr/PRJNA786903_dada2_merged_nochim.rds.zip"
-  repro_tax_zip       <- "2022_dreier_bmcmicrobiology_cheeseqpcr/PRJNA786903_dada2_taxonomy_merged.rds.zip"
+    # ----- Local base directory -----
+    local <- file.path("2022_dreier_bmcmicrobiology_cheeseqpcr")
+
+    # ----- File paths -----
+    metadata_zip         <- file.path(local, "SraRunTable (30).csv")
+    scale_zip            <- file.path(local, "V18-22-21_htqpcr_rawdata.csv.zip")
+    orig_counts_zip      <- file.path(local, "V18-22-21_ASV_counts_table.csv.zip")
+    orig_prop_zip        <- NA
+    repro_counts_rds_zip <- file.path(local, "PRJNA786903_dada2_merged_nochim.rds.zip")
+    repro_tax_zip        <- file.path(local, "PRJNA786903_dada2_taxonomy_merged.rds.zip")
 
   # ----- Original counts from CSV.zip -----
   if (file.exists(orig_counts_zip)) {

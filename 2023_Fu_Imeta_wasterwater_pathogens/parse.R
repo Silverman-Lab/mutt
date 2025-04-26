@@ -8,15 +8,16 @@ parse_2023_Fu_Imeta_wasterwater_pathogens <- function() {
   library(tibble)
   library(tidyverse)
 
-  local               <- "2023_Fu_Imeta_wasterwater_pathogens/"
-  scale_meta_prop_zip <- paste0(local, "data.xlsx.gz")
-  mock_scale_zip      <- paste0(local, "sheet2.csv.zip")
-  mock_prop_zip       <- paste0(local, "sheet1_pivoted.csv")
+    # ----- Local base directory -----
+    local <- file.path("2023_Fu_Imeta_wasterwater_pathogens")
 
-  metadata_zip        <- paste0(local, "SraRunTable (30).csv.zip")
-  motus_zip           <- paste0(local, "PRJNA860773_motus_merged.tsv.zip"
-  metaphlan4_zip      <- paste0(local, "PRJNA860773_MetaPhlAn_merged.tsv.zip"
-
+    # ----- File paths -----
+    scale_meta_prop_zip  <- file.path(local, "data.xlsx.gz")
+    mock_scale_zip       <- file.path(local, "sheet2.csv.zip")
+    mock_prop_zip        <- file.path(local, "sheet1_pivoted.csv.zip")
+    metadata_zip         <- file.path(local, "SraRunTable (30).csv.zip")
+    motus_zip            <- file.path(local, "PRJNA860773_motus_merged.tsv.zip")
+    metaphlan4_zip       <- file.path(local, "PRJNA860773_MetaPhlAn_merged.tsv.zip")
 
   # scale
   unzipped_xlsx <- tempfile(fileext = ".xlsx")
@@ -24,7 +25,6 @@ parse_2023_Fu_Imeta_wasterwater_pathogens <- function() {
 #   scale_data <- read_excel(unzipped_xlsx, sheet = 4) 
 
   # metadata
-  metadata_zip <- "2023_Fu_Imeta_wasterwater_pathogens/SraRunTable (30).csv.zip"
   csv_name <- unzip(metadata_zip, list = TRUE)$Name[1]
   metadata <- read.csv(unz(metadata_zip, csv_name), check.names = FALSE)
   metadata_1 <- read_excel(unzipped_xlsx, sheet = 2) 

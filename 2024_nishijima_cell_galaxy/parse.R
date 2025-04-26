@@ -9,19 +9,29 @@ parse_2024_nishijima_cell_galaxy <- function(bind_all = FALSE) {
   library(stringr)
   library(tidyverse)
 
-  local <- "2024_nishijima_cell_galaxy/"
+  # ----- Local base directory -----
+  local <- file.path("2024_nishijima_cell_galaxy")
+
+  # ----- Dataset prefixes -----
   prefixes <- c("GALA-ALD", "GALA-HP", "AlcoChallenge", "GALA-RIF", "GastricBypass",
                 "HCO", "GALA-POSTBIO", "HOLABEK")
 
-  motus_files <- setNames(paste0(local, c(
+  # ----- File IDs corresponding to each prefix -----
+  project_ids <- c(
     "PRJEB76661", "PRJEB76664", "PRJEB76662", "PRJEB76667",
     "PRJEB76666", "PRJEB81698", "PRJEB76668", "PRJEB81697"
-  ), "_motus_merged.tsv.zip"), prefixes)
+  )
 
-  metaphlan_files <- setNames(paste0(local, c(
-    "PRJEB76661", "PRJEB76664", "PRJEB76662", "PRJEB76667",
-    "PRJEB76666", "PRJEB81698", "PRJEB76668", "PRJEB81697"
-  ), "_MetaPhlAn_merged.tsv.zip"), prefixes)
+  # ----- File paths -----
+  motus_files <- setNames(
+    file.path(local, paste0(project_ids, "_motus_merged.tsv.zip")),
+    prefixes
+  )
+
+  metaphlan_files <- setNames(
+    file.path(local, paste0(project_ids, "_MetaPhlAn_merged.tsv.zip")),
+    prefixes
+  )
 
   # ----- Load Scale & Metadata -----
   dat <- read.table(paste0(local, "GALAXY_load.tsv.gz"), header = TRUE)

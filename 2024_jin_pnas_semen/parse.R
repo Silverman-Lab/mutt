@@ -1,5 +1,4 @@
 parse_2024_jin_pnas_semen <- function(paths = NULLL) {
-  # Check for required packages
   required_pkgs <- c("tidyverse", "readxl", "stringr", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
@@ -8,20 +7,24 @@ parse_2024_jin_pnas_semen <- function(paths = NULLL) {
       ". Please install them before running this function."
     )
   }
-  
-  # Load libraries
+
   library(tidyverse)
   library(readxl)
   library(stringr)
   library(readr)
   
-  localPath <- file.path("/2024_jin_pnas_semen/")
+  # -----local path ---------------------------
+  localPath <- file.path("2024_jin_pnas_semen")
+
+  # ---------- file paths ---------------------
+  repro_counts_rds_zip<- file.path(localPath, "PRJNA747100_dada2_merged_nochim.rds.zip")
+  repro_tax_zip       <- file.path(localPath, "PRJNA747100_dada2_taxonomy_merged.rds.zip")
   
-  metadata <- as.data.frame(read_table(paste0(localPath, "metadata4.txt")))
+  
+  metadata <- as.data.frame(read_table(file.path(localPath, "metadata4.txt")))
   rownames(metadata) <- metadata$`sample-ID`
   metadata <- subset(metadata, select = -`sample-ID`)
   metadata <- metadata[!(rownames(metadata) %in% c("S1", "S13", "SN", "SNTC")), ]
-  
   
   counts <- as.data.frame(read_tsv(paste0(localPath, "table.tsv"), skip = 1))
   rownames(counts) <- counts$`#OTU ID`
@@ -38,10 +41,21 @@ parse_2024_jin_pnas_semen <- function(paths = NULLL) {
   rownames(scale) <- scale$`sample-ID`
   scale <- subset(scale, select = -`sample-ID`)
   scale <- t(scale)
-  
-  repro_counts_rds_zip<- paste0(localPath, "PRJNA747100_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- paste0(localPath, "PRJNA747100_dada2_taxonomy_merged.rds.zip")
-  
+
+  # --- Compute proportions from counts ---
+  proportions <- counts
+  proportions[] <- lapply(
+  proportions,
+  function(col) {
+      if (is.numeric(col)) {
+      total <- sum(col, na.rm = TRUE)
+      if (total == 0) return(rep(NA, length(col)))
+      return(col / total)
+      } else {
+      return(col)
+      }
+  }
+  )
   
   # ----- Reprocessed counts from RDS ZIP -----
   temp_rds            <- tempfile(fileext = ".rds")

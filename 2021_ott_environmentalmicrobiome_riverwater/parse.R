@@ -9,19 +9,20 @@ parse_2021_ott_environmentalmicrobiome_riverwater <- function() {
   library(tidyverse)
   library(readr)
 
-  local               <- "2021_ott_environmentalmicrobiome_riverwater/"
-  metadata_zip        <- paste0(local, "metadata.csv.zip")
-  repro_counts_rds_zip<- paste0(local, "PRJEB42314_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- paste0(local, "PRJEB42314_dada2_taxonomy_merged.rds.zip")
+  # ----- Local base directory -----
+  local <- file.path("2021_ott_environmentalmicrobiome_riverwater")
 
+  # ----- File paths -----
+  metadata_zip         <- file.path(local, "metadata.csv.zip")
+  repro_counts_rds_zip <- file.path(local, "PRJEB42314_dada2_merged_nochim.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJEB42314_dada2_taxonomy_merged.rds.zip")
 
   # ------ metadata and scale -----
   meta_csv     <- unzip(metadata_zip, list = TRUE)$Name[1]
   meta_con     <- unz(metadata_zip, meta_csv)
   metadata     <- read.csv(meta_con) %>% as.data.frame()
 
-  scale <- metadata %>%
-                dplyr::select("accession", "S16_rRNA_n")
+  scale <- metadata %>% dplyr::select("accession", "S16_rRNA_n")
 
   # ----- Reprocessed counts from RDS ZIP -----
   temp_rds            <- tempfile(fileext = ".rds")

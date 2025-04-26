@@ -9,9 +9,9 @@ parse_2023_pereira_nature_nervous <- function(paths = NULL) {
   require(stringr)
   library(tidyverse)
 
-  localPath <- file.path("/2023_pereira_nature_nervous/")
-
   # ---------- MANAN PROCESSED BELOW ----------
+
+  # localPath <- "/2023_pereira_nature_nervous/"
 
   # decompressed_file <- gunzip(paste0(localPath, "all-relevant-data.xlsx.gz"), remove = FALSE)
   
@@ -74,11 +74,16 @@ parse_2023_pereira_nature_nervous <- function(paths = NULL) {
 
   # ------ MAXWELL PROCESSED BELOW ------------
 
-  repro_counts_rds_zip<- paste0(localPath, "PRJNA1033532_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- paste0(localPath, "PRJNA1033532_dada2_taxonomy_merged.rds.zip")
-  scale_16s_zip     <- paste0(local, "Pereira2023_scale.csv.zip")
-  counts_16s_zip    <- paste0(local, "Pereira_2023_16S.csv.zip")
-  metadata_16s_zip  <- paste0(local, "Pereira_2023_metadata.csv.zip") 
+  # ----- Local base directory -----
+  local <- file.path("2023_pereira_nature_nervous")
+
+  # ----- File paths -----
+  repro_counts_rds_zip <- file.path(local, "PRJNA1033532_dada2_merged_nochim.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJNA1033532_dada2_taxonomy_merged.rds.zip")
+  scale_16s_zip        <- file.path(local, "Pereira2023_scale.csv.zip")
+  counts_16s_zip       <- file.path(local, "Pereira_2023_16S.csv.zip")
+  metadata_16s_zip     <- file.path(local, "Pereira_2023_metadata.csv.zip")
+
 
   read_zipped_csv <- function(zip_path) {
     if (file.exists(zip_path)) {

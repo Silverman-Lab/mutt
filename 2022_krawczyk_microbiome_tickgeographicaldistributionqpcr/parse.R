@@ -9,14 +9,16 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function() {
   library(tidyverse)
   library(readxl)
 
+  # ----- Local base directory -----
+  local <- file.path("2022_krawczyk_microbiome_tickgeographicaldistributionqpcr")
+
   # ----- File paths -----
-  local               <- "2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/"
-  metadata_two_zip    <- paste0(local, "40168_2022_1276_MOESM1_ESM.zip")
-  metadata_zip        <- paste0(local, "SraRunTable (30).csv")
-  counts_zip          <- paste0(local, "40168_2022_1276_MOESM3_ESM.zip")
-  scale_zip           <- paste0(local, "scale_qpcr.zip")
-  repro_counts_rds_zip<-  paste0(local, "PRJNA813158_dada2_merged_nochim.rds.zip"
-  repro_tax_zip       <-  paste0(local, "PRJNA813158_dada2_taxonomy_merged.rds.zip"
+  metadata_two_zip     <- file.path(local, "40168_2022_1276_MOESM1_ESM.zip")
+  metadata_zip         <- file.path(local, "SraRunTable (30).csv")
+  counts_zip           <- file.path(local, "40168_2022_1276_MOESM3_ESM.zip")
+  scale_zip            <- file.path(local, "scale_qpcr.zip")
+  repro_counts_rds_zip <- file.path(local, "PRJNA813158_dada2_merged_nochim.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJNA813158_dada2_taxonomy_merged.rds.zip")
 
   # ----- Scale -----
   if (file.exists(scale_zip)) {

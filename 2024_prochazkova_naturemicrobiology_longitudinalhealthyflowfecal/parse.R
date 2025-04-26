@@ -9,11 +9,14 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
   library(tidyverse)
   library(readxl)
 
-  local               <- file.path("/2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal/")
-  repro_counts_rds_zip<- paste0(local, "PRJNA1233249_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- paste0(local, "PRJNA1233249_dada2_taxonomy_merged.rds.zip")
-  metadata_zip        <- paste0(local, "SraRunTable.csv.zip")
-  scale_zip           <- paste0(local, "41564_2024_1856_MOESM4_ESM_.xlsx.zip")
+  # ----- Local base directory -----
+  local <- file.path("2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal")
+
+  # ----- File paths -----
+  repro_counts_rds_zip <- file.path(local, "PRJNA1233249_dada2_merged_nochim.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxonomy_merged.rds.zip")
+  metadata_zip         <- file.path(local, "SraRunTable.csv.zip")
+  scale_zip            <- file.path(local, "41564_2024_1856_MOESM4_ESM_.xlsx.zip")
 
   counts <- NA
   proportions <- NA

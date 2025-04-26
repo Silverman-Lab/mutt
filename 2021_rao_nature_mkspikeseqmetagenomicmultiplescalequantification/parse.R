@@ -1,24 +1,26 @@
 parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- function() {
-  
-  # -------------------------------------------------------------
-  # 1) Check and load required packages
-  # -------------------------------------------------------------
   required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
-  
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
-  
   library(tidyverse)
   library(readxl)
-  
-  # -------------------------------------------------------------
-  # 2) Read Counts + Taxonomy from combined_p1_p2.xlsx.zip
-  # -------------------------------------------------------------
-  counts_zip <- "2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/combined_p1_p2.xlsx.zip"
-  
+
+  # ----- Local base directory -----
+  local <- file.path("2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification")
+
+  # ----- File paths -----
+  counts_zip          <- file.path(local, "combined_p1_p2.xlsx.zip")
+  supplemental_zip    <- file.path(local, "41586_2021_3241_MOESM4_ESM.xlsx.zip")
+  sex_delivery_zip    <- file.path(local, "SI_data3_sex_and_delivery_data.csv.zip")
+  diet_data_zip       <- file.path(local, "SI_data2_diet_data.csv.zip")
+  meds_data_zip       <- file.path(local, "SI_data1_allMeds_jan2020.xlsx.zip")
+  sra_metadata_zip    <- file.path(local, "sra_metadata.csv.zip")
+  repro_counts_rds_zip<- file.path(local, "PRJEB36435_dada2_merged_nochim.rds.zip")
+  repro_tax_zip       <- file.path(local, "PRJEB36435_dada2_taxonomy_merged.rds.zip")
+
   counts_bacteria <- NULL
   counts_fungi    <- NULL
   taxa_bacteria   <- NULL
@@ -75,10 +77,6 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
     }
   }
   
-  # -------------------------------------------------------------
-  # 3) Read Supplemental Data from 41586_2021_3241_MOESM4_ESM.xlsx.zip
-  # -------------------------------------------------------------
-  supplemental_zip <- "41586_2021_3241_MOESM4_ESM.xlsx.zip"
   table_3b <- NULL
   table_3c <- NULL
   table_3d <- NULL
@@ -223,9 +221,6 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
     warning("Supplemental zip file not found: ", supplemental_zip)
   }
   
-  # -------------------------------------------------------------
-  # 4) Calculate Proportions
-  # -------------------------------------------------------------
   proportions_bacteria <- NULL
   proportions_fungi <- NULL
   proportions_bacteria_phase2 <- NULL
@@ -271,14 +266,6 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
     proportions_archaea <- sweep(counts_archaea_num, 1, row_sums_arc, "/")
     proportions_archaea[is.na(proportions_archaea)] <- 0
   }
-  
-  # -------------------------------------------------------------
-  # 5) Read and merge metadata
-  # -------------------------------------------------------------
-  sex_delivery_zip <- "SI_data3_sex_and_delivery_data.csv.zip"
-  diet_data_zip    <- "SI_data2_diet_data.csv.zip"
-  meds_data_zip    <- "SI_data1_allMeds_jan2020.xlsx.zip"
-  sra_metadata_zip <- "sra_metadata.csv.zip"  # New metadata file
   
   metadata <- NULL
   
@@ -353,10 +340,6 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   if (!is.null(metadata)) {
     metadata <- as.data.frame(metadata)
   }
-
-  local               <-  "2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/"
-  repro_counts_rds_zip<-  paste0(local, "PRJEB36435_dada2_merged_nochim.rds.zip"
-  repro_tax_zip       <-  paste0(local, "PRJEB36435_dada2_taxonomy_merged.rds.zip"
 
   # ----- Reprocessed counts from RDS ZIP -----
   temp_rds            <- tempfile(fileext = ".rds")

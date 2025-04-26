@@ -1,5 +1,4 @@
-parse_2020_zemb_microOpen_spike <- function() {
-    # Check for required packages
+parse_2020_barlow_naturecommunications_miceGI <- function() {
     required_pkgs <- c("tidyverse", "readxl", "stringr", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -15,36 +14,54 @@ parse_2020_zemb_microOpen_spike <- function() {
     library(stringr)
     library(readr)
 
-    # --- Metadata ---
-    metadata_zip <- "2020_barlow_naturecommunications_miceGI/metadata.xlsx.zip"
+    # ----- Local base directory -----
+    local <- file.path("2020_barlow_naturecommunications_miceGI")
+
+    # ----- File paths -----
+    metadata_zip         <- file.path(local, "metadata.xlsx.zip")
+    sra_metadata_zip     <- file.path(local, "SraRunTable (32).csv.zip")
+    counts_zip           <- NA  # No original counts provided
+    proportions_zip      <- file.path(local, "Relative_Abundance_Table.csv.zip")
+    scale_zip            <- file.path(local, "loaddata.csv.zip")
+    repro_counts_rds_zip <- file.path(local, "PRJNA575097_dada2_merged_nochim.rds.zip")
+    repro_tax_zip        <- file.path(local, "PRJNA575097_dada2_taxonomy_merged.rds.zip")
+
+    # --- proportions ---
+    prop_csv <- unzip(proportions_zip, list = TRUE)$Name[1]
+    prop_path <- unzip(proportions_zip, files = prop_csv, exdir = tempdir(), overwrite = TRUE)
+    proportions <- read.csv(prop_path, row.names = 1, check.names = FALSE, stringsAsFactors = FALSE)
+
+    # --- Assign Taxon_1 ... Taxon_N as rownames and store original names ---
+    original_taxa <- rownames(proportions)
+    taxon_ids <- paste0("Taxon_", seq_len(nrow(proportions)))
+    rownames(proportions) <- taxon_ids
+
+    # --- Create taxa dataframe (lookup table) ---
+    tax <- data.frame(
+    Taxon = taxon_ids,
+    Original_Taxa = original_taxa,
+    stringsAsFactors = FALSE
+    )
+
+    # ----- metadata ------
     metadata_xlsx <- unzip(metadata_zip, list = TRUE)$Name[1]
     metadata_path <- unzip(metadata_zip, files = metadata_xlsx, exdir = tempdir(), overwrite = TRUE)
     metadata <- read_excel(metadata_path, sheet="Sheet1")
 
-    sra_metadata_zip <- "2020_zemb_microOpen_spike/SraRunTable.csv.zip"
     sra_metadata_csv <- unzip(sra_metadata_zip, list = TRUE)$Name[1]
     sra_metadata_path <- unzip(sra_metadata_zip, files = sra_metadata_csv, exdir = tempdir(), overwrite = TRUE)
     sra_metadata <- read.csv(sra_metadata_path, row.names = 1, stringsAsFactors = FALSE)
-    rownames(sra_metadata) <- sra_metadata$Sample.Name
+    rownames(sra_metadata) <- sra_metadata$`Sample Name`
     sra_metadata <- subset(sra_metadata, select = -Sample.Name)
-    rownames(sra_metadata) <- paste0("oz1802-", str_extract(rownames(sra_metadata), "(?<=Tube).*")) 
 
-    # --- Counts ---
-    counts_zip <- "2020_zemb_microOpen_spike/zemb_counts.csv.zip"
-    counts_csv <- unzip(counts_zip, list = TRUE)$Name[1]
-    counts_path <- unzip(counts_zip, files = counts_csv, exdir = tempdir(), overwrite = TRUE)
-    counts <- read.csv(counts_path, row.names = 1, stringsAsFactors = FALSE)
-
-    # Rename count columns
-    colnames(counts) <- paste0("oz1802-", str_extract(colnames(counts), "(?<=Tube).*"))
+    # Sample names are all screwed up across SRA, loaddata, and metadata -- cant merge them. 
+    
 
     # --- Scale (qPCR) ---
-    scale_zip <- "2020_zemb_microOpen_spike/zemb_qPCR.csv.zip"
     scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
     scale_path <- unzip(scale_zip, files = scale_csv, exdir = tempdir(), overwrite = TRUE)
     scale <- read.csv(scale_path, row.names = 1, stringsAsFactors = FALSE)
 
-    counts <- counts[, colnames(counts) %in% rownames(metadata)]
     metadata <- metadata[rownames(metadata) %in% colnames(counts), ]
     scale <- scale[rownames(scale) %in% colnames(counts), ]
     sra_metadata <- sra_metadata[rownames(sra_metadata) %in% colnames(counts), ]
@@ -52,14 +69,48 @@ parse_2020_zemb_microOpen_spike <- function() {
     # Merge sra_metadata and metadata
     metadata <- cbind(metadata, sra_metadata[rownames(metadata), , drop = FALSE])
 
-    # Check alignment
-    all.equal(rownames(metadata), rownames(scale))
-    all.equal(colnames(counts), rownames(scale))
+    # ----- Reprocessed counts from RDS ZIP -----
+    temp_rds            <- tempfile(fileext = ".rds")
+    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+    rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
+    seqtab_nochim       <- readRDS(rds_file)
+    rpt_mat             <- t(seqtab_nochim)
+    counts_reprocessed  <- as.data.frame(rpt_mat)
+    counts_reprocessed$Sequence <- rownames(counts_reprocessed)
+    counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
+    rownames(counts_reprocessed) <- paste0("Taxon_", seq_len(nrow(counts_reprocessed)))
+
+    # proportions reprocessed
+    proportions_reprocessed = counts_reprocessed
+    proportions_reprocessed[-1] <- lapply(
+        counts_reprocessed[-1],
+        function(col) col / sum(col)
+    )
+
+    # ----- Taxonomy reprocessed -----
+    temp_tax <- tempfile(fileext = ".rds")
+    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+    tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
+    taxonomy_matrix <- readRDS(tax_file)
+    rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
+    tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
+    tax_reprocessed = tax_table
 
     # Return structured list
     return(list(
-        counts = counts,
+        counts = list(
+            original = counts,
+            reprocessed = counts_reprocessed,
+        )
+        tax = list(
+            original = tax,
+            reprocessed = tax_reprocessed,
+        )
+        proportions = list(
+            original = proportions,
+            reprocessed = proportions_reprocessed,
+        )
         metadata = metadata,
-        scale = scale
+        scale = scale,
     ))
 }

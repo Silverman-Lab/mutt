@@ -1,5 +1,5 @@
 parse_2023_maghini_naturebio_metagenomic <- function() {
-  required_pkgs <- c("tibble", "tidyverse", "readr", "purrr")
+  required_pkgs <- c("tibble", "tidyverse", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
@@ -8,11 +8,13 @@ parse_2023_maghini_naturebio_metagenomic <- function() {
   library(tibble)
   library(tidyverse)
   library(readr)
-  library(purrr)
 
-  local           <- "2023_maghini_naturebiotechnology_samplemeasurement/"
-  motus_zip       <- paste0(local, "PRJNA940499_motus_merged.tsv.zip")
-  metaphlan4_zip  <- paste0(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")
+  # ----- Local base directory -----
+  local <- file.path("2023_maghini_naturebiotechnology_samplemeasurement")
+
+  # ----- File paths -----
+  motus_zip      <- file.path(local, "PRJNA940499_motus_merged.tsv.zip")
+  metaphlan4_zip <- file.path(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")
 
   # ----- Initialize everything as NA -----
   counts_original <- NA

@@ -8,13 +8,16 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function() {
   library(tibble)
   library(tidyverse)
 
-  local               <- "2024_kruger_scientificreports_ddpcrhealthysubjects/"
-  counts_zip          <- paste0(local, "41598_2024_75477_MOESM2_ESM.csv.zip")
-  metadata_zip        <- paste0(local, "SraRunTable (30).csv.zip")
-  metadata_zip_1      <- paste0(local, "41598_2024_75477_MOESM3_ESM.csv.zip")
-  metadata_zip_2      <- paste0(local, "41598_2024_75477_MOESM4_ESM.csv.zip")
-  repro_counts_rds_zip<- paste0(local, "PRJNA1162476_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- paste0(local, "PRJNA1162476_dada2_taxonomy_merged.rds.zip")
+  # ----- Local base directory -----
+  local <- file.path("2024_kruger_scientificreports_ddpcrhealthysubjects")
+
+  # ----- File paths -----
+  counts_zip           <- file.path(local, "41598_2024_75477_MOESM2_ESM.csv.zip")
+  metadata_zip         <- file.path(local, "SraRunTable (30).csv.zip")
+  metadata_zip_1       <- file.path(local, "41598_2024_75477_MOESM3_ESM.csv.zip")
+  metadata_zip_2       <- file.path(local, "41598_2024_75477_MOESM4_ESM.csv.zip")
+  repro_counts_rds_zip <- file.path(local, "PRJNA1162476_dada2_merged_nochim.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJNA1162476_dada2_taxonomy_merged.rds.zip")
 
   if (!file.exists(counts_zip)) stop("Counts file not found: ", counts_zip)
 

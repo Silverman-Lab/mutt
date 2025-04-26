@@ -14,7 +14,16 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowandqPCRhealth
   proportions <- NA
   tax <- NA
   
-  metadata_zip <- "2020_galazzo_frontiersincellularandinfectionmicrobiology_flowandqPCRhealthy/SraRunTable.csv.zip"
+  # ----- Local base directory -----
+  local <- file.path("2020_galazzo_frontiersincellularandinfectionmicrobiology_flowandqPCRhealthy")
+
+  # ----- File paths -----
+  metadata_zip         <- file.path(local, "SraRunTable.csv.zip")
+  scale_zip            <- file.path(local, "Table 1.XLSX.zip")
+  repro_counts_rds_zip <- file.path(local, "ERP108719_dada2_merged_nochim.rds.zip")
+  repro_tax_zip        <- file.path(local, "ERP108719_dada2_taxonomy_merged.rds.zip")
+
+
   zip_list <- unzip(metadata_zip, list = TRUE)
   metadata_csv <- zip_list$Name[1]
   metadata_con <- unz(metadata_zip, metadata_csv)
@@ -22,9 +31,9 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowandqPCRhealth
     as.data.frame() %>%
     rownames_to_column("ID")
   
-  scale_zip <- "2020_galazzo_frontiersincellularandinfectionmicrobiology_flowandqPCRhealthy/Table1.zip"
+
   zip_list <- unzip(scale_zip, list = TRUE)
-  scale_xlsx <- zip_list$Name[1]  # Assuming single XLSX file, e.g., "Table1.xlsx"
+  scale_xlsx <- zip_list$Name[1]  
   temp_dir <- tempdir()
   unzip(scale_zip, files = scale_xlsx, exdir = temp_dir, overwrite = TRUE)
   scale_path <- file.path(temp_dir, scale_xlsx)
@@ -75,9 +84,6 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowandqPCRhealth
     column_to_rownames("ID")
   
   unlink(temp_dir, recursive = TRUE)
-
-  repro_counts_rds_zip<- paste0(local, "ERP108719_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- paste0(local, "ERP108719_dada2_taxonomy_merged.rds.zip")
 
   # ----- Reprocessed counts from RDS ZIP -----
   temp_rds            <- tempfile(fileext = ".rds")

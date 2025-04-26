@@ -9,24 +9,30 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function() 
     library(stringr)
     library(tidyverse)
 
-    local               <- "2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/"
-    repro_counts_zips   <- c(
-                            paste0(local, "PRJNA394877_dada2_merged_nochim.rds.zip"),
-                            paste0(local, "PRJNA548153_dada2_taxonomy_merged.rds.zip"),
-                            paste0(local, "PRJNA606262_dada2_taxonomy_merged.rds.zip"),
-                            paste0(local, "PRJNA607574_dada2_taxonomy_merged.rds.zip"),
-                            paste0(local, "PRJNA545312_dada2_merged_nochim.rds.zip")
+    # ----- Local base directory -----
+    local <- file.path("2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct")
+
+    # ----- File paths -----
+    repro_counts_zips <- c(
+    file.path(local, "PRJNA394877_dada2_merged_nochim.rds.zip"),
+    file.path(local, "PRJNA548153_dada2_taxonomy_merged.rds.zip"),
+    file.path(local, "PRJNA606262_dada2_taxonomy_merged.rds.zip"),
+    file.path(local, "PRJNA607574_dada2_taxonomy_merged.rds.zip"),
+    file.path(local, "PRJNA545312_dada2_merged_nochim.rds.zip")
     )
-    repro_tax_zips      <- c(
-                            paste0(local, "PRJNA394877_dada2_taxonomy_merged.rds.zip"),
-                            paste0(local, "PRJNA548153_dada2_taxonomy_merged.rds.zip"),
-                            paste0(local, "PRJNA606262_dada2_taxonomy_merged.rds.zip"),
-                            paste0(local, "PRJNA607574_dada2_taxonomy_merged.rds.zip"),
-                            paste0(local, "PRJNA545312_dada2_taxonomy_merged.rds.zip")
+
+    repro_tax_zips <- c(
+    file.path(local, "PRJNA394877_dada2_taxonomy_merged.rds.zip"),
+    file.path(local, "PRJNA548153_dada2_taxonomy_merged.rds.zip"),
+    file.path(local, "PRJNA606262_dada2_taxonomy_merged.rds.zip"),
+    file.path(local, "PRJNA607574_dada2_taxonomy_merged.rds.zip"),
+    file.path(local, "PRJNA545312_dada2_taxonomy_merged.rds.zip")
     )
-    scale_zip           <- paste0(local, "Liao2021_scale.csv")
-    metadata_zip        <- paste0(local, "Liao_2021_metadata.csv")
-    counts_zip          <- paste0(local, "Liao_2021_16S.csv")
+
+    scale_zip    <- file.path(local, "Liao2021_scale.csv")
+    metadata_zip <- file.path(local, "Liao_2021_metadata.csv")
+    counts_zip   <- file.path(local, "Liao_2021_16S.csv")
+
 
     read_zipped_csv <- function(zip_path) {
         if (file.exists(zip_path)) {

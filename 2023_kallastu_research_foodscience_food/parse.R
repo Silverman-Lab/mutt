@@ -1,5 +1,4 @@
 parse_2023_kallastu_research_foodscience_food <- function() {
-    # Check for required packages
     required_pkgs <- c("tidyverse", "readxl", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -13,33 +12,23 @@ parse_2023_kallastu_research_foodscience_food <- function() {
     library(readxl)
     library(readr)
 
-    # ## Read Counts
-    # counts <- NA
-    # raw_tax <- row.names(counts)
-    # row.names(counts) <- paste0("Taxon_", 1:nrow(counts))
-    # proportions <- apply(counts, 2, function(col) col/sum(col))
-    #
-    # ## Create Taxa
-    # raw_tax <- data.frame(taxa=raw_tax)
-    # tax <- raw_tax %>%
-    #   mutate(taxa=str_trim(taxa)) %>%
-    #   separate(
-    #     taxa,
-    #     into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
-    #     sep = "\\s*;\\s*",
-    #     extra = "drop",
-    #     fill = "right"
-    # )
-    # row.names(tax) <- row.names(counts)
+    # -------- local path -----------
+    local                       <- file.path("2023_kallastu_research_foodscience_food")
 
-    metadata_zip <- "2023_kallastu_research_foodscience_food/SraRunTable.csv.zip"
-    metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1] # list file inside zip
+    # -------- file paths -----------
+    metadata_zip                <- file.path(local, "SraRunTable.csv.zip")
+    repro_counts_rds_zip        <- file.path(localPath, "PRJNA861123_dada2_merged_nochim.rds.zip")
+    repro_tax_zip               <- file.path(localPath, "PRJNA861123_dada2_taxonomy_merged.rds.zip")
+
+    # ------- metadata -------------
+    metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
     metadata_path <- unzip(metadata_zip, files = metadata_csv, exdir = tempdir(), overwrite = TRUE)
     metadata <- as.data.frame(read.csv(metadata_path, stringsAsFactors = FALSE))
 
     rownames(metadata) <- metadata$`Sample.Name`
     metadata <- subset(metadata, select = -`Sample.Name`)
 
+    # ------- scale ----------------
     ## Scale is directly presented as a table in the paper
     scale_data <- data.frame(
         "20St" = c(1.55e9, NA, 1.56e9, 1.16e9),
@@ -59,11 +48,49 @@ parse_2023_kallastu_research_foodscience_food <- function() {
         "K4 PMA", "K4 TOT", "20St 2.5PMA", "20St 1PMA", "20St 0.5PMA"
     )
 
+    # ----- Reprocessed counts from RDS ZIP -----
+    temp_rds            <- tempfile(fileext = ".rds")
+    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+    rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
+    seqtab_nochim       <- readRDS(rds_file)
+    rpt_mat             <- t(seqtab_nochim)
+    counts_reprocessed  <- as.data.frame(rpt_mat)
+    counts_reprocessed$Sequence <- rownames(counts_reprocessed)
+    counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
+    rownames(counts_reprocessed) <- paste0("Taxon_", seq_len(nrow(counts_reprocessed)))
+    
+    # proportions reprocessed
+    proportions_reprocessed = counts_reprocessed
+    proportions_reprocessed[-1] <- lapply(
+        counts_reprocessed[-1],
+        function(col) col / sum(col)
+    )
+    
+    # ----- Taxonomy reprocessed -----
+    temp_tax <- tempfile(fileext = ".rds")
+    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+    tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
+    taxonomy_matrix <- readRDS(tax_file)
+    rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
+    tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
+    tax_reprocessed = tax_table
+    
+    
     return(list(
-        # counts = counts,
-        # proportions = proportions,
-        # tax = tax,
-        scale = scale,
-        metadata = metadata
-    ))
+        scale=scale, 
+        metadata=metadata, 
+        counts=list(
+            original = NA, 
+            reprocessed = counts_reprocessed
+        ),
+        proportions=list(
+            original = NA,
+            reprocessed = proportions_reprocessed
+        ),
+        tax=list(
+            original = NA,
+            reprocessed = tax_reprocessed
+        )
+        )
+    )
 }

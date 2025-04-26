@@ -1,36 +1,24 @@
 parse_2022_suriano_aps_micefecal <- function() {
-  # Check for required packages
   required_pkgs <- c("tidyverse", "readxl", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
-  # Load needed libraries
   library(tidyverse)
   library(readxl)
   library(readr)
 
-  # ## Read Counts
-  # counts <- NA
-  # raw_tax <- row.names(counts)
-  # row.names(counts) <- paste0("Taxon_", 1:nrow(counts))
-  # proportions <- apply(counts, 2, function(col) col/sum(col))
-  #
-  # ## Create Taxa
-  # raw_tax <- data.frame(taxa=raw_tax)
-  # tax <- raw_tax %>%
-  #   mutate(taxa=str_trim(taxa)) %>%
-  #   separate(
-  #     taxa,
-  #     into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
-  #     sep = "\\s*;\\s*",
-  #     extra = "drop",
-  #     fill = "right"
-  # )
-  # row.names(tax) <- row.names(counts)
-  
-  metadata_zip <- "2022_suriano_aps_micefecal/SraRunTable.csv.zip"
+  # ----- local path ------------------------
+  local                   <- file.path("2022_suriano_aps_micefecal")
+
+  # ----- file paths -------------------------
+  metadata_zip            <- file.path(local,"SraRunTable.csv.zip")
+  scale_zip               <- file.path(local,"Supplementary Table 6.xlsx.zip")
+  repro_counts_rds_zip    <- file.path(local,"PRJEB53668_dada2_merged_nochim.rds.zip")
+  repro_tax_zip           <- file.path(local,"PRJEB53668_dada2_taxonomy_merged.rds.zip")
+
+  # ----- metadata ---------------------------
   metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]  # list file inside zip
   metadata_path <- unzip(metadata_zip, files = metadata_csv, exdir = tempdir(), overwrite = TRUE)
   metadata <- read.csv(metadata_path, stringsAsFactors = FALSE)
@@ -39,8 +27,7 @@ parse_2022_suriano_aps_micefecal <- function() {
   rownames(metadata) <- metadata$Sample_name
   metadata <- subset(metadata, select = -Sample_name)
 
-  ## Read scale sheet
-  scale_zip <- "2022_suriano_aps_micefecal/Supplementary Table 6.xlsx.zip"
+  # ----- scale ------------------------------
   scale_xlsx <- unzip(scale_zip, list = TRUE)$Name[1]
   scale_path <- unzip(scale_zip, files = scale_xlsx, exdir = tempdir(), overwrite = TRUE)
   
@@ -49,11 +36,47 @@ parse_2022_suriano_aps_micefecal <- function() {
     select(Sample, `Cells.g.of.fecal.sample`) %>%
     pivot_wider(names_from = Sample, values_from = `Cells.g.of.fecal.sample`)
   
+  # ----- Reprocessed counts from RDS ZIP -----
+  temp_rds            <- tempfile(fileext = ".rds")
+  unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+  rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
+  seqtab_nochim       <- readRDS(rds_file)
+  rpt_mat             <- t(seqtab_nochim)
+  counts_reprocessed  <- as.data.frame(rpt_mat)
+  counts_reprocessed$Sequence <- rownames(counts_reprocessed)
+  counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
+  rownames(counts_reprocessed) <- paste0("Taxon_", seq_len(nrow(counts_reprocessed)))
+  
+  # ------ proportions reprocessed -----------
+  proportions_reprocessed = counts_reprocessed
+  proportions_reprocessed[-1] <- lapply(
+      counts_reprocessed[-1],
+      function(col) col / sum(col)
+  )
+  
+  # ----- Taxonomy reprocessed ---------------
+  temp_tax <- tempfile(fileext = ".rds")
+  unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+  tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
+  taxonomy_matrix <- readRDS(tax_file)
+  rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
+  tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
+  tax_reprocessed = tax_table
+
   return(list(
-    # counts = counts,
-    # proportions = proportions,
-    # tax = tax,
-    scale = scale,
-    metadata = metadata
+      counts = list(
+          original = NA,
+          reprocessed = counts_reprocessed
+      ),
+      proportions = list(
+          original = NA,
+          reprocessed = proportions_reprocessed
+      ),
+      tax = list(
+          original = NA,
+          reprocessed = tax_reprocessed
+      ),
+      scale = scale,
+      metadata = metadata
   ))
 }

@@ -9,13 +9,16 @@ parse_2017_props_isme_longitudinal <- function() {
   library(tidyverse)
   library(readr)
 
-  local               <- "2017_props_isme_longitudinal/"
-  metadata_zip        <- paste0(local, "supplemental_metadata.csv.zip")
-  metadata_sra_zip    <- paste0(local, "SraRunTable (30).csv")
-  original_counts_zip <- paste0(local, "stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.an.unique_list_CYANO.shared")
-  original_tax_zip    <- paste0(local, "stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.an.unique_list.0.03.cons_CYANO (1).taxonomy")
-  repro_counts_rds_zip<- paste0(local, "SRP066190_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- paste0(local, "SRP066190_dada2_taxonomy_merged.rds.zip")
+    # ----- Local base directory -----
+    local <- file.path("2017_props_isme_longitudinal")
+
+    # ----- File paths -----
+    metadata_zip         <- file.path(local, "supplemental_metadata.csv.zip")
+    metadata_sra_zip     <- file.path(local, "SraRunTable (30).csv.zip")
+    original_counts_zip  <- file.path(local, "stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.an.unique_list_CYANO.shared.zip")
+    original_tax_zip     <- file.path(local, "stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.an.unique_list.0.03.cons_CYANO (1).taxonomy.zip")
+    repro_counts_rds_zip <- file.path(local, "SRP066190_dada2_merged_nochim.rds.zip")
+    repro_tax_zip        <- file.path(local, "SRP066190_dada2_taxonomy_merged.rds.zip")
 
   # ------ original counts, proportions, tax ---- 
 
@@ -57,6 +60,8 @@ parse_2017_props_isme_longitudinal <- function() {
   meta_csv     <- unzip(metadata_zip, list = TRUE)$Name[1]
   meta_con     <- unz(metadata_zip, meta_csv)
   metadata     <- read.csv(meta_con) %>% as.data.frame()
+  metadata     <- metadata %>%
+        mutate(Sample_name = as.integer(gsub("[^0-9]", "", Sample_name)))
 
   scale = metadata %>%
                 dplyr::select("Sample_name", "Cell.density (cells/mL)","Cell.density.sd (cells/mL")

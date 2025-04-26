@@ -10,11 +10,14 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function() {
   library(tidyverse)
   library(readxl)
 
+  # ----- Local base directory -----
+  local <- file.path("2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota")
+
   # ----- File paths -----
-  scale_zip       <- "2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/MBT2-17-e14540-s002 (1).xlsx.zip"
-  metadata_zip    <- "2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/SraRunTable (1).csv.zip"
-  motus_zip       <- "2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/PRJNA1075117_motus_merged.tsv.zip"
-  metaphlan4_zip  <- "2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/PRJNA1075117_MetaPhlAn_merged.tsv.zip"
+  scale_zip      <- file.path(local, "MBT2-17-e14540-s002 (1).xlsx.zip")
+  metadata_zip   <- file.path(local, "SraRunTable (1).csv.zip")
+  motus_zip      <- file.path(local, "PRJNA1075117_motus_merged.tsv.zip")
+  metaphlan4_zip <- file.path(local, "PRJNA1075117_MetaPhlAn_merged.tsv.zip")
 
   # ----- Initialize everything as NA -----
   counts_original <- NA

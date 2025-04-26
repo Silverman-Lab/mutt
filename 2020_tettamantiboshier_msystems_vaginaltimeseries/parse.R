@@ -8,13 +8,15 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function() {
   library(tibble)
   library(tidyverse)
 
+  # ----- Local base directory -----
+  local <- file.path("2020_tettamantiboshier_msystems_vaginaltimeseries")
+
   # ----- File paths -----
-  local               <- file.path("/2020_tettamantiboshier_msystems_vaginaltimeseries/")
-  counts_zip          <- paste0(local, "originalcounts.csv.zip")
-  scale_zip           <- paste0(local, "scale.csv.zip")
-  metadata_zip        <- paste0(local, "SraRunTable (30).csv.zip")
-  repro_counts_rds_zip<- paste0(local, "PRJNA549339_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- paste0(local, "PRJNA549339_dada2_taxonomy_merged.rds.zip")
+  counts_zip           <- file.path(local, "originalcounts.csv.zip")
+  scale_zip            <- file.path(local, "scale_connect20250425.csv.zip")
+  metadata_zip         <- file.path(local, "SraRunTable (30).csv.zip")
+  repro_counts_rds_zip <- file.path(local, "PRJNA549339_dada2_merged_nochim.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJNA549339_dada2_taxonomy_merged.rds.zip")
 
   # ----- Read counts & proportions -----
   if (file.exists(counts_zip)) {

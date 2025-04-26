@@ -9,15 +9,19 @@ parse_2017_vandeputte_nature_flow <- function() {
   library(tidyverse)
   library(readxl)
 
+  # ----- Local base directory -----
+  local <- file.path("2017_vandeputte_nature_flow")
+
   # ----- File paths -----
-  metadata_zip        <- "2017_vandeputte_nature_flow/Vandeputte_2017_metadata.csv.zip"
-  metadata_two_zip    <- "2017_vandeputte_nature_flow/cellcountstotal.csv.zip"
-  orig_counts_zip     <- "2017_vandeputte_nature_flow/OTU_nochim.zip"
-  orig_tax_rdp_zip    <- "2017_vandeputte_nature_flow/otu_taxonomy_rdp.csv.zip"
-  orig_tax_silva_zip  <- "2017_vandeputte_nature_flow/otu_taxonomy_silva.csv.zip"
-  orig_prop_zip       <- NA
-  repro_counts_rds_zip<- "2017_vandeputte_nature_flow/PRJEB21504_dada2_merged_nochim.rds.zip"
-  repro_tax_zip       <- "2017_vandeputte_nature_flow/PRJEB21504_dada2_taxonomy_merged.rds.zip"
+  metadata_zip         <- file.path(local, "Vandeputte_2017_metadata.csv.zip")
+  metadata_two_zip     <- file.path(local, "cellcountstotal.csv.zip")
+  orig_counts_zip      <- file.path(local, "OTU_nochim.zip")
+  orig_tax_rdp_zip     <- file.path(local, "otu_taxonomy_rdp.csv.zip")
+  orig_tax_silva_zip   <- file.path(local, "otu_taxonomy_silva.csv.zip")
+  orig_prop_zip        <- NA
+  repro_counts_rds_zip <- file.path(local, "PRJEB21504_dada2_merged_nochim.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJEB21504_dada2_taxonomy_merged.rds.zip")
+
 
   # ----- Metadata and Scale -----
   # Read scale
