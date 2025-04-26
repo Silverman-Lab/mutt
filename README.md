@@ -29,25 +29,25 @@ parse.R should have a single function named `parse_[name of directory]` which re
 # ----- Example Shotgun Metagenomics Study -----
 return(list(
     counts = list(
-    original = counts_original,
-    reprocessed = list(
-        mOTU3 = mOTU3_counts,
-        MetaPhlAn4 = MetaPhlAn4_counts
-    )
+      original = counts_original,
+      reprocessed = list(
+          mOTU3 = mOTU3_counts,
+          MetaPhlAn4 = MetaPhlAn4_counts
+      )
     ),
     proportions = list(
-    original = proportions_original,
-    reprocessed = list(
-        mOTU3 = mOTU3_proportions,
-        MetaPhlAn4 = MetaPhlAn4_proportions
-    )
+      original = proportions_original,
+      reprocessed = list(
+          mOTU3 = mOTU3_proportions,
+          MetaPhlAn4 = MetaPhlAn4_proportions
+      )
     ),
     tax = list(
-    original = tax_original,
-    reprocessed = list(
-        mOTU3 = mOTU3_tax,
-        MetaPhlAn4 = MetaPhlAn4_tax
-    )
+      original = tax_original,
+      reprocessed = list(
+          mOTU3 = mOTU3_tax,
+          MetaPhlAn4 = MetaPhlAn4_tax
+      )
     ),
     scale = scale,
     metadata = metadata,
