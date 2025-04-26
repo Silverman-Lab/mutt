@@ -15,7 +15,7 @@ According to Maxwell, metagenomic data is huge. So lets keep this to count table
 - datasets should be compressed (and again, stored using Git LFS: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage)
 
 ## Parsed Data Structure for `parse.R` scripts. 
-parse.py should have a single function named `parse_[name of directory]` which returns a list object with the following elements. That function should not require arguments but they can be optional. Ideally, parse scripts use nothing other than base R or tidyverse functions to minimize dependencies and errors if certain libraries are not installed. 
+parse.R should have a single function named `parse_[name of directory]` which returns a list object with the following elements. That function should not require arguments but they can be optional. Ideally, parse scripts use nothing other than base R or tidyverse functions to minimize dependencies and errors if certain libraries are not installed. 
 
 - `counts` integer valued count matrix (not data.frame) that is (D x N) and has row and column names which are sampleIDs and sequenceIDs (e.g., taxaIDs) respectively. 
 - `proportions` real-valued valued count matrix (not data.frame) that is (D x N) and has row and column names which are sampleIDs and sequenceIDs (e.g., taxaIDs) respectively. only include if counts are not available
