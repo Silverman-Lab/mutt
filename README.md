@@ -25,5 +25,33 @@ parse.R should have a single function named `parse_[name of directory]` which re
 - `sequences` (optional) D x ?, character valued data.frame or matrix linking sequenceIDs (rownames) to the actual raw sequence (e.g., the 16S sequence of a particular taxon)
 - `phylo` (optional) phylogenetic tree stored in reasonable format (let me know if any repos have phylogenetic trees in them and I will figure out a good standard format)
 
+# ----- Example Shotgun Metagenomics -----
+return(list(
+    counts = list(
+    original = counts_original,
+    reprocessed = list(
+        mOTU3 = mOTU3_counts,
+        MetaPhlAn4 = MetaPhlAn4_counts
+    )
+    ),
+    proportions = list(
+    original = proportions_original,
+    reprocessed = list(
+        mOTU3 = mOTU3_proportions,
+        MetaPhlAn4 = MetaPhlAn4_proportions
+    )
+    ),
+    tax = list(
+    original = tax_original,
+    reprocessed = list(
+        mOTU3 = mOTU3_tax,
+        MetaPhlAn4 = MetaPhlAn4_tax
+    )
+    ),
+    scale = scale,
+    metadata = metadata,
+    phylo = NA
+))
+
 ### Note on file paths
 `parse.R` scripts should specify file paths relative to the root `data_repository` directory. See my example in `2024_nishijima_cell_galaxy/parse.R`. 
