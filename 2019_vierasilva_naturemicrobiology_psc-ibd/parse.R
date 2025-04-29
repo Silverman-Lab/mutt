@@ -23,11 +23,15 @@ parse_2019_vierasilva_naturemicrobiology_pscibd <- function(entrez_key = NULL) {
   library(tidyverse)
   library(readxl)
   library(taxize)
+  
+  # ----- local path -----
+  
+  local <- file.path("2019_vierasilva_naturemicrobiology_psc-ibd")
 
   # ----- File paths -----
-  metadata_zip <- "2019_viera-silva_naturemicrobiology_psc-ibd/41564_2019_483_MOESM3_ESM.xlsx.zip"
-  scale_zip    <- "2019_viera-silva_naturemicrobiology_psc-ibd/scaleandmetadata.xlsx.zip"
-  qmp_zip      <- "2019_viera-silva_naturemicrobiology_psc-ibd/QMP.matrix.tsv.zip"
+  metadata_zip <- file.path(local,"41564_2019_483_MOESM3_ESM.xlsx.zip")
+  scale_zip    <- file.path(local, "scaleandmetadata.xlsx.zip")
+  qmp_zip      <- file.path(local, "QMP.matrix.tsv.zip")
 
   # ----- Initialize objects -----
   counts      <- NA
