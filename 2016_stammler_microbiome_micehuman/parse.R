@@ -9,6 +9,7 @@ parse_2016_stammler_microbiome_micehuman <- function() {
   library(stringr)
   library(tidyverse)
 
+<<<<<<< Updated upstream
   # ----- Local base directory -----
   local <- file.path("2016_stammler_microbiome_micehuman")
 
@@ -18,6 +19,14 @@ parse_2016_stammler_microbiome_micehuman <- function() {
   scale_16s_zip        <- file.path(local, "Stammler2016_scale.csv.zip")
   counts_16s_zip       <- file.path(local, "Stammler_2016_16S.csv.zip")
   metadata_16s_zip     <- file.path(local, "Stammler_2016_metadata.csv.zip")
+=======
+  local <- file.path("/2016_stammler_microbiome_micehuman/")
+  repro_counts_rds_zip<- paste0(local, "PRJEB11953_dada2_merged_nochim.rds.zip")
+  repro_tax_zip       <- paste0(local, "PRJEB11953_dada2_taxonomy_merged.rds.zip")
+  scale_16s_zip     <- paste0(local, "Stammler2016_scale.csv.zip")
+  counts_16s_zip    <- paste0(local, "Stammler_2016_16S.csv.zip")
+  metadata_16s_zip  <- paste0(local, "Stammler_2016_metadata.csv.zip") 
+>>>>>>> Stashed changes
 
   read_zipped_csv <- function(zip_path) {
     if (file.exists(zip_path)) {
@@ -44,9 +53,15 @@ parse_2016_stammler_microbiome_micehuman <- function() {
   counts_original_mice <- read_zipped_csv(counts_16s_zip)
 
   if (!is.na(counts_original_mice)[1]) {
+<<<<<<< Updated upstream
     original_taxa <- colnames(counts_original_mice)
     taxon_ids <- paste0("Taxon_", seq_len(nrow(counts_original_mice)))
     colnames(counts_original_mice) <- taxon_ids
+=======
+    original_taxa <- rownames(counts_original_mice)
+    taxon_ids <- paste0("Taxon_", seq_len(nrow(counts_original_mice)))
+    rownames(counts_original_mice) <- taxon_ids
+>>>>>>> Stashed changes
 
     # Create taxa mapping data frame
     tax_original_mice <- data.frame(
@@ -56,7 +71,11 @@ parse_2016_stammler_microbiome_micehuman <- function() {
     )
 
     # ------ proportions from counts ------
+<<<<<<< Updated upstream
     proportions_original_mice <- t(counts_original_mice)
+=======
+    proportions_original_mice <- counts_original_mice
+>>>>>>> Stashed changes
     proportions_original_mice[] <- lapply(
       proportions_original_mice,
       function(col) {

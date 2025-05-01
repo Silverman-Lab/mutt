@@ -5,6 +5,7 @@ parse_2024_nishijima_cell_galaxy <- function(bind_all = FALSE) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
+<<<<<<< Updated upstream
 
   library(stringr)
   library(tidyverse)
@@ -32,6 +33,25 @@ parse_2024_nishijima_cell_galaxy <- function(bind_all = FALSE) {
     file.path(local, paste0(project_ids, "_MetaPhlAn_merged.tsv.zip")),
     prefixes
   )
+=======
+
+  library(stringr)
+  library(tidyverse)
+
+  local <- "2024_nishijima_cell_galaxy/"
+  prefixes <- c("GALA-ALD", "GALA-HP", "AlcoChallenge", "GALA-RIF", "GastricBypass",
+                "HCO", "GALA-POSTBIO", "HOLABEK")
+
+  motus_files <- setNames(paste0(local, c(
+    "PRJEB76661", "PRJEB76664", "PRJEB76662", "PRJEB76667",
+    "PRJEB76666", "PRJEB81698", "PRJEB76668", "PRJEB81697"
+  ), "_motus_merged.tsv.zip"), prefixes)
+
+  metaphlan_files <- setNames(paste0(local, c(
+    "PRJEB76661", "PRJEB76664", "PRJEB76662", "PRJEB76667",
+    "PRJEB76666", "PRJEB81698", "PRJEB76668", "PRJEB81697"
+  ), "_MetaPhlAn_merged.tsv.zip"), prefixes)
+>>>>>>> Stashed changes
 
   # ----- Load Scale & Metadata -----
   dat <- read.table(paste0(local, "GALAXY_load.tsv.gz"), header = TRUE)

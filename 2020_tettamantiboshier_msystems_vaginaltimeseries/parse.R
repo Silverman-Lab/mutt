@@ -8,6 +8,7 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function() {
   library(tibble)
   library(tidyverse)
 
+<<<<<<< Updated upstream
   # ----- Local base directory -----
   local <- file.path("2020_tettamantiboshier_msystems_vaginaltimeseries")
 
@@ -38,6 +39,36 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function() {
 
     counts <- bind_cols(metadatacols, counts_original)
 
+=======
+  # ----- File paths -----
+  local               <- file.path("/2020_tettamantiboshier_msystems_vaginaltimeseries/")
+  counts_zip          <- paste0(local, "originalcounts.csv.zip")
+  scale_zip           <- paste0(local, "scale.csv.zip")
+  metadata_zip        <- paste0(local, "SraRunTable (30).csv.zip")
+  repro_counts_rds_zip<- paste0(local, "PRJNA549339_dada2_merged_nochim.rds.zip")
+  repro_tax_zip       <- paste0(local, "PRJNA549339_dada2_taxonomy_merged.rds.zip")
+
+  # ----- Read counts & proportions -----
+  if (file.exists(counts_zip)) {
+    counts_file <- unzip(counts_zip, list = TRUE)$Name[1]
+    counts_con  <- unz(counts_zip, counts_file)
+    countsdata  <- read.csv(counts_con) %>% as.data.frame()
+
+    columns_to_drop <- c("Participant", "Hours_In_Study")
+    counts_original <- countsdata[, !(names(countsdata) %in% columns_to_drop)]
+    metadatacols    <- countsdata[, names(countsdata) %in% columns_to_drop]
+
+    taxon_names <- paste0("Taxon_", seq_len(ncol(counts_original)))
+    colnames(counts_original) <- taxon_names
+
+    tax <- tibble(
+      Taxon = taxon_names,
+      OriginalName = colnames(countsdata)[!(colnames(countsdata) %in% columns_to_drop)]
+    )
+
+    counts <- bind_cols(metadatacols, counts_original)
+
+>>>>>>> Stashed changes
     row_sums    <- rowSums(counts_original)
     prop_mat    <- sweep(as.matrix(counts_original), 1, row_sums, FUN = "/")
     prop_mat[is.nan(prop_mat)] <- 0

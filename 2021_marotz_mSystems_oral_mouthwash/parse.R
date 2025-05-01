@@ -9,6 +9,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function() {
 
   library(tidyverse)
 
+<<<<<<< Updated upstream
   # ----- Local base directory -----
   local <- file.path("2021_marotz_mSystems_oral_mouthwash")
 
@@ -24,6 +25,18 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function() {
   repro_tax_zips <- c(
     file.path(local, "ERP111447_dada2_taxonomy_merged.rds.zip"),
     file.path(local, "ERP117149_dada2_taxonomy_merged.rds.zip")
+=======
+  local <- "2021_marotz_mSystems_oral_mouthwash/"
+  counts_zip <- paste0(local, "2021_marotz_mSystems_oral_mouthwash.RDS.zip")
+  metadata_zip <- paste0(local, "T3_SRS_metadata_ms.txt.zip")
+  repro_counts_zips <- c(
+    paste0(local, "ERP111447_dada2_merged_nochim.rds.zip"),
+    paste0(local, "ERP117149_dada2_merged_nochim.rds.zip")
+  )
+  repro_tax_zips <- c(
+    paste0(local, "ERP111447_dada2_taxonomy_merged.rds.zip"),
+    paste0(local, "ERP117149_dada2_taxonomy_merged.rds.zip")
+>>>>>>> Stashed changes
   )
 
   # ----- Original Counts and Taxonomy -----

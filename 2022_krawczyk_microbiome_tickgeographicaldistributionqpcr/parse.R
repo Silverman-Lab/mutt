@@ -9,6 +9,7 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function() {
   library(tidyverse)
   library(readxl)
 
+<<<<<<< Updated upstream
   # ----- Local base directory -----
   local <- file.path("2022_krawczyk_microbiome_tickgeographicaldistributionqpcr")
 
@@ -20,6 +21,17 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function() {
   repro_counts_rds_zip <- file.path(local, "PRJNA813158_dada2_merged_nochim.rds.zip")
   repro_tax_zip        <- file.path(local, "PRJNA813158_dada2_taxonomy_merged.rds.zip")
 
+=======
+  # ----- File paths -----
+  local               <- "2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/"
+  metadata_two_zip    <- paste0(local, "40168_2022_1276_MOESM1_ESM.zip")
+  metadata_zip        <- paste0(local, "SraRunTable (30).csv")
+  counts_zip          <- paste0(local, "40168_2022_1276_MOESM3_ESM.zip")
+  scale_zip           <- paste0(local, "scale_qpcr.zip")
+  repro_counts_rds_zip<-  paste0(local, "PRJNA813158_dada2_merged_nochim.rds.zip"
+  repro_tax_zip       <-  paste0(local, "PRJNA813158_dada2_taxonomy_merged.rds.zip"
+
+>>>>>>> Stashed changes
   # ----- Scale -----
   if (file.exists(scale_zip)) {
     scale_file <- unzip(scale_zip, list = TRUE)$Name[1]
