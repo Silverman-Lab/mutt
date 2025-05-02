@@ -15,6 +15,7 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
     # ----- File paths -----
     repro_counts_rds_zip <- file.path(local, "PRJNA1233249_dada2_counts.rds.zip")
     repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxa.rds.zip")
+    repro_asv_zip        <- file.path(local, "asv_PRJNA1233249.rds.zip")
     scale_16s_zip        <- file.path(local, "PMID-28743816_samples-v1.csv.zip")
     metadata_16s_zip     <- file.path(local, "metadata.csv.zip")
 
@@ -79,31 +80,14 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
     temp_rds            <- tempfile(fileext = ".rds")
     unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
     rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-    seqtab_nochim       <- readRDS(rds_file)
-    rpt_mat             <- t(seqtab_nochim)
-    counts_reprocessed  <- as.data.frame(rpt_mat)
-    counts_reprocessed$Sequence <- rownames(counts_reprocessed)
-    counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
-
-    # ----- Convert accessions to sample IDs -----
-    # fill
-
-    # proportions reprocessed
-    proportions_reprocessed = counts_reprocessed
-    proportions_reprocessed[-1] <- lapply(
-        counts_reprocessed[-1],
-        function(col) col / sum(col)
-    )
-
+    counts_reprocessed       <-  as.data.frame(readRDS(rds_file))
+    
     # ----- Taxonomy reprocessed -----
     temp_tax <- tempfile(fileext = ".rds")
     unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
     tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
-    taxonomy_matrix <- readRDS(tax_file)
-    rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
-    tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
-    tax_reprocessed = tax_table
-
+    tax_reprocessed <- as.data.frame(readRDS(tax_file))
+    
     # ----- Convert sequences to lowest rank taxonomy found and update key -----
     make_taxa_label <- function(df) {
         tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
@@ -125,8 +109,24 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
         })
         return(df)
     }
-  
     tax_reprocessed = make_taxa_label(tax_reprocessed)
+
+    # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+    # accessions to sampleIDs is study specific: IF NEED BE
+
+    # taxa
+    if (!raw) {
+        matched_taxa <- tax_reprocessed$taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+        colnames(counts_reprocessed) <- matched_taxa
+        counts_reprocessed_collapsed <- t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed)))
+    }
+
+    # proportions reprocessed
+    proportions_reprocessed = counts_reprocessed
+    proportions_reprocessed[-1] <- lapply(
+        counts_reprocessed[-1],
+        function(col) col / sum(col)
+    )
 
     # ----- Return structured list -----
     return(list(

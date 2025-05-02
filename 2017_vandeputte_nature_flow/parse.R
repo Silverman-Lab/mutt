@@ -108,17 +108,13 @@ parse_2017_vandeputte_nature_flow <- function() {
   temp_rds            <- tempfile(fileext = ".rds")
   unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
   rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-  seqtab_nochim       <- readRDS(rds_file)
-  counts_reprocessed  <- as.data.frame(seqtab_nochim)
-  
+  counts_reprocessed       <-  as.data.frame(readRDS(rds_file))
+   
   # ----- Taxonomy reprocessed -----
   temp_tax <- tempfile(fileext = ".rds")
   unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
   tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
   tax_reprocessed <- as.data.frame(readRDS(tax_file))
-  
-  # ----- Convert accessions to sample IDs -----
-  # fill
   
   # ----- Convert sequences to lowest rank taxonomy found and update key -----
   make_taxa_label <- function(df) {
@@ -141,10 +137,18 @@ parse_2017_vandeputte_nature_flow <- function() {
     })
     return(df)
   }
-  
   tax_reprocessed = make_taxa_label(tax_reprocessed)
-  
-  
+
+  # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+  # accessions to sampleIDs is study specific: IF NEED BE
+
+  # taxa
+  if (!raw) {
+    matched_taxa <- tax_reprocessed$taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+    colnames(counts_reprocessed) <- matched_taxa
+    counts_reprocessed_collapsed <- t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed)))
+  }
+
   # proportions reprocessed
   proportions_reprocessed = counts_reprocessed
   proportions_reprocessed[-1] <- lapply(
