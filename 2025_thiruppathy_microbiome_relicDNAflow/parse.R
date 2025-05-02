@@ -17,11 +17,11 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function() {
 
 
     # -------- file paths -----------
-    original_counts_zip         <- file.path(local, "")
-    scale_zip                   <- file.path(local, "Final_flowC_rawdata.csv.zip")
-    metadata_three_zip          <- file.path(local, "Final_metadata.tsv.csv.zip")
+    original_counts_zip         <- file.path(local, "Final_rpca_all.tsv.zip")
+    scale_zip                   <- file.path(local, "Final_flowC_processed.tsv.zip")
+    metadata_three_zip          <- file.path(local, "metadata.csv.zip")
     metadata_two_zip            <- file.path(local, "40168_2025_2063_MOESM3_ESM (1).xlsx.zip")
-    metadata_zip                <- file.path(local, "SraRunTable (33).csv.zip")
+    metadata_zip                <- file.path(local, "SraRunTable (38).csv.zip")
     motus_zip                   <- file.path(local, "PRJNA1118035_motus_merged.tsv.zip")
     metaphlan4_zip              <- file.path(local, "PRJNA1118035_MetaPhlAn_merged.tsv.zip")
 
@@ -89,7 +89,7 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function() {
     }
 
 
-    # ----- Metadata -----
+    # ----- Metadata -----  # Needs to be fixed, merge the metadata tables
     metadata <- NA
     if (file.exists(metadata_zip)) {
         metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
@@ -99,14 +99,14 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function() {
         rownames_to_column("Sample")
     }
 
-    # ----- Scale ----- # Needs to be fixed. Supp table 3 and 4 so sheets 3 and 4
+    # ----- Scale -----
     scale <- NA
     if (file.exists(scale_zip)) {
         scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
         scale_con <- unz(scale_zip, scale_csv)
-        scale <- read.csv(scale_con) %>%
+        scale <- read.csv(scale_con, delim ="/t") %>%
         as.data.frame() %>%
-        select(c("Sample","Cells/uL  ((A/B)x(C/D))"))
+        select(c("Sample","(E) Cells/uL", "(H) Total Cells per sqcm"))
     }
 
     # ----- Return -----

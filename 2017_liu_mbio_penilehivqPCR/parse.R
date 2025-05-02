@@ -13,8 +13,9 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
     local <- file.path("2017_liu_mbio_penilehivqPCR")
 
     # ----- File paths -----
-    repro_counts_rds_zip <- file.path(local, "PRJNA1233249_dada2_merged_nochim.rds.zip")
-    repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxonomy_merged.rds.zip")
+    repro_counts_rds_zip <- file.path(local, "PRJNA1233249_dada2_counts.rds.zip")
+    repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxa.rds.zip")
+    repro_asv_zip        <- file.path(local, "asv_PRJNA1233249.rds.zip")
     scale_16s_zip        <- file.path(local, "PMID-28743816_samples-v1.csv.zip")
     metadata_16s_zip     <- file.path(local, "metadata.csv.zip")
 

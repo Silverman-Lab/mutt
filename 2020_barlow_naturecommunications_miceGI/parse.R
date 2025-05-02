@@ -23,8 +23,8 @@ parse_2020_barlow_naturecommunications_miceGI <- function() {
     counts_zip           <- NA  # No original counts provided
     proportions_zip      <- file.path(local, "Relative_Abundance_Table.csv.zip")
     scale_zip            <- file.path(local, "loaddata.csv.zip")
-    repro_counts_rds_zip <- file.path(local, "PRJNA575097_dada2_merged_nochim.rds.zip")
-    repro_tax_zip        <- file.path(local, "PRJNA575097_dada2_taxonomy_merged.rds.zip")
+    repro_counts_rds_zip <- file.path(local, "PRJNA575097_dada2_counts.rds.zip")
+    repro_tax_zip        <- file.path(local, "PRJNA575097_dada2_taxa.rds.zip")
 
     # --- proportions ---
     prop_csv <- unzip(proportions_zip, list = TRUE)$Name[1]
