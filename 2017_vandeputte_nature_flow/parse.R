@@ -35,22 +35,30 @@ parse_2017_vandeputte_nature_flow <- function() {
   metadata_df  <- read.csv(meta_con) %>% as.data.frame()
 
   # Join and select
-  df <- left_join(
+  df <- full_join(
     metadata_df,
-    metadata_two %>% select(Sample, SampleID) %>% rename(Accession = SampleID),
-    by = c("Individual" = "Sample")
+    metadata_two,
+    by = c("Sample" = "Individual")
   )
-  metadata = df %>% select(
-    Individual, Cohort, Day,
-    `Health status`, accession = Accession, Enterotype
-  )
-  scale = df %>% select(
-    Individual, Day, accession = Accession,
-    `Average cell count (per gram of fresh feces)`,
-    `STDEV cell count (per gram of fresh feces)`,
-    `Average cell count (per gram of frozen feces)`,
-    `STDEV cell count (per gram of frozen feces)`
-  )
+  metadata <- df %>%
+    select(
+      Accession = sampleID,
+      Sample,
+      Cohort = Cohort.x,
+      Day,
+      `Health status` = Health.status,
+      Enterotype = Enterotype.x
+    )
+  scale <- df %>%
+    select(
+      Sample,
+      Day,
+      Accession = sampleID,
+      `Average cell count (per gram of fresh feces)` = Average.cell.count..per.gram.of.fresh.feces.,
+      `STDEV cell count (per gram of fresh feces)` = STDEV.cell.count..per.gram.of.fresh.feces.,
+      `Average cell count (per gram of frozen feces)` = Average.cell.count..per.gram.of.frozen.feces..y,
+      `STDEV cell count (per gram of frozen feces)` = STDEV.cell.count..per.gram.of.frozen.feces..y
+    )
 
   # ----- Original counts from CSV.zip -----
   if (file.exists(orig_counts_zip)) {
@@ -91,8 +99,6 @@ parse_2017_vandeputte_nature_flow <- function() {
     tax_df <- read.csv(con, row.names = 1, check.names = FALSE)
     tax_df$Sequence <- rownames(tax_df)
     tax_df <- tax_df[, c("Sequence", setdiff(names(tax_df), "Sequence"))]
-    rownames(tax_df) <- paste0("Taxon_", seq_len(nrow(tax_df)))
-    as_tibble(tax_df, rownames = "Taxon")
   }
   
   tax_original_rdp   <- read_taxonomy_zip(orig_tax_rdp_zip)
@@ -115,6 +121,28 @@ parse_2017_vandeputte_nature_flow <- function() {
   # fill
   
   # ----- Convert sequences to lowest rank taxonomy found and update key -----
+  make_taxa_label <- function(df) {
+    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+    prefixes  <- c("k", "p", "c", "o", "f", "g")
+    if (!all(tax_ranks %in% colnames(df))) {
+      stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+    }
+    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+      x[is.na(x) | trimws(x) == ""] <- "unclassified"
+      return(x)
+    })
+    df$taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+      for (i in length(tax_ranks):1) {
+        if (tax_row[i] != "unclassified") {
+          return(paste0(prefixes[i], "_", tax_row[i]))
+        }
+      }
+      return("unclassified")  
+    })
+    return(df)
+  }
+  
+  tax_reprocessed = make_taxa_label(tax_reprocessed)
   
   
   # proportions reprocessed
@@ -143,5 +171,3 @@ parse_2017_vandeputte_nature_flow <- function() {
     metadata    = metadata
   ))
 }
-
-data <- parse_2017_vandeputte_nature_flow()

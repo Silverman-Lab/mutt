@@ -15,7 +15,6 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
     # ----- File paths -----
     repro_counts_rds_zip <- file.path(local, "PRJNA1233249_dada2_counts.rds.zip")
     repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxa.rds.zip")
-    repro_asv_zip        <- file.path(local, "asv_PRJNA1233249.rds.zip")
     scale_16s_zip        <- file.path(local, "PMID-28743816_samples-v1.csv.zip")
     metadata_16s_zip     <- file.path(local, "metadata.csv.zip")
 
@@ -85,7 +84,9 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
     counts_reprocessed  <- as.data.frame(rpt_mat)
     counts_reprocessed$Sequence <- rownames(counts_reprocessed)
     counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
-    rownames(counts_reprocessed) <- paste0("Taxon_", seq_len(nrow(counts_reprocessed)))
+
+    # ----- Convert accessions to sample IDs -----
+    # fill
 
     # proportions reprocessed
     proportions_reprocessed = counts_reprocessed
@@ -103,21 +104,45 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
     tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
     tax_reprocessed = tax_table
 
-  # ----- Return structured list -----
-  return(list(
-      counts = list(
-          original = counts_original,
-          reprocessed = counts_reprocessed
-      ),
-      proportions = list(
-          original = proportions_original,
-          reprocessed = proportions_reprocessed
-      ),
-      tax = list(
-          original = tax_original,
-          reprocessed = tax_reprocessed
-      ),
-      scale = scale,
-      metadata = metadata
-  ))
+    # ----- Convert sequences to lowest rank taxonomy found and update key -----
+    make_taxa_label <- function(df) {
+        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+        prefixes  <- c("k", "p", "c", "o", "f", "g")
+        if (!all(tax_ranks %in% colnames(df))) {
+        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+        }
+        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+        x[is.na(x) | trimws(x) == ""] <- "unclassified"
+        return(x)
+        })
+        df$taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+        for (i in length(tax_ranks):1) {
+            if (tax_row[i] != "unclassified") {
+            return(paste0(prefixes[i], "_", tax_row[i]))
+            }
+        }
+        return("unclassified")  
+        })
+        return(df)
+    }
+  
+    tax_reprocessed = make_taxa_label(tax_reprocessed)
+
+    # ----- Return structured list -----
+    return(list(
+        counts = list(
+            original = counts_original,
+            reprocessed = counts_reprocessed
+        ),
+        proportions = list(
+            original = proportions_original,
+            reprocessed = proportions_reprocessed
+        ),
+        tax = list(
+            original = tax_original,
+            reprocessed = tax_reprocessed
+        ),
+        scale = scale,
+        metadata = metadata
+    ))
 }
