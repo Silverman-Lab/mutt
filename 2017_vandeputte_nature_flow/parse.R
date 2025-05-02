@@ -9,7 +9,6 @@ parse_2017_vandeputte_nature_flow <- function() {
   library(tidyverse)
   library(readxl)
 
-<<<<<<< Updated upstream
   # ----- Local base directory -----
   local <- file.path("2017_vandeputte_nature_flow")
 
@@ -20,8 +19,8 @@ parse_2017_vandeputte_nature_flow <- function() {
   orig_tax_rdp_zip     <- file.path(local, "otu_taxonomy_rdp.csv.zip")
   orig_tax_silva_zip   <- file.path(local, "otu_taxonomy_silva.csv.zip")
   orig_prop_zip        <- NA
-  repro_counts_rds_zip <- file.path(local, "PRJEB21504_dada2_merged_nochim.rds.zip")
-  repro_tax_zip        <- file.path(local, "PRJEB21504_dada2_taxonomy_merged.rds.zip")
+  repro_counts_rds_zip <- file.path(local, "PRJEB21504_dada2_counts.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJEB21504_dada2_taxa.rds.zip")
 
 
   # ----- Metadata and Scale -----
@@ -30,24 +29,6 @@ parse_2017_vandeputte_nature_flow <- function() {
   count_con    <- unz(metadata_two_zip, count_csv)
   metadata_two <- read.csv(count_con) %>% as.data.frame()
 
-=======
-  # ----- File paths -----
-  metadata_zip        <- "2017_vandeputte_nature_flow/Vandeputte_2017_metadata.csv.zip"
-  metadata_two_zip    <- "2017_vandeputte_nature_flow/cellcountstotal.csv.zip"
-  orig_counts_zip     <- "2017_vandeputte_nature_flow/OTU_nochim.zip"
-  orig_tax_rdp_zip    <- "2017_vandeputte_nature_flow/otu_taxonomy_rdp.csv.zip"
-  orig_tax_silva_zip  <- "2017_vandeputte_nature_flow/otu_taxonomy_silva.csv.zip"
-  orig_prop_zip       <- NA
-  repro_counts_rds_zip<- "2017_vandeputte_nature_flow/PRJEB21504_dada2_merged_nochim.rds.zip"
-  repro_tax_zip       <- "2017_vandeputte_nature_flow/PRJEB21504_dada2_taxonomy_merged.rds.zip"
-
-  # ----- Metadata and Scale -----
-  # Read scale
-  count_csv    <- unzip(metadata_two_zip, list = TRUE)$Name[1]
-  count_con    <- unz(metadata_two_zip, count_csv)
-  metadata_two <- read.csv(count_con) %>% as.data.frame()
-
->>>>>>> Stashed changes
   # Read metadata
   meta_csv     <- unzip(metadata_zip, list = TRUE)$Name[1]
   meta_con     <- unz(metadata_zip, meta_csv)
@@ -100,25 +81,7 @@ parse_2017_vandeputte_nature_flow <- function() {
   } else {
   proportions_original <- NA
   }
-
-  # ----- Reprocessed counts from RDS ZIP -----
-  temp_rds            <- tempfile(fileext = ".rds")
-  unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-  rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-  seqtab_nochim       <- readRDS(rds_file)
-  rpt_mat             <- t(seqtab_nochim)
-  counts_reprocessed  <- as.data.frame(rpt_mat)
-  counts_reprocessed$Sequence <- rownames(counts_reprocessed)
-  counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
-  rownames(counts_reprocessed) <- paste0("Taxon_", seq_len(nrow(counts_reprocessed)))
-
-  # proportions reprocessed
-  proportions_reprocessed = counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-    counts_reprocessed[-1],
-    function(col) col / sum(col)
-  )
-
+  
   # --- Original taxonomies ---
   read_taxonomy_zip <- function(zip_path) {
     if (!file.exists(zip_path)) return(NA)
@@ -131,18 +94,35 @@ parse_2017_vandeputte_nature_flow <- function() {
     rownames(tax_df) <- paste0("Taxon_", seq_len(nrow(tax_df)))
     as_tibble(tax_df, rownames = "Taxon")
   }
-
+  
   tax_original_rdp   <- read_taxonomy_zip(orig_tax_rdp_zip)
   tax_original_silva <- read_taxonomy_zip(orig_tax_silva_zip)
 
+  # ----- Reprocessed counts from RDS ZIP -----
+  temp_rds            <- tempfile(fileext = ".rds")
+  unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+  rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
+  seqtab_nochim       <- readRDS(rds_file)
+  counts_reprocessed  <- as.data.frame(seqtab_nochim)
+  
   # ----- Taxonomy reprocessed -----
   temp_tax <- tempfile(fileext = ".rds")
   unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
   tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
-  taxonomy_matrix <- readRDS(tax_file)
-  rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
-  tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
-  tax_reprocessed <- tax_table
+  tax_reprocessed <- as.data.frame(readRDS(tax_file))
+  
+  # ----- Convert accessions to sample IDs -----
+  # fill
+  
+  # ----- Convert sequences to lowest rank taxonomy found and update key -----
+  
+  
+  # proportions reprocessed
+  proportions_reprocessed = counts_reprocessed
+  proportions_reprocessed[-1] <- lapply(
+    counts_reprocessed[-1],
+    function(col) col / sum(col)
+  )
 
   # ----- Return all -----
   return(list(
@@ -163,3 +143,5 @@ parse_2017_vandeputte_nature_flow <- function() {
     metadata    = metadata
   ))
 }
+
+data <- parse_2017_vandeputte_nature_flow()
