@@ -1,4 +1,4 @@
-parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- function() {
+parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- function(raw = FALSE) {
     required_pkgs <- c("tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
 
@@ -19,13 +19,13 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
     scale_zip          <- file.path(local, "16S samples_FCM_Chl.csv.zip")
 
     repro_counts_zips <- c(
-    file.path(local, "PRJNA508514_dada2_merged_nochim.rds.zip"),
-    file.path(local, "PRJNA508517_SILVA_merged_nochim.rds.zip")
+    file.path(local, "PRJNA508514_dada2_counts.rds.zip")#,
+    #file.path(local, "PRJNA508517_SILVA_counts.rds.zip")
     )
 
     repro_tax_zips <- c(
-    file.path(local, "PRJNA508514_dada2_taxonomy_merged.rds.zip"),
-    file.path(local, "PRJNA508517_SILVA_taxonomy_merged.rds.zip")
+    file.path(local, "PRJNA508514_dada2_taxa.rds.zip")#,
+    #file.path(local, "PRJNA508517_SILVA_taxa.rds.zip")
     )
 
 
@@ -49,35 +49,60 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
     counts_reprocessed_list      <- list()
     proportions_reprocessed_list <- list()
     tax_reprocessed_list         <- list()
-    
+
+    make_taxa_label <- function(df) {
+      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+      prefixes  <- c("k", "p", "c", "o", "f", "g")
+      if (!all(tax_ranks %in% colnames(df))) {
+        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+      }
+      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+        x[is.na(x) | trimws(x) == ""] <- "unclassified"
+        return(x)
+      })
+      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+        for (i in length(tax_ranks):1) {
+          if (tax_row[i] != "unclassified") {
+            return(paste0(prefixes[i], "_", tax_row[i]))
+          }
+        }
+        return("unclassified")  
+      })
+      return(df)
+    }
+
     for (i in seq_along(repro_counts_zips)) {
-        # Counts
-        temp_rds <- tempfile(fileext = ".rds")
-        unzip(repro_counts_zips[i], exdir = dirname(temp_rds), overwrite = TRUE)
-        rds_file <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-        seqtab_nochim <- readRDS(rds_file)
-        rpt_mat <- t(seqtab_nochim)
-        counts <- as.data.frame(rpt_mat)
-        counts$Sequence <- rownames(counts)
-        counts <- counts[, c("Sequence", setdiff(names(counts), "Sequence"))]
-        rownames(counts) <- paste0("Taxon_", seq_len(nrow(counts)))
+      # ----- Reprocessed counts from RDS ZIP -----
+      temp_rds <- tempfile(fileext = ".rds")
+      unzip(repro_counts_zips[i], exdir = dirname(temp_rds), overwrite = TRUE)
 
-        # Proportions
-        proportions <- counts
-        proportions[-1] <- lapply(proportions[-1], function(col) col / sum(col))
+      rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+      if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+      counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-        # Taxonomy
-        temp_tax <- tempfile(fileext = ".rds")
-        unzip(repro_tax_zips[i], exdir = dirname(temp_tax), overwrite = TRUE)
-        tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
-        taxonomy_matrix <- readRDS(tax_file)
-        rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
-        tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
+      # ----- Taxonomy reprocessed -----
+      temp_tax <- tempfile(fileext = ".rds")
+      unzip(repro_tax_zips[i], exdir = dirname(temp_tax), overwrite = TRUE)
 
-        # Assign by label (16S or 18S)
-        counts_reprocessed_list[[repro_labels[i]]]      <- counts
-        proportions_reprocessed_list[[repro_labels[i]]] <- proportions
-        tax_reprocessed_list[[repro_labels[i]]]         <- tax_table
+      tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+      if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+      tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+      tax_reprocessed <- make_taxa_label(tax_reprocessed)
+
+      # ----- Match taxa and collapse -----
+      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+      colnames(counts_reprocessed) <- matched_taxa
+      counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+
+      # ----- Proportions -----
+      proportions_reprocessed <- counts_reprocessed
+      proportions_reprocessed[] <- lapply(proportions_reprocessed, function(col) col / sum(col))
+
+      # ----- Store -----
+      label <- repro_labels[i]
+      counts_reprocessed_list[[label]]      <- counts_reprocessed
+      proportions_reprocessed_list[[label]] <- proportions_reprocessed
+      tax_reprocessed_list[[label]]         <- tax_reprocessed
     }
 
   # ----- Return structured list -----

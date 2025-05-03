@@ -1,4 +1,4 @@
-parse_2020_vierasilva_nature_BMIS <- function() {
+parse_2020_vierasilva_nature_BMIS <- function(raw = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -26,11 +26,9 @@ parse_2020_vierasilva_nature_BMIS <- function() {
     counts_original <- NA
     proportions_original <- NA
     tax_original <- NA
-
     mOTU3_counts <- NA
     mOTU3_proportions <- NA
     mOTU3_tax <- NA
-
     MetaPhlAn4_counts <- NA
     MetaPhlAn4_proportions <- NA
     MetaPhlAn4_tax <- NA
@@ -59,11 +57,8 @@ parse_2020_vierasilva_nature_BMIS <- function() {
         )
         proportions_original <- sweep(counts_original, 2, colSums(counts_original), FUN = "/")
         old_colnames <- colnames(proportions_original)
-        taxon_ids <- paste0("Taxon_", seq_along(old_colnames))
-        colnames(proportions_original) <- taxon_ids
         tax_original <- data.frame(
-        Taxon = taxon_ids,
-        Genera = old_colnames,
+        Taxa = old_colnames,
         stringsAsFactors = FALSE
         )
         unlink(tmpdir, recursive = TRUE)

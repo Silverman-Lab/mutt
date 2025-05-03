@@ -1,4 +1,4 @@
-parse_2021_ott_environmentalmicrobiome_riverwater <- function() {
+parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE) {
   required_pkgs <- c("tibble", "tidyverse", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
@@ -14,42 +14,93 @@ parse_2021_ott_environmentalmicrobiome_riverwater <- function() {
 
   # ----- File paths -----
   metadata_zip         <- file.path(local, "metadata.csv.zip")
-  repro_counts_rds_zip <- file.path(local, "PRJEB42314_dada2_merged_nochim.rds.zip")
-  repro_tax_zip        <- file.path(local, "PRJEB42314_dada2_taxonomy_merged.rds.zip")
+  sra_zip              <- file.path(local, "SraRunTable (30).csv.zip")
+  repro_counts_rds_zip <- file.path(local, "PRJEB42314_dada2_counts.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJEB42314_dada2_taxa.rds.zip")
+
+  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+    if (file.exists(zip_path)) {
+      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+      con <- unz(zip_path, inner_file)
+      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
+    } else {
+      warning(paste("File not found:", zip_path))
+      return(NA)
+    }
+  }
+
+  # ----- Initialize everything as NA -----
+  counts_original <- NA
+  proportions_original <- NA
+  tax_original <- NA
+  counts_reprocessed <- NA
+  proportions_reprocessed <- NA
+  tax_reprocessed <- NA
 
   # ------ metadata and scale -----
-  meta_csv     <- unzip(metadata_zip, list = TRUE)$Name[1]
-  meta_con     <- unz(metadata_zip, meta_csv)
-  metadata     <- read.csv(meta_con) %>% as.data.frame()
+  metadata     <- read_zipped_table(metadata_zip)  # NEED Sample_name from Amelie Ott -- May 5th 2025 follow up with her
+  sra          <- read_zipped_table(sra_zip) %>%
+                      rename(Accession = run) 
 
-  scale <- metadata %>% dplyr::select("accession", "S16_rRNA_n")
+  metadata <- full_join(metadata, sra, by = "Sample_name")
+  scale <- metadata %>% dplyr::select("Accession", "Sample_name", "S16_rRNA_ml") 
 
   # ----- Reprocessed counts from RDS ZIP -----
-  temp_rds            <- tempfile(fileext = ".rds")
+  temp_rds <- tempfile(fileext = ".rds")
   unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-  rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-  seqtab_nochim       <- readRDS(rds_file)
-  rpt_mat             <- t(seqtab_nochim)
-  counts_reprocessed  <- as.data.frame(rpt_mat)
-  counts_reprocessed$Sequence <- rownames(counts_reprocessed)
-  counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
-  rownames(counts_reprocessed) <- paste0("Taxon_", seq_len(nrow(counts_reprocessed)))
 
-  # proportions reprocessed
-  proportions_reprocessed = counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-    counts_reprocessed[-1],
-    function(col) col / sum(col)
-  )
+  rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+  if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+  counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
   # ----- Taxonomy reprocessed -----
   temp_tax <- tempfile(fileext = ".rds")
   unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-  tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
-  taxonomy_matrix <- readRDS(tax_file)
-  rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
-  tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
-  tax_reprocessed = tax_table
+
+  tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+  if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+  tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+
+  
+  # ----- Convert sequences to lowest rank taxonomy found and update key -----
+  make_taxa_label <- function(df) {
+    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+    prefixes  <- c("k", "p", "c", "o", "f", "g")
+    if (!all(tax_ranks %in% colnames(df))) {
+    stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+    }
+    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+    x[is.na(x) | trimws(x) == ""] <- "unclassified"
+    return(x)
+    })
+    df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+    for (i in length(tax_ranks):1) {
+        if (tax_row[i] != "unclassified") {
+        return(paste0(prefixes[i], "_", tax_row[i]))
+        }
+    }
+    return("unclassified")  
+    })
+    return(df)
+  }
+  tax_reprocessed = make_taxa_label(tax_reprocessed)
+
+  # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+  # accessions to sampleIDs is study specific: IF NEED BE
+
+  # taxa
+  if (!raw) {
+      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+      colnames(counts_reprocessed) <- matched_taxa
+      counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+  }
+
+  # proportions reprocessed
+  proportions_reprocessed = counts_reprocessed
+  proportions_reprocessed[-1] <- lapply(
+      counts_reprocessed[-1],
+      function(col) col / sum(col)
+  )
 
   return(list(
     counts      = list(original = NA, reprocessed = counts_reprocessed),

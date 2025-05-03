@@ -1,4 +1,4 @@
-parse_2017_liu_mbio_penilehivqPCR <- function() {
+parse_2017_liu_mbio_penilehivqPCR <- function(raw = FALSE) {
     required_pkgs <- c("stringr", "tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -15,19 +15,18 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
     # ----- File paths -----
     repro_counts_rds_zip <- file.path(local, "PRJNA1233249_dada2_counts.rds.zip")
     repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxa.rds.zip")
-    repro_asv_zip        <- file.path(local, "asv_PRJNA1233249.rds.zip")
     scale_16s_zip        <- file.path(local, "PMID-28743816_samples-v1.csv.zip")
     metadata_16s_zip     <- file.path(local, "metadata.csv.zip")
 
-
-    read_zipped_csv <- function(zip_path) {
-        if (file.exists(zip_path)) {
-            csv_file <- unzip(zip_path, list = TRUE)$Name[1]
-            read.csv(unz(zip_path, csv_file), row.names = 1, check.names = FALSE)
-        } else {
-            warning(paste("File not found:", zip_path))
-            return(NA)
-        }
+    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+      if (file.exists(zip_path)) {
+        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+        con <- unz(zip_path, inner_file)
+        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
+      } else {
+        warning(paste("File not found:", zip_path))
+        return(NA)
+      }
     }
 
     # ----- Initialize everything as NA -----
@@ -39,17 +38,12 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
     tax_reprocessed <- NA
 
     # ------ original counts ------
-    counts_original <- NA
-
     if (!is.na(counts_original)[1]) {
         original_taxa <- colnames(counts_original)
-        taxon_ids <- paste0("Taxon_", seq_len(nrow(counts_original)))
-        colnames(counts_original) <- taxon_ids
 
         # Create taxa mapping data frame
         tax_original <- data.frame(
-        Taxon = taxon_ids,
-        Original_Taxa = original_taxa,
+        Taxa = original_taxa,
         stringsAsFactors = FALSE
         )
 
@@ -73,20 +67,30 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
     }
 
     # ---- scale and metadata -----
-    scale     <- read_zipped_csv(scale_16s_zip)
-    metadata  <- read_zipped_csv(metadata_16s_zip)
+    scale     <- read_zipped_table(scale_16s_zip)
+    metadata  <- read_zipped_table(metadata_16s_zip)
+
+    scale <- scale %>%
+        select(ID, `16s Qty Mean`) %>%
+        rename(Sample_name = ID) %>%
+        left_join(metadata %>% select(Sample_name, Accession), by = "Sample_name")
 
     # ----- Reprocessed counts from RDS ZIP -----
-    temp_rds            <- tempfile(fileext = ".rds")
+    temp_rds <- tempfile(fileext = ".rds")
     unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-    rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-    counts_reprocessed       <-  as.data.frame(readRDS(rds_file))
-    
+
+    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+
     # ----- Taxonomy reprocessed -----
     temp_tax <- tempfile(fileext = ".rds")
     unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-    tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
-    tax_reprocessed <- as.data.frame(readRDS(tax_file))
+
+    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+
     
     # ----- Convert sequences to lowest rank taxonomy found and update key -----
     make_taxa_label <- function(df) {
@@ -99,7 +103,7 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
         x[is.na(x) | trimws(x) == ""] <- "unclassified"
         return(x)
         })
-        df$taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
         for (i in length(tax_ranks):1) {
             if (tax_row[i] != "unclassified") {
             return(paste0(prefixes[i], "_", tax_row[i]))
@@ -116,9 +120,9 @@ parse_2017_liu_mbio_penilehivqPCR <- function() {
 
     # taxa
     if (!raw) {
-        matched_taxa <- tax_reprocessed$taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
         colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed_collapsed <- t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed)))
+        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
     }
 
     # proportions reprocessed

@@ -1,4 +1,4 @@
-parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function() {
+parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE) {
   required_pkgs <- c("tibble", "tidyverse")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
@@ -8,7 +8,6 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function() {
   library(tibble)
   library(tidyverse)
 
-<<<<<<< Updated upstream
   # ----- Local base directory -----
   local <- file.path("2020_tettamantiboshier_msystems_vaginaltimeseries")
 
@@ -16,8 +15,8 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function() {
   counts_zip           <- file.path(local, "originalcounts.csv.zip")
   scale_zip            <- file.path(local, "scale_connect20250425.csv.zip")
   metadata_zip         <- file.path(local, "SraRunTable (30).csv.zip")
-  repro_counts_rds_zip <- file.path(local, "PRJNA549339_dada2_merged_nochim.rds.zip")
-  repro_tax_zip        <- file.path(local, "PRJNA549339_dada2_taxonomy_merged.rds.zip")
+  repro_counts_rds_zip <- file.path(local, "PRJNA549339_dada2_counts.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJNA549339_dada2_taxa.rds.zip")
 
   # ----- Read counts & proportions -----
   if (file.exists(counts_zip)) {
@@ -25,50 +24,16 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function() {
     counts_con  <- unz(counts_zip, counts_file)
     countsdata  <- read.csv(counts_con) %>% as.data.frame()
 
-    columns_to_drop <- c("Participant", "Hours_In_Study")
+    columns_to_drop <- c("Participant", "Hours_In_Study", "Sample_ID")
     counts_original <- countsdata[, !(names(countsdata) %in% columns_to_drop)]
     metadatacols    <- countsdata[, names(countsdata) %in% columns_to_drop]
 
-    taxon_names <- paste0("Taxon_", seq_len(ncol(counts_original)))
-    colnames(counts_original) <- taxon_names
-
     tax <- tibble(
-      Taxon = taxon_names,
-      OriginalName = colnames(countsdata)[!(colnames(countsdata) %in% columns_to_drop)]
+      Taxa = colnames(countsdata)[!(colnames(countsdata) %in% columns_to_drop)]
     )
 
     counts <- bind_cols(metadatacols, counts_original)
 
-=======
-  # ----- File paths -----
-  local               <- file.path("/2020_tettamantiboshier_msystems_vaginaltimeseries/")
-  counts_zip          <- paste0(local, "originalcounts.csv.zip")
-  scale_zip           <- paste0(local, "scale.csv.zip")
-  metadata_zip        <- paste0(local, "SraRunTable (30).csv.zip")
-  repro_counts_rds_zip<- paste0(local, "PRJNA549339_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- paste0(local, "PRJNA549339_dada2_taxonomy_merged.rds.zip")
-
-  # ----- Read counts & proportions -----
-  if (file.exists(counts_zip)) {
-    counts_file <- unzip(counts_zip, list = TRUE)$Name[1]
-    counts_con  <- unz(counts_zip, counts_file)
-    countsdata  <- read.csv(counts_con) %>% as.data.frame()
-
-    columns_to_drop <- c("Participant", "Hours_In_Study")
-    counts_original <- countsdata[, !(names(countsdata) %in% columns_to_drop)]
-    metadatacols    <- countsdata[, names(countsdata) %in% columns_to_drop]
-
-    taxon_names <- paste0("Taxon_", seq_len(ncol(counts_original)))
-    colnames(counts_original) <- taxon_names
-
-    tax <- tibble(
-      Taxon = taxon_names,
-      OriginalName = colnames(countsdata)[!(colnames(countsdata) %in% columns_to_drop)]
-    )
-
-    counts <- bind_cols(metadatacols, counts_original)
-
->>>>>>> Stashed changes
     row_sums    <- rowSums(counts_original)
     prop_mat    <- sweep(as.matrix(counts_original), 1, row_sums, FUN = "/")
     prop_mat[is.nan(prop_mat)] <- 0
@@ -95,37 +60,67 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function() {
     metadata_file <- unzip(metadata_zip, list = TRUE)$Name[1]
     metadata_con  <- unz(metadata_zip, metadata_file)
     metadata = read.csv(metadata_con) %>% as.data.frame()
-    # This needs to be cleaned up because im not sure how to link the sample IDs.
+    # This needs to be cleaned up for the originals because im not sure how to link the sample IDs.
   } else {
     metadata <- NA
   }
 
-  # ----- Reprocessed counts from RDS ZIP -----
-  temp_rds            <- tempfile(fileext = ".rds")
+ # ----- Reprocessed counts from RDS ZIP -----
+  temp_rds <- tempfile(fileext = ".rds")
   unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-  rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-  seqtab_nochim       <- readRDS(rds_file)
-  rpt_mat             <- t(seqtab_nochim)
-  counts_reprocessed  <- as.data.frame(rpt_mat)
-  counts_reprocessed$Sequence <- rownames(counts_reprocessed)
-  counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
-  rownames(counts_reprocessed) <- paste0("Taxon_", seq_len(nrow(counts_reprocessed)))
 
-  # proportions reprocessed
-  proportions_reprocessed = counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-    counts_reprocessed[-1],
-    function(col) col / sum(col)
-  )
+  rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+  if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+  counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
   # ----- Taxonomy reprocessed -----
   temp_tax <- tempfile(fileext = ".rds")
   unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-  tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
-  taxonomy_matrix <- readRDS(tax_file)
-  rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
-  tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
-  tax_reprocessed = tax_table
+
+  tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+  if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+  tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+
+  
+  # ----- Convert sequences to lowest rank taxonomy found and update key -----
+  make_taxa_label <- function(df) {
+      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+      prefixes  <- c("k", "p", "c", "o", "f", "g")
+      if (!all(tax_ranks %in% colnames(df))) {
+      stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+      }
+      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+      x[is.na(x) | trimws(x) == ""] <- "unclassified"
+      return(x)
+      })
+      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+      for (i in length(tax_ranks):1) {
+          if (tax_row[i] != "unclassified") {
+          return(paste0(prefixes[i], "_", tax_row[i]))
+          }
+      }
+      return("unclassified")  
+      })
+      return(df)
+  }
+  tax_reprocessed = make_taxa_label(tax_reprocessed)
+
+  # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+  # accessions to sampleIDs is study specific: IF NEED BE
+
+  # taxa
+  if (!raw) {
+      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+      colnames(counts_reprocessed) <- matched_taxa
+      counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+  }
+
+  # proportions reprocessed
+  proportions_reprocessed = counts_reprocessed
+  proportions_reprocessed[-1] <- lapply(
+      counts_reprocessed[-1],
+      function(col) col / sum(col)
+  )
 
   # ----- Return combined object -----
   return(list(

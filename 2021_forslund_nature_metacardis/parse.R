@@ -1,5 +1,4 @@
-# parse.R
-parse_2021_forslund_nature_metacardis <- function() {
+parse_2021_forslund_nature_metacardis <- function(raw = FALSE) {
   required_pkgs <- c("tidyverse", "readxl", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
@@ -168,7 +167,6 @@ parse_2021_forslund_nature_metacardis <- function() {
   mOTU3_counts <- NULL
   mOTU3_proportions <- NULL
   mOTU3_tax <- NULL
-
   MetaPhlAn4_counts <- NULL
   MetaPhlAn4_proportions <- NULL
   MetaPhlAn4_tax <- NULL
