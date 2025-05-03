@@ -6,6 +6,7 @@ parse_2024_nishijima_cell_galaxy <- function(bind_all = FALSE) {
          ". Please install them before running this function.")
   }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
   library(stringr)
   library(tidyverse)
@@ -34,6 +35,8 @@ parse_2024_nishijima_cell_galaxy <- function(bind_all = FALSE) {
     prefixes
   )
 =======
+=======
+>>>>>>> Stashed changes
 
   library(stringr)
   library(tidyverse)
@@ -51,6 +54,9 @@ parse_2024_nishijima_cell_galaxy <- function(bind_all = FALSE) {
     "PRJEB76661", "PRJEB76664", "PRJEB76662", "PRJEB76667",
     "PRJEB76666", "PRJEB81698", "PRJEB76668", "PRJEB81697"
   ), "_MetaPhlAn_merged.tsv.zip"), prefixes)
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
   # ----- Load Scale & Metadata -----

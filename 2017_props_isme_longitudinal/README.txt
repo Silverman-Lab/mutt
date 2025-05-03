@@ -19,9 +19,13 @@ The file metadata folder contains additional information that was collected conc
 - Cell.density.sd: standard deviation on the total cell density measurements based on triplicate measurements.
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ^ The above is great, but there is no way to connect this information to the count data or the sequencing files because the sample ID is not synonymous. So that extra metadata is unfortunately not useful at the moment. Hopefully we can retain this information.
 
 Maxwell: I recollected all information, used the SRA file and supplemental table 2 to pair the sequences to the flow data through the sample title column. Nico Boon gave me Dr. Props email on 4/25/25 although I never reached out because there was no need. Was going to ask about the A in the Sample_name column, but I just dropped it. I wrote the parse.R and cleaned the data.  
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
