@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- function(raw = FALSE, originaltax = 'qiime') {
   required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
@@ -18,49 +17,22 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   sex_delivery_zip    <- file.path(local, "SI_data3_sex_and_delivery_data.csv.zip")
   diet_data_zip       <- file.path(local, "SI_data2_diet_data.csv.zip")
   meds_data_zip       <- file.path(local, "SI_data1_allMeds_jan2020.xlsx.zip")
-  sra_metadata_zip    <- file.path(local, "sra_metadata.csv.zip")
+  sra_metadata_zip    <- file.path(local, "SraRunTable (38).csv.zip")
   repro_counts_rds_zip<- file.path(local, "PRJEB36435_dada2_counts.rds.zip")
   repro_tax_zip       <- file.path(local, "PRJEB36435_dada2_taxa.rds.zip")
-  
-=======
-parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- function() {
-  
-  # -------------------------------------------------------------
-  # 1) Check and load required packages
-  # -------------------------------------------------------------
-  required_pkgs <- c("tidyverse", "readxl")
-  missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
-  
-  if (length(missing_pkgs) > 0) {
-    stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
-         ". Please install them before running this function.")
+
+  first_row_to_colnames <- function(df) {
+    colnames(df) <- as.character(df[1, ])
+    df <- df[-1, ]
+    return(df)
   }
-  
-  library(tidyverse)
-  library(readxl)
-  
-  # -------------------------------------------------------------
-  # 2) Read Counts + Taxonomy from combined_p1_p2.xlsx.zip
-  # -------------------------------------------------------------
-  counts_zip <- "2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/combined_p1_p2.xlsx.zip"
-  
-  counts_bacteria <- NULL
-  counts_fungi    <- NULL
-  taxa_bacteria   <- NULL
-  taxa_fungi      <- NULL
-  
->>>>>>> Stashed changes
+
   if (!file.exists(counts_zip)) {
     warning("Counts file not found: ", counts_zip)
   } else {
     tmp_dir <- tempdir()
     unzip(counts_zip, exdir = tmp_dir)
-<<<<<<< Updated upstream
     excel_file <- list.files(tmp_dir, pattern = "combined_p1_p2\\.xlsx$", full.names = TRUE)
-=======
-    excel_file <- list.files(tmp_dir, pattern = "\\.xlsx$", full.names = TRUE)
->>>>>>> Stashed changes
-    
     sheets <- c("fungi", "bacteria", "archaea", "archaea_side")
     data_list <- lapply(sheets, function(sh) {
       possible_data <- tryCatch(
@@ -84,288 +56,48 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
       # Bacteria
       counts_bacteria <- data_bacteria %>%
         select(OTU_ID, everything()) %>%
-<<<<<<< Updated upstream
         select(-any_of(taxonomy_columns)) 
-=======
-        select(-any_of(taxonomy_columns)) %>%
-        column_to_rownames("OTU_ID")
-      
-      taxa_bacteria <- data_bacteria %>%
-        select(any_of(c("OTU_ID", taxonomy_columns))) %>%
-        column_to_rownames("OTU_ID")
     }
     
     if (nrow(data_fungi) > 0) {
       # Fungi
       counts_fungi <- data_fungi %>%
         select(OTU_ID, everything()) %>%
-        select(-any_of(taxonomy_columns)) %>%
-        column_to_rownames("OTU_ID")
-      
-      taxa_fungi <- data_fungi %>%
-        select(any_of(c("OTU_ID", taxonomy_columns))) %>%
-        column_to_rownames("OTU_ID")
-    }
-  }
-  
-  # -------------------------------------------------------------
-  # 3) Read Supplemental Data from 41586_2021_3241_MOESM4_ESM.xlsx.zip
-  # -------------------------------------------------------------
-  supplemental_zip <- "41586_2021_3241_MOESM4_ESM.xlsx.zip"
-  table_3b <- NULL
-  table_3c <- NULL
-  table_3d <- NULL
-  scale <- NULL
-  counts_bacteria_phase2 <- NULL
-  counts_fungi_phase2 <- NULL
-  counts_archaea <- NULL
-  taxa_bacteria_phase2 <- NULL
-  taxa_fungi_phase2 <- NULL
-  taxa_archaea <- NULL
-  
-  if (file.exists(supplemental_zip)) {
-    # Unzip the supplemental file
-    tmp_dir <- tempdir()
-    unzip(supplemental_zip, exdir = tmp_dir)
-    supplemental_excel <- list.files(tmp_dir, pattern = "41586_2021_3241_MOESM4_ESM\\.xlsx$", full.names = TRUE)
-    
-    if (length(supplemental_excel) > 0) {
-      # Sheet 4: Scale data
-      scale_sheet4 <- tryCatch(
-        read_excel(supplemental_excel[1], sheet = "Sheet4"),
-        error = function(e) NULL
-      )
-      
-      # Sheet 6: Scale data
-      scale_sheet6 <- tryCatch(
-        read_excel(supplemental_excel[1], sheet = "Sheet6"),
-        error = function(e) NULL
-      )
-      
-      # Combine scale data
-      if (!is.null(scale_sheet4) && !is.null(scale_sheet6)) {
-        scale <- rbind(scale_sheet4, scale_sheet6)
-      } else if (!is.null(scale_sheet4)) {
-        scale <- scale_sheet4
-      } else if (!is.null(scale_sheet6)) {
-        scale <- scale_sheet6
-      }
-      
-      # Sheet 8: Bacteria OTU counts (1st phase)
-      sheet8_data <- tryCatch(
-        read_excel(supplemental_excel[1], sheet = "Sheet8"),
-        error = function(e) NULL
-      )
-      if (!is.null(sheet8_data)) {
-        counts_bacteria <- sheet8_data %>%
-          select(-qiime2_sklearn_taxonomy, -qiime2_sklearn_confidence) %>%
-          column_to_rownames("OTU_ID")
-        
-        taxa_bacteria <- sheet8_data %>%
-          select(OTU_ID, qiime2_sklearn_taxonomy) %>%
-          column_to_rownames("OTU_ID") %>%
-          rename(taxonomy = qiime2_sklearn_taxonomy)
-      }
-      
-      # Sheet 9: Archaea OTU counts (1st phase)
-      sheet9_data <- tryCatch(
-        read_excel(supplemental_excel[1], sheet = "Sheet9"),
-        error = function(e) NULL
-      )
-      if (!is.null(sheet9_data)) {
-        counts_archaea <- sheet9_data %>%
-          select(-qiime2_sklearn_taxonomy, -qiime2_sklearn_confidence) %>%
-          column_to_rownames("OTU_ID")
-        
-        taxa_archaea <- sheet9_data %>%
-          select(OTU_ID, qiime2_sklearn_taxonomy) %>%
-          column_to_rownames("OTU_ID") %>%
-          rename(taxonomy = qiime2_sklearn_taxonomy)
-      }
-      
-      # Sheet 10: Fungi OTU counts (1st phase)
-      sheet10_data <- tryCatch(
-        read_excel(supplemental_excel[1], sheet = "Sheet10"),
-        error = function(e) NULL
-      )
-      if (!is.null(sheet10_data)) {
-        counts_fungi <- sheet10_data %>%
-          select(-qiime2_sklearn_taxonomy, -qiime2_sklearn_confidence) %>%
-          column_to_rownames("OTU_ID")
-        
-        taxa_fungi <- sheet10_data %>%
-          select(OTU_ID, qiime2_sklearn_taxonomy) %>%
-          column_to_rownames("OTU_ID") %>%
-          rename(taxonomy = qiime2_sklearn_taxonomy)
-      }
-      
-      # Sheet 11: Bacteria OTU counts (2nd phase)
-      sheet11_data <- tryCatch(
-        read_excel(supplemental_excel[1], sheet = "Sheet11"),
-        error = function(e) NULL
-      )
-      if (!is.null(sheet11_data)) {
-        counts_bacteria_phase2 <- sheet11_data %>%
-          select(-qiime2_sklearn_taxonomy, -qiime2_sklearn_confidence) %>%
-          column_to_rownames("OTU_ID")
-        
-        taxa_bacteria_phase2 <- sheet11_data %>%
-          select(OTU_ID, qiime2_sklearn_taxonomy) %>%
-          column_to_rownames("OTU_ID") %>%
-          rename(taxonomy = qiime2_sklearn_taxonomy)
-      }
-      
-      # Sheet 12: Fungi OTU counts (2nd phase)
-      sheet12_data <- tryCatch(
-        read_excel(supplemental_excel[1], sheet = "Sheet12"),
-        error = function(e) NULL
-      )
-      if (!is.null(sheet12_data)) {
-        counts_fungi_phase2 <- sheet12_data %>%
-          select(-qiime2_sklearn_taxonomy, -qiime2_sklearn_confidence) %>%
-          column_to_rownames("OTU_ID")
-        
-        taxa_fungi_phase2 <- sheet12_data %>%
-          select(OTU_ID, qiime2_sklearn_taxonomy) %>%
-          column_to_rownames("OTU_ID") %>%
-          rename(taxonomy = qiime2_sklearn_taxonomy)
-      }
-      
-      # Subtable 3b: OTU table of bacterial mock communities
-      sheet_data <- read_excel(supplemental_excel[1], sheet = "Sheet3", col_names = FALSE)
-      start_row_3b <- which(sheet_data[[1]] == "3b. OTU table of bacterial mock communities") + 2
-      table_3b <- read_excel(supplemental_excel[1], sheet = "Sheet3", skip = start_row_3b, n_max = 13)
-      table_3b <- table_3b[1:10, ]  # First 10 rows are the taxonomy data
-      colnames(table_3b)[1] <- "taxonomy"
-      
-      # Subtable 3c: OTU table of fungal mock communities
-      start_row_3c <- which(sheet_data[[1]] == "3c. OTU table of fungal mock communities") + 2
-      table_3c <- read_excel(supplemental_excel[1], sheet = "Sheet3", skip = start_row_3c, n_max = 10)
-      table_3c <- table_3c[1:9, ]  # First 9 rows are the taxonomy data
-      colnames(table_3c)[1] <- "taxonomy"
-      
-      # Subtable 3d: OTU table of archaeal mock communities
-      start_row_3d <- which(sheet_data[[1]] == "3d. OTU table of archaeal mock communities") + 2
-      table_3d <- read_excel(supplemental_excel[1], sheet = "Sheet3", skip = start_row_3d, n_max = 5)
-      table_3d <- table_3d[1:4, ]  # First 4 rows are the taxonomy data
-      colnames(table_3d)[1] <- "taxonomy"
-    } else {
-      warning("Supplemental Excel file not found after unzipping.")
->>>>>>> Stashed changes
-    }
-  } else {
-    warning("Supplemental zip file not found: ", supplemental_zip)
-  }
-  
-  # -------------------------------------------------------------
-  # 4) Calculate Proportions
-  # -------------------------------------------------------------
-  proportions_bacteria <- NULL
-  proportions_fungi <- NULL
-  proportions_bacteria_phase2 <- NULL
-  proportions_fungi_phase2 <- NULL
-  proportions_archaea <- NULL
-  
-  if (!is.null(counts_bacteria) && nrow(counts_bacteria) > 0) {
-    counts_bacteria_num <- counts_bacteria %>%
-      mutate_all(as.numeric)
-    row_sums_bac <- rowSums(counts_bacteria_num, na.rm = TRUE)
-    proportions_bacteria <- sweep(counts_bacteria_num, 1, row_sums_bac, "/")
-    proportions_bacteria[is.na(proportions_bacteria)] <- 0
-  }
-  
-  if (!is.null(counts_fungi) && nrow(counts_fungi) > 0) {
-    counts_fungi_num <- counts_fungi %>%
-      mutate_all(as.numeric)
-    row_sums_fun <- rowSums(counts_fungi_num, na.rm = TRUE)
-    proportions_fungi <- sweep(counts_fungi_num, 1, row_sums_fun, "/")
-    proportions_fungi[is.na(proportions_fungi)] <- 0
-  }
-  
-  if (!is.null(counts_bacteria_phase2) && nrow(counts_bacteria_phase2) > 0) {
-    counts_bacteria_phase2_num <- counts_bacteria_phase2 %>%
-      mutate_all(as.numeric)
-    row_sums_bac_p2 <- rowSums(counts_bacteria_phase2_num, na.rm = TRUE)
-    proportions_bacteria_phase2 <- sweep(counts_bacteria_phase2_num, 1, row_sums_bac_p2, "/")
-    proportions_bacteria_phase2[is.na(proportions_bacteria_phase2)] <- 0
-  }
-  
-  if (!is.null(counts_fungi_phase2) && nrow(counts_fungi_phase2) > 0) {
-    counts_fungi_phase2_num <- counts_fungi_phase2 %>%
-      mutate_all(as.numeric)
-    row_sums_fun_p2 <- rowSums(counts_fungi_phase2_num, na.rm = TRUE)
-    proportions_fungi_phase2 <- sweep(counts_fungi_phase2_num, 1, row_sums_fun_p2, "/")
-    proportions_fungi_phase2[is.na(proportions_fungi_phase2)] <- 0
-  }
-  
-  if (!is.null(counts_archaea) && nrow(counts_archaea) > 0) {
-    counts_archaea_num <- counts_archaea %>%
-      mutate_all(as.numeric)
-    row_sums_arc <- rowSums(counts_archaea_num, na.rm = TRUE)
-    proportions_archaea <- sweep(counts_archaea_num, 1, row_sums_arc, "/")
-    proportions_archaea[is.na(proportions_archaea)] <- 0
-  }
-  
-  # -------------------------------------------------------------
-  # 5) Read and merge metadata
-  # -------------------------------------------------------------
-  sex_delivery_zip <- "SI_data3_sex_and_delivery_data.csv.zip"
-  diet_data_zip    <- "SI_data2_diet_data.csv.zip"
-  meds_data_zip    <- "SI_data1_allMeds_jan2020.xlsx.zip"
-  sra_metadata_zip <- "sra_metadata.csv.zip"  # New metadata file
-  
-  metadata <- NULL
-  
-  safe_read_zip <- function(zip_path, is_xlsx = FALSE, sheet = 1) {
-    if (!file.exists(zip_path)) return(NULL)
-    zfiles <- unzip(zip_path, list = TRUE)$Name
-    if (length(zfiles) < 1) return(NULL)
-    file_to_read <- zfiles[1]
-    td <- tempdir()
-    unzip(zip_path, files = file_to_read, exdir = td, overwrite = TRUE)
-    fpath <- file.path(td, file_to_read)
-    
-<<<<<<< Updated upstream
-    if (nrow(data_fungi) > 0) {
-      # Fungi
-      counts_fungi <- data_fungi %>%
-        select(OTU_ID, everything()) %>%
-        select(-any_of(taxonomy_columns))
+        select(-any_of(taxonomy_columns)) 
     }
 }
 
 # ---- Taxa label generator ----
 make_taxa_label <- function(df) {
-  tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-  prefixes  <- c("k", "p", "c", "o", "f", "g")
-  if (!all(tax_ranks %in% colnames(df))) {
-    stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-  }
-  df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-    x[is.na(x) | trimws(x) == ""] <- "unclassified"
-    return(x)
-  })
-  df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-    for (i in length(tax_ranks):1) {
-      if (tax_row[i] != "unclassified") {
-        return(paste0(prefixes[i], "_", tax_row[i]))
-      }
+    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+    prefixes  <- c("k", "p", "c", "o", "f", "g")
+    if (!all(tax_ranks %in% colnames(df))) {
+        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
     }
-    return("unclassified")  
-  })
-  return(df)
+    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+        x[is.na(x) | trimws(x) == ""] <- "unclassified"
+        x
+    })
+    df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+        if (tax_row["Genus"] != "unclassified") {
+        return(paste0("g_", tax_row["Genus"]))
+        }
+        for (i in (length(tax_ranks)-1):1) {  # skip Genus
+        if (tax_row[i] != "unclassified") {
+            return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+        }
+        }
+        return("unclassified")
+    })
+    return(df)
 }
 
 build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full", "utax", "vsearch")) {
     method <- match.arg(method)
-
     if (method == "qiime") {
-      # pull out the raw qiime_sklearn column
       tax_source <- df %>%
         select(OTU_ID, taxonomy = qiime_sklearn)
-
       if (any(grepl("^D_\\d+__", tax_source$taxonomy, perl = TRUE))) {
-        # 16S style: D_0__..;D_1__..; etc.
         tax_df <- tax_source %>%
           separate(taxonomy,
                   into = c("D0", "D1", "D2", "D3", "D4", "D5", "D6"),
@@ -381,28 +113,22 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
             Species = gsub("^D_6__", "", D6)
           )
       } else {
-        # ITS style: k__..;p__..; etc.
         tax_df <- tax_source %>%
           separate(taxonomy,
                   into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
                   sep = ";", fill = "right") %>%
           mutate(across(Kingdom:Species, ~ gsub("^[a-z]__", "", .)))
       }
-
       tax_df <- tax_df %>%
         mutate(across(Kingdom:Species, ~ ifelse(. == "" | is.na(.), NA, .)))
-
     } else if (method == "sintax") {
-      # usearch_sintax_80% → comma-delimited, no confidences
       tax_df <- df %>%
         select(OTU_ID, taxonomy = `usearch_sintax_80%`) %>%
         separate(taxonomy,
                 into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
                 sep = ",", fill = "right") %>%
         mutate(across(Kingdom:Species, ~ gsub("^[a-z]:", "", .)))
-
     } else if (method == "sintax_full") {
-      # usearch_sintax → remove confidence then comma-delimited
       tax_df <- df %>%
         select(OTU_ID, taxonomy = usearch_sintax) %>%
         mutate(taxonomy = gsub("\\([^)]+\\)", "", taxonomy)) %>%
@@ -410,9 +136,7 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
                 into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
                 sep = ",", fill = "right") %>%
         mutate(across(Kingdom:Species, ~ gsub("^[a-z]:", "", .)))
-
     } else if (method == "utax") {
-      # usearch_utax → semicolon-delimited after last '|refs|'
       tax_df <- df %>%
         select(OTU_ID, taxonomy = usearch_utax) %>%
         mutate(taxonomy = gsub(".*\\|refs\\|", "", taxonomy)) %>%
@@ -420,9 +144,7 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
                 into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
                 sep = ";", fill = "right") %>%
         mutate(across(Kingdom:Species, ~ gsub("^[a-z]__", "", .)))
-
     } else if (method == "vsearch") {
-      # vsearch_usearchglobal → same as UTAX style
       tax_df <- df %>%
         select(OTU_ID, taxonomy = vsearch_usearchglobal) %>%
         mutate(taxonomy = gsub(".*\\|refs\\|", "", taxonomy)) %>%
@@ -431,20 +153,19 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
                 sep = ";", fill = "right") %>%
         mutate(across(Kingdom:Species, ~ gsub("^[a-z]__", "", .)))
     }
-
-    # final cleanup: blank → NA
     tax_df <- tax_df %>%
       mutate(across(Kingdom:Species, ~ ifelse(. == "" | is.na(.), NA, .)))
-
     return(tax_df)
   }
 
-  taxa_bacteria <- build_taxonomy_table(data_list[["bacteria"]], method = originaltax)
-  taxa_fungi    <- build_taxonomy_table(data_list[["fungi"]], method = originaltax)
+  taxa_bacteria <- suppressWarnings(suppressMessages(build_taxonomy_table(data_list[["bacteria"]], method = originaltax)))
+  taxa_fungi    <- suppressWarnings(suppressMessages(build_taxonomy_table(data_list[["fungi"]], method = originaltax)))
 
   taxa_bacteria = make_taxa_label(taxa_bacteria)
   taxa_fungi    = make_taxa_label(taxa_fungi)
-  
+  counts_bacteria = first_row_to_colnames(as.data.frame(t(counts_bacteria)))
+  counts_fungi = first_row_to_colnames(as.data.frame(t(counts_fungi)))
+
   tmp_dir <- tempdir()
   unzip(supplemental_zip, exdir = tmp_dir)
   supplemental_excel <- list.files(tmp_dir, pattern = "41586_2021_3241_MOESM4_ESM\\.xlsx$", full.names = TRUE)
@@ -462,43 +183,43 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
           select(OTU_ID, qiime_sklearn = qiime2_sklearn_taxonomy, confidence)
         otu <- df %>%
           select(-qiime2_sklearn_taxonomy, -confidence)
-        return(list(otu = otu, tax = build_taxonomy_table(tax, method = "qiime")))
+        return(list(otu = as.data.frame(t(otu)), tax = make_taxa_label(build_taxonomy_table(tax, method = "qiime"))))
       }
       return(list(otu = df, tax = NULL))
     }
 
     # Read Scale sheets
-    scale_ <- tryCatch(readxl::read_excel(file, sheet = "sTable4"), error = function(e) NULL)
-    scale_ITS <- tryCatch(readxl::read_excel(file, sheet = "sTable6"), error = function(e) NULL)
-    scale <- bind_rows(Filter(Negate(is.null), list(scale_sheet4, scale_sheet6)))
+    scale_ <- readxl::read_excel(file, sheet = "sTable4")
+    scale_ITS <- readxl::read_excel(file, sheet = "sTable6")
+    scale <- bind_rows(Filter(Negate(is.null), list(scale_, scale_ITS)))
 
     # Read OTU sheets
     otu_data <- list(
-      originalcounts_bacteria        = read_otu_sheet("sTable8"),
-      originalcounts_archaea         = read_otu_sheet("sTable9"),
-      originalcounts_fungi           = read_otu_sheet("sTable10"),
-      originalcounts_bacteria_phase2 = read_otu_sheet("sTable11"),
-      originalcounts_fungi_phase2    = read_otu_sheet("sTable12")
+      originalcounts_bacteria        =read_otu_sheet("sTable8"),
+      originalcounts_archaea         =read_otu_sheet("sTable9"),
+      originalcounts_fungi           =read_otu_sheet("sTable10"),
+      originalcounts_bacteria_phase2 =read_otu_sheet("sTable11"),
+      originalcounts_fungi_phase2    =read_otu_sheet("sTable12")
     )
 
     otu_tables     <- map(otu_data, "otu")
+    otu_tables     <- map(otu_tables, first_row_to_colnames)
     taxonomy_tables <- map(otu_data, "tax")
 
     # ---- Load Sheet3 and extract mock_metadata ----
     sheet3 <- read_excel(file, sheet = "sTable3", col_names = FALSE)
-
+    # Extract only the first 40 data rows
     mock_metadata <- sheet3 %>%
-      slice(3:which(.data[[1]] == "3b. OTU table of bacterial mock communities") - 1) %>%
-      {
-        colnames(.) <- as.character(sheet3[2, 1:ncol(.)])
-        .
-      } %>%
+      slice(1:40) %>%
       rename_with(~ make.names(., unique = TRUE)) %>%
       mutate(across(everything(), readr::parse_guess))
+    colnames(mock_metadata) <- as.character(unlist(mock_metadata[1, ])) 
+    mock_metadata <- mock_metadata[-1, ] %>% select(1:4)
+    mock_metadata <- mock_metadata %>% mutate(across(everything(), ~ na_if(., "/")))
 
     # ---- Function to read each OTU table from its labeled section ----
     read_mock_table <- function(label, n_max) {
-      start <- which(sheet3[[1]] == label) + 2
+      start <- which(sheet3[[1]] == label) 
       tbl <- read_excel(file, sheet = "sTable3", skip = start, n_max = n_max)
       tbl <- tbl[1:(n_max - 1), ]
       return(tbl)
@@ -507,22 +228,29 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
     # ---- Load the bacterial, fungal, and fecal test OTU tables ----
     mock_otu_tables <- list(
       originalcounts_mockbacteria = read_mock_table("3b. OTU table of bacterial mock communities", 13),
-      originalcounts_mockfungi    = read_mock_table("3c. OTU table of fungal mock communities", 12),
-      originalcounts_mockfecal  = read_mock_table("3d. OTU table of test fecal samples", 43)
+      originalcounts_mockfungi    = read_mock_table("3c. OTU table of fungal mock communities", 13),
+      originalcounts_mockfecal  = read_mock_table("3d. OTU table of test fecal samples", 107)
     )
 
-    testfecal_labeled <- make_taxa_label(mock_otu_tables$originalcounts_mockfecal)
-    originaltax_mockfecal <- testfecal_labeled %>%
-      select(Kingdom, Phylum, Class, Order, Family, Genus, Taxa) %>%
-      as.data.frame()
+    mock_otu_tables$originalcounts_mockfecal <- mock_otu_tables$originalcounts_mockfecal %>%
+      separate("taxonomy-assignment",
+              into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+              sep = ";", fill = "right") %>%
+      mutate(across(Kingdom:Species, ~ gsub("^[a-z]__", "", .))) 
 
-    mock_otu_tables$originalcounts_mockfecal <- testfecal_labeled %>%
-      column_to_rownames("Taxa") %>%
-      select(-c(Kingdom, Phylum, Class, Order, Family, Genus)) %>%
-      t() %>%
-      as.data.frame()
+    originaltax_mockfecal <- mock_otu_tables$originalcounts_mockfecal %>%
+      select(Kingdom, Phylum, Class, Order, Family, Genus, Species) %>%
+      as.data.frame() %>%
+      make_taxa_label()
 
-    library(tidyverse)
+    taxa <- originaltax_mockfecal$Taxa
+    mock_otu_tables$originalcounts_mockfecal$Taxa <- taxa
+    mock_otu_tables$originalcounts_mockfecal <- mock_otu_tables$originalcounts_mockfecal %>%
+      group_by(Taxa) %>%
+      summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+      as.data.frame()
+    rownames(mock_otu_tables$originalcounts_mockfecal) <- mock_otu_tables$originalcounts_mockfecal$Taxa
+    mock_otu_tables$originalcounts_mockfecal$Taxa <- NULL
 
     # ---- Taxonomy table constructor ----
     make_mock_tax_table <- function(df) {
@@ -590,16 +318,14 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
 
   proportions_bacteria                = make_proportions(counts_bacteria)
   proportions_fungi                   = make_proportions(counts_fungi)
-  originalproportions_bacteria        = make_proportions(originalcounts_bacteria)
-  originalproportions_archaea         = make_proportions(originalcounts_archaea)
-  originalproportions_fungi           = make_proportions(originalcounts_fungi)
-  originalproportions_bacteria_phase2 = make_proportions(originalcounts_bacteria_phase2)
-  originalproportions_fungi_phase2    = make_proportions(originalcounts_fungi_phase2)
+  originalproportions_bacteria        = make_proportions(otu_tables$originalcounts_bacteria)
+  originalproportions_archaea         = make_proportions(otu_tables$originalcounts_archaea)
+  originalproportions_fungi           = make_proportions(otu_tables$originalcounts_fungi)
+  originalproportions_bacteria_phase2 = make_proportions(otu_tables$originalcounts_bacteria_phase2)
+  originalproportions_fungi_phase2    = make_proportions(otu_tables$originalcounts_fungi_phase2)
   originalproportions_mockbacteria    = make_proportions(mock_otu_tables$originalcounts_mockbacteria)
   originalproportions_mockfungi       = make_proportions(mock_otu_tables$originalcounts_mockfungi)
   originalproportions_mockfecal       = make_proportions(mock_otu_tables$originalcounts_mockfecal)
-
-  metadata <- NULL
   
   safe_read_zip <- function(zip_path, is_xlsx = FALSE, sheet = 1) {
     if (!file.exists(zip_path)) return(NULL)
@@ -631,75 +357,50 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
   meds_data         <- safe_read_zip(meds_data_zip, is_xlsx = TRUE, sheet = 1)
   sra_metadata      <- safe_read_zip(sra_metadata_zip, is_xlsx = FALSE)
   
-  if (!is.null(sex_delivery_data)) {
-    if ("baby_id" %in% colnames(sex_delivery_data)) {
-      sex_delivery_data <- sex_delivery_data %>%
-        rename(id = baby_id)
-    }
-=======
-    if (!file.exists(fpath)) return(NULL)
-    
-    df <- tryCatch(
-      {
-        if (is_xlsx) {
-          read_excel(fpath, sheet = sheet) %>%
-            as.data.frame()
-        } else {
-          read.csv(fpath, stringsAsFactors = FALSE) %>%
-            as.data.frame()
-        }
-      },
-      error = function(e) NULL
-    )
-    return(df)
-  }
-  
-  # Read existing metadata files
-  sex_delivery_data <- safe_read_zip(sex_delivery_zip, is_xlsx = FALSE)
-  diet_data         <- safe_read_zip(diet_data_zip, is_xlsx = FALSE)
-  meds_data         <- safe_read_zip(meds_data_zip, is_xlsx = TRUE, sheet = 1)
-  
-  # Read new SRA metadata
-  sra_metadata <- safe_read_zip(sra_metadata_zip, is_xlsx = FALSE)
-  
-  # Rename baby_id to id in sex_delivery_data if it exists
-  if (!is.null(sex_delivery_data)) {
-    if ("baby_id" %in% colnames(sex_delivery_data)) {
-      sex_delivery_data <- sex_delivery_data %>%
-        rename(id = baby_id)
-    }
-  }
-  
-  # Merge existing metadata
-  if (!is.null(sex_delivery_data)) {
->>>>>>> Stashed changes
-    metadata <- sex_delivery_data
-    if (!is.null(diet_data)) {
-      metadata <- metadata %>%
-        full_join(diet_data, by = "id")
-    }
-    if (!is.null(meds_data)) {
-      metadata <- metadata %>%
-        full_join(meds_data, by = "id")
-    }
-  }
-  
+
+  # I dont know if we can merge all of this?
   # Note: The sample_name column in sra_metadata (e.g., "Ca-10-1-R1-low_S70_L001_R1") may not directly match the 'id' column in the existing metadata.
   # may need to clean and standardize the sample_name and id columns to ensure proper merging (e.g., by extracting a common identifier or removing suffixes).
-  
-  # Merge SRA metadata using sample_name
-  if (!is.null(sra_metadata) && !is.null(metadata)) {
-    # Attempt to merge using sample_name and id
-    metadata <- metadata %>%
-      full_join(sra_metadata, by = c("id" = "sample_name"))
-<<<<<<< Updated upstream
-    metadata <- as.data.frame(metadata)
-  }
+  # I Dont think we can link the accessions to the metadata.
 
+  # if (!is.null(sex_delivery_data)) {
+  #   if ("baby_id" %in% colnames(sex_delivery_data)) {
+  #     sex_delivery_data <- sex_delivery_data %>%
+  #       rename(id = baby_id)
+  #   }
+  #   metadata <- sex_delivery_data
+  #   if (!is.null(diet_data)) {
+  #     metadata <- metadata %>%
+  #       full_join(diet_data, by = "id")
+  #   }
+  #   if (!is.null(meds_data)) {
+  #     metadata <- metadata %>%
+  #       full_join(meds_data, by = "id")
+  #   }
+  # }
+  
+  # # Merge SRA metadata using sample_name
+  # if (!is.null(sra_metadata) && !is.null(metadata)) {
+  #   # Attempt to merge using sample_name and id
+  #   metadata <- metadata %>%
+  #     full_join(sra_metadata, by = c("id" = "sample_name"))
+  #   metadata <- as.data.frame(metadata)
+  # }
+
+  metadata = sra_metadata %>%
+      as.data.frame() %>%
+      rename(Accession = Run)
+
+  # Merge SRA metadata with scale data using sample_name
+  if (!is.null(metadata) && !is.null(scale)) {
+    scale <- scale %>%
+      left_join(metadata %>% select(Sample_name, Accession), by = "Sample_name") %>%
+      as.data.frame()
+  }
 
   # NEED TO SEPARATE THE DIFFERENT SAMPLES INTO SPECIFIC DATASETS
 
-    # ----- Reprocessed counts from RDS ZIP -----
+  # ----- Reprocessed counts from RDS ZIP -----
   temp_rds <- tempfile(fileext = ".rds")
   unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
@@ -748,36 +449,10 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
       colnames(counts_reprocessed) <- matched_taxa
       counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
   }
-=======
-  } else if (!is.null(sra_metadata) && is.null(metadata)) {
-    # If no existing metadata, use SRA metadata as the base
-    metadata <- sra_metadata
-  }
-  
-  if (!is.null(metadata)) {
-    metadata <- as.data.frame(metadata)
-  }
-
-  local               <-  "2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/"
-  repro_counts_rds_zip<-  paste0(local, "PRJEB36435_dada2_merged_nochim.rds.zip"
-  repro_tax_zip       <-  paste0(local, "PRJEB36435_dada2_taxonomy_merged.rds.zip"
-
-  # ----- Reprocessed counts from RDS ZIP -----
-  temp_rds            <- tempfile(fileext = ".rds")
-  unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-  rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-  seqtab_nochim       <- readRDS(rds_file)
-  rpt_mat             <- t(seqtab_nochim)
-  counts_reprocessed  <- as.data.frame(rpt_mat)
-  counts_reprocessed$Sequence <- rownames(counts_reprocessed)
-  counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
-  rownames(counts_reprocessed) <- paste0("Taxon_", seq_len(nrow(counts_reprocessed)))
->>>>>>> Stashed changes
 
   # proportions reprocessed
   proportions_reprocessed = counts_reprocessed
   proportions_reprocessed[-1] <- lapply(
-<<<<<<< Updated upstream
       counts_reprocessed[-1],
       function(col) col / sum(col)
   )
@@ -792,14 +467,14 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
           fungi = counts_fungi
         ),
         phase1 = list(
-          bacteria = originalcounts_bacteria,
-          archaea = originalcounts_archaea,
-          fungi = originalcounts_fungi
+          bacteria = otu_tables$originalcounts_bacteria,
+          archaea = otu_tables$originalcounts_archaea,
+          fungi = otu_tables$originalcounts_fungi
         ),
         phase2 = list(
-          bacteria = originalcounts_bacteria_phase2,
+          bacteria = otu_tables$originalcounts_bacteria_phase2,
           archaea = NA,
-          fungi = originalcounts_fungi_phase2
+          fungi = otu_tables$originalcounts_fungi_phase2
         ),
         mock = list(
           bacteria = mock_otu_tables$originalcounts_mockbacteria,
@@ -809,7 +484,7 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
         )
       ),
       reprocessed = list(
-
+          counts = counts_reprocessed
       )
     ),
     proportions = list(
@@ -837,7 +512,7 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
         )
       ),
       reprocessed = list(
-
+          proportions = proportions_reprocessed
       )
     ),
     tax = list(
@@ -865,57 +540,10 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
         )
       ),
       reprocessed = list(
-
+          tax = tax_reprocessed
       )
     ),
     scale = scale,
     metadata = metadata
-=======
-    counts_reprocessed[-1],
-    function(col) col / sum(col)
-  )
-
-  # ----- Taxonomy reprocessed -----
-  temp_tax <- tempfile(fileext = ".rds")
-  unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-  tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
-  taxonomy_matrix <- readRDS(tax_file)
-  rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
-  tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
-  tax_reprocessed = tax_table
-  
-  # -------------------------------------------------------------
-  # 6) Return final list
-  # -------------------------------------------------------------
-  return(list(
-    counts = list(
-      counts_bacteria = counts_bacteria,
-      counts_fungi = counts_fungi,
-      counts_archaea = counts_archaea,
-      counts_bacteria_phase2 = counts_bacteria_phase2,
-      counts_fungi_phase2 = counts_fungi_phase2
-    ),
-    proportions = list(
-      proportions_bacteria = proportions_bacteria,
-      proportions_fungi = proportions_fungi,
-      proportions_archaea = proportions_archaea,
-      proportions_bacteria_phase2 = proportions_bacteria_phase2,
-      proportions_fungi_phase2 = proportions_fungi_phase2
-    ),
-    tax = list(
-      taxa_bacteria = taxa_bacteria,
-      taxa_fungi = taxa_fungi,
-      taxa_archaea = taxa_archaea,
-      taxa_bacteria_phase2 = taxa_bacteria_phase2,
-      taxa_fungi_phase2 = taxa_fungi_phase2
-    ),
-    scale = scale,
-    metadata = metadata,
-    supplemental_tables = list(
-      table_3b = table_3b,
-      table_3c = table_3c,
-      table_3d = table_3d
-    )
->>>>>>> Stashed changes
   ))
 }

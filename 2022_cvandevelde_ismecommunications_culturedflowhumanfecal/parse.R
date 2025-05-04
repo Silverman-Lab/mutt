@@ -1,4 +1,4 @@
-parse_2019_ji_nature_human_soil <- function(raw = FALSE) {
+parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw = FALSE) {
     required_pkgs <- c("stringr", "tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -10,35 +10,70 @@ parse_2019_ji_nature_human_soil <- function(raw = FALSE) {
     library(tidyverse)
 
     # ----- Local base directory -----
-    local <- file.path("2019_ji_nature_human_soil")
+    local <- file.path("2022_cvandevelde_ismecommunications_culturedflowhumanfecal")
 
     # ----- File paths -----
-    repro_counts_rds_zip <- file.path(local, "PRJNA541083_dada2_counts.rds.zip")
-    repro_tax_zip        <- file.path(local, "PRJNA541083_dada2_taxa.rds.zip")
-    scale_16s_zip        <- file.path(local, "")
-    metadata_16s_gzip     <- file.path(local, "metadata/Gut_Metadata.xlsx.gz")
-    sra_zip              <- file.path(local, "metadata/SraRunTable (38).csv.zip")
+    repro_counts_rds_zip <- file.path(local, "PRJEB51873_dada2_counts.rds.zip")
+    repro_tax_zip        <- file.path(local, "PRJEB51873_dada2_taxa.rds.zip")
+    scale_16s_zip        <- file.path(local, "VandeVelde2022_scale.csv.zip")
+    counts_16s_zip       <- file.path(local, "VandeVelde_2022_16S.csv.zip")
+    metadata_16s_zip     <- file.path(local, "VandeVelde_2022_metadata.csv.zip")
 
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-      if (file.exists(zip_path)) {
-        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-        con <- unz(zip_path, inner_file)
-        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-      } else {
-        warning(paste("File not found:", zip_path))
-        return(NA)
-      }
+    read_zipped_csv <- function(zip_path) {
+        if (file.exists(zip_path)) {
+            csv_file <- unzip(zip_path, list = TRUE)$Name[1]
+            read.csv(unz(zip_path, csv_file), row.names = 1, check.names = FALSE)
+        } else {
+            warning(paste("File not found:", zip_path))
+            return(NA)
+        }
     }
 
+    # ----- Initialize everything as NA -----
+    counts_original <- NA
+    proportions_original <- NA
+    tax_original <- NA
+    counts_reprocessed <- NA
+    proportions_reprocessed <- NA
+    tax_reprocessed <- NA
 
+    # ------ original counts ------
+    counts_original <- read_zipped_csv(counts_16s_zip)
 
+    if (!is.na(counts_original)[1]) {
+        original_taxa <- colnames(counts_original)
+        taxon_ids <- paste0("Taxon_", seq_len(nrow(counts_original)))
+        colnames(counts_original) <- taxon_ids
 
+        # Create taxa mapping data frame
+        tax_original <- data.frame(
+        Taxon = taxon_ids,
+        Original_Taxa = original_taxa,
+        stringsAsFactors = FALSE
+        )
 
+        # ------ proportions from counts ------
+        proportions_original <- t(counts_original)
+        proportions_original[] <- lapply(
+        proportions_original,
+        function(col) {
+            if (is.numeric(col)) {
+            total <- sum(col, na.rm = TRUE)
+            if (total == 0) return(rep(NA, length(col)))
+            return(col / total)
+            } else {
+            return(col)
+            }
+        }
+        )
+    } else {
+        proportions_original <- NA
+        tax_original <- NA
+    }
 
-
-
-
-
+    # ---- scale and metadata -----
+    scale     <- read_zipped_csv(scale_16s_zip)
+    metadata  <- read_zipped_csv(metadata_16s_zip)
 
 
     # ----- Reprocessed counts from RDS ZIP -----

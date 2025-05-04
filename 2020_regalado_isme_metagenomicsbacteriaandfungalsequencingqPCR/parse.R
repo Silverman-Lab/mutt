@@ -143,19 +143,22 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
         tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
         prefixes  <- c("k", "p", "c", "o", "f", "g")
         if (!all(tax_ranks %in% colnames(df))) {
-        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
         }
         df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-        x[is.na(x) | trimws(x) == ""] <- "unclassified"
-        return(x)
+            x[is.na(x) | trimws(x) == ""] <- "unclassified"
+            x
         })
         df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-        for (i in length(tax_ranks):1) {
-            if (tax_row[i] != "unclassified") {
-            return(paste0(prefixes[i], "_", tax_row[i]))
+            if (tax_row["Genus"] != "unclassified") {
+            return(paste0("g_", tax_row["Genus"]))
             }
-        }
-        return("unclassified")  
+            for (i in (length(tax_ranks)-1):1) {  # skip Genus
+            if (tax_row[i] != "unclassified") {
+                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+            }
+            }
+            return("unclassified")
         })
         return(df)
     }
