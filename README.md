@@ -17,12 +17,11 @@ According to Maxwell, metagenomic data is huge. So lets keep this to count table
 ## Parsed Data Structure for `parse.R` scripts. 
 parse.R should have a single function named `parse_[name of directory]` which returns a list object with the following elements. That function should not require arguments but they can be optional. Ideally, parse scripts use nothing other than base R or tidyverse functions to minimize dependencies and errors if certain libraries are not installed. 
 
-- `counts` integer valued count matrix (not data.frame) that is (D x N) and has row and column names which are sampleIDs and sequenceIDs (e.g., taxaIDs) respectively. 
-- `proportions` real-valued valued count matrix (not data.frame) that is (D x N) and has row and column names which are sampleIDs and sequenceIDs (e.g., taxaIDs) respectively. only include if counts are not available
-- `scale` positive-valued matrix likely of dimension 1 x N but other formats may need to be allowed. Column names should be sampleIDs
-- `metadata` (optional but often required) N x Q data.frame rownames should be sampleIDs. 
-- `tax` (optional) D x ?, character-valued data.frame with sequenceIDs as rownames and each column labeled in a meaningful way. For microbiome data these labels should be limited to c("kingdom", "phylum", "class", "order", "genus", "species", "strain")
-- `sequences` (optional) D x ?, character valued data.frame or matrix linking sequenceIDs (rownames) to the actual raw sequence (e.g., the 16S sequence of a particular taxon)
+- `counts` integer valued count matrix (not data.frame) that is (N x D). sampleIDs (rows) and sequenceIDs (columns) (e.g., taxaIDs) respectively. Should contain a column key with sampleIDs linking to proportions, scale, and metadata.
+- `proportions` real-valued valued count matrix (not data.frame) that is (N x D) and has row and column names which are sampleIDs and sequenceIDs (e.g., taxaIDs) respectively. Should contain a column key with sampleIDs linking to counts, scale, and metadata. 
+- `scale` positive-valued matrix likely of dimension N x 1 but other formats may need to be allowed due to mean and sd or multiple techniques measuring total scale. Should contain a column key with sampleIDs linking to counts, proportions, and metadata. 
+- `metadata` (optional but often required) N x Q data.frame. Should contain a column key with sampleIDs linking to counts and proportions. 
+- `tax` (optional) D x ?, character-valued data.frame with sequenceIDs as rownames and each column labeled in a meaningful way. For microbiome data these labels should be limited to c("Kingdom", "Phylum", "Class", "Order", "Genus", "Species", "Strain"). "Taxa" is the lowest identified taxonomy classified specified by prefix and then the classified taxa, if unclassified by lowest taxonomy resolution then prefixed with uc_ and then taxonomic level prefix ex. for phylum: uc_p_[taxa classification name] "Sequence" column links sequenceIDs (ASV, OTUs, classified taxa) to the actual raw sequence (e.g., the 16S sequence of a particular taxon).
 - `phylo` (optional) phylogenetic tree stored in reasonable format (let me know if any repos have phylogenetic trees in them and I will figure out a good standard format)
 
 ```r
