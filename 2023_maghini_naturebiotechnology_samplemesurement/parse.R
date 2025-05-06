@@ -1,31 +1,61 @@
-parse_2023_maghini_naturebio_metagenomic <- function() {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  required_pkgs <- c("tibble", "tidyverse", "readr")
-=======
-  required_pkgs <- c("tibble", "tidyverse", "readr", "purrr")
->>>>>>> Stashed changes
-=======
-  required_pkgs <- c("tibble", "tidyverse", "readr", "purrr")
->>>>>>> Stashed changes
+parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
+  required_pkgs <- c("tibble", "tidyverse", "readr", "taxizedb")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
-         ". Please install them before running this function.")
+         ". Please install them before running this function. For taxizedb, you can use:
+           install.packages('remotes')
+           remotes::install_github('ropensci/taxizedb')
+         ")
   }
   library(tibble)
   library(tidyverse)
   library(readr)
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+  library(taxizedb)
 
   # ----- Local base directory -----
-  local <- file.path("2023_maghini_naturebiotechnology_samplemeasurement")
+  local <- file.path("2023_maghini_naturebiotechnology_samplemesurement")
 
   # ----- File paths -----
   motus_zip      <- file.path(local, "PRJNA940499_motus_merged.tsv.zip")
   metaphlan4_zip <- file.path(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")
 
+  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+        if (file.exists(zip_path)) {
+        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+        con <- unz(zip_path, inner_file)
+        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
+        } else {
+        warning(paste("File not found:", zip_path))
+        return(NA)
+        }
+    }
+
+  # ----- Convert sequences to lowest rank taxonomy found and update key -----
+  make_taxa_label <- function(df) {
+      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+      prefixes  <- c("k", "p", "c", "o", "f", "g")
+      if (!all(tax_ranks %in% colnames(df))) {
+          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+      }
+      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+          x[is.na(x) | trimws(x) == ""] <- "unclassified"
+          x
+      })
+      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+          if (tax_row["Genus"] != "unclassified") {
+          return(paste0("g_", tax_row["Genus"]))
+          }
+          for (i in (length(tax_ranks)-1):1) {  # skip Genus
+          if (tax_row[i] != "unclassified") {
+              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+          }
+          }
+          return("unclassified")
+      })
+      return(df)
+  }
+
   # ----- Initialize everything as NA -----
   counts_original <- NA
   proportions_original <- NA
@@ -38,24 +68,65 @@ parse_2023_maghini_naturebio_metagenomic <- function() {
   MetaPhlAn4_tax <- NA
 
   # ----- Read taxonomic counts -----
-  tax_files  <- paste0(local, "/bracken_", tax_levels, "_reads.txt")
-  tax_levels <- c("kingdom", "phylum", "class", "order", "family", "genus")
-  raw_counts <- setNames(lapply(tax_files, function(f) {
-    read.table(f, header = TRUE, sep = "\t", row.names = 1,
-             check.names = FALSE, stringsAsFactors = FALSE)
-  }), tax_levels)
+
+  tax_levels <- c("kingdom", "phylum", "class", "order", "family", "genus", "species")
+  read_bracken_table <- function(tax_level) {
+    zip_path <- file.path(local, paste0("bracken_", tax_level, "_reads.txt.zip"))
+    txt_path <- file.path(local, paste0("bracken_", tax_level, "_reads.txt"))
+    if (file.exists(zip_path)) {
+      tmp_dir <- tempdir()
+      extracted <- tryCatch(unzip(zip_path, exdir = tmp_dir), error = function(e) NULL)
+      txt_file <- extracted[grepl("\\.txt$", extracted)][1]
+      if (!is.null(txt_file) && file.exists(txt_file)) {
+        return(read.table(txt_file, header = TRUE, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE) %>% t() %>% as.data.frame())
+      } else {
+        warning("No .txt file found inside: ", zip_path)
+        return(NULL)
+      }
+    }
+    if (file.exists(txt_path)) {
+      return(read.table(txt_path, header = TRUE, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE) %>% t() %>% as.data.frame())
+    }
+
+    warning("Neither ZIP nor TXT file found for level: ", tax_level)
+    return(NULL)
+  }
+  raw_counts <- setNames(lapply(tax_levels, read_bracken_table), tax_levels)
 
   renamed <- imap(raw_counts, function(df, level) {
-    orig <- rownames(df)
-    new  <- paste0("Taxon_", seq_along(orig))
+    orig <- colnames(df)
     list(
-      counts = `rownames<-`(df, new),
-      tax    = tibble(Taxon = new, OriginalName = orig)
+      counts = df,
+      tax    = tibble(taxonomy = orig)
     )
   })
          
   counts_original  <- map(renamed, "counts")
   tax_original     <- map(renamed, "tax")
+
+  counts_original <- counts_original$species
+
+  species_names <- tax_original$species$taxonomy
+  taxizedb::db_download_ncbi()
+  file.copy(taxizedb::db_path("ncbi"), "ncbi_taxonomy.sqlite")
+  lineages <- classification(species_names, db = "ncbi", dbpath = "ncbi_taxonomy.sqlite")
+  standard_ranks <- c("superkingdom", "phylum", "class", "order", "family", "genus", "species")
+  tax <- imap_dfr(lineages, function(df, taxon) {
+    if (is.null(df)) return(NULL)
+    df %>%
+      filter(rank %in% standard_ranks) %>%
+      distinct(rank, .keep_all = TRUE) %>%
+      pivot_wider(names_from = rank, values_from = name) %>%
+      mutate(Species = taxon)
+  }, .id = "lookup_name") %>%
+    rename(Kingdom = superkingdom)
+  tax = make_taxa_label(tax)
+  rownames(tax) <- tax$Species
+  if (!raw) {
+      matched_taxa <- tax$Taxa[match(colnames(counts_original), rownames(tax))]
+      colnames(counts_original) <- matched_taxa
+      counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
+  }
 
   # ------- Proportions ----------
   proportions_original <- map(counts_original, function(df) {
@@ -91,7 +162,7 @@ parse_2023_maghini_naturebio_metagenomic <- function() {
   # ----- SRA metadata and merge -----
   metadatafromsra_path <- paste0(base_path, "/SraRunTable (3).csv")
   metadatafromsra <- read.csv(metadatafromsra_path, check.names = FALSE) %>%
-    mutate(Library.Name = gsub("(_DNA)", "", Library.Name))
+    mutate(Library.Name = gsub("(_DNA)", "", Library.Name)) %>% rename(Accession = Run)
 
   scale$ID <- gsub("-", "_", scale$ID)
   metadata$ID <- gsub("-", "_", metadata$ID)
@@ -121,215 +192,6 @@ parse_2023_maghini_naturebio_metagenomic <- function() {
                 into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
                 sep = "\\s*;\\s*", extra = "drop", fill = "right")
         rownames(tax_df) <- rownames(df)
-
-=======
-  library(purrr)
-
-  local           <- "2023_maghini_naturebiotechnology_samplemeasurement/"
-  motus_zip       <- paste0(local, "PRJNA940499_motus_merged.tsv.zip")
-  metaphlan4_zip  <- paste0(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")
-
-  # ----- Initialize everything as NA -----
-  counts_original <- NA
-  proportions_original <- NA
-  tax_original <- NA
-  mOTU3_counts <- NA
-  mOTU3_proportions <- NA
-  mOTU3_tax <- NA
-  MetaPhlAn4_counts <- NA
-  MetaPhlAn4_proportions <- NA
-  MetaPhlAn4_tax <- NA
-
-  # ----- Read taxonomic counts -----
-  tax_files  <- paste0(local, "/bracken_", tax_levels, "_reads.txt")
-  tax_levels <- c("kingdom", "phylum", "class", "order", "family", "genus")
-  raw_counts <- setNames(lapply(tax_files, function(f) {
-    read.table(f, header = TRUE, sep = "\t", row.names = 1,
-             check.names = FALSE, stringsAsFactors = FALSE)
-  }), tax_levels)
-
-  renamed <- imap(raw_counts, function(df, level) {
-    orig <- rownames(df)
-    new  <- paste0("Taxon_", seq_along(orig))
-    list(
-      counts = `rownames<-`(df, new),
-      tax    = tibble(Taxon = new, OriginalName = orig)
-    )
-  })
-         
-  counts_original  <- map(renamed, "counts")
-  tax_original     <- map(renamed, "tax")
-
-  # ------- Proportions ----------
-  proportions_original <- map(counts_original, function(df) {
-    rsums <- rowSums(df)
-    prop  <- sweep(df, 1, rsums, FUN = "/")
-    prop[is.nan(prop)] <- 0
-    return(as_tibble(prop, rownames = "Taxon"))
-  })
-
-  # ----- Read and filter qPCR data -----
-  plate_list <- list.files(path = base_path, pattern = "qPCR_plate", full.names = TRUE)
-  qPCR <- plate_list %>%
-    map_dfr(read_csv) %>%
-    mutate(ID = gsub("_", "-", SampleName)) %>%
-    dplyr::select(Plate, ID, Donor, Condition, PCR_Replicate, Replicate, logCopyNumber, CopyNumber) 
-
-  scale = qPCR %>%  
-    dplyr::select(ID, logCopyNumber, CopyNumber)
-    group_by(ID) %>%
-    summarise(
-      mean_CopyNumber     = mean(CopyNumber, na.rm = TRUE),
-      sd_CopyNumber       = sd(CopyNumber, na.rm = TRUE),
-      mean_logCopyNumber  = mean(logCopyNumber, na.rm = TRUE),
-      sd_logCopyNumber    = sd(logCopyNumber, na.rm = TRUE),
-      n_reps              = n()
-     )
-
-  # ----- Extract and deduplicate metadata -----
-  metadata <- qPCR %>%
-    dplyr::select(ID, Donor, Condition, Replicate) %>%
-    distinct()
-
-  # ----- SRA metadata and merge -----
-  metadatafromsra_path <- paste0(base_path, "/SraRunTable (3).csv")
-  metadatafromsra <- read.csv(metadatafromsra_path, check.names = FALSE) %>%
-    mutate(Library.Name = gsub("(_DNA)", "", Library.Name))
-
-  scale$ID <- gsub("-", "_", scale$ID)
-  metadata$ID <- gsub("-", "_", metadata$ID)
-
-  metadata <- merge(
-    metadatafromsra, metadata,
-    by.x = "Library.Name",
-    by.y = "ID",
-    all = TRUE
-  )
-
-  # ----- mOTU3 Reprocessed -----
-  if (file.exists(motus_zip)) {
-    motus_files <- unzip(motus_zip, list = TRUE)
-    motus_filename <- motus_files$Name[grepl("\\.tsv$", motus_files$Name)][1]
-    if (!is.na(motus_filename)) {
-        temp_dir <- tempdir()
-        unzip(motus_zip, files = motus_filename, exdir = temp_dir, overwrite = TRUE)
-        motus_path <- file.path(temp_dir, motus_filename)
-        df <- read_tsv(motus_path)
-        rownames(df) <- df[[1]]
-        df[[1]] <- NULL
-        proportions <- apply(df, 2, function(col) col / sum(col))
-        tax_df <- data.frame(taxa = rownames(df)) %>%
-        mutate(taxa = str_trim(taxa)) %>%
-        separate(taxa,
-                into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
-                sep = "\\s*;\\s*", extra = "drop", fill = "right")
-        rownames(tax_df) <- rownames(df)
-
->>>>>>> Stashed changes
-=======
-  library(purrr)
-
-  local           <- "2023_maghini_naturebiotechnology_samplemeasurement/"
-  motus_zip       <- paste0(local, "PRJNA940499_motus_merged.tsv.zip")
-  metaphlan4_zip  <- paste0(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")
-
-  # ----- Initialize everything as NA -----
-  counts_original <- NA
-  proportions_original <- NA
-  tax_original <- NA
-  mOTU3_counts <- NA
-  mOTU3_proportions <- NA
-  mOTU3_tax <- NA
-  MetaPhlAn4_counts <- NA
-  MetaPhlAn4_proportions <- NA
-  MetaPhlAn4_tax <- NA
-
-  # ----- Read taxonomic counts -----
-  tax_files  <- paste0(local, "/bracken_", tax_levels, "_reads.txt")
-  tax_levels <- c("kingdom", "phylum", "class", "order", "family", "genus")
-  raw_counts <- setNames(lapply(tax_files, function(f) {
-    read.table(f, header = TRUE, sep = "\t", row.names = 1,
-             check.names = FALSE, stringsAsFactors = FALSE)
-  }), tax_levels)
-
-  renamed <- imap(raw_counts, function(df, level) {
-    orig <- rownames(df)
-    new  <- paste0("Taxon_", seq_along(orig))
-    list(
-      counts = `rownames<-`(df, new),
-      tax    = tibble(Taxon = new, OriginalName = orig)
-    )
-  })
-         
-  counts_original  <- map(renamed, "counts")
-  tax_original     <- map(renamed, "tax")
-
-  # ------- Proportions ----------
-  proportions_original <- map(counts_original, function(df) {
-    rsums <- rowSums(df)
-    prop  <- sweep(df, 1, rsums, FUN = "/")
-    prop[is.nan(prop)] <- 0
-    return(as_tibble(prop, rownames = "Taxon"))
-  })
-
-  # ----- Read and filter qPCR data -----
-  plate_list <- list.files(path = base_path, pattern = "qPCR_plate", full.names = TRUE)
-  qPCR <- plate_list %>%
-    map_dfr(read_csv) %>%
-    mutate(ID = gsub("_", "-", SampleName)) %>%
-    dplyr::select(Plate, ID, Donor, Condition, PCR_Replicate, Replicate, logCopyNumber, CopyNumber) 
-
-  scale = qPCR %>%  
-    dplyr::select(ID, logCopyNumber, CopyNumber)
-    group_by(ID) %>%
-    summarise(
-      mean_CopyNumber     = mean(CopyNumber, na.rm = TRUE),
-      sd_CopyNumber       = sd(CopyNumber, na.rm = TRUE),
-      mean_logCopyNumber  = mean(logCopyNumber, na.rm = TRUE),
-      sd_logCopyNumber    = sd(logCopyNumber, na.rm = TRUE),
-      n_reps              = n()
-     )
-
-  # ----- Extract and deduplicate metadata -----
-  metadata <- qPCR %>%
-    dplyr::select(ID, Donor, Condition, Replicate) %>%
-    distinct()
-
-  # ----- SRA metadata and merge -----
-  metadatafromsra_path <- paste0(base_path, "/SraRunTable (3).csv")
-  metadatafromsra <- read.csv(metadatafromsra_path, check.names = FALSE) %>%
-    mutate(Library.Name = gsub("(_DNA)", "", Library.Name))
-
-  scale$ID <- gsub("-", "_", scale$ID)
-  metadata$ID <- gsub("-", "_", metadata$ID)
-
-  metadata <- merge(
-    metadatafromsra, metadata,
-    by.x = "Library.Name",
-    by.y = "ID",
-    all = TRUE
-  )
-
-  # ----- mOTU3 Reprocessed -----
-  if (file.exists(motus_zip)) {
-    motus_files <- unzip(motus_zip, list = TRUE)
-    motus_filename <- motus_files$Name[grepl("\\.tsv$", motus_files$Name)][1]
-    if (!is.na(motus_filename)) {
-        temp_dir <- tempdir()
-        unzip(motus_zip, files = motus_filename, exdir = temp_dir, overwrite = TRUE)
-        motus_path <- file.path(temp_dir, motus_filename)
-        df <- read_tsv(motus_path)
-        rownames(df) <- df[[1]]
-        df[[1]] <- NULL
-        proportions <- apply(df, 2, function(col) col / sum(col))
-        tax_df <- data.frame(taxa = rownames(df)) %>%
-        mutate(taxa = str_trim(taxa)) %>%
-        separate(taxa,
-                into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
-                sep = "\\s*;\\s*", extra = "drop", fill = "right")
-        rownames(tax_df) <- rownames(df)
-
->>>>>>> Stashed changes
         mOTU3_counts <- df
         mOTU3_proportions <- proportions
         mOTU3_tax <- tax_df

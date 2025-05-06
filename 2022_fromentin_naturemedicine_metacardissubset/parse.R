@@ -1,6 +1,5 @@
-# parse.R
-parse_2022_fromentin_naturemedicine_metacardissubset <- function() {
-    required_pkgs <- c("tidyverse", "readxl", "readr")
+parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE) {
+  required_pkgs <- c("tidyverse", "readxl", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
       stop(

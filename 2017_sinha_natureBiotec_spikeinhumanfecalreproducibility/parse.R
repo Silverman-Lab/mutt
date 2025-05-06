@@ -89,20 +89,11 @@ parse_2017_sinha_natureBiotec_spikeinhumanfecalreproducibility <- function(raw =
   #   as.data.frame(stringsAsFactors = FALSE)
 
   # counts <- as.data.frame(counts, stringsAsFactors = FALSE)
-  # colnames(counts) <- tax$Taxa
   # if ("Sample" %in% colnames(counts)) {
   #   rownames(counts) <- counts$Sample
   #   counts$Sample     <- NULL
   # }
-  # counts_mat <- as.matrix(counts)
-  #   storage.mode(counts_mat) <- "numeric"
-  # counts <- t(
-  #   rowsum(
-  #     t(counts_mat),
-  #     group   = colnames(counts_mat),
-  #     reorder = FALSE
-  #   )
-  # )
+  # colnames(counts) <- tax$Taxa
   # counts <- t(
   #   rowsum(
   #     t(counts),

@@ -1,4 +1,4 @@
-parse_2025_thiruppathy_microbiome_relicDNAflow <- function() {
+parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -15,15 +15,15 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function() {
     # -------- local path -----------
     local                       <- file.path("2025_thiruppathy_microbiome_relicDNAflow")
 
-
     # -------- file paths -----------
     original_counts_zip         <- file.path(local, "Final_rpca_all.tsv.zip")
-    scale_zip                   <- file.path(local, "Final_flowC_processed.tsv.zip")
+    scale_zip                   <- file.path(local, "scale.csv.zip")
     metadata_three_zip          <- file.path(local, "metadata.csv.zip")
-    metadata_two_zip            <- file.path(local, "40168_2025_2063_MOESM3_ESM (1).xlsx.zip")
+    metadata_two_zip            <- file.path(local, "40168_2025_2063_MOESM3_ESM.csv.zip")
     metadata_zip                <- file.path(local, "SraRunTable (38).csv.zip")
     motus_zip                   <- file.path(local, "PRJNA1118035_motus_merged.tsv.zip")
     metaphlan4_zip              <- file.path(local, "PRJNA1118035_MetaPhlAn_merged.tsv.zip")
+    tax_zip                     <- file.path(local, "SMGC_60perc_covered_genomes.txt.zip")
 
     # ----- Initialize everything as NA -----
     counts_original <- NA
@@ -37,6 +37,80 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function() {
     MetaPhlAn4_counts <- NA
     MetaPhlAn4_proportions <- NA
     MetaPhlAn4_tax <- NA
+
+    # ----- Helper functions -----
+    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+      if (file.exists(zip_path)) {
+      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+      con <- unz(zip_path, inner_file)
+      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
+      } else {
+      warning(paste("File not found:", zip_path))
+      return(NA)
+      }
+    }
+    make_taxa_label <- function(df) {
+        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+        prefixes  <- c("k", "p", "c", "o", "f", "g", "s")
+        if (!all(tax_ranks %in% colnames(df))) {
+            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+        }
+        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+            x[is.na(x) | trimws(x) == ""] <- "unclassified"
+            x
+        })
+        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+            if (tax_row["Species"] != "unclassified") {
+            return(paste0("s_", tax_row["Species"]))
+            }
+            for (i in (length(tax_ranks)-1):1) {  
+            if (tax_row[i] != "unclassified") {
+                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+            }
+            }
+            return("unclassified")
+        })
+        return(df)
+    }
+
+    # ----- original counts, tax, proportions -----
+    counts_original = read_zipped_table(original_counts_zip, sep = "\t", row.names=NULL) %>% 
+                        rename(OTU_ID = `OTU ID`) %>% t() %>% as.data.frame() 
+    colnames(counts_original) <- as.character(counts_original[1, ]) 
+    counts_original <- counts_original[-1, ]  
+
+    # --- taxa ---
+    tax_original = read_zipped_table(tax_zip, sep = "\t", row.names=NULL) %>% as.data.frame() %>% 
+                    rename(OTU_ID = gotu, taxonomy = strain) %>% select(-c("covered_length", "total_length"))
+    tax_original <- tax_original %>% separate(taxonomy,
+           into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
+           sep = ";", fill = "right") %>% mutate(across(Kingdom:Strain, ~ gsub("^[a-z]__+", "", .)))                
+    tax_original = make_taxa_label(tax_original)
+    rownames(tax_original) <- tax_original$OTU_ID
+    counts_numeric <- as.data.frame(lapply(counts_original, function(x) as.numeric(as.character(x))))
+    rownames(counts_numeric) <- rownames(counts_original)
+    counts_original = counts_numeric
+    if (!raw) {
+        matched_taxa <- tax_original$Taxa[match(colnames(counts_original), rownames(tax_original))]
+        colnames(counts_original) <- matched_taxa
+        counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
+    }
+
+    # ------ proportions from counts ------
+    proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
+
+    # ----- Metadata -----  
+    sra         = read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame() %>% 
+                    rename(Accession = Run, Sample = `Sample Name`)
+    metadata1   = read_zipped_table(metadata_three_zip, row.names=NULL) %>% as.data.frame()
+    metadata2   = read_zipped_table(metadata_two_zip, row.names=NULL) %>% as.data.frame()
+
+    metadata    = sra %>%
+        full_join(metadata1, by = "Sample") %>%
+        full_join(metadata2, by = "Sample")
+
+    # ----- Scale -----
+    scale       = read_zipped_table(scale_zip, row.names=NULL) %>% as.data.frame()
 
     # ----- mOTU3 Reprocessed -----
     if (file.exists(motus_zip)) {
@@ -88,27 +162,6 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function() {
         }
     }
 
-
-    # ----- Metadata -----  # Needs to be fixed, merge the metadata tables
-    metadata <- NA
-    if (file.exists(metadata_zip)) {
-        metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
-        metadata_con <- unz(metadata_zip, metadata_csv)
-        metadata <- read.csv(metadata_con, row.names = "Sample_name") %>%
-        as.data.frame() %>%
-        rownames_to_column("Sample")
-    }
-
-    # ----- Scale -----
-    scale <- NA
-    if (file.exists(scale_zip)) {
-        scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
-        scale_con <- unz(scale_zip, scale_csv)
-        scale <- read.csv(scale_con, delim ="/t") %>%
-        as.data.frame() %>%
-        select(c("Sample","(E) Cells/uL", "(H) Total Cells per sqcm"))
-    }
-
     # ----- Return -----
     return(list(
         counts = list(
@@ -135,5 +188,4 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function() {
         scale = scale,
         metadata = metadata
     ))
-
 }

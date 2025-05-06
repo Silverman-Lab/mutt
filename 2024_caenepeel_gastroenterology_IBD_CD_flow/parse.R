@@ -1,5 +1,5 @@
-parse_2022_suriano_aps_micefecal <- function(raw = FALSE) {
-  required_pkgs <- c("tidyverse", "readxl", "readr")
+parse_2024_caenepeel_gastroenterology_IBD_CD_flow <- function(raw = FALSE) {
+  required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
@@ -7,18 +7,27 @@ parse_2022_suriano_aps_micefecal <- function(raw = FALSE) {
   }
   library(tidyverse)
   library(readxl)
-  library(readr)
 
-  # ----- local path ------------------------
-  local                   <- file.path("2022_suriano_aps_micefecal")
+  # ----- Local base directory -----
+  local <- file.path("2024_caenepeel_gastroenterology_IBD_CD_flow")
 
-  # ----- file paths -------------------------
-  metadata_zip            <- file.path(local,"SraRunTable.csv.zip")
-  scale_zip               <- file.path(local,"Supplementary Table 6.xlsx.zip")
-  repro_counts_rds_zip    <- file.path(local,"PRJEB53668_dada2_counts.rds.zip")
-  repro_tax_zip           <- file.path(local,"PRJEB53668_dada2_taxa.rds.zip")
+  # ----- File paths -----
+  metadata_zip            <- file.path(local, "SraRunTable (40).csv.zip")
+  scale_zip               <- file.path(local, "") # The authors stated it was in supplementary table 1 and then did not publish supplementary table 1
+  repro_counts_rds_zip    <- file.path(local, "PRJEB71738_dada2_counts.rds.zip")
+  repro_tax_zip           <- file.path(local, "PRJEB71738_dada2_taxa.rds.zip")
 
-  # ----- Convert sequences to lowest rank taxonomy found and update key -----
+  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+      if (file.exists(zip_path)) {
+      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+      con <- unz(zip_path, inner_file)
+      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
+      } else {
+      warning(paste("File not found:", zip_path))
+      return(NA)
+      }
+  }
+
   make_taxa_label <- function(df) {
       tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
       prefixes  <- c("k", "p", "c", "o", "f", "g")
@@ -43,23 +52,16 @@ parse_2022_suriano_aps_micefecal <- function(raw = FALSE) {
       return(df)
   }
 
-  # ----- metadata ---------------------------
-  metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]  # list file inside zip
-  metadata_path <- unzip(metadata_zip, files = metadata_csv, exdir = tempdir(), overwrite = TRUE)
-  metadata <- read.csv(metadata_path, stringsAsFactors = FALSE)
-  metadata$Sample_name <- gsub("^(.*?_D)(\\d{2})\\.(\\d+)$", "D\\2-\\3", metadata$Sample_name)
-  metadata = metadata %>% rename(Accession = Run)
+  # ----- scale and metadata -----
+  metadata = read_zipped_table(metadata_zip, row.names=NULL) %>% rename(Accession = Run)
+  scale = NA
   
-  # ----- scale ------------------------------
-  scale_xlsx <- unzip(scale_zip, list = TRUE)$Name[1]
-  scale_path <- unzip(scale_zip, files = scale_xlsx, exdir = tempdir(), overwrite = TRUE)
+  # ----- original counts, tax, and proportions -----
+  counts_original = NA
+  tax_original = NA
+  proportions_original = NA
   
-  scale <- read_excel(scale_path, sheet = "Microbial loads")
-  scale <- scale %>%
-    select(Sample, `Cells.g.of.fecal.sample`) %>%
-    rename(Sample_name = Sample)
-  
-    # ----- Reprocessed counts from RDS ZIP -----
+  # ----- Reprocessed counts from RDS ZIP -----
   temp_rds <- tempfile(fileext = ".rds")
   unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
@@ -74,6 +76,9 @@ parse_2022_suriano_aps_micefecal <- function(raw = FALSE) {
   tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
   if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
   tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+
+  
+  # ----- Convert sequences to lowest rank taxonomy found and update key -----
   tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # ----- Convert accessions to sample IDs / Sequences to Taxa -----
@@ -93,17 +98,18 @@ parse_2022_suriano_aps_micefecal <- function(raw = FALSE) {
       function(col) col / sum(col)
   )
 
+  # ----- Return structured list -----
   return(list(
       counts = list(
-          original = NA,
+          original = counts_original,
           reprocessed = counts_reprocessed
       ),
       proportions = list(
-          original = NA,
+          original = proportions_original,
           reprocessed = proportions_reprocessed
       ),
       tax = list(
-          original = NA,
+          original = tax_original,
           reprocessed = tax_reprocessed
       ),
       scale = scale,

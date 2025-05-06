@@ -1,5 +1,5 @@
-parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- function(raw = FALSE) {
-  required_pkgs <- c("tidyverse", "readxl")
+parse_2024_sternes_frontmicrobiol_IBDppiqPCR <- function(raw = FALSE) {
+    required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
@@ -10,12 +10,12 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
   library(readxl)
 
   # ----- Local base directory -----
-  local <- file.path("2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal")
+  local <- file.path("2024_sternes_frontmicrobiol_IBDppiqPCR")
 
   # ----- File paths -----
-  repro_counts_rds_zip <- file.path(local, "PRJNA1233249_dada2_counts.rds.zip")
-  repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxa.rds.zip")
-  metadata_zip         <- file.path(local, "SraRunTable.csv.zip")
+  repro_counts_rds_zip <- file.path(local, "PRJNA1120972_dada2_counts.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJNA1120972_dada2_taxa.rds.zip")
+  metadata_zip         <- file.path(local, "SraRunTable (34).csv.zip")
   scale_zip            <- file.path(local, "scale.csv.zip")
 
   # ---- helper functions ----
@@ -61,15 +61,15 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
   
   # --- metadata and scale ----
   metadata     <- read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame() %>% 
-                  rename(ID = person_id, Accession = Run) %>%
-                  mutate(ID = as.character(ID))
-  scale_raw    <- read_zipped_table(scale_zip, row.names=NULL) %>% as.data.frame()
-  ml_cols      <- grep("^Microbial_load", names(scale_raw), value = TRUE)
-  ml_mean_sd   <- ml_cols[grepl("Mean|SD", ml_cols)]
-  meta_cols    <- setdiff(names(scale_raw), c("ID", ml_cols))
-  meta_part    <- scale_raw %>% select(ID, all_of(meta_cols)) %>% mutate(ID = as.character(ID))
-  scale        = scale_raw %>% select(ID, all_of(ml_mean_sd)) %>% mutate(ID = as.character(ID))
-  metadata     = metadata %>% left_join(meta_part, by = "ID")
+                  rename(Sample_name = sampleid, Accession = Run) %>%
+                  mutate(Sample_name = as.character(Sample_name))
+  scale_raw    <- read_zipped_table(scale_zip, row.names=NULL) %>% as.data.frame() %>% 
+                  rename(Sample_name = ID) %>%  mutate(Sample_name = as.character(Sample_name))
+  meta_part    <- scale_raw %>% select(c("Sample_name", "DX_Groups","AGE","age_binned","Sex", 
+  "NC_total_score", "NC_binned", "BMI",	"BMI_binned", "SAGIS_binned", "SAGIS_binned2", "PPI")) 
+  scale        = scale_raw %>% select(-c("DX_Groups","AGE","age_binned","Sex", 
+  "NC_total_score", "NC_binned", "BMI",	"BMI_binned", "SAGIS_binned", "SAGIS_binned2", "PPI")) 
+  metadata     = metadata %>% left_join(meta_part, by = "Sample_name")
 
   # ----- Reprocessed counts from RDS ZIP -----
   temp_rds <- tempfile(fileext = ".rds")

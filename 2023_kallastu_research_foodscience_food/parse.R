@@ -17,16 +17,14 @@ parse_2023_kallastu_research_foodscience_food <- function() {
 
     # -------- file paths -----------
     metadata_zip                <- file.path(local, "SraRunTable.csv.zip")
-    repro_counts_rds_zip        <- file.path(localPath, "PRJNA861123_dada2_merged_nochim.rds.zip")
-    repro_tax_zip               <- file.path(localPath, "PRJNA861123_dada2_taxonomy_merged.rds.zip")
+    repro_counts_rds_zip        <- file.path(local, "PRJNA861123_dada2_counts.rds.zip")
+    repro_tax_zip               <- file.path(local, "PRJNA861123_dada2_taxa.rds.zip")
 
     # ------- metadata -------------
     metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
     metadata_path <- unzip(metadata_zip, files = metadata_csv, exdir = tempdir(), overwrite = TRUE)
-    metadata <- as.data.frame(read.csv(metadata_path, stringsAsFactors = FALSE))
-
-    rownames(metadata) <- metadata$`Sample.Name`
-    metadata <- subset(metadata, select = -`Sample.Name`)
+    metadata <- as.data.frame(read.csv(metadata_path, row.names = NULL, stringsAsFactors = FALSE)) %>%
+                    rename(Accession = Run, Sample = Sample.Name)
 
     # ------- scale ----------------
     ## Scale is directly presented as a table in the paper
@@ -47,6 +45,7 @@ parse_2023_kallastu_research_foodscience_food <- function() {
         "20St", "K6 PMA", "K6 TOT", "K5 PMA", "K5 TOT",
         "K4 PMA", "K4 TOT", "20St 2.5PMA", "20St 1PMA", "20St 0.5PMA"
     )
+    scale = as.data.frame(t(scale_data)) %>% rownames_to_column("Sample")
 
     # ----- Reprocessed counts from RDS ZIP -----
     temp_rds            <- tempfile(fileext = ".rds")

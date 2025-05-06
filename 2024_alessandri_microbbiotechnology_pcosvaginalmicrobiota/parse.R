@@ -1,6 +1,4 @@
-parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function() {
-
-  # ----- Required packages -----
+parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw = FALSE) {
   required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
@@ -14,10 +12,23 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function() {
   local <- file.path("2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota")
 
   # ----- File paths -----
-  scale_zip      <- file.path(local, "MBT2-17-e14540-s002 (1).xlsx.zip")
-  metadata_zip   <- file.path(local, "SraRunTable (1).csv.zip")
-  motus_zip      <- file.path(local, "PRJNA1075117_motus_merged.tsv.zip")
-  metaphlan4_zip <- file.path(local, "PRJNA1075117_MetaPhlAn_merged.tsv.zip")
+  metadata_zip            <- file.path(local, "SraRunTable (1).csv.zip")
+  motus_zip               <- file.path(local, "PRJNA1075117_motus_merged.tsv.zip")
+  metaphlan4_zip          <- file.path(local, "PRJNA1075117_MetaPhlAn_merged.tsv.zip")
+  scale_zip               <- file.path(local, "Alessandri2024_scale.csv.zip")
+  metadataprocessed_zip   <- file.path(local, "Alessandri_2024_metadata.csv.zip")
+  oldprocessed_zip        <- file.path(local, "Alessandri_2024_shotgunmetagenomics.csv.zip")
+
+  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+      if (file.exists(zip_path)) {
+      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+      con <- unz(zip_path, inner_file)
+      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
+      } else {
+      warning(paste("File not found:", zip_path))
+      return(NA)
+      }
+  }
 
   # ----- Initialize everything as NA -----
   counts_original <- NA
@@ -84,42 +95,49 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function() {
 
 
   # ----- Metadata -----
-  metadata <- NA
-  if (file.exists(metadata_zip)) {
-    metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
-    metadata_con <- unz(metadata_zip, metadata_csv)
-    metadata <- read.csv(metadata_con, row.names = "Sample.Name") %>%
-      as.data.frame() %>%
-      rownames_to_column("Sample")
-  }
+  metadata          <- read_zipped_table(metadata_zip, row.names=NULL) %>% 
+                        rename(Accession = Run)
+  metadataprocessed <- read_zipped_table(metadataprocessed_zip, row.names=NULL)
+  # if (file.exists(metadata_zip)) {
+  #   metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
+  #   metadata_con <- unz(metadata_zip, metadata_csv)
+  #   metadata <- read.csv(metadata_con, row.names = "Sample.Name") %>%
+  #     as.data.frame() %>%
+  #     rownames_to_column("Sample")
+  # }
 
   # ----- Scale -----
-  scale <- NA
-  if (file.exists(scale_zip)) {
-    scale_files <- unzip(scale_zip, list = TRUE)
-    if (nrow(scale_files) > 0) {
-      scale_xlsx <- scale_files$Name[1]
-      temp_dir <- tempdir()
-      unzip(scale_zip, files = scale_xlsx, exdir = temp_dir, overwrite = TRUE)
-      scale_path <- file.path(temp_dir, scale_xlsx)
-      sheet7 <- read_xlsx(scale_path, sheet = 7)
-      sheet8 <- read_xlsx(scale_path, sheet = 8)
-      sheet10 <- read_xlsx(scale_path, sheet = 10)
-      sheet11 <- read_xlsx(scale_path, sheet = 11)
-      merged <- reduce(list(sheet7, sheet8, sheet10, sheet11), full_join, by = "Sample")
+  scale <- read_zipped_table(scale_zip, row.names=NULL)
+  # if (file.exists(scale_zip)) {
+  #   scale_files <- unzip(scale_zip, list = TRUE)
+  #   if (nrow(scale_files) > 0) {
+  #     scale_xlsx <- scale_files$Name[1]
+  #     temp_dir <- tempdir()
+  #     unzip(scale_zip, files = scale_xlsx, exdir = temp_dir, overwrite = TRUE)
+  #     scale_path <- file.path(temp_dir, scale_xlsx)
+  #     sheet7 <- read_xlsx(scale_path, sheet = 7)
+  #     sheet8 <- read_xlsx(scale_path, sheet = 8)
+  #     sheet10 <- read_xlsx(scale_path, sheet = 10)
+  #     sheet11 <- read_xlsx(scale_path, sheet = 11)
+  #     merged <- reduce(list(sheet7, sheet8, sheet10, sheet11), full_join, by = "Sample")
 
-      scale <- merged %>%
-        select(Sample, `Bacterial total count`) %>%
-        column_to_rownames("Sample")
-      additional_metadata <- merged %>% select(-`Bacterial total count`)
-      if (!is.null(metadata) && !is.na(metadata)) {
-        metadata <- metadata %>%
-          full_join(additional_metadata, by = "Sample") %>%
-          column_to_rownames("Sample")
-      }
-    }
-  }
+  #     scale <- merged %>%
+  #       select(Sample, `Bacterial total count`) %>%
+  #       column_to_rownames("Sample")
+  #     additional_metadata <- merged %>% select(-`Bacterial total count`)
+  #     if (!is.null(metadata) && !is.na(metadata)) {
+  #       metadata <- metadata %>%
+  #         full_join(additional_metadata, by = "Sample") %>%
+  #         column_to_rownames("Sample")
+  #     }
+  #   }
+  # }
 
+  # ---- old processed, delete later ----
+  counts_original <- read_zipped_table(oldprocessed_zip, row.names=NULL)
+  proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
+  tax_original <- data.frame(Taxa = colnames(counts_original))
+  
   # ----- Return -----
   return(list(
     counts = list(

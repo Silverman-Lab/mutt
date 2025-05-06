@@ -1,4 +1,4 @@
-parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
+parse_2025_wagner_frontiersinmiccrobiology_flowpiglets <- function(raw = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "stringr", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -15,17 +15,16 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
     library(readr)
 
     # ----- Local base directory -----
-    local <- file.path("2020_barlow_naturecommunications_miceGI")
+    local <- file.path("2025_wagner_frontiersinmiccrobiology_flowpiglets")
 
     # ----- File paths -----
-    sra_metadata_zip     <- file.path(local, "SraRunTable (32).csv.zip")
-    counts               <- NA  # No original counts provided
-    sraplusload_zip      <- file.path(local, "SraRunTable_total_loads.csv.zip")
-    proportions_zip      <- file.path(local, "Relative_Abundance_Table.csv.zip")
-    scale_zip            <- file.path(local, "absolute_abundance_calculated.csv.zip")
-    repro_counts_rds_zip <- file.path(local, "PRJNA575097_dada2_counts.rds.zip")
-    repro_tax_zip        <- file.path(local, "PRJNA575097_dada2_taxa.rds.zip")
+    sra_metadata_zip     <- file.path(local, "SraRunTable (23).csv.zip")
+    counts               <- file.path(local, "counts.csv.zip")
+    scale_zip            <- file.path(local, "scale.csv.zip")
+    repro_counts_rds_zip <- file.path(local, "PRJNA1229264_dada2_counts.rds.zip")
+    repro_tax_zip        <- file.path(local, "PRJNA1229264_dada2_taxa.rds.zip")
 
+    # ---- helper functions ----
     read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
         if (file.exists(zip_path)) {
         inner_file <- unzip(zip_path, list = TRUE)$Name[1]
@@ -35,42 +34,6 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
         warning(paste("File not found:", zip_path))
         return(NA)
         }
-    }
-
-    # --- proportions ---
-    prop_csv <- unzip(proportions_zip, list = TRUE)$Name[1]
-    prop_path <- unzip(proportions_zip, files = prop_csv, exdir = tempdir(), overwrite = TRUE)
-    proportions <- read.csv(prop_path, row.names = 1, check.names = FALSE, stringsAsFactors = FALSE)
-
-    # metadatabackup <- proportions %>%
-    #     rownames_to_column("Sample") %>%
-    #     select(c(Sample, Diet, Site, Day, mouse, Cage)) %>% 
-    #     mutate(Sample = str_replace_all(Sample, "_", " "))
-
-    proportions <- proportions %>% select(-c(Diet, Site, Day, mouse, Cage))
-
-    # --- Assign Taxon_1 ... Taxon_N as rownames and store original names ---
-    original_taxa <- colnames(proportions)
-
-    # --- Create taxa dataframe (lookup table) ---
-    tax <- data.frame(taxonomy = original_taxa, stringsAsFactors = FALSE)
-    rownames(tax) <- tax$taxonomy
-    if (any(grepl("^D_\\d+__", tax$taxonomy))) {
-    tax <- tax %>%
-        separate(taxonomy,
-                into = paste0("D", 0:6),
-                sep = ";", fill = "right") %>%
-        mutate(across(everything(), ~ gsub("^D_\\d+__", "", .))) %>%
-        mutate(across(everything(), ~ ifelse(. == "" | . == "__", "unclassified", .))) %>%
-        transmute(
-        Kingdom = D0,
-        Phylum  = D1,
-        Class   = D2,
-        Order   = D3,
-        Family  = D4,
-        Genus   = D5,
-        Species = D6
-        )
     }
 
     make_taxa_label <- function(df) {
@@ -96,32 +59,19 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
       })
       return(df)
     }
-    tax_original = make_taxa_label(tax) %>% as.data.frame(stringsAsFactors = FALSE)
-    rownames(tax_original) <- tax_original$taxonomy
-    proportions <- as.data.frame(proportions, stringsAsFactors = FALSE)
-    if (!raw) {
-        matched_taxa <- tax_original$Taxa[match(colnames(proportions), rownames(tax_original))]
-        colnames(proportions) <- matched_taxa
-        proportions <- as.data.frame(t(rowsum(t(proportions), group = colnames(proportions))))
-    }
 
-    # ----- metadata ------
-    sra_metadata = read_zipped_table(sra_metadata_zip, row.names = NULL) %>% 
-                    mutate(Sample = str_replace_all(`Sample Name`, "_", " ")) %>% 
-                    rename(Accession = Run)
-    
-    # --- Scale (ddPCR) ---
-    scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
-    scale_path <- unzip(scale_zip, files = scale_csv, exdir = tempdir(), overwrite = TRUE)
-    scale <- read.csv(scale_path, row.names = NULL, stringsAsFactors = FALSE)
-    metadata <- full_join(sra_metadata, scale, by = "Sample") 
-    metadata = read_zipped_table(sraplusload_zip, row.names = NULL) %>% rename(Accession = Run) %>%
-                    full_join(metadata, by = "Accession")
-    dups <- duplicated(as.list(df))
-    metadata <- metadata[, !dups] 
-    scale = metadata %>% select(c("Sample" ,"Accession", "Total Load (16S Copies/g)"))
-    metadata = metadata %>% select(-c("Total Load (16S Copies/g)"))
-    
+    # ---- counts, tax, proportions ----
+    counts_original = read_zipped_table(counts) %>% t() %>% as.data.frame(stringsAsFactors = FALSE)
+    counts_original[] <- lapply(counts_original, function(x) as.numeric(as.character(x)))
+    tax_original = data.frame(taxonomy = colnames(counts_original))
+    proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
+
+    # ---- scale ----
+    scale = read_zipped_table(scale_zip, row.names = NULL) %>% as.data.frame()
+
+    # ---- metadata ----
+    metadata = read_zipped_table(sra_metadata_zip, row.names = NULL) %>% as.data.frame()
+
     # ----- Reprocessed counts from RDS ZIP -----
     temp_rds <- tempfile(fileext = ".rds")
     unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
@@ -162,18 +112,18 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
     # ---- return ----
     return(list(
         counts = list(
-            original = counts,
+            original = counts_original,
             reprocessed = counts_reprocessed
         ),
         tax = list(
-            original = tax,
+            original = tax_original,
             reprocessed = tax_reprocessed
         ),
         proportions = list(
-            original = proportions,
+            original = proportions_original,
             reprocessed = proportions_reprocessed
         ),
         metadata = metadata,
-        scale = genomicscale
+        scale = scale
     ))
 }

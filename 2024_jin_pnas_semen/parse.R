@@ -1,4 +1,4 @@
-parse_2024_jin_pnas_semen <- function(paths = NULLL) {
+parse_2024_jin_pnas_semen <- function(raw=FALSE) {
   required_pkgs <- c("tidyverse", "readxl", "stringr", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
@@ -14,76 +14,126 @@ parse_2024_jin_pnas_semen <- function(paths = NULLL) {
   library(readr)
   
   # -----local path ---------------------------
-  localPath <- file.path("2024_jin_pnas_semen")
+  local <- file.path("2024_jin_pnas_semen")
 
   # ---------- file paths ---------------------
-  repro_counts_rds_zip<- file.path(localPath, "PRJNA747100_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- file.path(localPath, "PRJNA747100_dada2_taxonomy_merged.rds.zip")
-  
-  
-  metadata <- as.data.frame(read_table(file.path(localPath, "metadata4.txt")))
-  rownames(metadata) <- metadata$`sample-ID`
-  metadata <- subset(metadata, select = -`sample-ID`)
-  metadata <- metadata[!(rownames(metadata) %in% c("S1", "S13", "SN", "SNTC")), ]
-  
-  counts <- as.data.frame(read_tsv(paste0(localPath, "table.tsv"), skip = 1))
-  rownames(counts) <- counts$`#OTU ID`
-  counts <- subset(counts, select = -`#OTU ID`)
-  counts <- t(counts)
-  counts <- counts[!(rownames(counts) %in% c("S1", "SN", "SNTC")), ]
-  
-  
-  tax <- as.data.frame(read_tsv(paste0(localPath, "taxonomy.tsv")), skip = 1)
-  rownames(tax) <- tax$`Feature ID`
-  tax <- subset(tax, select = -`Feature ID`)
-  
-  scale <- as.data.frame(read_table(paste0(localPath, "CFU_data.txt")), skip = 1)
-  rownames(scale) <- scale$`sample-ID`
-  scale <- subset(scale, select = -`sample-ID`)
-  scale <- t(scale)
+  repro_counts_rds_zip    <- file.path(local, "PRJNA747100_dada2_counts.rds.zip")
+  repro_tax_zip           <- file.path(local, "PRJNA747100_dada2_taxa.rds.zip")
+  metadata_zip            <- file.path(local, "metadata4.txt.zip")
+  sra_zip                 <- file.path(local, "SraRunTable (38).csv.zip")
+  cfu_zip                 <- file.path(local, "CFU_data.txt.zip")
+  counts_zip              <- file.path(local, "table.tsv.zip")
+  tax_zip                 <- file.path(local, "taxonomy.tsv.zip")
 
-  # --- Compute proportions from counts ---
-  proportions <- counts
-  proportions[] <- lapply(
-  proportions,
-  function(col) {
-      if (is.numeric(col)) {
-      total <- sum(col, na.rm = TRUE)
-      if (total == 0) return(rep(NA, length(col)))
-      return(col / total)
-      } else {
-      return(col)
-      }
+  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+    if (file.exists(zip_path)) {
+      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+      con <- unz(zip_path, inner_file)
+      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
+    } else {
+      warning(paste("File not found:", zip_path))
+      return(NA)
+    }
   }
-  )
+
+  # ----- Convert sequences to lowest rank taxonomy found and update key -----
+  make_taxa_label <- function(df) {
+      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+      prefixes  <- c("k", "p", "c", "o", "f", "g")
+      if (!all(tax_ranks %in% colnames(df))) {
+          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+      }
+      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+          x[is.na(x) | trimws(x) == ""] <- "unclassified"
+          x
+      })
+      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+          if (tax_row["Genus"] != "unclassified") {
+          return(paste0("g_", tax_row["Genus"]))
+          }
+          for (i in (length(tax_ranks)-1):1) { 
+          if (tax_row[i] != "unclassified") {
+              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+          }
+          }
+          return("unclassified")
+      })
+      return(df)
+  }
+  
+  # ---- metadata ----
+  metadata = read_zipped_table(metadata_zip, sep="\t", row.names=NULL) %>% as.data.frame() %>% rename(Sample = `sample-ID`)
+  metadata <- metadata[!(metadata$Sample %in% c("S1", "S13", "SN", "SNTC")), ]
+  sra = read_zipped_table(sra_zip, row.names=NULL) %>% as.data.frame() 
+  sra = sra %>% rename(Sample = `Sample Name`, Accession = Run)
+  metadata = full_join(metadata, sra, by = "Sample")
+
+  # ---- scale ----
+  scale <- read_zipped_table(cfu_zip, sep="\t", row.names=NULL) %>% as.data.frame() %>% rename(Sample = `sample-ID`)
+  
+  # ---- counts ----
+  counts = read_zipped_table(counts_zip, sep="\t", row.names=NULL) %>% as.data.frame() %>% rename(OTUID = `OTU ID`)
+  rownames(counts) <- counts$OTUID
+  counts <- subset(counts, select = -OTUID)
+  counts <- t(counts)
+  counts <- counts[!(rownames(counts) %in% c("S1", "SN", "SNTC")), ] %>% as.data.frame()
+  
+  # ---- tax ----
+  tax <- read_zipped_table(tax_zip, sep="\t", row.names=NULL) %>% as.data.frame() %>%
+          rename(OTUID = `Feature ID`)
+
+  tax <- tax %>%
+  separate(Taxon,
+           into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+           sep = ";", fill = "right") %>%
+  mutate(across(Kingdom:Species, ~ trimws(.))) %>% 
+  mutate(across(Kingdom:Species, ~ gsub("^(k__|p__|c__|o__|f__|g__|s__)", "", .))) %>%
+  mutate(across(Kingdom:Species, ~ ifelse(. == "" | is.na(.), "unclassified", .)))
+  tax <- make_taxa_label(tax)
+  rownames(tax) <- tax$OTUID
+  if (!raw) {
+      matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
+      colnames(counts) <- matched_taxa
+      counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
+  }
+  # --- proportions ---
+  proportions_original <- sweep(counts, MARGIN = 1,STATS  = rowSums(counts), FUN = "/")
   
   # ----- Reprocessed counts from RDS ZIP -----
-  temp_rds            <- tempfile(fileext = ".rds")
+  temp_rds <- tempfile(fileext = ".rds")
   unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-  rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-  seqtab_nochim       <- readRDS(rds_file)
-  rpt_mat             <- t(seqtab_nochim)
-  counts_reprocessed  <- as.data.frame(rpt_mat)
-  counts_reprocessed$Sequence <- rownames(counts_reprocessed)
-  counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
-  rownames(counts_reprocessed) <- paste0("Taxon_", seq_len(nrow(counts_reprocessed)))
-  
-  # proportions reprocessed
-  proportions_reprocessed = counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-    counts_reprocessed[-1],
-    function(col) col / sum(col)
-  )
-  
+
+  rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+  if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+  counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+
   # ----- Taxonomy reprocessed -----
   temp_tax <- tempfile(fileext = ".rds")
   unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-  tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
-  taxonomy_matrix <- readRDS(tax_file)
-  rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
-  tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
-  tax_reprocessed = tax_table
+
+  tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+  if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+  tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
   
+  # ----- Convert sequences to lowest rank taxonomy found and update key -----
+  tax_reprocessed = make_taxa_label(tax_reprocessed)
+
+  # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+  # accessions to sampleIDs is study specific: IF NEED BE
+
+  # taxa
+  if (!raw) {
+      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+      colnames(counts_reprocessed) <- matched_taxa
+      counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+  }
+
+  # proportions reprocessed
+  proportions_reprocessed = counts_reprocessed
+  proportions_reprocessed[-1] <- lapply(
+      counts_reprocessed[-1],
+      function(col) col / sum(col)
+  )
   
   return(list(scale=scale, 
               metadata=metadata, 
@@ -92,7 +142,7 @@ parse_2024_jin_pnas_semen <- function(paths = NULLL) {
                 reprocessed = counts_reprocessed
               ),
               proportions=list(
-                original = ,
+                original = proportions_original,
                 reprocessed = proportions_reprocessed
               ),
               tax=list(
