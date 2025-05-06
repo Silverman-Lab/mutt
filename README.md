@@ -53,6 +53,25 @@ return(list(
     metadata = metadata,
     phylo = NA
 ))
+
+# ---- Example amplicon study ----
+return(list(
+    counts = list(
+        original = counts_original,
+        reprocessed = counts_reprocessed
+    ),
+    tax = list(
+        original = tax_original,
+        reprocessed = tax_reprocessed
+    ),
+    proportions = list(
+        original = proportions_original,
+        reprocessed = proportions_reprocessed
+    ),
+    metadata = metadata,
+    scale = scale,
+    phylo = NA
+))
 ```
 ### Note on file paths
 `parse.R` scripts should specify file paths relative to the root `data_repository` directory. See my example in `2024_nishijima_cell_galaxy/parse.R`. 
