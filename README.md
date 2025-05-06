@@ -10,12 +10,12 @@ According to Maxwell, metagenomic data is huge. So lets keep this to count table
 - An extra column in a count table that contains non-meaningful information (e.g., all values are -1) and is not present in the taxa table indicates that the corresponding taxa are unassigned.
 
 # Format to Maintain
-- Each dataset gets its own directory with an informative name (all lower-case), "year_name_journal_keyword". Try to be concise (don't use date ranges e.g., 2020-2024 but just choose a single date for the study). 
+- Each dataset gets its own directory with an informative name (all lower-case), "year_name_journal_keyword". Try to be concise, but not too vague (don't use date ranges e.g., 2020-2024 but just choose a single date for the study). 
 
-- datasets should be compressed (and again, stored using Git LFS: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage)
+- Datasets should be compressed (and again, stored using Git LFS: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage). This can be done by running ./zip-push-gitlfs.sh from the terminal within the data repository main folder.
 
 ## Parsed Data Structure for `parse.R` scripts. 
-parse.R should have a single function named `parse_[name of directory]` which returns a list object with the following elements. That function should not require arguments but they can be optional. Ideally, parse scripts use nothing other than base R or tidyverse functions to minimize dependencies and errors if certain libraries are not installed. 
+parse.R should have a single function named `parse_[name of directory]` (all lowercase) which returns a list object with the following elements. That function should not require arguments but they can be optional. Ideally, parse scripts use nothing other than base R or tidyverse functions to minimize dependencies and errors if certain libraries are not installed. 
 
 - `counts` integer valued count matrix (not data.frame) that is (N x D). sampleIDs (rows) and sequenceIDs (columns) (e.g., taxaIDs) respectively. Should contain a column key with sampleIDs linking to proportions, scale, and metadata.
 - `proportions` real-valued valued count matrix (not data.frame) that is (N x D) and has row and column names which are sampleIDs and sequenceIDs (e.g., taxaIDs) respectively. Should contain a column key with sampleIDs linking to counts, scale, and metadata. 
