@@ -1,4 +1,4 @@
-parse_2020_vierasilva_nature_BMIS <- function(raw = FALSE) {
+parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -13,7 +13,7 @@ parse_2020_vierasilva_nature_BMIS <- function(raw = FALSE) {
     library(readr)
 
     # -------- local path -----------
-    local                       <- file.path("2020_vierasilva_nature_BMIS")
+    local                       <- file.path("2020_vieirasilva_nature_BMIS")
 
     # -------- file paths -----------
     original_proportions_zip    <- file.path(local, "qmp_genera_abundances_BMIS.tsv.zip")

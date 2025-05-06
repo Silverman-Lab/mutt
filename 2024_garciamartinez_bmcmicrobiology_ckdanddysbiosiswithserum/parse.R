@@ -12,7 +12,7 @@ parse_2024_garciamartinez_bmcmicrobiology_ckdflow <- function(raw = FALSE) {
   library(readxl)
   
   # ----- Local base directory -----
-  local <- file.path("2024_garcia-martinez_bmcmicrobiology_ckdanddysbiosiswithserum")
+  local <- file.path("2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum")
 
   # ----- File paths -----    
   metadata_zip        <- file.path(local,"SraRunTable (19).csv.zip")

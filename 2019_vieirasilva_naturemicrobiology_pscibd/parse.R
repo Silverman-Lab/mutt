@@ -1,4 +1,4 @@
-parse_2019_vierasilva_naturemicrobiology_pscibd <- function(entrez_key = NULL) {
+parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,entrez_key = NULL) {
   if (is.null(entrez_key) || !nzchar(entrez_key)) {
     stop(
       "You must provide a valid NCBI Entrez API key via the `entrez_key` argument.\n",
@@ -26,7 +26,7 @@ parse_2019_vierasilva_naturemicrobiology_pscibd <- function(entrez_key = NULL) {
   
   # ----- local path -----
   
-  local <- file.path("2019_vierasilva_naturemicrobiology_psc-ibd")
+  local <- file.path("2019_vieirasilva_naturemicrobiology_pscibd")
 
   # ----- File paths -----
   metadata_zip <- file.path(local,"41564_2019_483_MOESM3_ESM.xlsx.zip")
