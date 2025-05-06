@@ -74,3 +74,12 @@ return(list(
 ```
 ### Note on file paths
 `parse.R` scripts should specify file paths relative to the root `data_repository` directory. 
+
+### Helper Functions:
+`repoparser.py` a parser check function to check the structure and execution of each individual parser. (Needs work)
+`obtainpublicationinfo_pmid.py` using a list of PMIDs, this functionality can be integrated into each parser to obtain the manuscript information from NCBI (Script works, but python and each parse script is in R.)
+
+### Wrapper functions
+`microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
+`microbialscalerepo.py` function to call parse scripts (with selection of individual studies) and optionally store in .pkl object
+
