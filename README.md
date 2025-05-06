@@ -73,4 +73,4 @@ return(list(
 ))
 ```
 ### Note on file paths
-`parse.R` scripts should specify file paths relative to the root `data_repository` directory. See my example in `2024_nishijima_cell_galaxy/parse.R`. 
+`parse.R` scripts should specify file paths relative to the root `data_repository` directory. 
