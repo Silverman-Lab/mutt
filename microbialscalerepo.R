@@ -12,7 +12,9 @@
 #' @maintainer Justin Silverman <justinsilverman@psu.edu>
 #' @maintainer Maxwell Konnaris <mak6930@psu.edu>
 #'
-#' @importFrom utils txtProgressBar setTxtProgressBar tidyverse 
+#' @importFrom utils txtProgressBar setTxtProgressBar 
+#' @import tidyverse 
+#' @import optparse
 #'
 #' @param studies Character vector *or named list* indicating which parser
 #'        subdirectories to run.  If unnamed, `studies` entries must exactly
@@ -156,6 +158,7 @@ microbialscalerepo <- function(
       warning("Skipping ", parser, ": function ", fun_name, "() not found")
       utils::setTxtProgressBar(pb, i); next
     }
+    
 
     res <- tryCatch(
       get(fun_name, envir = env)(raw = rawdata),
@@ -185,6 +188,7 @@ microbialscalerepo <- function(
     parsed_list[[i]] <- res
     utils::setTxtProgressBar(pb, i)
   }
+  utils::setTxtProgressBar(pb, n)
 
   # --- optional save ---------------------------------------------------------
   if (!is.null(save_to)) {
@@ -193,4 +197,51 @@ microbialscalerepo <- function(
   }
 
   parsed_list
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Command‑line interface when run via Rscript:
+# ─────────────────────────────────────────────────────────────────────────────
+if (!interactive()) {
+  suppressPackageStartupMessages(library(optparse))
+  option_list <- list(
+    make_option(c("-s", "--studies"), type = "character",
+                help = "Comma-separated list of parsers (names or paths)"),
+    make_option(c("-n", "--names"), type = "character",
+                help = "Comma-separated output names (optional, same length)"),
+    make_option(c("-b", "--base"),   type = "character", default = ".",
+                help = "Base directory [default %default]"),
+    make_option(c("-r", "--raw"),    action = "store_true", default = FALSE,
+                help = "Pass raw = TRUE to parsers"),
+    make_option(c("-a", "--align"),  action = "store_true", default = FALSE,
+                help = "Align samples to scale IDs"),
+    make_option(c("-o", "--output"), type = "character", default = NULL,
+                help = "Path to save .RData output" )
+  )
+  parser <- OptionParser(option_list = option_list,
+                         description = "Run microbialscalerepo from the command line")
+  opts <- parse_args(parser)
+
+  studs <- if (!is.null(opts$studies))
+            trimws(strsplit(opts$studies, ",")[[1]])
+        else NULL
+    if (!is.null(opts$names)) {
+        nm <- trimws(strsplit(opts$names, ",")[[1]])
+    if (length(nm) != length(studs))
+        stop("--names and --studies must have the same number of entries")
+    studs <- setNames(studs, nm)
+  }
+
+  res <- microbialscalerepo(
+    studies        = studs,
+    base_directory = opts$base,
+    rawdata        = opts$raw,
+    align_samples  = opts$align,
+    save_to        = opts$output
+  )
+
+  if (is.null(opts$output)) {
+    cat("Parsed studies:\n", paste(names(res), collapse = "\n"), "\n")
+  } else {
+    cat("Saved parsed list to:", opts$output, "\n")
 }
