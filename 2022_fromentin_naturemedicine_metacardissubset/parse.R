@@ -29,7 +29,7 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE) {
     file.path(local, "PRJEB46098_MetaPhlAn_merged.tsv.zip")
   )
 
-  # ---- function to clean up temp files ----
+  # ---- helper functions ----
   cleanup_tempfiles <- function(temp_paths) {
   for (p in temp_paths) {
       if (file.exists(p)) {
@@ -37,6 +37,51 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE) {
       }
     }
   }
+      read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+      if (file.exists(zip_path)) {
+      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+      con <- unz(zip_path, inner_file)
+      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
+      } else {
+      warning(paste("File not found:", zip_path))
+      return(NA)
+      }
+    }
+    make_taxa_label <- function(df) {
+        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+        prefixes  <- c("k", "p", "c", "o", "f", "g", "s")
+        if (!all(tax_ranks %in% colnames(df))) {
+            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+        }
+        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+            x[is.na(x) | trimws(x) == ""] <- "unclassified"
+            x
+        })
+        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+            if (tax_row["Species"] != "unclassified") {
+            return(paste0("s_", tax_row["Species"]))
+            }
+            for (i in (length(tax_ranks)-1):1) {  
+            if (tax_row[i] != "unclassified") {
+                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+            }
+            }
+            return("unclassified")
+        })
+        return(df)
+    }
+
+    fill_na_zero_numeric <- function(x) {
+        if (is.data.frame(x)) {
+            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+        } else if (is.matrix(x) && is.numeric(x)) {
+            x[is.na(x)] <- 0
+        } else if (is.list(x)) {
+            x <- lapply(x, fill_na_zero_numeric)
+        }
+        x
+    }
+
 
   # ---- initialize dataframes ----
   counts = NA
@@ -278,43 +323,45 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE) {
 
   cleanup_tempfiles(c(temp_dir))
 
+
+
   # ----- Return -----
   return(list(
       counts = list(
-      original = list(
-          microbiome = metadata_list$microbiome,
-          GMMandKEGGabundances = metadata_list$GMMandKEGGabundances,
-          serummetabolites = NA,
-          urinemetabolites = metadata_list$urinemetabolitesdata
-      ),
-      reprocessed = list(
-          mOTU3 = mOTU3_counts,
-          MetaPhlAn4 = MetaPhlAn4_counts
-      )
+        original = list(
+            microbiome = if (!raw) {fill_na_zero_numeric(metadata_list$microbiome)} else {metadata_list$microbiome},
+            GMMandKEGGabundances = metadata_list$GMMandKEGGabundances,
+            serummetabolites = NA,
+            urinemetabolites = metadata_list$urinemetabolitesdata
+        ),
+        reprocessed = list(
+            mOTU3 = if (!raw) {fill_na_zero_numeric(mOTU3_counts)} else {mOTU3_counts},
+            MetaPhlAn4 = if (!raw) {fill_na_zero_numeric(MetaPhlAn4_counts)} else {MetaPhlAn4_counts}
+        )
       ),
       proportions = list(
-      original = list(
-          microbiome = proportions_list$microbiome,
-          GMMandKEGGabundances = proportions_list$GMMandKEGGabundances,
-          serummetabolites = metadata_list$logtransformedserummetabolites,
-          urinemetabolites = proportions_list$urinemetabolites
-      ),
-      reprocessed = list(
-          mOTU3 = mOTU3_proportions,
-          MetaPhlAn4 = MetaPhlAn4_proportions
-      )
+        original = list(
+            microbiome = if (!raw) {fill_na_zero_numeric(proportions_list$microbiome)} else {proportions_list$microbiome},
+            GMMandKEGGabundances = proportions_list$GMMandKEGGabundances,
+            serummetabolites = metadata_list$logtransformedserummetabolites,
+            urinemetabolites = proportions_list$urinemetabolites
+        ),
+        reprocessed = list(
+            mOTU3 = if (!raw) {fill_na_zero_numeric(mOTU3_proportions)} else {mOTU3_proportions},
+            MetaPhlAn4 = if (!raw) {fill_na_zero_numeric(MetaPhlAn4_proportions)} else {MetaPhlAn4_proportions}
+        )
       ),
       tax = list(
-      original = list(
-          microbiome = tax_list$microbiome,
-          GMMandKEGGabundances = tax_list$GMMandKEGGabundances,
-          serummetabolites = tax_list$logtransformedserummetabolites,
-          urinemetabolites = tax_list$urinemetabolites
-      ),
-      reprocessed = list(
-          mOTU3 = mOTU3_tax,
-          MetaPhlAn4 = MetaPhlAn4_tax
-      )
+        original = list(
+            microbiome = tax_list$microbiome,
+            GMMandKEGGabundances = tax_list$GMMandKEGGabundances,
+            serummetabolites = tax_list$logtransformedserummetabolites,
+            urinemetabolites = tax_list$urinemetabolites
+        ),
+        reprocessed = list(
+            mOTU3 = mOTU3_tax,
+            MetaPhlAn4 = MetaPhlAn4_tax
+        )
       ),
       scale = scale,
       metadata = metadata

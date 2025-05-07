@@ -25,15 +25,50 @@ parse_2019_contijoch_elife_5data16S <- function(raw = FALSE) {
     metadata_meta_zip    <- file.path(local, "Contijoch_metadata.csv.zip")
 
 
+    # ---- helper functions ----
+    make_taxa_label <- function(df) {
+      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+      prefixes  <- c("k", "p", "c", "o", "f", "g")
+      if (!all(tax_ranks %in% colnames(df))) {
+          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+      }
+      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+          x[is.na(x) | trimws(x) == ""] <- "unclassified"
+          x
+      })
+      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+          if (tax_row["Genus"] != "unclassified") {
+          return(paste0("g_", tax_row["Genus"]))
+          }
+          for (i in (length(tax_ranks)-1):1) {  # skip Genus
+          if (tax_row[i] != "unclassified") {
+              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+          }
+          }
+          return("unclassified")
+      })
+      return(df)
+    }
+    fill_na_zero_numeric <- function(x) {
+    if (missing(x)) return(NULL)
+    if (is.data.frame(x)) {
+        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+    } else if (is.matrix(x) && is.numeric(x)) {
+        x[is.na(x)] <- 0
+    } else if (is.list(x)) {
+        x <- lapply(x, fill_na_zero_numeric)
+    }
+    x
+    }
     read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-      if (file.exists(zip_path)) {
+        if (file.exists(zip_path)) {
         inner_file <- unzip(zip_path, list = TRUE)$Name[1]
         con <- unz(zip_path, inner_file)
         read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-      } else {
+        } else {
         warning(paste("File not found:", zip_path))
         return(NA)
-      }
+        }
     }
 
     # ----- Initialize everything as NA -----
@@ -54,8 +89,6 @@ parse_2019_contijoch_elife_5data16S <- function(raw = FALSE) {
     MetaPhlAn4_tax <- NA
 
     # ------ original counts ------
-    #counts_16s_df    <- read_zipped_csv(counts_16s_zip) # dont uncomment -- previous reprocess but did it again to remain consistent between all studies
-    #counts_meta_df   <- read_zipped_csv(counts_meta_zip) # dont uncomment -- previous reprocess but did it again to remain consistent between all studies
 
     # ---- scale and metadata -----
     scale_16s_df     <- read_zipped_table(scale_16s_zip)
@@ -131,29 +164,6 @@ parse_2019_contijoch_elife_5data16S <- function(raw = FALSE) {
 
     
     # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  # skip Genus
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
@@ -172,6 +182,23 @@ parse_2019_contijoch_elife_5data16S <- function(raw = FALSE) {
         counts_reprocessed[-1],
         function(col) col / sum(col)
     )
+
+    # CAN DELETE LATER WHEN REPROCESSING FINISHES -- MY OLD REPROCESSING:
+    counts_reprocessed    <- read_zipped_csv(counts_16s_zip) # dont uncomment -- previous reprocess but did it again to remain consistent between all studies
+    MetaPhlAn4_counts   <- read_zipped_csv(counts_meta_zip) # dont uncomment -- previous reprocess but did it again to remain consistent between all studies
+    proportions_reprocessed <- sweep(counts_reprocessed, MARGIN = 1,STATS  = rowSums(counts_reprocessed), FUN = "/")
+    MetaPhlAn4_proportions <- sweep(MetaPhlAn4_counts, MARGIN = 1,STATS  = rowSums(MetaPhlAn4_counts), FUN = "/")
+
+    if (!raw) {
+        counts_original = fill_na_zero_numeric(counts_original)
+        counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+        proportions_original = fill_na_zero_numeric(proportions_original)
+        proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+        mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
+        MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+        mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
+        MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
+    }
 
     return(list(
     counts = list(

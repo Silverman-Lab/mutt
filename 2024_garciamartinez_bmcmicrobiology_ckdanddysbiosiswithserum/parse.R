@@ -55,6 +55,17 @@ parse_2024_garciamartinez_bmcmicrobiology_ckdflow <- function(raw = FALSE) {
       })
       return(df)
   }
+  fill_na_zero_numeric <- function(x) {
+    if (is.data.frame(x)) {
+        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+    } else if (is.matrix(x) && is.numeric(x)) {
+        x[is.na(x)] <- 0
+    } else if (is.list(x)) {
+        x <- lapply(x, fill_na_zero_numeric)
+    }
+    x
+  }
+  
 
   counts_original = NA
   proportions_original = NA
@@ -112,6 +123,13 @@ parse_2024_garciamartinez_bmcmicrobiology_ckdflow <- function(raw = FALSE) {
       counts_reprocessed[-1],
       function(col) col / sum(col)
   )
+
+  if (!raw) {
+      counts_original = fill_na_zero_numeric(counts_original)
+      proportions_original = fill_na_zero_numeric(proportions_original)
+      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+      proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+  }
 
   # ----- Return structured list -----
   return(list(

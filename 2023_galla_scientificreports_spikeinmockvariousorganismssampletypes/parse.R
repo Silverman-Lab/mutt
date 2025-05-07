@@ -62,6 +62,16 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
         })
         return(df)
     }
+    fill_na_zero_numeric <- function(x) {
+        if (is.data.frame(x)) {
+            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+        } else if (is.matrix(x) && is.numeric(x)) {
+            x[is.na(x)] <- 0
+        } else if (is.list(x)) {
+            x <- lapply(x, fill_na_zero_numeric)
+        }
+        x
+    }
 
     # ----- counts, tax, proportions -----
 
@@ -124,20 +134,27 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
     combined_props  <- do.call(rbind, all_props)
     combined_taxa   <- bind_rows(all_taxa)
 
+    if (!raw) {
+        counts = fill_na_zero_numeric(counts)
+        proportions = fill_na_zero_numeric(proportions)
+        combined_counts = fill_na_zero_numeric(combined_counts)
+        combined_props = fill_na_zero_numeric(combined_props)
+    }
+
     return(list(
         scale=scale, 
         metadata=metadata, 
         counts=list(
-        original=counts, 
-        reprocessed=combined_counts
+            original=counts, 
+            reprocessed=combined_counts
         ),
         tax=list(
-        original=tax,
-        reprocessed=combined_props
+            original=tax,
+            reprocessed=combined_taxa
         ),
         proportions=list(
-        original=proportions,
-        reprocessed=combined_taxa
+            original=proportions,
+            reprocessed=combined_props
         )
     ))
 }

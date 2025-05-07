@@ -28,7 +28,7 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
     #file.path(local, "PRJNA31530_SILVA_taxa.rds.zip")
     )
 
-
+    # ---- helper functions ----
     read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
       if (file.exists(zip_path)) {
         inner_file <- unzip(zip_path, list = TRUE)$Name[1]
@@ -39,6 +39,41 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
         return(NA)
       }
     }
+    fill_na_zero_numeric <- function(x) {
+    if (missing(x)) return(NULL)
+    if (is.data.frame(x)) {
+        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+    } else if (is.matrix(x) && is.numeric(x)) {
+        x[is.na(x)] <- 0
+    } else if (is.list(x)) {
+        x <- lapply(x, fill_na_zero_numeric)
+    }
+    x
+    }
+    make_taxa_label <- function(df) {
+        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+        prefixes  <- c("k", "p", "c", "o", "f", "g")
+        if (!all(tax_ranks %in% colnames(df))) {
+            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+        }
+        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+            x[is.na(x) | trimws(x) == ""] <- "unclassified"
+            x
+        })
+        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+            if (tax_row["Genus"] != "unclassified") {
+            return(paste0("g_", tax_row["Genus"]))
+            }
+            for (i in (length(tax_ranks)-1):1) {  # skip Genus
+            if (tax_row[i] != "unclassified") {
+                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+            }
+            }
+            return("unclassified")
+        })
+        return(df)
+    }
+
 
     # ----- Initialize everything as NA -----
     counts_original_16s <- NA
@@ -139,29 +174,6 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
 
     
     # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  # skip Genus
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
@@ -181,51 +193,62 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
         function(col) col / sum(col)
     )
 
+    if (!raw) {
+        counts = fill_na_zero_numeric(counts)
+        mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
+        proportions = fill_na_zero_numeric(proportions)
+        MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+        mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
+        MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
+        counts_ITS_reprocessed = fill_na_zero_numeric(counts_ITS_reprocessed)
+        proportions_ITS_reprocessed = fill_na_zero_numeric(proportions_ITS_reprocessed)
+    }
+
     return(list(
-    counts = list(
-                original = counts,
-                reprocessed = list(
-                    amplicon = counts_reprocessed,
-                    shotgun = list(
-                        mOTU3 = mOTU3_counts,
-                        MetaPhlan4 = MetaPhlAn4_counts
-                    ),
-                    ITS = counts_ITS_reprocessed
-                )
+        counts = list(
+                    original = counts,
+                    reprocessed = list(
+                        amplicon = counts_reprocessed,
+                        shotgun = list(
+                            mOTU3 = mOTU3_counts,
+                            MetaPhlan4 = MetaPhlAn4_counts
+                        ),
+                        ITS = counts_ITS_reprocessed
+                    )
 
-    ),
-    proportions = list(
-                original = proportions,
-                reprocessed = list(
-                    amplicon = proportions_reprocessed,
-                    shotgun = list(
-                        mOTU3 = mOTU3_proportions,
-                        MetaPhlan4 = MetaPhlAn4_proportions
-                    ),
-                    ITS = proportions_ITS_reprocessed
-                )
-    ),
-    tax = list(
-                original = tax,
-                reprocessed = list(
-                    amplicon = tax_reprocessed,
-                    shotgun = list(
-                        mOTU3 = mOTU3_tax,
-                        MetaPhlan4 = MetaPhlAn4_tax
-                    ),
-                    ITS = tax_ITS_reprocessed
-                )
+        ),
+        proportions = list(
+                    original = proportions,
+                    reprocessed = list(
+                        amplicon = proportions_reprocessed,
+                        shotgun = list(
+                            mOTU3 = mOTU3_proportions,
+                            MetaPhlan4 = MetaPhlAn4_proportions
+                        ),
+                        ITS = proportions_ITS_reprocessed
+                    )
+        ),
+        tax = list(
+                    original = tax,
+                    reprocessed = list(
+                        amplicon = tax_reprocessed,
+                        shotgun = list(
+                            mOTU3 = mOTU3_tax,
+                            MetaPhlan4 = MetaPhlAn4_tax
+                        ),
+                        ITS = tax_ITS_reprocessed
+                    )
 
-    ),
-    scale = list(
-                amplicon = scale_16s_df,
-                shotgun = scale_meta_df,
-                ITS = scale_ITS_df
-    ),
-    metadata = list(
-                amplicon = metadata_16s_df,
-                shotgun = metadata_meta_df,
-                ITS = metadata_ITS_df
-    )
+        ),
+        scale = list(
+                    amplicon = scale_16s_df,
+                    shotgun = scale_meta_df,
+                    ITS = scale_ITS_df
+        ),
+        metadata = list(
+                    amplicon = metadata_16s_df,
+                    shotgun = metadata_meta_df,
+                    ITS = metadata_ITS_df
+        )
     ))
 }

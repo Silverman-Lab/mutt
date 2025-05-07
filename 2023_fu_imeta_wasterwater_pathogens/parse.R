@@ -53,18 +53,28 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE) {
     return(NA)
     }
   }
+  fill_na_zero_numeric <- function(x) {
+        if (is.data.frame(x)) {
+            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+        } else if (is.matrix(x) && is.numeric(x)) {
+            x[is.na(x)] <- 0
+        } else if (is.list(x)) {
+            x <- lapply(x, fill_na_zero_numeric)
+        }
+        x
+    }
 
   # scale
-  mockscale = read_zipped_table(mock_scale_zip, row.names=NULL)
+  mockscale = read_zipped_table(mock_scale_zip, row.names=NULL) %>% as.data.frame()
 
   # metadata
-  sra = read_zipped_table(metadata_zip, row.names=NULL)
+  sra = read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame()
   # proportions
 
   proportions = read_zipped_table(samples_prop_zip, row.names=NULL)
   proportions <- proportions %>%
   mutate(`Relative abundance %` = as.numeric(`Relative abundance %`)) %>%
-  filter(!is.na(`Relative abundance %`), !is.na(classification), classification != "")  # drop missing classifications
+  filter(!is.na(`Relative abundance %`), !is.na(classification), classification != "")  
 
   # Pivot into wide format: rows are bins, columns are classifications
   proportions <- proportions %>%
@@ -161,6 +171,14 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE) {
         MetaPhlAn4_proportions <- proportions
         MetaPhlAn4_tax <- tax_df
     }
+  }
+
+
+  if (!raw) {
+      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+      proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+      #proportions = fill_na_zero_numeric(proportions)
+      mockproportions = fill_na_zero_numeric(mockproportions)
   }
 
   return(list(

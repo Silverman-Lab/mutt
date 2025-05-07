@@ -59,9 +59,21 @@ parse_2017_sinha_natureBiotec_spikeinhumanfecalreproducibility <- function(raw =
       return(df)
   }
 
+  fill_na_zero_numeric <- function(x) {
+  if (missing(x)) return(NULL)
+  if (is.data.frame(x)) {
+      x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+  } else if (is.matrix(x) && is.numeric(x)) {
+      x[is.na(x)] <- 0
+  } else if (is.list(x)) {
+      x <- lapply(x, fill_na_zero_numeric)
+  }
+  x
+  }
+
   # ------ original counts, scale, metadata, proportions, taxa -------
 
-  ## DONT DELETE --- PROCESSING CODE, BUT SAVED FOR EFFICIENCY
+  ## DONT DELETE --- THIS IS THE PROCESSING CODE, BUT I SAVED THE RESULT FOR EFFICIENCY -- huge files
 
   # dat <- read_zipped_table(counts_16s_zip, sep = "\t")
   # metadata <- as.data.frame(t(dat[   1:71, , drop = FALSE]),
@@ -188,6 +200,13 @@ parse_2017_sinha_natureBiotec_spikeinhumanfecalreproducibility <- function(raw =
   spikein_counts <- counts_reprocessed[, colnames(counts_reprocessed) %in% spike_taxa, drop = FALSE]
   observed_spike_in_reads <- rowSums(spikein_counts)
   reprocessed_scale_factor = scale / observed_spike_in_reads
+
+  if (!raw) {
+    counts = fill_na_zero_numeric(counts)
+    counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+    proportions = fill_na_zero_numeric(proportions)
+    proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+  }
 
   # ----- Return structured list -----
   return(list(

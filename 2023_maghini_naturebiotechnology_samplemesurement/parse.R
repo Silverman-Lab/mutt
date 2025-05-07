@@ -19,6 +19,9 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
   # ----- File paths -----
   motus_zip      <- file.path(local, "PRJNA940499_motus_merged.tsv.zip")
   metaphlan4_zip <- file.path(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")
+  scale_zip      <- file.path(local, "Maghini2023_scale.csv.zip")
+  metadata_zip   <- file.path(local, "Maghini_2023_metadata.csv.zip")
+  original_zip   <- file.path(local, "Maghini_2023_shotgunmetagenomics.csv.zip")
 
   read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
         if (file.exists(zip_path)) {
@@ -33,27 +36,38 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
 
   # ----- Convert sequences to lowest rank taxonomy found and update key -----
   make_taxa_label <- function(df) {
-      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-      prefixes  <- c("k", "p", "c", "o", "f", "g")
-      if (!all(tax_ranks %in% colnames(df))) {
-          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+          tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+          prefixes  <- c("k", "p", "c", "o", "f", "g", "s")
+          if (!all(tax_ranks %in% colnames(df))) {
+              stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+          }
+          df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+              x[is.na(x) | trimws(x) == ""] <- "unclassified"
+              x
+          })
+          df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+              if (tax_row["Species"] != "unclassified") {
+              return(paste0("s_", tax_row["Species"]))
+              }
+              for (i in (length(tax_ranks)-1):1) {  
+              if (tax_row[i] != "unclassified") {
+                  return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+              }
+              }
+              return("unclassified")
+          })
+          return(df)
       }
-      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-          x[is.na(x) | trimws(x) == ""] <- "unclassified"
-          x
-      })
-      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-          if (tax_row["Genus"] != "unclassified") {
-          return(paste0("g_", tax_row["Genus"]))
-          }
-          for (i in (length(tax_ranks)-1):1) {  # skip Genus
-          if (tax_row[i] != "unclassified") {
-              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-          }
-          }
-          return("unclassified")
-      })
-      return(df)
+
+  fill_na_zero_numeric <- function(x) {
+      if (is.data.frame(x)) {
+          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+      } else if (is.matrix(x) && is.numeric(x)) {
+          x[is.na(x)] <- 0
+      } else if (is.list(x)) {
+          x <- lapply(x, fill_na_zero_numeric)
+      }
+      x
   }
 
   # ----- Initialize everything as NA -----
@@ -69,72 +83,74 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
 
   # ----- Read taxonomic counts -----
 
-  tax_levels <- c("kingdom", "phylum", "class", "order", "family", "genus", "species")
-  read_bracken_table <- function(tax_level) {
-    zip_path <- file.path(local, paste0("bracken_", tax_level, "_reads.txt.zip"))
-    txt_path <- file.path(local, paste0("bracken_", tax_level, "_reads.txt"))
-    if (file.exists(zip_path)) {
-      tmp_dir <- tempdir()
-      extracted <- tryCatch(unzip(zip_path, exdir = tmp_dir), error = function(e) NULL)
-      txt_file <- extracted[grepl("\\.txt$", extracted)][1]
-      if (!is.null(txt_file) && file.exists(txt_file)) {
-        return(read.table(txt_file, header = TRUE, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE) %>% t() %>% as.data.frame())
-      } else {
-        warning("No .txt file found inside: ", zip_path)
-        return(NULL)
-      }
-    }
-    if (file.exists(txt_path)) {
-      return(read.table(txt_path, header = TRUE, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE) %>% t() %>% as.data.frame())
-    }
+  ## UNCOMMENT WHEN FIXED 
 
-    warning("Neither ZIP nor TXT file found for level: ", tax_level)
-    return(NULL)
-  }
-  raw_counts <- setNames(lapply(tax_levels, read_bracken_table), tax_levels)
+  # tax_levels <- c("kingdom", "phylum", "class", "order", "family", "genus", "species")
+  # read_bracken_table <- function(tax_level) {
+  #   zip_path <- file.path(local, paste0("bracken_", tax_level, "_reads.txt.zip"))
+  #   txt_path <- file.path(local, paste0("bracken_", tax_level, "_reads.txt"))
+  #   if (file.exists(zip_path)) {
+  #     tmp_dir <- tempdir()
+  #     extracted <- tryCatch(unzip(zip_path, exdir = tmp_dir), error = function(e) NULL)
+  #     txt_file <- extracted[grepl("\\.txt$", extracted)][1]
+  #     if (!is.null(txt_file) && file.exists(txt_file)) {
+  #       return(read.table(txt_file, header = TRUE, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE) %>% t() %>% as.data.frame())
+  #     } else {
+  #       warning("No .txt file found inside: ", zip_path)
+  #       return(NULL)
+  #     }
+  #   }
+  #   if (file.exists(txt_path)) {
+  #     return(read.table(txt_path, header = TRUE, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE) %>% t() %>% as.data.frame())
+  #   }
 
-  renamed <- imap(raw_counts, function(df, level) {
-    orig <- colnames(df)
-    list(
-      counts = df,
-      tax    = tibble(taxonomy = orig)
-    )
-  })
+  #   warning("Neither ZIP nor TXT file found for level: ", tax_level)
+  #   return(NULL)
+  # }
+  # raw_counts <- setNames(lapply(tax_levels, read_bracken_table), tax_levels)
+
+  # renamed <- imap(raw_counts, function(df, level) {
+  #   orig <- colnames(df)
+  #   list(
+  #     counts = df,
+  #     tax    = tibble(taxonomy = orig)
+  #   )
+  # })
          
-  counts_original  <- map(renamed, "counts")
-  tax_original     <- map(renamed, "tax")
+  # counts_original  <- map(renamed, "counts")
+  # tax_original     <- map(renamed, "tax")
 
-  counts_original <- counts_original$species
+  # counts_original <- counts_original$species
 
-  species_names <- tax_original$species$taxonomy
-  taxizedb::db_download_ncbi()
-  file.copy(taxizedb::db_path("ncbi"), "ncbi_taxonomy.sqlite")
-  lineages <- classification(species_names, db = "ncbi", dbpath = "ncbi_taxonomy.sqlite")
-  standard_ranks <- c("superkingdom", "phylum", "class", "order", "family", "genus", "species")
-  tax <- imap_dfr(lineages, function(df, taxon) {
-    if (is.null(df)) return(NULL)
-    df %>%
-      filter(rank %in% standard_ranks) %>%
-      distinct(rank, .keep_all = TRUE) %>%
-      pivot_wider(names_from = rank, values_from = name) %>%
-      mutate(Species = taxon)
-  }, .id = "lookup_name") %>%
-    rename(Kingdom = superkingdom)
-  tax = make_taxa_label(tax)
-  rownames(tax) <- tax$Species
-  if (!raw) {
-      matched_taxa <- tax$Taxa[match(colnames(counts_original), rownames(tax))]
-      colnames(counts_original) <- matched_taxa
-      counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
-  }
+  # species_names <- tax_original$species$taxonomy
+  # taxizedb::db_download_ncbi()
+  # file.copy(taxizedb::db_path("ncbi"), "ncbi_taxonomy.sqlite")
+  # lineages <- classification(species_names, db = "ncbi", dbpath = "ncbi_taxonomy.sqlite")
+  # standard_ranks <- c("superkingdom", "phylum", "class", "order", "family", "genus", "species")
+  # tax <- imap_dfr(lineages, function(df, taxon) {
+  #   if (is.null(df)) return(NULL)
+  #   df %>%
+  #     filter(rank %in% standard_ranks) %>%
+  #     distinct(rank, .keep_all = TRUE) %>%
+  #     pivot_wider(names_from = rank, values_from = name) %>%
+  #     mutate(Species = taxon)
+  # }, .id = "lookup_name") %>%
+  #   rename(Kingdom = superkingdom)
+  # tax = make_taxa_label(tax)
+  # rownames(tax) <- tax$Species
+  # if (!raw) {
+  #     matched_taxa <- tax$Taxa[match(colnames(counts_original), rownames(tax))]
+  #     colnames(counts_original) <- matched_taxa
+  #     counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
+  # }
 
-  # ------- Proportions ----------
-  proportions_original <- map(counts_original, function(df) {
-    rsums <- rowSums(df)
-    prop  <- sweep(df, 1, rsums, FUN = "/")
-    prop[is.nan(prop)] <- 0
-    return(as_tibble(prop, rownames = "Taxon"))
-  })
+  # # ------- Proportions ----------
+  # proportions_original <- map(counts_original, function(df) {
+  #   rsums <- rowSums(df)
+  #   prop  <- sweep(df, 1, rsums, FUN = "/")
+  #   prop[is.nan(prop)] <- 0
+  #   return(as_tibble(prop, rownames = "Taxon"))
+  # })
 
   # ----- Read and filter qPCR data -----
   plate_list <- list.files(path = base_path, pattern = "qPCR_plate", full.names = TRUE)
@@ -143,16 +159,17 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
     mutate(ID = gsub("_", "-", SampleName)) %>%
     dplyr::select(Plate, ID, Donor, Condition, PCR_Replicate, Replicate, logCopyNumber, CopyNumber) 
 
-  scale = qPCR %>%  
-    dplyr::select(ID, logCopyNumber, CopyNumber)
+  scale <- qPCR %>%
+    select(ID, logCopyNumber, CopyNumber) %>%
     group_by(ID) %>%
     summarise(
-      mean_CopyNumber     = mean(CopyNumber, na.rm = TRUE),
-      sd_CopyNumber       = sd(CopyNumber, na.rm = TRUE),
-      mean_logCopyNumber  = mean(logCopyNumber, na.rm = TRUE),
-      sd_logCopyNumber    = sd(logCopyNumber, na.rm = TRUE),
-      n_reps              = n()
-     )
+      mean_CopyNumber    = mean(CopyNumber, na.rm = TRUE),
+      sd_CopyNumber      = sd(CopyNumber, na.rm = TRUE),
+      mean_logCopyNumber = mean(logCopyNumber, na.rm = TRUE),
+      sd_logCopyNumber   = sd(logCopyNumber, na.rm = TRUE),
+      n_reps             = n(),
+      .groups = "drop"
+    )
 
   # ----- Extract and deduplicate metadata -----
   metadata <- qPCR %>%
@@ -222,6 +239,27 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
         MetaPhlAn4_tax <- tax_df
     }
   }
+
+  # Can delete later:
+  counts_original = read_zipped_table(original_zip)
+  proportions_original <- map(counts_original, function(df) {
+    rsums <- rowSums(df)
+    prop  <- sweep(df, 1, rsums, FUN = "/")
+    prop[is.nan(prop)] <- 0
+    return(as_tibble(prop, rownames = "Taxon"))
+  })
+  
+  
+  # Dont delete:
+  if (!raw) {
+      counts_original = fill_na_zero_numeric(counts_original)
+      #mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
+      proportions_original = fill_na_zero_numeric(proportions_original)
+      #MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+      #mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
+      #MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
+  }
+
 
   # ----- Return -----
   return(list(

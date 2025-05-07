@@ -55,6 +55,17 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw=FALSE) {
         })
         return(df)
     }
+    fill_na_zero_numeric <- function(x) {
+        if (is.data.frame(x)) {
+            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+        } else if (is.matrix(x) && is.numeric(x)) {
+            x[is.na(x)] <- 0
+        } else if (is.list(x)) {
+            x <- lapply(x, fill_na_zero_numeric)
+        }
+        x
+    }
+
 
     # ----- counts, tax, proportions -----
 
@@ -169,6 +180,15 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw=FALSE) {
         counts_reprocessed[-1],
         function(col) col / sum(col)
     )
+
+    if (!raw) {
+        counts_16s = fill_na_zero_numeric(counts_16s)
+        counts_ITS = fill_na_zero_numeric(counts_ITS)
+        proportions_16s = fill_na_zero_numeric(proportions_16s)
+        proportions_ITS = fill_na_zero_numeric(proportions_ITS)
+        counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+        proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+    }
 
     # ----- Return structured list -----
     return(list(

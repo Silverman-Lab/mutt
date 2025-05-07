@@ -73,6 +73,18 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE) {
         return(df)
     }
 
+    fill_na_zero_numeric <- function(x) {
+    if (missing(x)) return(NULL)
+    if (is.data.frame(x)) {
+        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+    } else if (is.matrix(x) && is.numeric(x)) {
+        x[is.na(x)] <- 0
+    } else if (is.list(x)) {
+        x <- lapply(x, fill_na_zero_numeric)
+    }
+    x
+    }
+
     # ----- original counts, tax, proportions -----
     counts_original = read_zipped_table(original_counts_zip, sep = "\t", row.names=NULL) %>% 
                         rename(OTU_ID = `OTU ID`) %>% t() %>% as.data.frame() 
@@ -160,6 +172,15 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE) {
             MetaPhlAn4_proportions <- proportions
             MetaPhlAn4_tax <- tax_df
         }
+    }
+
+    if (!raw) {
+        counts_original = fill_na_zero_numeric(counts_original)
+        mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
+        proportions_original = fill_na_zero_numeric(proportions_original)
+        MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+        mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
+        MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
     }
 
     # ----- Return -----

@@ -83,7 +83,18 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE) {
       })
       return(df)
   }
+  fill_na_zero_numeric <- function(x) {
+      if (is.data.frame(x)) {
+          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+      } else if (is.matrix(x) && is.numeric(x)) {
+          x[is.na(x)] <- 0
+      } else if (is.list(x)) {
+          x <- lapply(x, fill_na_zero_numeric)
+      }
+      x
+  }
 
+  # ---- counts and tax and proportions ----
   dat <- read_xlsx_zip(zipfile = supp8_zip,sheet = "Sequencing-determined counts",skip = 1)
   counts <- dat[,2:56]
 
@@ -102,8 +113,10 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE) {
     counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
   }
 
+  # ---- scale ----
   scale <- read_xlsx_zip(zipfile = supp8_zip, sheet = "Absolute total abundance", skip = 1)
   
+  # ---- metadata ----
   #extract metadata from sample id
   metadata <- as.data.frame(matrix(NA, nrow = nrow(scale), ncol = 5))
   rownames(metadata) <- scale$Sample
@@ -184,6 +197,13 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE) {
   combined_counts <- do.call(rbind, all_counts)
   combined_props  <- do.call(rbind, all_props)
   combined_taxa   <- bind_rows(all_taxa)
+
+  if (!raw) {
+      counts = fill_na_zero_numeric(counts)
+      proportions = fill_na_zero_numeric(proportions)
+      combined_counts = fill_na_zero_numeric(combined_counts)
+      combined_props = fill_na_zero_numeric(combined_props)
+  }
 
   return(list(
     scale=scale, 

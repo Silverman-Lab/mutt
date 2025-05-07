@@ -25,13 +25,92 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,entrez_ke
   library(taxize)
   
   # ----- local path -----
-  
   local <- file.path("2019_vieirasilva_naturemicrobiology_pscibd")
 
   # ----- File paths -----
   metadata_zip <- file.path(local,"41564_2019_483_MOESM3_ESM.xlsx.zip")
   scale_zip    <- file.path(local, "scaleandmetadata.xlsx.zip")
   qmp_zip      <- file.path(local, "QMP.matrix.tsv.zip")
+
+  # ---- helper functions ----
+  make_taxa_label <- function(df) {
+    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+    prefixes  <- c("k", "p", "c", "o", "f", "g")
+    if (!all(tax_ranks %in% colnames(df))) {
+        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+    }
+    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+        x[is.na(x) | trimws(x) == ""] <- "unclassified"
+        x
+    })
+    df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+        if (tax_row["Genus"] != "unclassified") {
+        return(paste0("g_", tax_row["Genus"]))
+        }
+        for (i in (length(tax_ranks)-1):1) {  # skip Genus
+        if (tax_row[i] != "unclassified") {
+            return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+        }
+        }
+        return("unclassified")
+    })
+    return(df)
+  }
+  fill_na_zero_numeric <- function(x) {
+  if (missing(x)) return(NULL)
+  if (is.data.frame(x)) {
+      x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+  } else if (is.matrix(x) && is.numeric(x)) {
+      x[is.na(x)] <- 0
+  } else if (is.list(x)) {
+      x <- lapply(x, fill_na_zero_numeric)
+  }
+  x
+  }
+  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+      if (file.exists(zip_path)) {
+      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+      con <- unz(zip_path, inner_file)
+      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
+      } else {
+      warning(paste("File not found:", zip_path))
+      return(NA)
+      }
+  }
+  get_rank <- function(taxon) {
+    result <- classification(taxon, db = "ncbi", rows = 1)
+    if (length(result) > 0 && is.data.frame(result[[1]])) {
+      tax_table <- result[[1]]
+      return(tax_table$rank[nrow(tax_table)])
+    } else {
+      return(NA)
+    }
+  }
+
+  prefix_taxon <- function(original_name, rank, is_unc) {
+    base_name <- sub("^unclassified_", "", original_name)
+    if (!is_unc) {
+      return(paste0("g_", original_name))
+    } else if (is.na(rank)) {
+      return(paste0("unassigned", base_name))
+    } else {
+      return(paste0("uc_", substr(rank, 1, 1), "_", base_name))
+    }
+  }
+  parse_taxonomy_from_prefix <- function(prefixed_name) {
+    matched <- str_match(prefixed_name, "^(g|uc_f|uc_o|uc_c|uc_p|uc_k|unassigned)_?(.*)")
+    prefix <- matched[, 2]
+    taxon_name <- matched[, 3]
+    tax_levels <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain")
+    result <- setNames(rep(NA, length(tax_levels)), tax_levels)
+    if (!is.na(prefix)) {
+      rank <- tax_prefixes[[prefix]]
+      if (!is.null(rank) && rank %in% names(result)) {
+        result[[rank]] <- taxon_name
+      }
+    }
+    return(result)
+  }
 
   # ----- Initialize objects -----
   counts      <- NA
@@ -89,33 +168,9 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,entrez_ke
       original_col_names <- col_names
       is_unclassified <- grepl("^unclassified_", col_names)
       clean_names <- sub("^unclassified_", "", col_names)
-
-      get_rank <- function(taxon) {
-        result <- classification(taxon, db = "ncbi", rows = 1)
-        if (length(result) > 0 && is.data.frame(result[[1]])) {
-          tax_table <- result[[1]]
-          return(tax_table$rank[nrow(tax_table)])
-        } else {
-          return(NA)
-        }
-      }
-
       ranks <- sapply(clean_names, get_rank)
       rank_mapping <- setNames(ranks, col_names)
-
-      prefix_taxon <- function(original_name, rank, is_unc) {
-        base_name <- sub("^unclassified_", "", original_name)
-        if (!is_unc) {
-          return(paste0("g_", original_name))
-        } else if (is.na(rank)) {
-          return(paste0("unassigned", base_name))
-        } else {
-          return(paste0("uc_", substr(rank, 1, 1), "_", base_name))
-        }
-      }
-
       new_col_names <- mapply(prefix_taxon, original_col_names, rank_mapping, is_unclassified)
-
       manual_corrections <- list(
         "unassigned_Marinimicrobia" = "uc_p_Marinimicrobia",
         "unclassified_Blastocatella" = "uc_c_Blastocatella",
@@ -143,21 +198,6 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,entrez_ke
         g = "Genus", uc_f = "Family", uc_o = "Order", uc_c = "Class",
         uc_p = "Phylum", uc_k = "Kingdom", unassigned = "Unassigned"
       )
-
-      parse_taxonomy_from_prefix <- function(prefixed_name) {
-        matched <- str_match(prefixed_name, "^(g|uc_f|uc_o|uc_c|uc_p|uc_k|unassigned)_?(.*)")
-        prefix <- matched[, 2]
-        taxon_name <- matched[, 3]
-        tax_levels <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain")
-        result <- setNames(rep(NA, length(tax_levels)), tax_levels)
-        if (!is.na(prefix)) {
-          rank <- tax_prefixes[[prefix]]
-          if (!is.null(rank) && rank %in% names(result)) {
-            result[[rank]] <- taxon_name
-          }
-        }
-        return(result)
-      }
 
       tax_rows <- lapply(names(new_col_names), function(orig_name) {
         prefixed <- new_col_names[orig_name]
@@ -237,6 +277,13 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,entrez_ke
   #     counts_reprocessed[-1],
   #     function(col) col / sum(col)
   # )
+
+  if (!raw) {
+    counts_original = fill_na_zero_numeric(counts_original)
+    counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+    proportions_original = fill_na_zero_numeric(proportions_original)
+    proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+  }
 
   return(list(
     counts = list(

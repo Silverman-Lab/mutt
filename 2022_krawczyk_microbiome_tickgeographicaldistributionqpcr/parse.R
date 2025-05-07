@@ -37,6 +37,16 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=
   metadata <- left_join(metadata, metadata_two, by = "Sample_name") %>% 
               rename(Accession = Run)
 
+  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+    if (file.exists(zip_path)) {
+    inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+    con <- unz(zip_path, inner_file)
+    read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
+    } else {
+    warning(paste("File not found:", zip_path))
+    return(NA)
+    }
+  }
   make_taxa_label <- function(df) {
     tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
     prefixes  <- c("k", "p", "c", "o", "f", "g")
@@ -59,6 +69,16 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=
         return("unclassified")
     })
     return(df)
+  }
+  fill_na_zero_numeric <- function(x) {
+      if (is.data.frame(x)) {
+          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+      } else if (is.matrix(x) && is.numeric(x)) {
+          x[is.na(x)] <- 0
+      } else if (is.list(x)) {
+          x <- lapply(x, fill_na_zero_numeric)
+      }
+      x
   }
 
   # -------- Counts --------
@@ -135,6 +155,16 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=
       counts_reprocessed[-1],
       function(col) col / sum(col)
   )
+
+  # DELETE LATER #####################################
+  maxwellreprocessedpreviously = file.path(local, "Krawczyk_2022_16S.csv.zip")
+  counts_original = read_zipped_table(maxwellreprocessedpreviously, row.names = NULL) %>% as.data.frame()
+  proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
+  ####################################################
+  if (!raw) {
+      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+      proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+  }
 
   # ----- Return all -----
   return(list(

@@ -60,6 +60,17 @@ parse_2025_wagner_frontiersinmiccrobiology_flowpiglets <- function(raw = FALSE) 
       return(df)
     }
 
+    fill_na_zero_numeric <- function(x) {
+        if (is.data.frame(x)) {
+            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+        } else if (is.matrix(x) && is.numeric(x)) {
+            x[is.na(x)] <- 0
+        } else if (is.list(x)) {
+            x <- lapply(x, fill_na_zero_numeric)
+        }
+        x
+    }
+
     # ---- counts, tax, proportions ----
     counts_original = read_zipped_table(counts) %>% t() %>% as.data.frame(stringsAsFactors = FALSE)
     counts_original[] <- lapply(counts_original, function(x) as.numeric(as.character(x)))
@@ -108,6 +119,13 @@ parse_2025_wagner_frontiersinmiccrobiology_flowpiglets <- function(raw = FALSE) 
         counts_reprocessed[-1],
         function(col) col / sum(col)
     )
+
+    if (!raw) {
+        counts_original = fill_na_zero_numeric(counts_original)
+        counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+        proportions_original = fill_na_zero_numeric(proportions_original)
+        proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+    }
 
     # ---- return ----
     return(list(

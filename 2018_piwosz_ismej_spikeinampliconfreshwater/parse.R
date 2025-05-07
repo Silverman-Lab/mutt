@@ -28,17 +28,28 @@ parse_2018_piwosz_ismej_spikeinampliconfreshwater <- function(raw = FALSE) {
         return(NA)
       }
     }
+    fill_na_zero_numeric <- function(x) {
+    if (missing(x)) return(NULL)
+    if (is.data.frame(x)) {
+        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+    } else if (is.matrix(x) && is.numeric(x)) {
+        x[is.na(x)] <- 0
+    } else if (is.list(x)) {
+        x <- lapply(x, fill_na_zero_numeric)
+    }
+    x
+    }
 
+    # ---- original tax, counts, and proportions ----
+    counts_original = NA
+    tax_original = NA
+    proportions_original = NA
 
+    # ---- scale ----
+    scale = NA # calculate spike-in
 
-
-
-
-
-
-
-
-
+    # ---- metadata ----
+    metadata = NA
 
     # ----- Reprocessed counts from RDS ZIP -----
     temp_rds <- tempfile(fileext = ".rds")
@@ -99,6 +110,13 @@ parse_2018_piwosz_ismej_spikeinampliconfreshwater <- function(raw = FALSE) {
         counts_reprocessed[-1],
         function(col) col / sum(col)
     )
+
+    if (!raw) {
+      counts_original = fill_na_zero_numeric(counts_original)
+      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+      proportions_original = fill_na_zero_numeric(proportions_original)
+      proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+    }
 
     # ----- Return structured list -----
     return(list(

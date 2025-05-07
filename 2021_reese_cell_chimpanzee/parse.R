@@ -21,6 +21,41 @@ parse_2021_reese_cell_chimpanzee <- function(raw = FALSE) {
     metadata_zip        <- file.path(local, "SraRunTable.csv.zip")
     scale_zip           <- file.path(local,"1-s2.0-S0960982220316523-mmc3.xlsx.zip")
 
+    # ---- helper functions ----
+        make_taxa_label <- function(df) {
+        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+        prefixes  <- c("k", "p", "c", "o", "f", "g")
+        if (!all(tax_ranks %in% colnames(df))) {
+            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+        }
+        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+            x[is.na(x) | trimws(x) == ""] <- "unclassified"
+            x
+        })
+        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+            if (tax_row["Genus"] != "unclassified") {
+            return(paste0("g_", tax_row["Genus"]))
+            }
+            for (i in (length(tax_ranks)-1):1) {  
+            if (tax_row[i] != "unclassified") {
+                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+            }
+            }
+            return("unclassified")
+        })
+        return(df)
+    }
+    fill_na_zero_numeric <- function(x) {
+        if (is.data.frame(x)) {
+            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+        } else if (is.matrix(x) && is.numeric(x)) {
+            x[is.na(x)] <- 0
+        } else if (is.list(x)) {
+            x <- lapply(x, fill_na_zero_numeric)
+        }
+        x
+    }
+
     # ---- scale and metadata -------------------
     metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1] # list file inside zip
     metadata_path <- unzip(metadata_zip, files = metadata_csv, exdir = tempdir(), overwrite = TRUE)
@@ -68,29 +103,6 @@ parse_2021_reese_cell_chimpanzee <- function(raw = FALSE) {
 
     
     # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  # skip Genus
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
@@ -109,6 +121,11 @@ parse_2021_reese_cell_chimpanzee <- function(raw = FALSE) {
         counts_reprocessed[-1],
         function(col) col / sum(col)
     )
+
+    if (!raw) {
+        counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+        proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+    }
 
     return(list(
         counts = list(

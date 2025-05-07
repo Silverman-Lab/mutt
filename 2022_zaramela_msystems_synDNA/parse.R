@@ -56,6 +56,16 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE) {
         })
         return(df)
     }
+    fill_na_zero_numeric <- function(x) {
+        if (is.data.frame(x)) {
+            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+        } else if (is.matrix(x) && is.numeric(x)) {
+            x[is.na(x)] <- 0
+        } else if (is.list(x)) {
+            x <- lapply(x, fill_na_zero_numeric)
+        }
+        x
+    }
 
     # ----- scale and metadata -----
 
@@ -145,6 +155,15 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE) {
             MetaPhlAn4_proportions <- proportions
             MetaPhlAn4_tax <- tax_df
         }
+    }
+
+    if (!raw) {
+        counts = fill_na_zero_numeric(counts)
+        mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
+        proportions = fill_na_zero_numeric(proportions)
+        MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+        mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
+        MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
     }
 
     # ----- Return -----

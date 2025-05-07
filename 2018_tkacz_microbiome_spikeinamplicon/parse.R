@@ -26,17 +26,12 @@ parse_2018_tkacz_microbiome_spikeinamplicon <- function(raw = FALSE) {
         file.path(local, "SraRunTable (39).csv.zip")
     )
 
+    # --- initialize ---
+    counts = NA
+    tax = NA
+    proportions = NA
 
-
-
-
-
-
-
-
-
-
-
+    # --- helper functions ---
     read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
     if (file.exists(zip_path)) {
         inner_file <- unzip(zip_path, list = TRUE)$Name[1]
@@ -68,6 +63,17 @@ parse_2018_tkacz_microbiome_spikeinamplicon <- function(raw = FALSE) {
         return("unclassified")
     })
     return(df)
+    }
+    fill_na_zero_numeric <- function(x) {
+        if (missing(x)) return(NULL)
+        if (is.data.frame(x)) {
+            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+        } else if (is.matrix(x) && is.numeric(x)) {
+            x[is.na(x)] <- 0
+        } else if (is.list(x)) {
+            x <- lapply(x, fill_na_zero_numeric)
+        }
+        x
     }
 
     # ---- Process and merge all studies ----
@@ -121,6 +127,12 @@ parse_2018_tkacz_microbiome_spikeinamplicon <- function(raw = FALSE) {
     proportions_merged <- counts_merged
     proportions_merged[] <- lapply(counts_merged, function(col) col / sum(col))
 
+    if (!raw) {
+      counts = fill_na_zero_numeric(counts)
+      counts_merged = fill_na_zero_numeric(counts_merged)
+      proportions = fill_na_zero_numeric(proportions)
+      proportions_merged = fill_na_zero_numeric(proportions_merged)
+    }
 
     # ----- Return structured list -----
     return(list(

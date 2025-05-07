@@ -30,6 +30,17 @@ parse_2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics <- function(raw
         return(NA)
       }
     }
+    fill_na_zero_numeric <- function(x) {
+    if (missing(x)) return(NULL)
+    if (is.data.frame(x)) {
+        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+    } else if (is.matrix(x) && is.numeric(x)) {
+        x[is.na(x)] <- 0
+    } else if (is.list(x)) {
+        x <- lapply(x, fill_na_zero_numeric)
+    }
+    x
+    }
 
     # ----- Initialize everything as NA -----
     counts_reprocessed <- NA
@@ -92,30 +103,39 @@ parse_2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics <- function(raw
         }
     }
 
-    return(list(
-    counts = list(
-                original = counts,
-                reprocessed = list(
-                        mOTU3 = mOTU3_counts,
-                        MetaPhlan4 = MetaPhlAn4_counts
-                )
+    if (!raw) {
+        counts = fill_na_zero_numeric(counts)
+        mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
+        proportions = fill_na_zero_numeric(proportions)
+        MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+        mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
+        MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
+    }
 
-    ),
-    proportions = list(
-                original = proportions,
-                reprocessed = list(
-                        mOTU3 = mOTU3_proportions,
-                        MetaPhlan4 = MetaPhlAn4_proportions
+    return(list(
+        counts = list(
+                    original = counts,
+                    reprocessed = list(
+                            mOTU3 = mOTU3_counts,
+                            MetaPhlan4 = MetaPhlAn4_counts
                     )
-    ),
-    tax = list(
-                original = tax,
-                reprocessed = list(
-                        mOTU3 = mOTU3_tax,
-                        MetaPhlan4 = MetaPhlAn4_tax
-                    )
-    ),
-    scale = scale,
-    metadata = metadata
+
+        ),
+        proportions = list(
+                    original = proportions,
+                    reprocessed = list(
+                            mOTU3 = mOTU3_proportions,
+                            MetaPhlan4 = MetaPhlAn4_proportions
+                        )
+        ),
+        tax = list(
+                    original = tax,
+                    reprocessed = list(
+                            mOTU3 = mOTU3_tax,
+                            MetaPhlan4 = MetaPhlAn4_tax
+                        )
+        ),
+        scale = scale,
+        metadata = metadata
     ))
 }

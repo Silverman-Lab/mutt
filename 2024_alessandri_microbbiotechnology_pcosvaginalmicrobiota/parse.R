@@ -29,6 +29,39 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
       return(NA)
       }
   }
+  make_taxa_label <- function(df) {
+      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+      prefixes  <- c("k", "p", "c", "o", "f", "g", "s")
+      if (!all(tax_ranks %in% colnames(df))) {
+          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+      }
+      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+          x[is.na(x) | trimws(x) == ""] <- "unclassified"
+          x
+      })
+      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+          if (tax_row["Species"] != "unclassified") {
+          return(paste0("s_", tax_row["Species"]))
+          }
+          for (i in (length(tax_ranks)-1):1) {  
+          if (tax_row[i] != "unclassified") {
+              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+          }
+          }
+          return("unclassified")
+      })
+      return(df)
+  }
+  fill_na_zero_numeric <- function(x) {
+    if (is.data.frame(x)) {
+        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+    } else if (is.matrix(x) && is.numeric(x)) {
+        x[is.na(x)] <- 0
+    } else if (is.list(x)) {
+        x <- lapply(x, fill_na_zero_numeric)
+    }
+    x
+  }
 
   # ----- Initialize everything as NA -----
   counts_original <- NA
@@ -137,6 +170,15 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
   counts_original <- read_zipped_table(oldprocessed_zip, row.names=NULL)
   proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
   tax_original <- data.frame(Taxa = colnames(counts_original))
+
+  if (!raw) {
+      counts_original = fill_na_zero_numeric(counts_original)
+      mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
+      proportions_original = fill_na_zero_numeric(proportions_original)
+      MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+      mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
+      MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
+  }
   
   # ----- Return -----
   return(list(

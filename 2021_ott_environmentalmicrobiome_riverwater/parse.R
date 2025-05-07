@@ -28,6 +28,16 @@ parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE) {
       return(NA)
     }
   }
+  fill_na_zero_numeric <- function(x) {
+      if (is.data.frame(x)) {
+          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+      } else if (is.matrix(x) && is.numeric(x)) {
+          x[is.na(x)] <- 0
+      } else if (is.list(x)) {
+          x <- lapply(x, fill_na_zero_numeric)
+      }
+      x
+  }
 
   # ----- Initialize everything as NA -----
   counts_original <- NA
@@ -104,6 +114,11 @@ parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE) {
       counts_reprocessed[-1],
       function(col) col / sum(col)
   )
+
+  if (!raw) {
+      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+      proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+  }
 
   return(list(
     counts      = list(original = NA, reprocessed = counts_reprocessed),

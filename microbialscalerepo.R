@@ -34,20 +34,6 @@
 #' @return Named list of parser outputs.  Each element/study must at minimum contain
 #'         a `$counts` data.frame and a `$scale` data.frame. Details listed below
 #'         in section.
-#'
-#' @examples
-#' ## Run every parser
-#' all_data <- microbialscalerepo(base_directory = "data_repository")
-#'
-#' ## Run two specific parsers and rename outputs
-#' subset <- microbialscalerepo(
-#'   studies        = c(Vandeputte2021 = "2021_vandeputte_naturecommunications_flow_timeseries",
-#'                      Pereira2023   = "2023_pereira_nature_nervous"),
-#'   base_directory = "data_repository",
-#'   align_samples  = TRUE,
-#'   save_to        = "my_parsed.RData"
-#' )
-#' names(subset)
 #' 
 #' @section Individual Parser Output Specification:
 #'
@@ -100,6 +86,21 @@
 #'     we can determine a common format.
 #'   }
 #' }
+#'
+#' @examples
+#' ## Run every parser
+#' all_data <- microbialscalerepo(base_directory = "data_repository")
+#'
+#' ## Run two specific parsers and rename outputs
+#' subset <- microbialscalerepo(
+#'   studies        = c(Vandeputte2021 = "2021_vandeputte_naturecommunications_flow_timeseries",
+#'                      Pereira2023   = "2023_pereira_nature_nervous"),
+#'   base_directory = "data_repository",
+#'   align_samples  = TRUE,
+#'   save_to        = "my_parsed.RData"
+#' )
+#' names(subset)
+#' 
 #' @export
 # ─────────────────────────────────────────────────────────────────────────────
 microbialscalerepo <- function(
@@ -115,6 +116,7 @@ microbialscalerepo <- function(
   }
 
   # --- locate parser sub‑folders --------------------------------------------
+  setwd(base_directory)
   all_dirs    <- list.dirs(base_directory, full.names = FALSE, recursive = FALSE)
   parser_dirs <- all_dirs[file.exists(file.path(base_directory, all_dirs, "parse.R"))]
 
@@ -244,4 +246,5 @@ if (!interactive()) {
     cat("Parsed studies:\n", paste(names(res), collapse = "\n"), "\n")
   } else {
     cat("Saved parsed list to:", opts$output, "\n")
+}
 }

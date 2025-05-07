@@ -53,6 +53,16 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
     })
     return(df)
   }
+  fill_na_zero_numeric <- function(x) {
+      if (is.data.frame(x)) {
+          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
+      } else if (is.matrix(x) && is.numeric(x)) {
+          x[is.na(x)] <- 0
+      } else if (is.list(x)) {
+          x <- lapply(x, fill_na_zero_numeric)
+      }
+      x
+  }
 
   # --- original counts, proportions, tax ---
   counts <- NA
@@ -106,6 +116,11 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
       counts_reprocessed[-1],
       function(col) col / sum(col)
   )
+
+  if (!raw) {
+      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+      proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+  }
   
   return(list(
     counts = list(
