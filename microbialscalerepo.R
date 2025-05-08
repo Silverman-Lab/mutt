@@ -108,7 +108,8 @@ microbialscalerepo <- function(
   base_directory = ".",
   rawdata        = FALSE,
   align_samples  = FALSE,
-  save_to        = NULL
+  save_to        = NULL,
+  verbose        = FALSE
 ) {
   # --- helper: coerce list → named character vector --------------------------
   if (is.list(studies)) {
@@ -173,11 +174,13 @@ microbialscalerepo <- function(
       utils::setTxtProgressBar(pb, i); next
     }
     
-    res <- tryCatch(suppressWarnings(get(fun_name, envir = env)(raw = rawdata, align = align_samples)), error = function(e) e)
+    res <- tryCatch(suppressWarnings(suppressMessages(get(fun_name, envir = env)(raw = rawdata, align = align_samples))), error = function(e) e)
 
-    if (inherits(res, "error")) {
-      warning("Error in parser '", parser, "': ", res$message)
-      utils::setTxtProgressBar(pb, i); next
+    if(verbose) {
+      if (inherits(res, "error")) {
+        warning("Error in parser '", parser, "': ", res$message)
+        utils::setTxtProgressBar(pb, i); next
+      }
     }
 
     # Store the original parsed result
@@ -199,23 +202,25 @@ microbialscalerepo <- function(
     validation_file <- sub("\\.RData$", "_validation.RData", save_to)
     save(validation_results, file = validation_file)
     
-    # Generate and save validation summary
-    summary_file <- sub("\\.RData$", "_validation_summary.txt", save_to)
-    sink(summary_file)
-    cat("Validation Summary\n")
-    cat("=================\n\n")
-    
-    for (study in names(validation_results)) {
-      if (!is.null(validation_results[[study]])) {
-        cat(sprintf("Study: %s\n", study))
-        cat("Structure:\n")
-        for (elem in names(validation_results[[study]])) {
-          cat(sprintf("  %s: %s\n", elem, validation_results[[study]][[elem]]))
+    if (verbose) {
+      # Generate and save validation summary
+      summary_file <- sub("\\.RData$", "_validation_summary.txt", save_to)
+      sink(summary_file)
+      cat("Validation Summary\n")
+      cat("=================\n\n")
+      
+      for (study in names(validation_results)) {
+        if (!is.null(validation_results[[study]])) {
+          cat(sprintf("Study: %s\n", study))
+          cat("Structure:\n")
+          for (elem in names(validation_results[[study]])) {
+            cat(sprintf("  %s: %s\n", elem, validation_results[[study]][[elem]]))
+          }
+            cat("\n")
+          }
         }
-        cat("\n")
-      }
+        sink()
     }
-    sink()
   }
 
   parsed_list

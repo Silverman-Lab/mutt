@@ -19,8 +19,8 @@ parse_2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapy
     local <- file.path("2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal")
 
     # ----- File paths -----
-    motus_zip            <- file.path(local, "PRJNA31530_motus_merged.tsv.zip")
-    metaphlan4_zip       <- file.path(local, "PRJNA31530_MetaPhlAn_merged.tsv.zip")
+    motus_zip            <- file.path(local, "PRJNA663786_motus_merged.tsv.zip") #PRJNA31530?
+    metaphlan4_zip       <- file.path(local, "PRJNA663786_MetaPhlAn_merged.tsv.zip") #PRJNA31530?
     metadata_zip         <- file.path(local, "SraRunTable (38).csv.zip")
     scale_zip            <- file.path(local, "")
 
