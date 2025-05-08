@@ -150,6 +150,10 @@ microbialscalerepo <- function(
 
   parsed_list <- vector("list", n)
   names(parsed_list) <- out_names
+  
+  # Create a list to store validation results
+  validation_results <- vector("list", n)
+  names(validation_results) <- out_names
 
   # --- main loop -------------------------------------------------------------
   for (i in seq_along(selected)) {
@@ -176,12 +180,12 @@ microbialscalerepo <- function(
       utils::setTxtProgressBar(pb, i); next
     }
 
-    if (!is.list(res) || is.null(res$counts)) {
-      warning("Parser '", parser, "' did not return a list with $counts")
-      utils::setTxtProgressBar(pb, i); next
-    }
-
+    # Store the original parsed result
     parsed_list[[i]] <- res
+    
+    # Collect validation result separately
+    validation_results[[i]] <- validate_output_structure(res, study_name = parser)
+    
     utils::setTxtProgressBar(pb, i)
   }
   utils::setTxtProgressBar(pb, n)
@@ -190,6 +194,28 @@ microbialscalerepo <- function(
   if (!is.null(save_to)) {
     dir.create(dirname(save_to), showWarnings = FALSE, recursive = TRUE)
     save(parsed_list, file = save_to)
+    
+    # Save validation results to a separate file
+    validation_file <- sub("\\.RData$", "_validation.RData", save_to)
+    save(validation_results, file = validation_file)
+    
+    # Generate and save validation summary
+    summary_file <- sub("\\.RData$", "_validation_summary.txt", save_to)
+    sink(summary_file)
+    cat("Validation Summary\n")
+    cat("=================\n\n")
+    
+    for (study in names(validation_results)) {
+      if (!is.null(validation_results[[study]])) {
+        cat(sprintf("Study: %s\n", study))
+        cat("Structure:\n")
+        for (elem in names(validation_results[[study]])) {
+          cat(sprintf("  %s: %s\n", elem, validation_results[[study]][[elem]]))
+        }
+        cat("\n")
+      }
+    }
+    sink()
   }
 
   parsed_list

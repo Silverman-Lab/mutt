@@ -426,3 +426,58 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
     return(tax_df)
 }
 
+#' Validate the structure of a dataset output
+#'
+#' Checks if a dataset output contains all required elements and returns a structured
+#' object showing what elements are present and their types.
+#'
+#' @param output A list containing the dataset output
+#' @param study_name Optional name of the study for error messages
+#'
+#' @return A list with the same structure as the input, but with element types indicated
+#'
+#' @examples
+#' \dontrun{
+#' # Validate a dataset output
+#' result <- validate_output_structure(my_output, study_name = "MyStudy")
+#' }
+#'
+#' @export
+validate_output_structure <- function(output, study_name = NULL) {
+    # Check if output is a list
+    if (!is.list(output)) {
+        stop(sprintf("%s: Output must be a list", ifelse(is.null(study_name), "", study_name)))
+    }
+
+    # Required top-level elements
+    required_elements <- c("counts", "proportions", "tax", "scale", "metadata")
+    missing_elements <- required_elements[!required_elements %in% names(output)]
+    
+    # Print warning for missing elements if study_name is provided
+    if (length(missing_elements) > 0 && !is.null(study_name)) {
+        warning(sprintf("%s: Missing required elements: %s", 
+                       study_name,
+                       paste(missing_elements, collapse = ", ")))
+    }
+
+    # Create a structured output showing what's present
+    result <- list()
+    for (elem in names(output)) {
+        if (is.list(output[[elem]])) {
+            if (all(c("original", "reprocessed") %in% names(output[[elem]]))) {
+                result[[elem]] <- "LIST={original,reprocessed}"
+            } else {
+                result[[elem]] <- "LIST"
+            }
+        } else if (is.data.frame(output[[elem]])) {
+            result[[elem]] <- "DATAFRAME"
+        } else if (is.matrix(output[[elem]])) {
+            result[[elem]] <- "MATRIX"
+        } else {
+            result[[elem]] <- class(output[[elem]])[1]
+        }
+    }
+
+    return(result)
+}
+
