@@ -115,6 +115,10 @@ microbialscalerepo <- function(
     studies <- unlist(studies, use.names = TRUE)
   }
 
+  # ---------------------------- Check
+  stopifnot(is.logical(rawdata), length(rawdata) == 1)
+  stopifnot(is.logical(align_samples), length(align_samples) == 1)
+
   # --- locate parser sub‑folders --------------------------------------------
   setwd(base_directory)
   all_dirs    <- list.dirs(base_directory, full.names = FALSE, recursive = FALSE)
@@ -149,10 +153,14 @@ microbialscalerepo <- function(
 
   # --- main loop -------------------------------------------------------------
   for (i in seq_along(selected)) {
-    parser     <- selected[i]
-    parse_file <- file.path(base_directory, parser, "parse.R")
+    parser          <- selected[i]
+    parse_file      <- file.path(base_directory, parser, "parse.R")
+    helperfunctions <- file.path(base_directory, "helpers.R")
 
     env <- new.env()
+    if (file.exists(helperfunctions)) {
+    sys.source(helperfunctions, envir = env)
+    }
     sys.source(parse_file, envir = env)
 
     fun_name <- paste0("parse_", parser)
@@ -161,11 +169,7 @@ microbialscalerepo <- function(
       utils::setTxtProgressBar(pb, i); next
     }
     
-
-    res <- tryCatch(
-      get(fun_name, envir = env)(raw = rawdata),
-      error = function(e) e
-    )
+    res <- tryCatch(suppressWarnings(get(fun_name, envir = env)(raw = rawdata, align = align_samples)), error = function(e) e)
 
     if (inherits(res, "error")) {
       warning("Error in parser '", parser, "': ", res$message)
@@ -175,16 +179,6 @@ microbialscalerepo <- function(
     if (!is.list(res) || is.null(res$counts)) {
       warning("Parser '", parser, "' did not return a list with $counts")
       utils::setTxtProgressBar(pb, i); next
-    }
-
-    # --- optional sample alignment ------------------------------------------
-    if (align_samples && !is.null(res$scale)) {
-      id_col <- colnames(res$scale)[1]
-      ids    <- na.omit(res$scale[[id_col]])
-
-      res$counts <- res$counts[rownames(res$counts) %in% ids, , drop = FALSE]
-      res$scale  <- res$scale[match(rownames(res$counts), res$scale[[id_col]]),
-                              , drop = FALSE]
     }
 
     parsed_list[[i]] <- res

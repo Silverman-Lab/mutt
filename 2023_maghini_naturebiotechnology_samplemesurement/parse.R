@@ -1,5 +1,5 @@
-parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
-  required_pkgs <- c("tibble", "tidyverse", "readr", "taxizedb")
+parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE, align = FALSE) {
+  required_pkgs <- c("tibble", "tidyverse", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
@@ -11,7 +11,7 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
   library(tibble)
   library(tidyverse)
   library(readr)
-  library(taxizedb)
+  #library(taxizedb)
 
   # ----- Local base directory -----
   local <- file.path("2023_maghini_naturebiotechnology_samplemesurement")
@@ -23,53 +23,6 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
   metadata_zip   <- file.path(local, "Maghini_2023_metadata.csv.zip")
   original_zip   <- file.path(local, "Maghini_2023_shotgunmetagenomics.csv.zip")
 
-  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-        if (file.exists(zip_path)) {
-        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-        con <- unz(zip_path, inner_file)
-        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-        } else {
-        warning(paste("File not found:", zip_path))
-        return(NA)
-        }
-    }
-
-  # ----- Convert sequences to lowest rank taxonomy found and update key -----
-  make_taxa_label <- function(df) {
-          tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
-          prefixes  <- c("k", "p", "c", "o", "f", "g", "s")
-          if (!all(tax_ranks %in% colnames(df))) {
-              stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-          }
-          df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-              x[is.na(x) | trimws(x) == ""] <- "unclassified"
-              x
-          })
-          df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-              if (tax_row["Species"] != "unclassified") {
-              return(paste0("s_", tax_row["Species"]))
-              }
-              for (i in (length(tax_ranks)-1):1) {  
-              if (tax_row[i] != "unclassified") {
-                  return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-              }
-              }
-              return("unclassified")
-          })
-          return(df)
-      }
-
-  fill_na_zero_numeric <- function(x) {
-      if (is.data.frame(x)) {
-          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-      } else if (is.matrix(x) && is.numeric(x)) {
-          x[is.na(x)] <- 0
-      } else if (is.list(x)) {
-          x <- lapply(x, fill_na_zero_numeric)
-      }
-      x
-  }
-
   # ----- Initialize everything as NA -----
   counts_original <- NA
   proportions_original <- NA
@@ -80,6 +33,46 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
   MetaPhlAn4_counts <- NA
   MetaPhlAn4_proportions <- NA
   MetaPhlAn4_tax <- NA
+
+  # ----- Read and filter qPCR data -----
+  plate_list <- list.files(path = local, pattern = "qPCR_plate", full.names = TRUE)
+  qPCR <- plate_list %>%
+    map_dfr(read_csv) %>%
+    mutate(ID = gsub("_", "-", SampleName)) %>%
+    dplyr::select(Plate, ID, Donor, Condition, PCR_Replicate, Replicate, logCopyNumber, CopyNumber) 
+
+  scale <- qPCR %>%
+    select(ID, logCopyNumber, CopyNumber) %>%
+    group_by(ID) %>%
+    summarise(
+      mean_CopyNumber    = mean(CopyNumber, na.rm = TRUE),
+      sd_CopyNumber      = sd(CopyNumber, na.rm = TRUE),
+      mean_logCopyNumber = mean(logCopyNumber, na.rm = TRUE),
+      sd_logCopyNumber   = sd(logCopyNumber, na.rm = TRUE),
+      n_reps             = n(),
+      .groups = "drop"
+    ) %>% mutate(log2_CopyNumber = ifelse(CopyNumber > 0, log2(CopyNumber), NA)) %>%
+          mutate(log10_CopyNumber = ifelse(CopyNumber > 0, log10(CopyNumber), NA))
+
+  # ----- Extract and deduplicate metadata -----
+  metadata <- qPCR %>%
+    dplyr::select(ID, Donor, Condition, Replicate) %>%
+    distinct()
+
+  # ----- SRA metadata and merge -----
+  metadatafromsra_path <- paste0(local, "/SraRunTable (3).csv")
+  metadatafromsra <- read.csv(metadatafromsra_path, check.names = FALSE) %>%
+    mutate(Library.Name = gsub("(_DNA)", "", Library.Name)) %>% rename(Accession = Run)
+
+  scale$ID <- gsub("-", "_", scale$ID)
+  metadata$ID <- gsub("-", "_", metadata$ID)
+
+  metadata <- merge(
+    metadatafromsra, metadata,
+    by.x = "Library.Name",
+    by.y = "ID",
+    all = TRUE
+  )
 
   # ----- Read taxonomic counts -----
 
@@ -142,6 +135,8 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
   #     matched_taxa <- tax$Taxa[match(colnames(counts_original), rownames(tax))]
   #     colnames(counts_original) <- matched_taxa
   #     counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
+  #     aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
+  #     counts_original = aligned$counts_original
   # }
 
   # # ------- Proportions ----------
@@ -151,45 +146,6 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
   #   prop[is.nan(prop)] <- 0
   #   return(as_tibble(prop, rownames = "Taxon"))
   # })
-
-  # ----- Read and filter qPCR data -----
-  plate_list <- list.files(path = base_path, pattern = "qPCR_plate", full.names = TRUE)
-  qPCR <- plate_list %>%
-    map_dfr(read_csv) %>%
-    mutate(ID = gsub("_", "-", SampleName)) %>%
-    dplyr::select(Plate, ID, Donor, Condition, PCR_Replicate, Replicate, logCopyNumber, CopyNumber) 
-
-  scale <- qPCR %>%
-    select(ID, logCopyNumber, CopyNumber) %>%
-    group_by(ID) %>%
-    summarise(
-      mean_CopyNumber    = mean(CopyNumber, na.rm = TRUE),
-      sd_CopyNumber      = sd(CopyNumber, na.rm = TRUE),
-      mean_logCopyNumber = mean(logCopyNumber, na.rm = TRUE),
-      sd_logCopyNumber   = sd(logCopyNumber, na.rm = TRUE),
-      n_reps             = n(),
-      .groups = "drop"
-    )
-
-  # ----- Extract and deduplicate metadata -----
-  metadata <- qPCR %>%
-    dplyr::select(ID, Donor, Condition, Replicate) %>%
-    distinct()
-
-  # ----- SRA metadata and merge -----
-  metadatafromsra_path <- paste0(base_path, "/SraRunTable (3).csv")
-  metadatafromsra <- read.csv(metadatafromsra_path, check.names = FALSE) %>%
-    mutate(Library.Name = gsub("(_DNA)", "", Library.Name)) %>% rename(Accession = Run)
-
-  scale$ID <- gsub("-", "_", scale$ID)
-  metadata$ID <- gsub("-", "_", metadata$ID)
-
-  metadata <- merge(
-    metadatafromsra, metadata,
-    by.x = "Library.Name",
-    by.y = "ID",
-    all = TRUE
-  )
 
   # ----- mOTU3 Reprocessed -----
   if (file.exists(motus_zip)) {
@@ -202,6 +158,10 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
         df <- read_tsv(motus_path)
         rownames(df) <- df[[1]]
         df[[1]] <- NULL
+        if (!raw) {
+            aligned = rename_and_align(counts_original = df, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
+            df = aligned$counts_original
+        }
         proportions <- apply(df, 2, function(col) col / sum(col))
         tax_df <- data.frame(taxa = rownames(df)) %>%
         mutate(taxa = str_trim(taxa)) %>%
@@ -226,6 +186,10 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
         df <- read_tsv(path)
         rownames(df) <- df[[1]]
         df[[1]] <- NULL
+        if (!raw) {
+            aligned = rename_and_align(counts_original = df, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
+            df = aligned$counts_original
+        }
         proportions <- apply(df, 2, function(col) col / sum(col))
         tax_df <- data.frame(taxa = rownames(df)) %>%
         mutate(taxa = str_trim(taxa)) %>%
@@ -242,6 +206,10 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
 
   # Can delete later:
   counts_original = read_zipped_table(original_zip)
+  if (!raw) {
+    aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
+    counts_original = aligned$counts_original
+  }
   proportions_original <- map(counts_original, function(df) {
     rsums <- rowSums(df)
     prop  <- sweep(df, 1, rsums, FUN = "/")
@@ -253,11 +221,11 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE) {
   # Dont delete:
   if (!raw) {
       counts_original = fill_na_zero_numeric(counts_original)
-      #mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
+      mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
       proportions_original = fill_na_zero_numeric(proportions_original)
-      #MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
-      #mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
-      #MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
+      MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+      mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
+      MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
   }
 
 

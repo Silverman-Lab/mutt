@@ -1,9 +1,15 @@
-parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- function(raw = FALSE) {
+parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
+  }
+  if (!is.logical(raw) || length(raw) != 1) {
+  stop("`raw` must be a single logical value (TRUE or FALSE)")
+  }
+  if (!is.logical(align) || length(align) != 1) {
+  stop("`align` must be a single logical value (TRUE or FALSE)")
   }
   
   library(tidyverse)
@@ -17,52 +23,6 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
   repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxa.rds.zip")
   metadata_zip         <- file.path(local, "SraRunTable.csv.zip")
   scale_zip            <- file.path(local, "scale.csv.zip")
-
-  # ---- helper functions ----
-
-  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-      if (file.exists(zip_path)) {
-      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-      con <- unz(zip_path, inner_file)
-      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-      } else {
-      warning(paste("File not found:", zip_path))
-      return(NA)
-      }
-  }
-  make_taxa_label <- function(df) {
-    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-    prefixes  <- c("k", "p", "c", "o", "f", "g")
-    if (!all(tax_ranks %in% colnames(df))) {
-        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-    }
-    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-        x[is.na(x) | trimws(x) == ""] <- "unclassified"
-        x
-    })
-    df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-        if (tax_row["Genus"] != "unclassified") {
-        return(paste0("g_", tax_row["Genus"]))
-        }
-        for (i in (length(tax_ranks)-1):1) {  # skip Genus
-        if (tax_row[i] != "unclassified") {
-            return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-        }
-        }
-        return("unclassified")
-    })
-    return(df)
-  }
-  fill_na_zero_numeric <- function(x) {
-      if (is.data.frame(x)) {
-          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-      } else if (is.matrix(x) && is.numeric(x)) {
-          x[is.na(x)] <- 0
-      } else if (is.list(x)) {
-          x <- lapply(x, fill_na_zero_numeric)
-      }
-      x
-  }
 
   # --- original counts, proportions, tax ---
   counts <- NA
@@ -78,7 +38,12 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
   ml_mean_sd   <- ml_cols[grepl("Mean|SD", ml_cols)]
   meta_cols    <- setdiff(names(scale_raw), c("ID", ml_cols))
   meta_part    <- scale_raw %>% select(ID, all_of(meta_cols)) %>% mutate(ID = as.character(ID))
-  scale        = scale_raw %>% select(ID, all_of(ml_mean_sd)) %>% mutate(ID = as.character(ID))
+  scale        = scale_raw %>% select(ID, all_of(ml_mean_sd)) %>% mutate(ID = as.character(ID)) %>% 
+                  mutate(log2_Microbial_load_Mean = ifelse(Microbial_load_Mean > 0, log2(Microbial_load_Mean),NA),
+                         log2_Microbial_load_SD = ifelse(Microbial_load_SD > 0, log2(Microbial_load_SD),NA)) %>% 
+                  mutate(log10_Microbial_load_Mean = ifelse(Microbial_load_Mean > 0, log10(Microbial_load_Mean),NA),
+                         log10_Microbial_load_SD = ifelse(Microbial_load_SD > 0, log10(Microbial_load_SD),NA))
+                        		
   metadata     = metadata %>% left_join(meta_part, by = "ID")
 
   # ----- Reprocessed counts from RDS ZIP -----
@@ -101,7 +66,10 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
   tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # accessions to sampleIDs is study specific: IF NEED BE
+  if (!raw) {
+  aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="ID",align = align, study_name=basename(local))
+  counts_reprocessed = aligned$reprocessed
+  }
 
   # taxa
   if (!raw) {

@@ -1,4 +1,4 @@
-parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy <- function(raw = FALSE) {
+parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   
@@ -6,7 +6,12 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
-  
+  if (!is.logical(raw) || length(raw) != 1) {
+    stop("`raw` must be a single logical value (TRUE or FALSE)")
+  }
+  if (!is.logical(align) || length(align) != 1) {
+    stop("`align` must be a single logical value (TRUE or FALSE)")
+  }
   library(tidyverse)
   library(readxl)
 
@@ -23,66 +28,19 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
   repro_counts_rds_zip <- file.path(local, "ERP108719_dada2_counts.rds.zip")
   repro_tax_zip        <- file.path(local, "ERP108719_dada2_taxa.rds.zip")
 
-  # ---- helper functions ----
-  make_taxa_label <- function(df) {
-    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-    prefixes  <- c("k", "p", "c", "o", "f", "g")
-    if (!all(tax_ranks %in% colnames(df))) {
-      stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-    }
-    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-      x[is.na(x) | trimws(x) == ""] <- "unclassified"
-      x
-    })
-    df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-      if (tax_row["Genus"] != "unclassified") {
-        return(paste0("g_", tax_row["Genus"]))
-      }
-      for (i in (length(tax_ranks)-1):1) {  # skip Genus
-        if (tax_row[i] != "unclassified") {
-          return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-        }
-      }
-      return("unclassified")
-    })
-    return(df)
-  }
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-    if (file.exists(zip_path)) {
-      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-      con <- unz(zip_path, inner_file)
-      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-    } else {
-      warning(paste("File not found:", zip_path))
-      return(NA)
-    }
-  }
-  fill_na_zero_numeric <- function(x) {
-    if (missing(x)) return(NULL)
-    if (is.data.frame(x)) {
-      x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-    } else if (is.matrix(x) && is.numeric(x)) {
-      x[is.na(x)] <- 0
-    } else if (is.list(x)) {
-      x <- lapply(x, fill_na_zero_numeric)
-    }
-    x
-  }
 
+  # ----- Metadata -----
   zip_list <- unzip(metadata_zip, list = TRUE)
   metadata_csv <- zip_list$Name[1]
   metadata_con <- unz(metadata_zip, metadata_csv)
   metadata <- read.csv(metadata_con) %>%
   as.data.frame()
   if ("Sample_name" %in% names(metadata)) {
-    metadata <- metadata %>%
-      rename(Sample_name_existing = Sample_name)
+    metadata <- metadata %>% rename(Sample_name_existing = Sample_name)
   }
-  metadata <- metadata %>%
-    rename(Sample_name = anonymized_name,
-          Accession = Run)
+  metadata <- metadata %>% rename(Sample_name = anonymized_name, Accession = Run)
 
-  
+  # ----- Scale -----
   zip_list <- unzip(scale_zip, list = TRUE)
   scale_xlsx <- zip_list$Name[1]  
   temp_dir <- tempdir()
@@ -125,7 +83,7 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
       ddPCR_Mean  = `ddPCR average copies/uL DNA`,
       ddPCR_SD    = `ddPCR SD copies/ul DNA`,
       qPCR_Mean   = `qPCR copies/ul DNA`
-    )
+    ) 
 
   
   scale <- scale_s3 %>%
@@ -152,7 +110,18 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
       .x == "qPCR_Mean"                      ~ "qpcr_total_mean",
 
       TRUE ~ .x 
-    ))
+    )) %>% mutate(log10_ddpcr_mean= ifelse(ddpcr_mean > 0, log10(ddpcr_mean), NA)) %>% 
+          mutate(log10_qpcr_mean= ifelse(qpcr_total_mean > 0, log10(qpcr_total_mean), NA)) %>% 
+          mutate(log2_ddpcr_mean= ifelse(ddpcr_mean > 0, log2(ddpcr_mean), NA)) %>% 
+          mutate(log2_qpcr_mean= ifelse(qpcr_total_mean > 0, log2(qpcr_total_mean), NA)) %>% 
+          mutate(log2_ddpcr_sd= ifelse(ddpcr_sd > 0, log2(ddpcr_sd), NA)) %>% 
+          mutate(log10_ddpcr_sd= ifelse(ddpcr_sd > 0, log10(ddpcr_sd), NA)) %>%
+          mutate(log2_qpcr_sd= ifelse(qpcr_sd > 0, log2(qpcr_sd), NA)) %>% 
+          mutate(log10_qpcr_sd= ifelse(qpcr_sd > 0, log10(qpcr_sd), NA)) %>% 
+          mutate(log2_fc_mean= ifelse(facs_mean > 0, log2(facs_mean), NA)) %>% 
+          mutate(log10_fc_mean= ifelse(facs_mean > 0, log10(facs_mean), NA)) %>% 
+          mutate(log2_fc_sd= ifelse(facs_sd > 0, log2(facs_sd), NA)) %>% 
+          mutate(log10_fc_sd= ifelse(facs_sd > 0, log10(facs_sd), NA))
 
   unlink(temp_dir, recursive = TRUE)
 
@@ -177,7 +146,10 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
   tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # accessions to sampleIDs is study specific: IF NEED BE
+  if (!raw) {
+    align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
+    counts_reprocessed = align$reprocessed
+  }
 
   # taxa
   if (!raw) {

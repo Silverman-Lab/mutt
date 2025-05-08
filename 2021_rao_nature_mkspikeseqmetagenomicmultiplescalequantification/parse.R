@@ -1,9 +1,15 @@
-parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- function(raw = FALSE, originaltax = 'qiime') {
+parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- function(raw = FALSE, originaltax = 'qiime', align = FALSE) {
   required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
+  }
+  if (!is.logical(raw)) {
+    stop("raw must be a logical value")
+  }
+  if (!is.logical(align)) {
+    stop("align must be a logical value")
   }
   library(tidyverse)
   library(readxl)
@@ -21,102 +27,6 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   repro_counts_rds_zip<- file.path(local, "PRJEB36435_dada2_counts.rds.zip")
   repro_tax_zip       <- file.path(local, "PRJEB36435_dada2_taxa.rds.zip")
 
-  # --- helper functions ---
-  first_row_to_colnames <- function(df) {
-    colnames(df) <- as.character(df[1, ])
-    df <- df[-1, ]
-    return(df)
-  }
-
-  build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full", "utax", "vsearch")) {
-    method <- match.arg(method)
-    if (method == "qiime") {
-      tax_source <- df %>%
-        select(OTU_ID, taxonomy = qiime_sklearn)
-      if (any(grepl("^D_\\d+__", tax_source$taxonomy, perl = TRUE))) {
-        tax_df <- tax_source %>%
-          separate(taxonomy,
-                  into = c("D0", "D1", "D2", "D3", "D4", "D5", "D6"),
-                  sep = ";", fill = "right") %>%
-          transmute(
-            OTU_ID,
-            Kingdom = gsub("^D_0__", "", D0),
-            Phylum  = gsub("^D_1__", "", D1),
-            Class   = gsub("^D_2__", "", D2),
-            Order   = gsub("^D_3__", "", D3),
-            Family  = gsub("^D_4__", "", D4),
-            Genus   = gsub("^D_5__", "", D5),
-            Species = gsub("^D_6__", "", D6)
-          )
-      } else {
-        tax_df <- tax_source %>%
-          separate(taxonomy,
-                  into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
-                  sep = ";", fill = "right") %>%
-          mutate(across(Kingdom:Species, ~ gsub("^[a-z]__", "", .)))
-      }
-      tax_df <- tax_df %>%
-        mutate(across(Kingdom:Species, ~ ifelse(. == "" | is.na(.), NA, .)))
-    } else if (method == "sintax") {
-      tax_df <- df %>%
-        select(OTU_ID, taxonomy = `usearch_sintax_80%`) %>%
-        separate(taxonomy,
-                into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
-                sep = ",", fill = "right") %>%
-        mutate(across(Kingdom:Species, ~ gsub("^[a-z]:", "", .)))
-    } else if (method == "sintax_full") {
-      tax_df <- df %>%
-        select(OTU_ID, taxonomy = usearch_sintax) %>%
-        mutate(taxonomy = gsub("\\([^)]+\\)", "", taxonomy)) %>%
-        separate(taxonomy,
-                into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
-                sep = ",", fill = "right") %>%
-        mutate(across(Kingdom:Species, ~ gsub("^[a-z]:", "", .)))
-    } else if (method == "utax") {
-      tax_df <- df %>%
-        select(OTU_ID, taxonomy = usearch_utax) %>%
-        mutate(taxonomy = gsub(".*\\|refs\\|", "", taxonomy)) %>%
-        separate(taxonomy,
-                into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
-                sep = ";", fill = "right") %>%
-        mutate(across(Kingdom:Species, ~ gsub("^[a-z]__", "", .)))
-    } else if (method == "vsearch") {
-      tax_df <- df %>%
-        select(OTU_ID, taxonomy = vsearch_usearchglobal) %>%
-        mutate(taxonomy = gsub(".*\\|refs\\|", "", taxonomy)) %>%
-        separate(taxonomy,
-                into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
-                sep = ";", fill = "right") %>%
-        mutate(across(Kingdom:Species, ~ gsub("^[a-z]__", "", .)))
-    }
-    tax_df <- tax_df %>%
-      mutate(across(Kingdom:Species, ~ ifelse(. == "" | is.na(.), NA, .)))
-    return(tax_df)
-  }
-  # ---- Taxa label generator ----
-  make_taxa_label <- function(df) {
-      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-      prefixes  <- c("k", "p", "c", "o", "f", "g")
-      if (!all(tax_ranks %in% colnames(df))) {
-          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-      }
-      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-          x[is.na(x) | trimws(x) == ""] <- "unclassified"
-          x
-      })
-      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-          if (tax_row["Genus"] != "unclassified") {
-          return(paste0("g_", tax_row["Genus"]))
-          }
-          for (i in (length(tax_ranks)-1):1) {  # skip Genus
-          if (tax_row[i] != "unclassified") {
-              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-          }
-          }
-          return("unclassified")
-      })
-      return(df)
-  }
   safe_read_zip <- function(zip_path, is_xlsx = FALSE, sheet = 1) {
     if (!file.exists(zip_path)) return(NULL)
     zfiles <- unzip(zip_path, list = TRUE)$Name
@@ -191,6 +101,18 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
     return(list(otu = otu_df, tax = tax_df, scale = scale_df))
   }
 
+  read_otu_sheet <- function(sheetname) {
+    df <- tryCatch(readxl::read_excel(file, sheet = sheetname), error = function(e) NULL)
+    if (is.null(df)) return(NULL)
+    if (all(c("qiime2_sklearn_taxonomy", "confidence", "OTU_ID") %in% colnames(df))) {
+      tax <- df %>%
+        select(OTU_ID, qiime_sklearn = qiime2_sklearn_taxonomy, confidence)
+      otu <- df %>%
+        select(-qiime2_sklearn_taxonomy, -confidence)
+      return(list(otu = as.data.frame(t(otu)), tax = make_taxa_label(build_taxonomy_table(tax, method = "qiime"))))
+    }
+    return(list(otu = df, tax = NULL))
+  }
 
   if (!file.exists(counts_zip)) {
     warning("Counts file not found: ", counts_zip)
@@ -249,25 +171,55 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   } else {
     file <- supplemental_excel[1]
 
-    read_otu_sheet <- function(sheetname) {
-      df <- tryCatch(readxl::read_excel(file, sheet = sheetname), error = function(e) NULL)
-      if (is.null(df)) return(NULL)
-      if (all(c("qiime2_sklearn_taxonomy", "confidence", "OTU_ID") %in% colnames(df))) {
-        tax <- df %>%
-          select(OTU_ID, qiime_sklearn = qiime2_sklearn_taxonomy, confidence)
-        otu <- df %>%
-          select(-qiime2_sklearn_taxonomy, -confidence)
-        return(list(otu = as.data.frame(t(otu)), tax = make_taxa_label(build_taxonomy_table(tax, method = "qiime"))))
-      }
-      return(list(otu = df, tax = NULL))
-    }
-
     # Read Scale sheets
     scale_ <- readxl::read_excel(file, sheet = "sTable4")
     scale_ITS <- readxl::read_excel(file, sheet = "sTable6")
-    scale <- bind_rows(Filter(Negate(is.null), list(scale_, scale_ITS)))
+    scale <- bind_rows(Filter(Negate(is.null), list(scale_, scale_ITS))) %>%
+      rename(
+        MK_spike_univ16S = `MK-SpikeSeq-univ16S`,
+        MK_spike_arch16S = `MK-SpikeSeq-arch16S`, 
+        MK_spike_ITS1 = `MK-SpikeSeq-ITS1`,
+        FACS_prokaryote = `FACS-prokaryote`,
+        FACS_fungi_gate1 = `FACS-fungi-gate1`,
+        FACS_fungi_gate2 = `FACS-fungi-gate2`, 
+        FACS_fungi_gate3 = `FACS-fungi-gate3`,
+        total_DNA_PicoGreen_rep1 = `total-DNA-PicoGreen-(ng/uL)-Replicate1`,
+        total_DNA_PicoGreen_rep2 = `total-DNA-PicoGreen-(ng/uL)-Replicate2`,
+        univ16S_Ct_mean = `rDNA-specific-qPCR-(Ct summary of 3 replicates)-univ16S-Ct-mean`,
+        univ16S_Ct_SD = `rDNA-specific-qPCR-(Ct summary of 3 replicates)-univ16S-Ct-SD`,
+        arch16S_Ct_mean = `rDNA-specific-qPCR-(Ct summary of 3 replicates)-arch16S-Ct-mean`,
+        arch16S_Ct_SD = `rDNA-specific-qPCR-(Ct summary of 3 replicates)-arch16S-Ct-SD`,
+        ITS1_Ct_mean = `rDNA-specific-qPCR-(Ct summary of 3 replicates)-ITS1-Ct-mean`,
+        ITS1_Ct_SD = `rDNA-specific-qPCR-(Ct summary of 3 replicates)-ITS1-Ct-SD`,
+        ITS1_qPCR_Ct = `ITS1-qPCR-Ct`,
+        ITS1_total_reads = `ITS1-total-reads`,
+        ITS1_spikein_reads = `ITS1-spikein-reads`,
+        ITS1_total_abundance = `ITS1-total-abundance`
+      ) %>%
+      mutate(
+        log2_MK_spike_univ16S = ifelse(MK_spike_univ16S > 0, log2(MK_spike_univ16S), NA),
+        log10_MK_spike_univ16S = ifelse(MK_spike_univ16S > 0, log10(MK_spike_univ16S), NA),
+        log2_MK_spike_arch16S = ifelse(MK_spike_arch16S > 0, log2(MK_spike_arch16S), NA),
+        log10_MK_spike_arch16S = ifelse(MK_spike_arch16S > 0, log10(MK_spike_arch16S), NA),
+        log2_MK_spike_ITS1 = ifelse(MK_spike_ITS1 > 0, log2(MK_spike_ITS1), NA),
+        log10_MK_spike_ITS1 = ifelse(MK_spike_ITS1 > 0, log10(MK_spike_ITS1), NA),
+        log2_FACS_prokaryote = ifelse(FACS_prokaryote > 0, log2(FACS_prokaryote), NA),
+        log10_FACS_prokaryote = ifelse(FACS_prokaryote > 0, log10(FACS_prokaryote), NA),
+        log2_FACS_fungi_gate1 = ifelse(FACS_fungi_gate1 > 0, log2(FACS_fungi_gate1), NA),
+        log10_FACS_fungi_gate1 = ifelse(FACS_fungi_gate1 > 0, log10(FACS_fungi_gate1), NA),
+        log2_FACS_fungi_gate2 = ifelse(FACS_fungi_gate2 > 0, log2(FACS_fungi_gate2), NA),
+        log10_FACS_fungi_gate2 = ifelse(FACS_fungi_gate2 > 0, log10(FACS_fungi_gate2), NA),
+        log2_FACS_fungi_gate3 = ifelse(FACS_fungi_gate3 > 0, log2(FACS_fungi_gate3), NA),
+        log10_FACS_fungi_gate3 = ifelse(FACS_fungi_gate3 > 0, log10(FACS_fungi_gate3), NA),
+        log2_total_DNA_PicoGreen_rep1 = ifelse(total_DNA_PicoGreen_rep1 > 0, log2(total_DNA_PicoGreen_rep1), NA),
+        log10_total_DNA_PicoGreen_rep1 = ifelse(total_DNA_PicoGreen_rep1 > 0, log10(total_DNA_PicoGreen_rep1), NA),
+        log2_total_DNA_PicoGreen_rep2 = ifelse(total_DNA_PicoGreen_rep2 > 0, log2(total_DNA_PicoGreen_rep2), NA),
+        log10_total_DNA_PicoGreen_rep2 = ifelse(total_DNA_PicoGreen_rep2 > 0, log10(total_DNA_PicoGreen_rep2), NA),
+        log2_ITS1_total_abundance = ifelse(ITS1_total_abundance > 0, log2(ITS1_total_abundance), NA),
+        log10_ITS1_total_abundance = ifelse(ITS1_total_abundance > 0, log10(ITS1_total_abundance), NA)
+      )
 
-    # Read OTU sheets
+   # Read OTU sheets
     otu_data <- list(
       originalcounts_bacteria        =read_otu_sheet("sTable8"),
       originalcounts_archaea         =read_otu_sheet("sTable9"),
@@ -339,16 +291,94 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   }
 
   if (!raw) {
-      otu_tables$originalcounts_bacteria = fill_na_zero_numeric(otu_tables$originalcounts_bacteria)
-      otu_tables$originalcounts_archaea = fill_na_zero_numeric(otu_tables$originalcounts_archaea)
-      otu_tables$originalcounts_fungi = fill_na_zero_numeric(otu_tables$originalcounts_fungi)
-      otu_tables$originalcounts_bacteria_phase2 = fill_na_zero_numeric(otu_tables$originalcounts_bacteria_phase2)
-      otu_tables$originalcounts_fungi_phase2 = fill_na_zero_numeric(otu_tables$originalcounts_fungi_phase2)
-      mock_otu_tables$originalcounts_mockbacteria = fill_na_zero_numeric(mock_otu_tables$originalcounts_mockbacteria)
-      mock_otu_tables$originalcounts_mockfungi = fill_na_zero_numeric(mock_otu_tables$originalcounts_mockfungi)
-      mock_otu_tables$originalcounts_mockfecal = fill_na_zero_numeric(mock_otu_tables$originalcounts_mockfecal)
-      counts_bacteria = fill_na_zero_numeric(counts_bacteria)
-      counts_fungi = fill_na_zero_numeric(counts_fungi)
+      # Align original bacteria counts
+      aligned_bacteria = rename_and_align(counts_reprocessed = otu_tables$originalcounts_bacteria, 
+                                        metadata = metadata, 
+                                        scale = scale, 
+                                        by_col = "Sample_name",
+                                        align = align,
+                                        study_name = basename(local))
+      otu_tables$originalcounts_bacteria = fill_na_zero_numeric(aligned_bacteria$reprocessed)
+      
+      # Align original archaea counts
+      aligned_archaea = rename_and_align(counts_reprocessed = otu_tables$originalcounts_archaea,
+                                       metadata = metadata,
+                                       scale = scale,
+                                       by_col = "Sample_name", 
+                                       align = align,
+                                       study_name = basename(local))
+      otu_tables$originalcounts_archaea = fill_na_zero_numeric(aligned_archaea$reprocessed)
+      
+      # Align original fungi counts
+      aligned_fungi = rename_and_align(counts_reprocessed = otu_tables$originalcounts_fungi,
+                                     metadata = metadata,
+                                     scale = scale,
+                                     by_col = "Sample_name",
+                                     align = align,
+                                     study_name = basename(local))
+      otu_tables$originalcounts_fungi = fill_na_zero_numeric(aligned_fungi$reprocessed)
+      
+      # Align phase 2 bacteria counts
+      aligned_bacteria_p2 = rename_and_align(counts_reprocessed = otu_tables$originalcounts_bacteria_phase2,
+                                           metadata = metadata,
+                                           scale = scale,
+                                           by_col = "Sample_name",
+                                           align = align,
+                                           study_name = basename(local))
+      otu_tables$originalcounts_bacteria_phase2 = fill_na_zero_numeric(aligned_bacteria_p2$reprocessed)
+      
+      # Align phase 2 fungi counts
+      aligned_fungi_p2 = rename_and_align(counts_reprocessed = otu_tables$originalcounts_fungi_phase2,
+                                        metadata = metadata,
+                                        scale = scale,
+                                        by_col = "Sample_name",
+                                        align = align,
+                                        study_name = basename(local))
+      otu_tables$originalcounts_fungi_phase2 = fill_na_zero_numeric(aligned_fungi_p2$reprocessed)
+      
+      # Align mock bacteria counts
+      aligned_mock_bacteria = rename_and_align(counts_reprocessed = mock_otu_tables$originalcounts_mockbacteria,
+                                             metadata = mock_metadata,
+                                             scale = scale_mockbacteria,
+                                             by_col = "Sample_name",
+                                             align = align,
+                                             study_name = basename(local))
+      mock_otu_tables$originalcounts_mockbacteria = fill_na_zero_numeric(aligned_mock_bacteria$reprocessed)
+      
+      # Align mock fungi counts
+      aligned_mock_fungi = rename_and_align(counts_reprocessed = mock_otu_tables$originalcounts_mockfungi,
+                                          metadata = mock_metadata,
+                                          scale = scale_mockfungi,
+                                          by_col = "Sample_name",
+                                          align = align,
+                                          study_name = basename(local))
+      mock_otu_tables$originalcounts_mockfungi = fill_na_zero_numeric(aligned_mock_fungi$reprocessed)
+      
+      # Align mock fecal counts
+      aligned_mock_fecal = rename_and_align(counts_reprocessed = mock_otu_tables$originalcounts_mockfecal,
+                                          metadata = mock_metadata,
+                                          scale = scale_mockfungi,
+                                          by_col = "Sample_name",
+                                          align = align,
+                                          study_name = basename(local))
+      mock_otu_tables$originalcounts_mockfecal = fill_na_zero_numeric(aligned_mock_fecal$reprocessed)
+      
+      # Align reprocessed bacteria and fungi counts
+      aligned_bacteria_repro = rename_and_align(counts_reprocessed = counts_bacteria,
+                                              metadata = metadata,
+                                              scale = scale,
+                                              by_col = "Sample_name",
+                                              align = align,
+                                              study_name = basename(local))
+      counts_bacteria = fill_na_zero_numeric(aligned_bacteria_repro$reprocessed)
+      
+      aligned_fungi_repro = rename_and_align(counts_reprocessed = counts_fungi,
+                                           metadata = metadata,
+                                           scale = scale,
+                                           by_col = "Sample_name",
+                                           align = align,
+                                           study_name = basename(local))
+      counts_fungi = fill_na_zero_numeric(aligned_fungi_repro$reprocessed)
   }
 
   proportions_bacteria                = make_proportions(counts_bacteria)
@@ -432,7 +462,10 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # accessions to sampleIDs is study specific: IF NEED BE
+  if (!raw) {
+    aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+    counts_reprocessed = aligned$reprocessed
+  }
 
   # taxa
   if (!raw) {

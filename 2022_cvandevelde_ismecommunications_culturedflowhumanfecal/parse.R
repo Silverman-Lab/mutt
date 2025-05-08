@@ -1,9 +1,15 @@
-parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw = FALSE) {
+parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("stringr", "tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
             stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
                 ". Please install them before running this function.")
+    }
+    if (!is.logical(raw)) {
+        stop("raw must be a logical value")
+    }
+    if (!is.logical(align)) {
+        stop("align must be a logical value")
     }
 
     library(stringr)
@@ -13,55 +19,12 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     local <- file.path("2022_cvandevelde_ismecommunications_culturedflowhumanfecal")
 
     # ----- File paths -----
-    repro_counts_rds_zip <- file.path(local, "PRJEB51873_dada2_counts.rds.zip") # NEEDS TO BE LOOKED INTO
-    repro_tax_zip        <- file.path(local, "PRJEB51873_dada2_taxa.rds.zip") # NEEDS TO BE LOOKED INTO
+    repro_counts_rds_zip <- file.path(local, "PRJEB51873_dada2_counts.rds.zip") 
+    repro_tax_zip        <- file.path(local, "PRJEB51873_dada2_taxa.rds.zip") 
     scale_16s_zip        <- file.path(local, "VandeVelde2022_scale.csv.zip")
     counts_16s_zip       <- file.path(local, "VandeVelde_2022_16S.csv.zip")
     metadata_16s_zip     <- file.path(local, "VandeVelde_2022_metadata.csv.zip")
-
-    read_zipped_csv <- function(zip_path) {
-        if (file.exists(zip_path)) {
-            csv_file <- unzip(zip_path, list = TRUE)$Name[1]
-            read.csv(unz(zip_path, csv_file), row.names = 1, check.names = FALSE)
-        } else {
-            warning(paste("File not found:", zip_path))
-            return(NA)
-        }
-    }
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  # skip Genus
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
-
-    fill_na_zero_numeric <- function(x) {
-        if (is.data.frame(x)) {
-            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-        } else if (is.matrix(x) && is.numeric(x)) {
-            x[is.na(x)] <- 0
-        } else if (is.list(x)) {
-            x <- lapply(x, fill_na_zero_numeric)
-        }
-        x
-    }
+    sra_zip              <- file.path(local, "SraRunTable (39).csv.zip")
 
     # ----- Initialize everything as NA -----
     counts_original <- NA
@@ -70,6 +33,18 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     counts_reprocessed <- NA
     proportions_reprocessed <- NA
     tax_reprocessed <- NA
+
+    # ---- scale and metadata -----
+    scale     <- read_zipped_csv(scale_16s_zip) %>% as.data.frame() %>% rename(Sample = SampleID) %>%
+                    mutate(log2_FC = ifelse(10^load > 0, log2(10^mean_FC), NA)) %>%
+                    rename(log10_FC = load)
+
+    # no way to connect the metadata to the scale and counts because non similar sampleIDs, I suspect it might have to do with plate names but cant figure out.
+    # need to email authors about this, but also, there are a ton more samples in the metadata and reprocessed data and in the flow cytometry data that needs to be added.
+    # Actually the counts might be in supplementary data, but I dont really know if theyre useable for this -- i dont think so. so need to review study and ask authors about the genomic
+    # data connection to our scale. 
+    metadata  <- read_zipped_csv(metadata_16s_zip) %>% as.data.frame() %>% rename(Sample = SampleID)
+    sra       <- read_zipped_table(sra_zip) %>% rename(Accession = Run) 
 
     # ------ original counts ------
     counts_original <- read_zipped_csv(counts_16s_zip)
@@ -83,6 +58,11 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
             stringsAsFactors = FALSE
         )
 
+        if (!raw) {
+            aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+            counts_original = aligned$counts_original
+        }
+
         # ------ proportions from counts ------
         proportions_original <- t(counts_original)
         proportions_original <- as.data.frame(t(proportions_original / rowSums(proportions_original, na.rm = TRUE)))
@@ -91,11 +71,6 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
         proportions_original <- NA
         tax_original <- NA
     }
-
-    # ---- scale and metadata -----
-    scale     <- read_zipped_csv(scale_16s_zip)
-    metadata  <- read_zipped_csv(metadata_16s_zip)
-
 
     # ----- Reprocessed counts from RDS ZIP -----
     temp_rds <- tempfile(fileext = ".rds")
@@ -118,7 +93,10 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+    if (!raw) {
+        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+        counts_reprocessed = aligned$reprocessed
+    }
 
     # taxa
     if (!raw) {

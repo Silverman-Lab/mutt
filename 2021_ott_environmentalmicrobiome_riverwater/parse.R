@@ -1,10 +1,17 @@
-parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE) {
+parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tibble", "tidyverse", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
+  if (!is.logical(raw)) {
+    stop("raw must be a logical value")
+  }
+  if (!is.logical(align)) {
+    stop("align must be a logical value")
+  }
+
   library(tibble)
   library(tidyverse)
   library(readr)
@@ -17,27 +24,6 @@ parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE) {
   sra_zip              <- file.path(local, "SraRunTable (30).csv.zip")
   repro_counts_rds_zip <- file.path(local, "PRJEB42314_dada2_counts.rds.zip")
   repro_tax_zip        <- file.path(local, "PRJEB42314_dada2_taxa.rds.zip")
-
-  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-    if (file.exists(zip_path)) {
-      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-      con <- unz(zip_path, inner_file)
-      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-    } else {
-      warning(paste("File not found:", zip_path))
-      return(NA)
-    }
-  }
-  fill_na_zero_numeric <- function(x) {
-      if (is.data.frame(x)) {
-          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-      } else if (is.matrix(x) && is.numeric(x)) {
-          x[is.na(x)] <- 0
-      } else if (is.list(x)) {
-          x <- lapply(x, fill_na_zero_numeric)
-      }
-      x
-  }
 
   # ----- Initialize everything as NA -----
   counts_original <- NA
@@ -53,7 +39,9 @@ parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE) {
                       rename(Accession = run) 
 
   metadata <- full_join(metadata, sra, by = "Sample_name")
-  scale <- metadata %>% dplyr::select("Accession", "Sample_name", "S16_rRNA_ml") 
+  scale <- metadata %>% dplyr::select("Accession", "Sample_name", "S16_rRNA_ml") %>%
+                    mutate(log2_S16_rRNA_ml = ifelse(S16_rRNA_ml > 0, log2(S16_rRNA_ml), NA)) %>%
+                    mutate(log10_S16_rRNA_ml = ifelse(S16_rRNA_ml > 0, log10(S16_rRNA_ml), NA))
 
   # ----- Reprocessed counts from RDS ZIP -----
   temp_rds <- tempfile(fileext = ".rds")
@@ -70,37 +58,18 @@ parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE) {
   tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
   if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
   tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-
-  
-  # ----- Convert sequences to lowest rank taxonomy found and update key -----
-  make_taxa_label <- function(df) {
-      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-      prefixes  <- c("k", "p", "c", "o", "f", "g")
-      if (!all(tax_ranks %in% colnames(df))) {
-          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-      }
-      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-          x[is.na(x) | trimws(x) == ""] <- "unclassified"
-          x
-      })
-      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-          if (tax_row["Genus"] != "unclassified") {
-          return(paste0("g_", tax_row["Genus"]))
-          }
-          for (i in (length(tax_ranks)-1):1) {  # skip Genus
-          if (tax_row[i] != "unclassified") {
-              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-          }
-          }
-          return("unclassified")
-      })
-      return(df)
-  }
   tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # accessions to sampleIDs is study specific: IF NEED BE
-
+  if (!raw) {
+    aligned_counts <- rename_and_align(counts_reprocessed = counts_reprocessed,
+                                      metadata = metadata,
+                                      scale = scale,
+                                      by_col = "Sample_name",
+                                      align = align,
+                                      study_name = basename(local))
+    counts_reprocessed <- aligned_counts$counts_reprocessed
+  }
   # taxa
   if (!raw) {
       matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]

@@ -1,10 +1,17 @@
-parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE) {
+parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tibble", "tidyverse", "R.utils")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
+  if (!is.logical(raw) || length(raw) != 1) {
+    stop("`raw` must be a single logical value (TRUE or FALSE)")
+  }
+  if (!is.logical(align) || length(align) != 1) {
+    stop("`align` must be a single logical value (TRUE or FALSE)")
+  }
+
   library(tibble)
   library(tidyverse)
 
@@ -19,59 +26,23 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE) {
   motus_zip            <- file.path(local, "PRJNA860773_motus_merged.tsv.zip")
   metaphlan4_zip       <- file.path(local, "PRJNA860773_MetaPhlAn_merged.tsv.zip")
 
-  make_taxa_label <- function(df) {
-      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
-      prefixes  <- c("k", "p", "c", "o", "f", "g", "s")
-      if (!all(tax_ranks %in% colnames(df))) {
-          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-      }
-      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-          x[is.na(x) | trimws(x) == ""] <- "unclassified"
-          x
-      })
-      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-          if (tax_row["Genus"] != "unclassified") {
-          return(paste0("s_", tax_row["Species"]))
-          }
-          for (i in (length(tax_ranks)-1):1) { 
-          if (tax_row[i] != "unclassified") {
-              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-          }
-          }
-          return("unclassified")
-      })
-      return(df)
-  }
-
-  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-    if (file.exists(zip_path)) {
-    inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-    con <- unz(zip_path, inner_file)
-    read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-    } else {
-    warning(paste("File not found:", zip_path))
-    return(NA)
-    }
-  }
-  fill_na_zero_numeric <- function(x) {
-        if (is.data.frame(x)) {
-            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-        } else if (is.matrix(x) && is.numeric(x)) {
-            x[is.na(x)] <- 0
-        } else if (is.list(x)) {
-            x <- lapply(x, fill_na_zero_numeric)
-        }
-        x
-    }
-
   # scale
-  mockscale = read_zipped_table(mock_scale_zip, row.names=NULL) %>% as.data.frame()
+  mockscale = read_zipped_table(mock_scale_zip, row.names=NULL) %>% as.data.frame() %>% 
+                      mutate(log2_FC_mean = ifelse(Flow_mean > 0, log2(Flow_mean), NA)) %>%
+                      mutate(log2_FC_SD = ifelse(Flow_SD > 0, log2(Flow_SD), NA)) %>%
+                      mutate(log2_FC_qPCR_mean = ifelse(qPCR_mean > 0, log2(qPCR_mean), NA)) %>%
+                      mutate(log2_FC_qPCR_SD = ifelse(qPCR_SD > 0, log2(qPCR_SD), NA)) %>% 
+                      mutate(log10_FC_mean = ifelse(Flow_mean > 0, log10(Flow_mean), NA)) %>%
+                      mutate(log10_FC_SD = ifelse(Flow_SD > 0, log10(Flow_SD), NA)) %>%
+                      mutate(log10_FC_qPCR_mean = ifelse(qPCR_mean > 0, log10(qPCR_mean), NA)) %>%
+                      mutate(log10_FC_qPCR_SD = ifelse(qPCR_SD > 0, log10(qPCR_SD), NA))
+
 
   # metadata
-  sra = read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame()
+  sra = read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame() %>% rename(Accession = Run)
   # proportions
 
-  proportions = read_zipped_table(samples_prop_zip, row.names=NULL)
+  proportions = read_zipped_table(samples_prop_zip, row.names=NULL) %>% as.data.frame()
   proportions <- proportions %>%
   mutate(`Relative abundance %` = as.numeric(`Relative abundance %`)) %>%
   filter(!is.na(`Relative abundance %`), !is.na(classification), classification != "")  
@@ -83,8 +54,10 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE) {
       names_from = classification,
       values_from = `Relative abundance %`,
       values_fill = 0
-    ) %>%
+    ) %>% 
     column_to_rownames("bins")
+  
+
 
   # tax 
   tax <- tibble(
@@ -102,17 +75,14 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE) {
     tax[is.na(tax)] <- "unclassified"
     tax = make_taxa_label(tax)
     rownames(tax) <- tax$ogtaxonomy
-    if (!raw) {
-        matched_taxa <- tax$Taxa[match(colnames(proportions), rownames(tax))]
-        colnames(proportions) <- matched_taxa
-        proportions <- as.data.frame(t(rowsum(t(proportions), group = colnames(proportions))))
-    }
+    # if (!raw) {
+    #     matched_taxa <- tax$Taxa[match(colnames(proportions), rownames(tax))]
+    #     colnames(proportions) <- matched_taxa
+    #     proportions <- as.data.frame(t(rowsum(t(proportions), group = colnames(proportions))))
+    # }
 
-  mockproportions = read_zipped_table(mock_prop_zip, row.names=NULL)
-
-  mocktax <- tibble(
-    taxonomy = colnames(mockproportions)
-  )
+  mockproportions = read_zipped_table(mock_prop_zip, row.names=NULL) %>% as.data.frame()
+  mocktax <- tibble(taxonomy = colnames(mockproportions))
 
   # ----- Initialize everything as NA -----
   mOTU3_counts <- NA
@@ -134,6 +104,10 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE) {
         df <- read_tsv(motus_path)
         rownames(df) <- df[[1]]
         df[[1]] <- NULL
+        if (!raw) {
+            aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+            df = aligned$reprocessed
+        }
         proportions <- apply(df, 2, function(col) col / sum(col))
         tax_df <- data.frame(taxa = rownames(df)) %>%
         mutate(taxa = str_trim(taxa)) %>%
@@ -159,6 +133,10 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE) {
         df <- read_tsv(path)
         rownames(df) <- df[[1]]
         df[[1]] <- NULL
+        if (!raw) {
+            aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+            df = aligned$reprocessed
+        }
         proportions <- apply(df, 2, function(col) col / sum(col))
         tax_df <- data.frame(taxa = rownames(df)) %>%
         mutate(taxa = str_trim(taxa)) %>%
@@ -177,7 +155,7 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE) {
   if (!raw) {
       counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
       proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
-      #proportions = fill_na_zero_numeric(proportions)
+      proportions = fill_na_zero_numeric(proportions)
       mockproportions = fill_na_zero_numeric(mockproportions)
   }
 
@@ -193,7 +171,7 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE) {
                       ),
     proportions = list(original = list(
                         mock = mockproportions, 
-                        samples = proportions # NEEDS TO BE FIXED
+                        samples = proportions # NEEDS TO BE FIXED because bins do not match sra
                       ),
                       reprocessed = list(
                         mock = NA,

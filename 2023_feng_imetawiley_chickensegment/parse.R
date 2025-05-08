@@ -1,9 +1,15 @@
-parse_2023_feng_imetawiley_chickensegment <- function(raw=FALSE) {
+parse_2023_feng_imetawiley_chickensegment <- function(raw=FALSE, align=FALSE) {
     required_pkgs <- c("stringr", "tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
         stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
             ". Please install them before running this function.")
+    }
+    if (!is.logical(raw) || length(raw) != 1) {
+        stop("`raw` must be a single logical value (TRUE or FALSE)")
+    }
+    if (!is.logical(align) || length(align) != 1) {
+        stop("`align` must be a single logical value (TRUE or FALSE)")
     }
 
     library(stringr)
@@ -20,67 +26,38 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw=FALSE) {
     metadata_SRA_zip     <- file.path(local, "SraRunTable (34).csv.zip")
     scalereadin          <- file.path(local, "scale.csv.zip")
 
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-        if (file.exists(zip_path)) {
-        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-        con <- unz(zip_path, inner_file)
-        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-        } else {
-        warning(paste("File not found:", zip_path))
-        return(NA)
-        }
-    }
-
-    # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  # skip Genus
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
-    fill_na_zero_numeric <- function(x) {
-        if (is.data.frame(x)) {
-            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-        } else if (is.matrix(x) && is.numeric(x)) {
-            x[is.na(x)] <- 0
-        } else if (is.list(x)) {
-            x <- lapply(x, fill_na_zero_numeric)
-        }
-        x
-    }
-
+    # ----- scale and metadata -----
+    sra = read_zipped_table(metadata_SRA_zip, row.names=NULL) %>% 
+            rename(Accession = Run)
+    sra <- sra %>%
+        mutate(`Sample Name` = gsub("_", "E", `Sample Name`, fixed = TRUE)) %>%
+        separate(`Sample Name`, into = c("Sample", "Amplicontype"), sep = "E(?=[^E]*$)")
+    scale = read_zipped_table(scalereadin, row.names=NULL)
+    metadata = left_join(sra, scale %>% select(c("Segment","Date", "Number", "Sample")), by = "Sample")
+    scale = scale %>% select(-c("Segment","Date", "Number")) %>% 
+        mutate(log2_qPCR_16S = ifelse(10^qPCR_log10_16S > 0, log2(10^qPCR_log10_16S), NA)) %>%
+        mutate(log2_qPCR_ITS= ifelse(10^qPCR_log10_ITS > 0, log2(10^qPCR_log10_ITS), NA)) %>% 
+        rename(log10_qPCR_16S = qPCR_log10_16S, log10_qPCR_ITS = qPCR_log10_ITS)
 
     # ----- counts, tax, proportions -----
-
     counts_16s = read_zipped_table(counts_16s_zip, row.names=NULL) %>%
                     select(-c("Group1","Group2")) %>% rename(Sample = index) %>% 
                     as.data.frame()
     rownames(counts_16s) = counts_16s$Sample
     counts_16s$Sample = NULL
 
-
     counts_ITS = read_zipped_table(counts_ITS_zip, row.names=NULL) %>%
                     select(-c("Group1","Group2")) %>% rename(Sample = index) %>% 
                     as.data.frame()
     rownames(counts_ITS) = counts_ITS$Sample
     counts_ITS$Sample = NULL
+
+    if (!raw) {
+        aligned = rename_and_align(counts_original = counts_16s, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+        counts_16s = aligned$counts_original
+        aligned = rename_and_align(counts_original = counts_ITS, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+        counts_ITS = aligned$counts_original
+    }
 
     tax_16s <- data.frame(taxonomy = colnames(counts_16s), stringsAsFactors = FALSE)
     tax_ITS <- data.frame(taxonomy = colnames(counts_ITS), stringsAsFactors = FALSE)
@@ -133,20 +110,6 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw=FALSE) {
     proportions_16s <- sweep(counts_16s, MARGIN = 1,STATS  = rowSums(counts_16s), FUN = "/")
     proportions_ITS <- sweep(counts_ITS, MARGIN = 1,STATS  = rowSums(counts_ITS), FUN = "/")
 
-
-    # ----- scale and metadata -----
-
-    sra = read_zipped_table(metadata_SRA_zip, row.names=NULL) %>% 
-            rename(Accession = Run)
-    sra <- sra %>%
-        mutate(`Sample Name` = gsub("_", "E", `Sample Name`, fixed = TRUE)) %>%
-        separate(`Sample Name`, into = c("Sample", "Amplicontype"), sep = "E(?=[^E]*$)")
-
-    scale = read_zipped_table(scalereadin, row.names=NULL)
-
-    metadata = left_join(sra, scale %>% select(c("Segment","Date", "Number", "Sample")), by = "Sample")
-    scale = scale %>% select(-c("Segment","Date", "Number"))
-
     # ----- Reprocessed counts from RDS ZIP -----
     temp_rds <- tempfile(fileext = ".rds")
     unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
@@ -165,7 +128,10 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw=FALSE) {
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+    if (!raw) {
+        aligned = rename_and_align(counts_original = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+        counts_reprocessed = aligned$counts_original
+    }
 
     # taxa
     if (!raw) {

@@ -1,4 +1,4 @@
-parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
+parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "stringr", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -6,6 +6,12 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
             "Missing required packages: ", paste(missing_pkgs, collapse = ", "),
             ". Please install them before running this function."
         )
+    }
+    if (!is.logical(raw) || length(raw) != 1) {
+        stop("`raw` must be a single logical value (TRUE or FALSE)")
+    }
+    if (!is.logical(align) || length(align) != 1) {
+        stop("`align` must be a single logical value (TRUE or FALSE)")
     }
 
     # Load libraries
@@ -26,53 +32,27 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
     repro_counts_rds_zip <- file.path(local, "PRJNA575097_dada2_counts.rds.zip")
     repro_tax_zip        <- file.path(local, "PRJNA575097_dada2_taxa.rds.zip")
 
-    # ---- helper functions ----
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  # skip Genus
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
-    fill_na_zero_numeric <- function(x) {
-        if (missing(x)) return(NULL)
-        if (is.data.frame(x)) {
-            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-        } else if (is.matrix(x) && is.numeric(x)) {
-            x[is.na(x)] <- 0
-        } else if (is.list(x)) {
-            x <- lapply(x, fill_na_zero_numeric)
-        }
-        x
-    }
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-        if (file.exists(zip_path)) {
-        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-        con <- unz(zip_path, inner_file)
-        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-        } else {
-        warning(paste("File not found:", zip_path))
-        return(NA)
-        }
-    }
+    # ----- metadata ------
+    sra_metadata = read_zipped_table(sra_metadata_zip, row.names = NULL) %>% 
+                    mutate(Sample = str_replace_all(`Sample Name`, "_", " ")) %>% 
+                    rename(Accession = Run)
+    
+    # --- Scale (ddPCR) ---
+    scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
+    scale_path <- unzip(scale_zip, files = scale_csv, exdir = tempdir(), overwrite = TRUE)
+    scale <- read.csv(scale_path, row.names = NULL, stringsAsFactors = FALSE)
+    metadata <- full_join(sra_metadata, scale, by = "Sample") 
+    metadata = read_zipped_table(sraplusload_zip, row.names = NULL) %>% rename(Accession = Run) %>%
+                    full_join(metadata, by = "Accession")
+    dups <- duplicated(as.list(df))
+    metadata <- metadata[, !dups] 
+    scale = metadata %>% select(c("Sample" ,"Accession", "Total Load (16S Copies/g)")) %>%
+            mutate(log2_total_16S_copies_g = ifelse(`Total Load (16S Copies/g)` > 0, log2(`Total Load (16S Copies/g)`), NA)) %>% 
+            mutate(log10_total_16S_copies_g = ifelse(`Total Load (16S Copies/g)` > 0, log10(`Total Load (16S Copies/g)`), NA))
 
-    # --- proportions ---
+    metadata = metadata %>% select(-c("Total Load (16S Copies/g)"))
+
+        # --- proportions ---
     prop_csv <- unzip(proportions_zip, list = TRUE)$Name[1]
     prop_path <- unzip(proportions_zip, files = prop_csv, exdir = tempdir(), overwrite = TRUE)
     proportions <- read.csv(prop_path, row.names = 1, check.names = FALSE, stringsAsFactors = FALSE)
@@ -83,6 +63,11 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
     #     mutate(Sample = str_replace_all(Sample, "_", " "))
 
     proportions <- proportions %>% select(-c(Diet, Site, Day, mouse, Cage))
+
+    if (!raw) {
+        align = rename_and_align(proportions_original = proportions, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
+        proportions = align$proportions_original
+    }
 
     # --- Assign Taxon_1 ... Taxon_N as rownames and store original names ---
     original_taxa <- colnames(proportions)
@@ -116,23 +101,6 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
         colnames(proportions) <- matched_taxa
         proportions <- as.data.frame(t(rowsum(t(proportions), group = colnames(proportions))))
     }
-
-    # ----- metadata ------
-    sra_metadata = read_zipped_table(sra_metadata_zip, row.names = NULL) %>% 
-                    mutate(Sample = str_replace_all(`Sample Name`, "_", " ")) %>% 
-                    rename(Accession = Run)
-    
-    # --- Scale (ddPCR) ---
-    scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
-    scale_path <- unzip(scale_zip, files = scale_csv, exdir = tempdir(), overwrite = TRUE)
-    scale <- read.csv(scale_path, row.names = NULL, stringsAsFactors = FALSE)
-    metadata <- full_join(sra_metadata, scale, by = "Sample") 
-    metadata = read_zipped_table(sraplusload_zip, row.names = NULL) %>% rename(Accession = Run) %>%
-                    full_join(metadata, by = "Accession")
-    dups <- duplicated(as.list(df))
-    metadata <- metadata[, !dups] 
-    scale = metadata %>% select(c("Sample" ,"Accession", "Total Load (16S Copies/g)"))
-    metadata = metadata %>% select(-c("Total Load (16S Copies/g)"))
     
     # ----- Reprocessed counts from RDS ZIP -----
     temp_rds <- tempfile(fileext = ".rds")
@@ -155,7 +123,10 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE) {
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+    if (!raw) {
+        align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
+        counts_reprocessed = align$reprocessed
+    }
 
     # taxa
     if (!raw) {

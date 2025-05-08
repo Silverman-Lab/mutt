@@ -1,9 +1,15 @@
-parse_2017_vandeputte_nature_flow <- function(raw = FALSE) {
+parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("tibble", "tidyverse", "readxl")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
-    stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
+        stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
         ". Please install them before running this function.")
+    }
+    if (!is.logical(raw)) {
+        stop("raw must be a logical value")
+    }
+    if (!is.logical(align)) {
+        stop("align must be a logical value")
     }
     library(tibble)
     library(tidyverse)
@@ -21,64 +27,17 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE) {
     orig_prop_zip        <- NA
     repro_counts_rds_zip <- file.path(local, "PRJEB21504_dada2_counts.rds.zip")
     repro_tax_zip        <- file.path(local, "PRJEB21504_dada2_taxa.rds.zip")
-
-
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  # skip Genus
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
-    fill_na_zero_numeric <- function(x) {
-      if (missing(x)) return(NULL)
-      if (is.data.frame(x)) {
-          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-      } else if (is.matrix(x) && is.numeric(x)) {
-          x[is.na(x)] <- 0
-      } else if (is.list(x)) {
-          x <- lapply(x, fill_na_zero_numeric)
-      }
-      x
-    }
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-        if (file.exists(zip_path)) {
-        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-        con <- unz(zip_path, inner_file)
-        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-        } else {
-        warning(paste("File not found:", zip_path))
-        return(NA)
-        }
-    }
+    sra_zip              <- file.path(local, "SraRunTable (39).csv.zip")
 
     # ----- Metadata and Scale -----
     # Read scale
-    count_csv    <- unzip(metadata_two_zip, list = TRUE)$Name[1]
-    count_con    <- unz(metadata_two_zip, count_csv)
-    metadata_two <- read.csv(count_con) %>% as.data.frame()
+    metadata_two <- read_zipped_table(metadata_two_zip, row.names = NULL)  
 
     # Read metadata
-    meta_csv     <- unzip(metadata_zip, list = TRUE)$Name[1]
-    meta_con     <- unz(metadata_zip, meta_csv)
-    metadata_df  <- read.csv(meta_con) %>% as.data.frame()
+    metadata_df <- read_zipped_table(metadata_zip, row.names = NULL)
+    sra         <- read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run, Sample = Sample_name)
 
+    browser
     # Join and select
     df <- full_join(
     metadata_df,
@@ -94,6 +53,9 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE) {
       `Health status` = Health.status,
       Enterotype = Enterotype.x
     )
+
+    metadata = merge(metadata, sra, by = "Accession")
+
     scale <- df %>%
     select(
       Sample,
@@ -103,7 +65,10 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE) {
       `STDEV cell count (per gram of fresh feces)` = STDEV.cell.count..per.gram.of.fresh.feces.,
       `Average cell count (per gram of frozen feces)` = Average.cell.count..per.gram.of.frozen.feces..y,
       `STDEV cell count (per gram of frozen feces)` = STDEV.cell.count..per.gram.of.frozen.feces..y
-    )
+    ) %>% 
+    mutate(log2_FC_cell_g = ifelse(`Average cell count (per gram of fresh feces)`>0, log2(`Average cell count (per gram of fresh feces)`), NA)) %>%
+    mutate(log10_FC_cell_g = ifelse(`Average cell count (per gram of frozen feces)`>0, log10(`Average cell count (per gram of frozen feces)`), NA)) %>%
+
 
     # ----- Original counts from CSV.zip -----
     if (file.exists(orig_counts_zip)) {
@@ -113,9 +78,14 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE) {
     counts_original <- as.data.frame(orig_mat)
     counts_original$Sequence <- rownames(counts_original)
     counts_original <- counts_original[, c("Sequence", setdiff(names(counts_original), "Sequence"))]
-    rownames(counts_original) <- paste0("Taxon_", seq_len(nrow(counts_original)))
+    rownames(counts_original) <- counts_original$Sequence
     } else {
     counts_original <- NA
+    }
+
+    if (!raw) {
+        align <- rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+        counts_original <- align$counts_original
     }
 
     if (file.exists(orig_counts_zip)) {
@@ -149,42 +119,47 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE) {
     tax_original_rdp   <- read_taxonomy_zip(orig_tax_rdp_zip)
     tax_original_silva <- read_taxonomy_zip(orig_tax_silva_zip)
 
-    # ----- Reprocessed counts from RDS ZIP -----
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+    if (all(file.exists(repro_counts_rds_zip))) {
+      # ----- Reprocessed counts from RDS ZIP -----
+      temp_rds <- tempfile(fileext = ".rds")
+      unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+      rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+      if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+      counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-    # ----- Taxonomy reprocessed -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+      # ----- Taxonomy reprocessed -----
+      temp_tax <- tempfile(fileext = ".rds")
+      unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
 
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+      tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+      if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+      tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
 
 
-    # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    tax_reprocessed = make_taxa_label(tax_reprocessed)
+      # ----- Convert sequences to lowest rank taxonomy found and update key -----
+      tax_reprocessed = make_taxa_label(tax_reprocessed)
 
-    # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+      # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+      if (!raw) {
+          align <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+          counts_reprocessed <- align$counts_reprocessed
+      }
 
-    # taxa
-    if (!raw) {
-        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-        colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+      # taxa
+      if (!raw) {
+          matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+          colnames(counts_reprocessed) <- matched_taxa
+          counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+      }
+
+      # proportions reprocessed
+      proportions_reprocessed = counts_reprocessed
+      proportions_reprocessed[-1] <- lapply(
+          counts_reprocessed[-1],
+          function(col) col / sum(col)
+      )
     }
-
-    # proportions reprocessed
-    proportions_reprocessed = counts_reprocessed
-    proportions_reprocessed[-1] <- lapply(
-        counts_reprocessed[-1],
-        function(col) col / sum(col)
-    )
 
     if (!raw) {
       counts_original = fill_na_zero_numeric(counts_original)

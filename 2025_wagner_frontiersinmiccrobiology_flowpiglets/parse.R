@@ -1,4 +1,4 @@
-parse_2025_wagner_frontiersinmiccrobiology_flowpiglets <- function(raw = FALSE) {
+parse_2025_wagner_frontiersinmiccrobiology_flowpiglets <- function(raw = FALSE, align=FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "stringr", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -7,6 +7,13 @@ parse_2025_wagner_frontiersinmiccrobiology_flowpiglets <- function(raw = FALSE) 
             ". Please install them before running this function."
         )
     }
+    if (!is.logical(raw) || length(raw) != 1) {
+    stop("`raw` must be a single logical value (TRUE or FALSE)")
+    }
+    if (!is.logical(align) || length(align) != 1) {
+    stop("`align` must be a single logical value (TRUE or FALSE)")
+    }
+
 
     # Load libraries
     library(tidyverse)
@@ -19,106 +26,88 @@ parse_2025_wagner_frontiersinmiccrobiology_flowpiglets <- function(raw = FALSE) 
 
     # ----- File paths -----
     sra_metadata_zip     <- file.path(local, "SraRunTable (23).csv.zip")
+    sra_metadata_zip_2   <- file.path(local, "SraRunTable (24).csv.zip")
     counts               <- file.path(local, "counts.csv.zip")
     scale_zip            <- file.path(local, "scale.csv.zip")
-    repro_counts_rds_zip <- file.path(local, "PRJNA1229264_dada2_counts.rds.zip")
-    repro_tax_zip        <- file.path(local, "PRJNA1229264_dada2_taxa.rds.zip")
+    repro_counts_rds_zip <- c(
+        file.path(local, "PRJNA1229264_dada2_counts.rds.zip"),
+        file.path(local, "PRJNA800240_dada2_counts.rds.zip")
+    )
+    repro_tax_zip        <- c(
+        file.path(local, "PRJNA1229264_dada2_taxa.rds.zip"),
+        file.path(local, "PRJNA800240_dada2_taxa.rds.zip")
+    )
 
-    # ---- helper functions ----
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-        if (file.exists(zip_path)) {
-        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-        con <- unz(zip_path, inner_file)
-        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-        } else {
-        warning(paste("File not found:", zip_path))
-        return(NA)
-        }
-    }
-
-    make_taxa_label <- function(df) {
-      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-      prefixes  <- c("k", "p", "c", "o", "f", "g")
-      if (!all(tax_ranks %in% colnames(df))) {
-          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-      }
-      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-          x[is.na(x) | trimws(x) == ""] <- "unclassified"
-          x
-      })
-      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-          if (tax_row["Genus"] != "unclassified") {
-          return(paste0("g_", tax_row["Genus"]))
-          }
-          for (i in (length(tax_ranks)-1):1) {  # skip Genus
-          if (tax_row[i] != "unclassified") {
-              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-          }
-          }
-          return("unclassified")
-      })
-      return(df)
-    }
-
-    fill_na_zero_numeric <- function(x) {
-        if (is.data.frame(x)) {
-            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-        } else if (is.matrix(x) && is.numeric(x)) {
-            x[is.na(x)] <- 0
-        } else if (is.list(x)) {
-            x <- lapply(x, fill_na_zero_numeric)
-        }
-        x
-    }
-
-    # ---- counts, tax, proportions ----
+    # ---- counts, tax ----
     counts_original = read_zipped_table(counts) %>% t() %>% as.data.frame(stringsAsFactors = FALSE)
     counts_original[] <- lapply(counts_original, function(x) as.numeric(as.character(x)))
     tax_original = data.frame(taxonomy = colnames(counts_original))
+
+
+    # ---- proportions ----
     proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
 
     # ---- scale ----
-    scale = read_zipped_table(scale_zip, row.names = NULL) %>% as.data.frame()
+    scale <- read_zipped_table(scale_zip, row.names = NULL) %>%
+                as.data.frame() %>%
+                mutate(Sample = paste0("swine", `Swine no.`, "_d", day)) %>%
+                relocate(Sample, .before = 1) %>%
+                select(-`Swine no.`, -day) %>% 
+                mutate(across(where(is.numeric), ~ ifelse(. > 0, log2(.), NA), .names = "log2_{.col}"))
+
 
     # ---- metadata ----
-    metadata = read_zipped_table(sra_metadata_zip, row.names = NULL) %>% as.data.frame()
+    metadata = read_zipped_table(sra_metadata_zip, row.names = NULL) %>% as.data.frame() %>% rename(Accession = Run) %>%
+                mutate(Sample = gsub("^swine_(\\d+)_day_(\\d+)$", "swine\\1_d\\2", host_subject_id, perl = TRUE)) %>% relocate(Sample, .before = 1)
 
-    # ----- Reprocessed counts from RDS ZIP -----
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+    counts_reprocessed <- NA
+    proportions_reprocessed <- NA
+    tax_reprocessed <- NA
 
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+    if (all(file.exists(repro_counts_rds_zip))) {
+        # ----- Reprocessed counts from RDS ZIP -----
+        temp_rds <- tempfile(fileext = ".rds")
+        unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
-    # ----- Taxonomy reprocessed -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+        rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+        if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+        counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+        # ----- Taxonomy reprocessed -----
+        temp_tax <- tempfile(fileext = ".rds")
+        unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
 
-    
-    # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    tax_reprocessed = make_taxa_label(tax_reprocessed)
+        tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+        if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+        tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
 
-    # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+        
+        # ----- Convert sequences to lowest rank taxonomy found and update key -----
+        tax_reprocessed = make_taxa_label(tax_reprocessed)
 
-    # taxa
-    if (!raw) {
-        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-        colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+        # ----- Convert accessions to sample IDs / Sequences to Taxa ----- 
+        if (!raw) {
+        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, counts_original = counts_original,  proportions_original = proportions_original,
+                                    metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+        counts_reprocessed = aligned$reprocessed
+        counts_original = aligned$counts_original
+        proportions_original = aligned$proportions_original
+        }
+
+        # taxa
+        if (!raw) {
+            matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+            colnames(counts_reprocessed) <- matched_taxa
+            counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+        }
+
+        # proportions reprocessed
+        proportions_reprocessed = counts_reprocessed
+        proportions_reprocessed[-1] <- lapply(
+            counts_reprocessed[-1],
+            function(col) col / sum(col)
+        )
     }
-
-    # proportions reprocessed
-    proportions_reprocessed = counts_reprocessed
-    proportions_reprocessed[-1] <- lapply(
-        counts_reprocessed[-1],
-        function(col) col / sum(col)
-    )
 
     if (!raw) {
         counts_original = fill_na_zero_numeric(counts_original)

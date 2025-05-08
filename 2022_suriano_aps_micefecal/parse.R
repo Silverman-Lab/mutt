@@ -1,10 +1,17 @@
-parse_2022_suriano_aps_micefecal <- function(raw = FALSE) {
+parse_2022_suriano_aps_micefecal <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
         stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
             ". Please install them before running this function.")
     }
+    if (!is.logical(raw) || length(raw) != 1) {
+        stop("`raw` must be a single logical value (TRUE or FALSE)")
+    }
+    if (!is.logical(align) || length(align) != 1) {
+        stop("`align` must be a single logical value (TRUE or FALSE)")
+    }
+
     library(tidyverse)
     library(readxl)
     library(readr)
@@ -17,41 +24,6 @@ parse_2022_suriano_aps_micefecal <- function(raw = FALSE) {
     scale_zip               <- file.path(local,"Supplementary Table 6.xlsx.zip")
     repro_counts_rds_zip    <- file.path(local,"PRJEB53668_dada2_counts.rds.zip")
     repro_tax_zip           <- file.path(local,"PRJEB53668_dada2_taxa.rds.zip")
-
-    # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
-    fill_na_zero_numeric <- function(x) {
-        if (is.data.frame(x)) {
-            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-        } else if (is.matrix(x) && is.numeric(x)) {
-            x[is.na(x)] <- 0
-        } else if (is.list(x)) {
-            x <- lapply(x, fill_na_zero_numeric)
-        }
-        x
-    }
 
     # ----- metadata ---------------------------
     metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]  # list file inside zip
@@ -67,7 +39,9 @@ parse_2022_suriano_aps_micefecal <- function(raw = FALSE) {
     scale <- read_excel(scale_path, sheet = "Microbial loads")
     scale <- scale %>%
         select(Sample, `Cells.g.of.fecal.sample`) %>%
-        rename(Sample_name = Sample)
+        rename(Sample_name = Sample) %>%
+        mutate(log2_FC_cells_per_g = ifelse(`Cells.g.of.fecal.sample` > 0, log2(`Cells.g.of.fecal.sample`), NA)) %>%
+        mutate(log10_FC_cells_per_g = ifelse(`Cells.g.of.fecal.sample` > 0, log10(`Cells.g.of.fecal.sample`), NA))
     
     # ----- Reprocessed counts from RDS ZIP -----
     temp_rds <- tempfile(fileext = ".rds")
@@ -87,7 +61,10 @@ parse_2022_suriano_aps_micefecal <- function(raw = FALSE) {
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+    if (!raw) {
+        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+        counts_reprocessed = aligned$reprocessed
+    }
 
     # taxa
     if (!raw) {

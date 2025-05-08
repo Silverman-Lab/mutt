@@ -1,4 +1,4 @@
-parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE) {
+parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -6,6 +6,12 @@ parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE) {
             "Missing required packages: ", paste(missing_pkgs, collapse = ", "),
             ". Please install them before running this function."
         )
+    }
+    if (!is.logical(raw) || length(raw) != 1) {
+        stop("`raw` must be a single logical value (TRUE or FALSE)")
+    }
+    if (!is.logical(align) || length(align) != 1) {
+        stop("`align` must be a single logical value (TRUE or FALSE)")
     }
     # Load needed libraries
     library(tidyverse)
@@ -33,135 +39,7 @@ parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE) {
     MetaPhlAn4_proportions <- NA
     MetaPhlAn4_tax <- NA
 
-    # ----- Helper functions -----
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-      if (file.exists(zip_path)) {
-      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-      con <- unz(zip_path, inner_file)
-      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-      } else {
-      warning(paste("File not found:", zip_path))
-      return(NA)
-      }
-    }
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
-        prefixes  <- c("k", "p", "c", "o", "f", "g", "s")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Species"] != "unclassified") {
-            return(paste0("s_", tax_row["Species"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
-
-    fill_na_zero_numeric <- function(x) {
-        if (is.data.frame(x)) {
-            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-        } else if (is.matrix(x) && is.numeric(x)) {
-            x[is.na(x)] <- 0
-        } else if (is.list(x)) {
-            x <- lapply(x, fill_na_zero_numeric)
-        }
-        x
-    }
-
-    # ----- original proportions --
-
-    if (file.exists(original_proportions_zip)) {
-        zinfo <- unzip(original_proportions_zip, list = TRUE)
-        tsv_name <- zinfo$Name[grepl("\\.tsv$", zinfo$Name)][1]
-        if (is.na(tsv_name)) stop("No .tsv file found inside ", original_proportions_zip)
-        tmpdir <- tempfile("orig_prop_")
-        dir.create(tmpdir)
-        unzip(original_proportions_zip, files = tsv_name, exdir = tmpdir)
-        tsv_path <- file.path(tmpdir, tsv_name)
-        counts_original <- read.delim(tsv_path, row.names = 1, check.names = FALSE)
-        counts_original <- as.data.frame(counts_original)
-        counts_original <- counts_original %>%
-            rename(Sample = SampleID)
-        counts_original <- counts_original %>%
-            mutate(
-            Sample = if_else(
-                str_detect(Sample, "^x"),
-                paste0("M0", Sample),
-                Sample
-            )
-        )
-        proportions_original <- sweep(counts_original, 2, colSums(counts_original), FUN = "/")
-        old_colnames <- colnames(proportions_original)
-        tax_original <- data.frame(
-        Taxa = old_colnames,
-        stringsAsFactors = FALSE
-        )
-        unlink(tmpdir, recursive = TRUE)
-    }
-
-    # ----- mOTU3 Reprocessed -----
-    if (file.exists(motus_zip)) {
-        motus_files <- unzip(motus_zip, list = TRUE)
-        motus_filename <- motus_files$Name[grepl("\\.tsv$", motus_files$Name)][1]
-        if (!is.na(motus_filename)) {
-            temp_dir <- tempdir()
-            unzip(motus_zip, files = motus_filename, exdir = temp_dir, overwrite = TRUE)
-            motus_path <- file.path(temp_dir, motus_filename)
-            df <- read_tsv(motus_path)
-            rownames(df) <- df[[1]]
-            df[[1]] <- NULL
-            proportions <- apply(df, 2, function(col) col / sum(col))
-            tax_df <- data.frame(taxa = rownames(df)) %>%
-            mutate(taxa = str_trim(taxa)) %>%
-            separate(taxa,
-                    into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
-                    sep = "\\s*;\\s*", extra = "drop", fill = "right")
-            rownames(tax_df) <- rownames(df)
-
-            mOTU3_counts <- df
-            mOTU3_proportions <- proportions
-            mOTU3_tax <- tax_df
-        }
-    }
-
-    # ----- MetaPhlAn4 Reprocessed -----
-    if (file.exists(metaphlan4_zip)) {
-        metaphlan4_files <- unzip(metaphlan4_zip, list = TRUE)
-        metaphlan4_filename <- metaphlan4_files$Name[grepl("\\.tsv$", metaphlan4_files$Name)][1]
-        if (!is.na(metaphlan4_filename)) {
-            temp_dir <- tempdir()
-            unzip(metaphlan4_zip, files = metaphlan4_filename, exdir = temp_dir, overwrite = TRUE)
-            path <- file.path(temp_dir, metaphlan4_filename)
-            df <- read_tsv(path)
-            rownames(df) <- df[[1]]
-            df[[1]] <- NULL
-            proportions <- apply(df, 2, function(col) col / sum(col))
-            tax_df <- data.frame(taxa = rownames(df)) %>%
-            mutate(taxa = str_trim(taxa)) %>%
-            separate(taxa,
-                    into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
-                    sep = "\\s*;\\s*", extra = "drop", fill = "right")
-            rownames(tax_df) <- rownames(df)
-
-            MetaPhlAn4_counts <- df
-            MetaPhlAn4_proportions <- proportions
-            MetaPhlAn4_tax <- tax_df
-        }
-    }
-
-
-    # ----- Metadata -----
+        # ----- Metadata -----
     metadata <- NA
     if (file.exists(metadata_zip)) {
         metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
@@ -199,8 +77,105 @@ parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE) {
         unlink(tmpdir, recursive = TRUE)
     }
 
+    scale = scale %>% 
+        mutate(log2_FC_cells_g = ifelse(`Faecal microbial load (cells/g)` > 0, log2(`Faecal microbial load (cells/g)`), NA)) %>%
+        mutate(log10_FC_cells_g = ifelse(`Faecal microbial load (cells/g)` > 0, log10(`Faecal microbial load (cells/g)`), NA))
+
     metadata <- metadata %>%
         full_join(metadata2, by = "Sample")
+
+    # ----- original proportions --
+
+    if (file.exists(original_proportions_zip)) {
+        zinfo <- unzip(original_proportions_zip, list = TRUE)
+        tsv_name <- zinfo$Name[grepl("\\.tsv$", zinfo$Name)][1]
+        if (is.na(tsv_name)) stop("No .tsv file found inside ", original_proportions_zip)
+        tmpdir <- tempfile("orig_prop_")
+        dir.create(tmpdir)
+        unzip(original_proportions_zip, files = tsv_name, exdir = tmpdir)
+        tsv_path <- file.path(tmpdir, tsv_name)
+        counts_original <- read.delim(tsv_path, row.names = 1, check.names = FALSE)
+        counts_original <- as.data.frame(counts_original)
+        counts_original <- counts_original %>%
+            rename(Sample = SampleID)
+        counts_original <- counts_original %>%
+            mutate(
+            Sample = if_else(
+                str_detect(Sample, "^x"),
+                paste0("M0", Sample),
+                Sample
+            )
+        )
+        if (!raw) {
+            align = rename_and_align((counts_original= counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local)))
+            counts_original = align$reprocessed
+        }
+        proportions_original <- sweep(counts_original, 2, colSums(counts_original), FUN = "/")
+        old_colnames <- colnames(proportions_original)
+        tax_original <- data.frame(
+        Taxa = old_colnames,
+        stringsAsFactors = FALSE
+        )
+        unlink(tmpdir, recursive = TRUE)
+    }
+
+    # ----- mOTU3 Reprocessed -----
+    if (file.exists(motus_zip)) {
+        motus_files <- unzip(motus_zip, list = TRUE)
+        motus_filename <- motus_files$Name[grepl("\\.tsv$", motus_files$Name)][1]
+        if (!is.na(motus_filename)) {
+            temp_dir <- tempdir()
+            unzip(motus_zip, files = motus_filename, exdir = temp_dir, overwrite = TRUE)
+            motus_path <- file.path(temp_dir, motus_filename)
+            df <- read_tsv(motus_path)
+            rownames(df) <- df[[1]]
+            df[[1]] <- NULL
+            if (!raw) {
+                align = rename_and_align((counts_reprocessed = df, metadata = metadata, scale = scale,  by_col = "SampleID",align = align, study_name = basename(local)))
+                df = align$reprocessed
+            }
+            proportions <- apply(df, 2, function(col) col / sum(col))
+            tax_df <- data.frame(taxa = rownames(df)) %>%
+            mutate(taxa = str_trim(taxa)) %>%
+            separate(taxa,
+                    into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
+                    sep = "\\s*;\\s*", extra = "drop", fill = "right")
+            rownames(tax_df) <- rownames(df)
+
+            mOTU3_counts <- df
+            mOTU3_proportions <- proportions
+            mOTU3_tax <- tax_df
+        }
+    }
+
+    # ----- MetaPhlAn4 Reprocessed -----
+    if (file.exists(metaphlan4_zip)) {
+        metaphlan4_files <- unzip(metaphlan4_zip, list = TRUE)
+        metaphlan4_filename <- metaphlan4_files$Name[grepl("\\.tsv$", metaphlan4_files$Name)][1]
+        if (!is.na(metaphlan4_filename)) {
+            temp_dir <- tempdir()
+            unzip(metaphlan4_zip, files = metaphlan4_filename, exdir = temp_dir, overwrite = TRUE)
+            path <- file.path(temp_dir, metaphlan4_filename)
+            df <- read_tsv(path)
+            rownames(df) <- df[[1]]
+            df[[1]] <- NULL
+            if (!raw) {
+                align = rename_and_align((counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local)))
+                df = align$reprocessed
+            }
+            proportions <- apply(df, 2, function(col) col / sum(col))
+            tax_df <- data.frame(taxa = rownames(df)) %>%
+            mutate(taxa = str_trim(taxa)) %>%
+            separate(taxa,
+                    into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
+                    sep = "\\s*;\\s*", extra = "drop", fill = "right")
+            rownames(tax_df) <- rownames(df)
+
+            MetaPhlAn4_counts <- df
+            MetaPhlAn4_proportions <- proportions
+            MetaPhlAn4_tax <- tax_df
+        }
+    }
 
     if (!raw) {
         counts_original = fill_na_zero_numeric(counts_original)

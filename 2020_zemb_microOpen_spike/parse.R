@@ -1,4 +1,4 @@
-parse_2020_zemb_microOpen_spike <- function(raw = FALSE) {
+parse_2020_zemb_microOpen_spike <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "stringr", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -6,6 +6,12 @@ parse_2020_zemb_microOpen_spike <- function(raw = FALSE) {
             "Missing required packages: ", paste(missing_pkgs, collapse = ", "),
             ". Please install them before running this function."
         )
+    }
+    if (!is.logical(raw) || length(raw) != 1) {
+        stop("`raw` must be a single logical value (TRUE or FALSE)")
+    }
+    if (!is.logical(align) || length(align) != 1) {
+        stop("`align` must be a single logical value (TRUE or FALSE)")
     }
 
     # Load libraries
@@ -25,51 +31,6 @@ parse_2020_zemb_microOpen_spike <- function(raw = FALSE) {
     repro_counts_rds_zip <- file.path(local, "PRJNA531076_dada2_counts.rds.zip")
     repro_tax_zip        <- file.path(local, "PRJNA531076_dada2_taxa.rds.zip")
 
-    # ---- helper functions ----
-    make_taxa_label <- function(df) {
-      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-      prefixes  <- c("k", "p", "c", "o", "f", "g")
-      if (!all(tax_ranks %in% colnames(df))) {
-          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-      }
-      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-          x[is.na(x) | trimws(x) == ""] <- "unclassified"
-          x
-      })
-      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-          if (tax_row["Genus"] != "unclassified") {
-          return(paste0("g_", tax_row["Genus"]))
-          }
-          for (i in (length(tax_ranks)-1):1) {  # skip Genus
-          if (tax_row[i] != "unclassified") {
-              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-          }
-          }
-          return("unclassified")
-      })
-      return(df)
-    }
-    fill_na_zero_numeric <- function(x) {
-        if (is.data.frame(x)) {
-            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-        } else if (is.matrix(x) && is.numeric(x)) {
-            x[is.na(x)] <- 0
-        } else if (is.list(x)) {
-            x <- lapply(x, fill_na_zero_numeric)
-        }
-        x
-    }
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-        if (file.exists(zip_path)) {
-        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-        con <- unz(zip_path, inner_file)
-        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-        } else {
-        warning(paste("File not found:", zip_path))
-        return(NA)
-        }
-    }
-
     # --- Metadata ---
     metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
     metadata_path <- unzip(metadata_zip, files = metadata_csv, exdir = tempdir(), overwrite = TRUE)
@@ -77,10 +38,40 @@ parse_2020_zemb_microOpen_spike <- function(raw = FALSE) {
 
     sra_metadata_csv <- unzip(sra_metadata_zip, list = TRUE)$Name[1]
     sra_metadata_path <- unzip(sra_metadata_zip, files = sra_metadata_csv, exdir = tempdir(), overwrite = TRUE)
-    sra_metadata <- read.csv(sra_metadata_path, row.names = 1, stringsAsFactors = FALSE)
+    sra_metadata <- read.csv(sra_metadata_path, row.names = 1, stringsAsFactors = FALSE) %>% rename(Accession = Run)
     rownames(sra_metadata) <- sra_metadata$Sample.Name
     sra_metadata <- subset(sra_metadata, select = -Sample.Name)
     rownames(sra_metadata) <- paste0("oz1802-", str_extract(rownames(sra_metadata), "(?<=Tube).*")) 
+
+    # --- Scale (qPCR) ---
+    scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
+    scale_path <- unzip(scale_zip, files = scale_csv, exdir = tempdir(), overwrite = TRUE)
+    scale <- read.csv(scale_path, row.names = 1, stringsAsFactors = FALSE) %>%
+        rename(
+            standard_measure1_copies_per_ul = "Std_M1(copies/ulPCR)",
+            standard_measure2_copies_per_ul = "Std_M2(copies/ulPCR)", 
+            standard_measure3_copies_per_ul = "Std_M3(copies/ulPCR)",
+            standard_copies_in_tube = "Std_in_tube (copies)",
+            pcr_efficiency = "efficiency",
+            total_16s_measure1_copies_per_ul = "total16S_M1(copies/ul pcr)",
+            total_16s_measure2_copies_per_ul = "total16S_M2(copies/ul pcr)", 
+            total_16s_measure3_copies_per_ul = "total16S_M3(copies/ul pcr)",
+            average_16s_copies_per_ul = "average16S(copies/ul pcr)",
+            average_16s_copies_in_tube = "average16S(copies_in_tube)",
+            average_16s_copies_per_mg = "average16S(copies/mg)"
+        ) %>%
+        mutate(
+            log2_copies_ul = ifelse(average_16s_copies_per_ul > 0, log2(average_16s_copies_per_ul), NA),
+            log10_copies_ul = ifelse(average_16s_copies_per_ul > 0, log10(average_16s_copies_per_ul), NA),
+            log2_copies_mg = ifelse(average_16s_copies_per_mg > 0, log2(average_16s_copies_per_mg), NA),
+            log10_copies_mg = ifelse(average_16s_copies_per_mg > 0, log10(average_16s_copies_per_mg), NA),
+            log2_copies_tube = ifelse(average_16s_copies_in_tube > 0, log2(average_16s_copies_in_tube), NA),
+            log10_copies_tube = ifelse(average_16s_copies_in_tube > 0, log10(average_16s_copies_in_tube), NA)
+        )
+
+
+    # Merge sra_metadata and metadata
+    metadata = cbind(metadata, sra_metadata[rownames(metadata), , drop = FALSE])
 
     # --- Counts ---
     counts_csv <- unzip(counts_zip, list = TRUE)$Name[1]
@@ -88,29 +79,17 @@ parse_2020_zemb_microOpen_spike <- function(raw = FALSE) {
     counts = read.csv(counts_path, row.names = 1, stringsAsFactors = FALSE)
     colnames(counts) <- paste0("oz1802-", str_extract(colnames(counts), "(?<=Tube).*"))
 
-    # --- Scale (qPCR) ---
-    scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
-    scale_path <- unzip(scale_zip, files = scale_csv, exdir = tempdir(), overwrite = TRUE)
-    scale <- read.csv(scale_path, row.names = 1, stringsAsFactors = FALSE)
-
-    # counts <- counts[, colnames(counts) %in% rownames(metadata)]
-    # metadata <- metadata[rownames(metadata) %in% colnames(counts), ]
-    # scale = scale[rownames(scale) %in% colnames(counts), ]
-    # sra_metadata <- sra_metadata[rownames(sra_metadata) %in% colnames(counts), ]
-
-    # Merge sra_metadata and metadata
-    metadata = cbind(metadata, sra_metadata[rownames(metadata), , drop = FALSE])
-
-    # Check alignment
-    # all.equal(rownames(metadata), rownames(scale))
-    # all.equal(colnames(counts), rownames(scale))
-
     # --- Create taxa dataframe ---
     original_taxa <- rownames(counts)
     tax <- data.frame(
     Taxa = original_taxa,
     stringsAsFactors = FALSE
     )
+
+    if (!raw) {
+        align <- rename_and_align(counts_original = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+        counts <- align$counts_original
+    }
 
     # --- Compute proportions from counts ---
     proportions <- counts
@@ -148,7 +127,10 @@ parse_2020_zemb_microOpen_spike <- function(raw = FALSE) {
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+    if (!raw) {
+        align <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+        counts_reprocessed <- align$reprocessed
+    }
 
     # taxa
     if (!raw) {

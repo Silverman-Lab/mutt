@@ -1,9 +1,15 @@
-parse_2017_props_isme_longitudinal <- function(raw = FALSE) {
+parse_2017_props_isme_longitudinal <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tibble", "tidyverse", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
+  }
+  if (!is.logical(raw)) {
+    stop("raw must be a logical value")
+  }
+  if (!is.logical(align)) {
+    stop("align must be a logical value")
   }
   library(tibble)
   library(tidyverse)
@@ -21,51 +27,33 @@ parse_2017_props_isme_longitudinal <- function(raw = FALSE) {
   repro_counts_rds_zip <- file.path(local, "SRP066190_dada2_counts.rds.zip")
   repro_tax_zip        <- file.path(local, "SRP066190_dada2_taxa.rds.zip")
 
-  # ---- helper functions ----
-  make_taxa_label <- function(df) {
-    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-    prefixes  <- c("k", "p", "c", "o", "f", "g")
-    if (!all(tax_ranks %in% colnames(df))) {
-        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-    }
-    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-        x[is.na(x) | trimws(x) == ""] <- "unclassified"
-        x
-    })
-    df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-        if (tax_row["Genus"] != "unclassified") {
-        return(paste0("g_", tax_row["Genus"]))
-        }
-        for (i in (length(tax_ranks)-1):1) {  # skip Genus
-        if (tax_row[i] != "unclassified") {
-            return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-        }
-        }
-        return("unclassified")
-    })
-    return(df)
-  }
-  fill_na_zero_numeric <- function(x) {
-  if (missing(x)) return(NULL)
-  if (is.data.frame(x)) {
-      x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-  } else if (is.matrix(x) && is.numeric(x)) {
-      x[is.na(x)] <- 0
-  } else if (is.list(x)) {
-      x <- lapply(x, fill_na_zero_numeric)
-  }
-  x
-  }
-  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-      if (file.exists(zip_path)) {
-      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-      con <- unz(zip_path, inner_file)
-      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-      } else {
-      warning(paste("File not found:", zip_path))
-      return(NA)
-      }
-  }
+  # ------ metadata and scale -----
+  meta_csv     <- unzip(metadata_zip_2, list = TRUE)$Name[1]
+  meta_con     <- unz(metadata_zip_2, meta_csv)
+  metadata     <- read.csv(meta_con) %>% as.data.frame()
+  metadata     <- metadata %>%
+        mutate(Sample_name = as.integer(gsub("[^0-9]", "", Sample_name)))
+  metadata <- metadata %>%
+    dplyr::rename(
+      `Cell.density (cells/mL)` = Cell.density..cells.mL.,
+      `Cell.density.sd (cells/mL)` = Cell.density.sd..cells.mL.
+    )
+  scale = metadata %>%
+                dplyr::select("Sample_name", "Cell.density (cells/mL)","Cell.density.sd (cells/mL") %>%
+                mutate(log2_FC_cell_ml = ifelse(`Cell.density (cells/mL)`>0, log2(`Cell.density (cells/mL)`), NA)) %>%
+                mutate(log10_FC_cell_ml = ifelse(`Cell.density (cells/mL)`>0, log10(`Cell.density (cells/mL)`), NA))
+
+  meta_csv     <- unzip(metadata_sra_zip, list = TRUE)$Name[1]
+  meta_con     <- unz(metadata_sra_zip, meta_csv)
+  sra          <- read.csv(meta_con) %>% as.data.frame()
+
+  meta_csv      <- unzip(metadata_zip, list = TRUE)$Name[1]
+  meta_con      <- unz(metadata_zip, meta_csv)
+  metadata_supp     <- read.csv(meta_con) %>% as.data.frame()
+  metadata_supp     <- metadata_supp %>%
+        mutate(Sample_name = as.integer(gsub("[^0-9]", "", Sample_name)))
+
+  metadata = full_join(metadata, sra, by = "Sample_name")
 
   # ------ original counts, proportions, tax ---- 
   shared_file <- unzip(original_counts_zip, list = TRUE)$Name[1]
@@ -87,37 +75,15 @@ parse_2017_props_isme_longitudinal <- function(raw = FALSE) {
     row.names = NULL,   
     check.names = FALSE    
   )
+  if (!raw) {
+    align <- rename_and_align(counts_original = original_counts, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
+    original_counts = align$original
+  }
   otu_matrix <- original_counts %>% select(-Sample_name) %>% as.matrix()
   otu_prop <- sweep(otu_matrix, 1, rowSums(otu_matrix), FUN = "/")
   otu_prop[is.na(otu_prop)] <- 0
 
   original_proportions = bind_cols(Sample = original_counts$Sample_name, as_tibble(otu_prop))
-
-  # ------ metadata and scale -----
-  meta_csv     <- unzip(metadata_zip_2, list = TRUE)$Name[1]
-  meta_con     <- unz(metadata_zip_2, meta_csv)
-  metadata     <- read.csv(meta_con) %>% as.data.frame()
-  metadata     <- metadata %>%
-        mutate(Sample_name = as.integer(gsub("[^0-9]", "", Sample_name)))
-  metadata <- metadata %>%
-    dplyr::rename(
-      `Cell.density (cells/mL)` = Cell.density..cells.mL.,
-      `Cell.density.sd (cells/mL)` = Cell.density.sd..cells.mL.
-    )
-  scale = metadata %>%
-                dplyr::select("Sample_name", "Cell.density (cells/mL)","Cell.density.sd (cells/mL")
-
-  meta_csv     <- unzip(metadata_sra_zip, list = TRUE)$Name[1]
-  meta_con     <- unz(metadata_sra_zip, meta_csv)
-  sra          <- read.csv(meta_con) %>% as.data.frame()
-
-  meta_csv      <- unzip(metadata_zip, list = TRUE)$Name[1]
-  meta_con      <- unz(metadata_zip, meta_csv)
-  metadata_supp     <- read.csv(meta_con) %>% as.data.frame()
-  metadata_supp     <- metadata_supp %>%
-        mutate(Sample_name = as.integer(gsub("[^0-9]", "", Sample_name)))
-
-  metadata = full_join(metadata, sra, by = "Sample_name")
 
   # ----- Reprocessed counts from RDS ZIP -----
   temp_rds <- tempfile(fileext = ".rds")
@@ -139,7 +105,10 @@ parse_2017_props_isme_longitudinal <- function(raw = FALSE) {
   tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # accessions to sampleIDs is study specific: IF NEED BE
+  if (!raw) {
+    align <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
+    counts_reprocessed = align$reprocessed
+  }
 
   # taxa
   if (!raw) {

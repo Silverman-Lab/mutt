@@ -1,4 +1,4 @@
-parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE) {
+parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -7,6 +7,13 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE) {
             ". Please install them before running this function."
         )
     }
+    if (!is.logical(raw) || length(raw) != 1) {
+    stop("`raw` must be a single logical value (TRUE or FALSE)")
+    }
+    if (!is.logical(align) || length(align) != 1) {
+    stop("`align` must be a single logical value (TRUE or FALSE)")
+    }
+
     # Load needed libraries
     library(tidyverse)
     library(readxl)
@@ -38,52 +45,20 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE) {
     MetaPhlAn4_proportions <- NA
     MetaPhlAn4_tax <- NA
 
-    # ----- Helper functions -----
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-      if (file.exists(zip_path)) {
-      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-      con <- unz(zip_path, inner_file)
-      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-      } else {
-      warning(paste("File not found:", zip_path))
-      return(NA)
-      }
-    }
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
-        prefixes  <- c("k", "p", "c", "o", "f", "g", "s")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Species"] != "unclassified") {
-            return(paste0("s_", tax_row["Species"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
+    # ----- Metadata -----  
+    sra         = read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame() %>% rename(Accession = Run, Sample = `Sample Name`)
+    metadata1   = read_zipped_table(metadata_three_zip, row.names=NULL) %>% as.data.frame()
+    metadata2   = read_zipped_table(metadata_two_zip, row.names=NULL) %>% as.data.frame()
+    metadata    = sra %>% full_join(metadata1, by = "Sample") %>% full_join(metadata2, by = "Sample")
 
-    fill_na_zero_numeric <- function(x) {
-    if (missing(x)) return(NULL)
-    if (is.data.frame(x)) {
-        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-    } else if (is.matrix(x) && is.numeric(x)) {
-        x[is.na(x)] <- 0
-    } else if (is.list(x)) {
-        x <- lapply(x, fill_na_zero_numeric)
-    }
-    x
-    }
+    # ----- Scale -----
+    scale       = read_zipped_table(scale_zip, row.names=NULL) %>% as.data.frame() %>% mutate(log2_Total_Cells_Per_sq_cm = ifelse(Total_Cells_Per_sq_cm > 0,
+                                    log2(Total_Cells_Per_sq_cm),NA)) %>% mutate(log10_Total_Cells_Per_sq_cm = ifelse(Total_Cells_Per_sq_cm > 0, 
+                                    log10(Total_Cells_Per_sq_cm),NA))
+    colnames(scale) <- gsub("\\n", "", colnames(scale))
+    mergedmeta  = scale %>% select(c("Sample", "Dilution", "Bead_Number", "Bacteria_Single_Cell_Number", "AccuCount_Particle_Number_30uL", "Volume_Run_In_Machine_uL", "Swab_Area_sq_cm", "PBS_Volume_For_Swab_uL"))                                          
+    scale       = scale %>% select(-c( "Dilution", "Bead_Number", "Bacteria_Single_Cell_Number","AccuCount_Particle_Number_30uL", "Volume_Run_In_Machine_uL", "Swab_Area_sq_cm", "PBS_Volume_For_Swab_uL"))  
+    metadata    = metadata %>% full_join(mergedmeta, by = "Sample")
 
     # ----- original counts, tax, proportions -----
     counts_original = read_zipped_table(original_counts_zip, sep = "\t", row.names=NULL) %>% 
@@ -94,6 +69,7 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE) {
     # --- taxa ---
     tax_original = read_zipped_table(tax_zip, sep = "\t", row.names=NULL) %>% as.data.frame() %>% 
                     rename(OTU_ID = gotu, taxonomy = strain) %>% select(-c("covered_length", "total_length"))
+    tax_original$ogtaxonomy = tax_original$taxonomy                
     tax_original <- tax_original %>% separate(taxonomy,
            into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
            sep = ";", fill = "right") %>% mutate(across(Kingdom:Strain, ~ gsub("^[a-z]__+", "", .)))                
@@ -103,26 +79,15 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE) {
     rownames(counts_numeric) <- rownames(counts_original)
     counts_original = counts_numeric
     if (!raw) {
-        matched_taxa <- tax_original$Taxa[match(colnames(counts_original), rownames(tax_original))]
+        matched_taxa <- tax_original$ogtaxonomy[match(colnames(counts_original), rownames(tax_original))]
         colnames(counts_original) <- matched_taxa
         counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
+        aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample", align = align)
+        counts_original = aligned$counts_original
     }
 
     # ------ proportions from counts ------
     proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
-
-    # ----- Metadata -----  
-    sra         = read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame() %>% 
-                    rename(Accession = Run, Sample = `Sample Name`)
-    metadata1   = read_zipped_table(metadata_three_zip, row.names=NULL) %>% as.data.frame()
-    metadata2   = read_zipped_table(metadata_two_zip, row.names=NULL) %>% as.data.frame()
-
-    metadata    = sra %>%
-        full_join(metadata1, by = "Sample") %>%
-        full_join(metadata2, by = "Sample")
-
-    # ----- Scale -----
-    scale       = read_zipped_table(scale_zip, row.names=NULL) %>% as.data.frame()
 
     # ----- mOTU3 Reprocessed -----
     if (file.exists(motus_zip)) {
@@ -135,6 +100,10 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE) {
             df <- read_tsv(motus_path)
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
+            if (!raw) {
+                aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align)
+                df = aligned$reprocessed
+            }
             proportions <- apply(df, 2, function(col) col / sum(col))
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
@@ -160,6 +129,10 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE) {
             df <- read_tsv(path)
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
+            if (!raw) {
+                aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align)
+                df = aligned$reprocessed
+            }
             proportions <- apply(df, 2, function(col) col / sum(col))
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%

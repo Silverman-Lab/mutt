@@ -1,28 +1,45 @@
-parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,entrez_key = NULL) {
-  if (is.null(entrez_key) || !nzchar(entrez_key)) {
-    stop(
-      "You must provide a valid NCBI Entrez API key via the `entrez_key` argument.\n",
-      "To create or retrieve your key:\n",
-      "  1) Visit: https://www.ncbi.nlm.nih.gov/account/\n",
-      "  2) Sign in or create an account\n",
-      "  3) Go to 'Settings' → 'API Keys' and generate a new key\n",
-      "  4) Provide that key to this function, e.g.:\n",
-      "     parse_2019_viera-silva_naturemicrobiology_pscibd(entrez_key = \"YOUR_KEY_HERE\")"
-    )
-  }
+parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,align=FALSE,entrez_key = NULL) {
+  # if (is.null(entrez_key) || !nzchar(entrez_key)) {
+  #   message("No NCBI Entrez API key provided.")
+  #   response <- readline(prompt = "Would you like to enter an NCBI API key? (y/n): ")
+  #   if (tolower(substr(response, 1, 1)) == "y") {
+  #     entrez_key <- readline(prompt = "Please enter your NCBI API key: ")
+  #     if (!nzchar(entrez_key)) {
+  #       message("No key entered. Proceeding without API key.")
+  #     }
+  #   } else {
+  #     message("Proceeding without API key.")
+  #     message(
+  #     "You should provide a valid NCBI Entrez API key via the `entrez_key` argument.\n",
+  #     "To create or retrieve your key:\n",
+  #     "  1) Visit: https://www.ncbi.nlm.nih.gov/account/\n",
+  #     "  2) Sign in or create an account\n",
+  #     "  3) Go to 'Settings' → 'API Keys' and generate a new key\n",
+  #     "  4) Provide that key to this function, e.g.:\n",
+  #     "     parse_2019_viera-silva_naturemicrobiology_pscibd(entrez_key = \"YOUR_KEY_HERE\")"
+  #     )
+  #   }
+  # }
 
-  Sys.setenv(ENTREZ_KEY = entrez_key)
+  #Sys.setenv(ENTREZ_KEY = entrez_key)
 
-  required_pkgs <- c("tidyverse", "readxl", "taxize")
+  required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
+  if (!is.logical(raw) || length(raw) != 1) {
+    stop("`raw` must be a single logical value (TRUE or FALSE)")
+  }
+  if (!is.logical(align) || length(align) != 1) {
+    stop("`align` must be a single logical value (TRUE or FALSE)")
+  }
+
 
   library(tidyverse)
   library(readxl)
-  library(taxize)
+  #library(taxize)
   
   # ----- local path -----
   local <- file.path("2019_vieirasilva_naturemicrobiology_pscibd")
@@ -31,52 +48,9 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,entrez_ke
   metadata_zip <- file.path(local,"41564_2019_483_MOESM3_ESM.xlsx.zip")
   scale_zip    <- file.path(local, "scaleandmetadata.xlsx.zip")
   qmp_zip      <- file.path(local, "QMP.matrix.tsv.zip")
+  repro_counts_rds_zip <- file.path(local, "EGAS00001000001_counts.rds.zip") #REPLACE WITH THE CORRECT FILE NAME
+  repro_tax_rds_zip <- file.path(local, "EGAS00001000001_taxa.rds.zip") #REPLACE WITH THE CORRECT FILE NAME
 
-  # ---- helper functions ----
-  make_taxa_label <- function(df) {
-    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-    prefixes  <- c("k", "p", "c", "o", "f", "g")
-    if (!all(tax_ranks %in% colnames(df))) {
-        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-    }
-    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-        x[is.na(x) | trimws(x) == ""] <- "unclassified"
-        x
-    })
-    df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-        if (tax_row["Genus"] != "unclassified") {
-        return(paste0("g_", tax_row["Genus"]))
-        }
-        for (i in (length(tax_ranks)-1):1) {  # skip Genus
-        if (tax_row[i] != "unclassified") {
-            return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-        }
-        }
-        return("unclassified")
-    })
-    return(df)
-  }
-  fill_na_zero_numeric <- function(x) {
-  if (missing(x)) return(NULL)
-  if (is.data.frame(x)) {
-      x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-  } else if (is.matrix(x) && is.numeric(x)) {
-      x[is.na(x)] <- 0
-  } else if (is.list(x)) {
-      x <- lapply(x, fill_na_zero_numeric)
-  }
-  x
-  }
-  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-      if (file.exists(zip_path)) {
-      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-      con <- unz(zip_path, inner_file)
-      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-      } else {
-      warning(paste("File not found:", zip_path))
-      return(NA)
-      }
-  }
   get_rank <- function(taxon) {
     result <- classification(taxon, db = "ncbi", rows = 1)
     if (length(result) > 0 && is.data.frame(result[[1]])) {
@@ -118,9 +92,9 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,entrez_ke
   tax         <- NA
   scale       <- NA
   metadata    <- NA
-
-  temp_dir <- tempdir()
-
+  proportions_reprocessed <- NA
+  counts_reprocessed <- NA
+  tax_reprocessed <- NA
   # ----- Read SCALE -----
   if (!is.na(scale_zip) && file.exists(scale_zip)) {
     scale_files <- unzip(scale_zip, list = TRUE)
@@ -137,146 +111,158 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,entrez_ke
     }
   }
 
-  # ----- Read QMP and compute proportions -----
-  if (!is.na(qmp_zip) && file.exists(qmp_zip)) {
-    qmp_files <- unzip(qmp_zip, list = TRUE)
-    if (nrow(qmp_files) > 0) {
-      qmp_filename <- qmp_files$Name[1]
-      unzip(qmp_zip, files = qmp_filename, exdir = temp_dir, overwrite = TRUE)
-      qmp_path <- file.path(temp_dir, qmp_filename)
-
-      qmp_matrix <- read.table(
-        qmp_path,
-        header = TRUE,
-        sep = "\t",
-        row.names = 1,
-        check.names = FALSE,
-        stringsAsFactors = FALSE
-      )
-
-      if (!is.null(scale) && !all(is.na(scale))) {
-        common_samples <- intersect(colnames(qmp_matrix), scale$ID)
-        scale_values <- scale %>% filter(ID %in% common_samples)
-        scale_vector <- setNames(scale_values[["Average faecal cell count (cells/g)"]], scale_values$ID)
-        proportions <- sweep(qmp_matrix[, names(scale_vector), drop = FALSE], 2, scale_vector, FUN = "/")
-      } else {
-        proportions <- qmp_matrix / rowSums(qmp_matrix)
-      }
-
-      # ----- Taxonomic rank handling -----
-      col_names <- colnames(proportions)
-      original_col_names <- col_names
-      is_unclassified <- grepl("^unclassified_", col_names)
-      clean_names <- sub("^unclassified_", "", col_names)
-      ranks <- sapply(clean_names, get_rank)
-      rank_mapping <- setNames(ranks, col_names)
-      new_col_names <- mapply(prefix_taxon, original_col_names, rank_mapping, is_unclassified)
-      manual_corrections <- list(
-        "unassigned_Marinimicrobia" = "uc_p_Marinimicrobia",
-        "unclassified_Blastocatella" = "uc_c_Blastocatella",
-        "unclassified_Elioraea" = "g_Elioraea",
-        "unclassified_Pacearchaeota" = "uc_p_Pacearchaeota",
-        "unclassified_Bryobacter" = "g_Bryobacter",
-        "unclassified_Geminicoccus" = "g_Geminicoccus",
-        "unclassified_Vallitalea" = "g_Vallitalea",
-        "unclassified_Candidatus" = "unassigned",
-        "unclassified_Chloroplast" = "uc_c_Oxyphotobacteria",
-        "unclassified_Natranaerovirga" = "uc_f_Natranaerovirgaceae"
-      )
-
-      for (taxon in names(manual_corrections)) {
-        if (taxon %in% names(new_col_names)) {
-          new_col_names[taxon] <- manual_corrections[[taxon]]
-        }
-      }
-
-      proportions <- proportions %>%
-        rename(!!!setNames(names(new_col_names), new_col_names))
-
-      # ----- Construct taxonomy table -----
-      tax_prefixes <- c(
-        g = "Genus", uc_f = "Family", uc_o = "Order", uc_c = "Class",
-        uc_p = "Phylum", uc_k = "Kingdom", unassigned = "Unassigned"
-      )
-
-      tax_rows <- lapply(names(new_col_names), function(orig_name) {
-        prefixed <- new_col_names[orig_name]
-        parse_taxonomy_from_prefix(prefixed)
-      })
-
-      tax <- bind_rows(tax_rows)
-      rownames(tax) <- names(new_col_names)
-      tax <- tibble::rownames_to_column(tax, var = "Taxon")
-    }
-  }
-
   # ----- Read METADATA -----
   if (!is.na(metadata_zip) && file.exists(metadata_zip)) {
     metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
     metadata_con <- unz(metadata_zip, metadata_csv)
-    metadata <- read.csv(metadata_con, row.names = "Anonymised ID") %>%
-      as.data.frame()
+    metadata <- read.csv(metadata_con, row.names = NULL) %>%
+      as.data.frame() %>%
+      dplyr::rename(ID = `Anonymised ID`)
   }
 
-  #   # ----- Reprocessed counts from RDS ZIP -----
-  # temp_rds <- tempfile(fileext = ".rds")
-  # unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+  # IF WE EVER GET THE DATA FROM THE AUTHORS ...... THEN WE CAN DELETE:collapse
+  proportions <- read_zipped_table(file.path(local, "VieraSilva_2019_16S.csv.zip"))
+  tax <- data.frame(Taxa = colnames(proportions), stringsAsFactors = FALSE)
+  if (!raw) {
+    align = rename_and_align(proportions_original = proportions, metadata, scale, by_col = "ID", align = align, study_name = basename(local))
+    proportions <- align$proportions_original
+  }
+  #temp_dir <- tempdir()
 
-  # rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-  # if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-  # counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+  # # ----- Read QMP and compute proportions ----- # ORIGINAL PROCESSING OF QMP MATRIX
+  # if (!is.na(qmp_zip) && file.exists(qmp_zip)) {
+  #   qmp_files <- unzip(qmp_zip, list = TRUE)
+  #   if (nrow(qmp_files) > 0) {
+  #     qmp_filename <- qmp_files$Name[1]
+  #     unzip(qmp_zip, files = qmp_filename, exdir = temp_dir, overwrite = TRUE)
+  #     qmp_path <- file.path(temp_dir, qmp_filename)
 
-  # # ----- Taxonomy reprocessed -----
-  # temp_tax <- tempfile(fileext = ".rds")
-  # unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+  #     qmp_matrix <- read.table(
+  #       qmp_path,
+  #       header = TRUE,
+  #       sep = "\t",
+  #       row.names = 1,
+  #       check.names = FALSE,
+  #       stringsAsFactors = FALSE
+  #     )
 
-  # tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-  # if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-  # tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-
-  
-  # # ----- Convert sequences to lowest rank taxonomy found and update key -----
-  # make_taxa_label <- function(df) {
-  #     tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-  #     prefixes  <- c("k", "p", "c", "o", "f", "g")
-  #     if (!all(tax_ranks %in% colnames(df))) {
-  #         stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+  #     if (!is.null(scale) && !all(is.na(scale))) {
+  #       common_samples <- intersect(colnames(qmp_matrix), scale$ID)
+  #       scale_values <- scale %>% filter(ID %in% common_samples)
+  #       scale_vector <- setNames(scale_values[["Average faecal cell count (cells/g)"]], scale_values$ID)
+  #       proportions <- sweep(qmp_matrix[, names(scale_vector), drop = FALSE], 2, scale_vector, FUN = "/")
+  #     } else {
+  #       proportions <- qmp_matrix / rowSums(qmp_matrix)
   #     }
-  #     df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-  #         x[is.na(x) | trimws(x) == ""] <- "unclassified"
-  #         x
+
+  #     # ----- Taxonomic rank handling -----
+  #     col_names <- colnames(proportions)
+  #     original_col_names <- col_names
+  #     is_unclassified <- grepl("^unclassified_", col_names)
+  #     clean_names <- sub("^unclassified_", "", col_names)
+  #     ranks <- sapply(clean_names, get_rank)
+  #     rank_mapping <- setNames(ranks, col_names)
+  #     new_col_names <- mapply(prefix_taxon, original_col_names, rank_mapping, is_unclassified)
+  #     manual_corrections <- list(
+  #       "unassigned_Marinimicrobia" = "uc_p_Marinimicrobia",
+  #       "unclassified_Blastocatella" = "uc_c_Blastocatella",
+  #       "unclassified_Elioraea" = "g_Elioraea",
+  #       "unclassified_Pacearchaeota" = "uc_p_Pacearchaeota",
+  #       "unclassified_Bryobacter" = "g_Bryobacter",
+  #       "unclassified_Geminicoccus" = "g_Geminicoccus",
+  #       "unclassified_Vallitalea" = "g_Vallitalea",
+  #       "unclassified_Candidatus" = "unassigned",
+  #       "unclassified_Chloroplast" = "uc_c_Oxyphotobacteria",
+  #       "unclassified_Natranaerovirga" = "uc_f_Natranaerovirgaceae"
+  #     )
+
+  #     for (taxon in names(manual_corrections)) {
+  #       if (taxon %in% names(new_col_names)) {
+  #         new_col_names[taxon] <- manual_corrections[[taxon]]
+  #       }
+  #     }
+
+  #     proportions <- proportions %>%
+  #       rename(!!!setNames(names(new_col_names), new_col_names))
+
+  #     # ----- Construct taxonomy table -----
+  #     tax_prefixes <- c(
+  #       g = "Genus", uc_f = "Family", uc_o = "Order", uc_c = "Class",
+  #       uc_p = "Phylum", uc_k = "Kingdom", unassigned = "Unassigned"
+  #     )
+
+  #     tax_rows <- lapply(names(new_col_names), function(orig_name) {
+  #       prefixed <- new_col_names[orig_name]
+  #       parse_taxonomy_from_prefix(prefixed)
   #     })
-  #     df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-  #         if (tax_row["Genus"] != "unclassified") {
-  #         return(paste0("g_", tax_row["Genus"]))
-  #         }
-  #         for (i in (length(tax_ranks)-1):1) {  # skip Genus
-  #         if (tax_row[i] != "unclassified") {
-  #             return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-  #         }
-  #         }
-  #         return("unclassified")
-  #     })
-  #     return(df)
+
+  #     tax <- bind_rows(tax_rows)
+  #     rownames(tax) <- names(new_col_names)
+  #     tax <- tibble::rownames_to_column(tax, var = "Taxon")
+  #   }
   # }
-  # tax_reprocessed = make_taxa_label(tax_reprocessed)
+  
+  if (file.exists(repro_counts_rds_zip) && file.exists(repro_tax_rds_zip)) {
+      # ----- Reprocessed counts from RDS ZIP -----
+    temp_rds <- tempfile(fileext = ".rds")
+    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
-  # # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # # accessions to sampleIDs is study specific: IF NEED BE
+    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-  # # taxa
-  # if (!raw) {
-  #     matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-  #     colnames(counts_reprocessed) <- matched_taxa
-  #     counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
-  # }
+    # ----- Taxonomy reprocessed -----
+    temp_tax <- tempfile(fileext = ".rds")
+    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
 
-  # # proportions reprocessed
-  # proportions_reprocessed = counts_reprocessed
-  # proportions_reprocessed[-1] <- lapply(
-  #     counts_reprocessed[-1],
-  #     function(col) col / sum(col)
-  # )
+    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+
+    
+    # ----- Convert sequences to lowest rank taxonomy found and update key -----
+    make_taxa_label <- function(df) {
+        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+        prefixes  <- c("k", "p", "c", "o", "f", "g")
+        if (!all(tax_ranks %in% colnames(df))) {
+            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
+        }
+        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+            x[is.na(x) | trimws(x) == ""] <- "unclassified"
+            x
+        })
+        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
+            if (tax_row["Genus"] != "unclassified") {
+            return(paste0("g_", tax_row["Genus"]))
+            }
+            for (i in (length(tax_ranks)-1):1) {  # skip Genus
+            if (tax_row[i] != "unclassified") {
+                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+            }
+            }
+            return("unclassified")
+        })
+        return(df)
+    }
+    tax_reprocessed = make_taxa_label(tax_reprocessed)
+
+    # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+    # accessions to sampleIDs is study specific: IF NEED BE
+
+    # taxa
+    if (!raw) {
+        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+        colnames(counts_reprocessed) <- matched_taxa
+        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+    }
+
+    # proportions reprocessed
+    proportions_reprocessed = counts_reprocessed
+    proportions_reprocessed[-1] <- lapply(
+        counts_reprocessed[-1],
+        function(col) col / sum(col)
+    )
+  }
 
   if (!raw) {
     counts_original = fill_na_zero_numeric(counts_original)
@@ -287,16 +273,16 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,entrez_ke
 
   return(list(
     counts = list(
-      original = NA,
-      reprocessed = NA
+      original = counts,
+      reprocessed = counts_reprocessed
     ),
     proportions = list(
       original = proportions,
-      reprocessed = NA
+      reprocessed = proportions_reprocessed
     ),
     tax = list(
       original = tax,
-      reprocessed = NA
+      reprocessed = tax_reprocessed
     ),
     scale = scale,
     metadata = metadata

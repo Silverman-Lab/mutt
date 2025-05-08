@@ -1,4 +1,4 @@
-parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE) {
+parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tidyverse", "readxl", "stringr", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
@@ -6,6 +6,12 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE) {
       "Missing required packages: ", paste(missing_pkgs, collapse = ", "),
       ". Please install them before running this function."
     )
+  }
+  if (!is.logical(raw) || length(raw) != 1) {
+    stop("raw must be a boolean")
+  }
+  if (!is.logical(align) || length(align) != 1) {
+    stop("align must be a boolean")
   }
 
   library(tidyverse)
@@ -32,89 +38,14 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE) {
   )
   supp8_zip           <- file.path(local, "Supplementary Data 8.xlsx.zip")
 
-  read_xlsx_zip <- function(zipfile,
-                            sheet = NULL,
-                            skip  = 0,
-                            tmp   = tempdir()) {
-    if (!file.exists(zipfile)) {
-      stop("Zip file not found: ", zipfile)
-    }
-    zinfo <- utils::unzip(zipfile, list = TRUE)
-    print(zinfo$Name)
-    xlsx_name <- zinfo$Name[grepl("\\.xlsx$", zinfo$Name)][1]
-    if (is.na(xlsx_name)) {
-      stop("No .xlsx file found inside ", zipfile)
-    }
-    extracted <- utils::unzip(zipfile,
-                              files     = xlsx_name,
-                              exdir     = tmp,
-                              overwrite = TRUE,
-                              junkpaths = TRUE)
-    xlsx_path <- file.path(tmp, basename(xlsx_name))
-    if (!file.exists(xlsx_path)) {
-      stop("Extraction failed—’", xlsx_path, "’ does not exist")
-    }
-    dat <- readxl::read_xlsx(xlsx_path,
-                            sheet = sheet,
-                            skip  = skip)
-    return(dat)
-  }
+   # ---- scale ----
+  scale <- read_xlsx_zip(zipfile = supp8_zip, sheet = "Absolute total abundance", skip = 1) %>% as.data.frame() %>%
+              mutate(log2_copies_mg_mean = ifelse(`Absolute total abudance (copies/mg)` > 0, log2(`Absolute total abudance (copies/mg)`), NA)) %>%
+              mutate(log10_copies_mg_mean = ifelse(`Absolute total abudance (copies/mg)` > 0, log10(`Absolute total abudance (copies/mg)`), NA)) %>%
+              mutate(log2_copies_mg_sd = ifelse(`Standard deviation (N  = 4 or 5)` > 0, log2(`Standard deviation (N  = 4 or 5)`), NA)) %>%
+              mutate(log10_copies_mg_sd = ifelse(`Standard deviation (N  = 4 or 5)` > 0, log10(`Standard deviation (N  = 4 or 5)`), NA))
 
-  make_taxa_label <- function(df) {
-      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-      prefixes  <- c("k", "p", "c", "o", "f", "g")
-      if (!all(tax_ranks %in% colnames(df))) {
-          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-      }
-      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-          x[is.na(x) | trimws(x) == ""] <- "unclassified"
-          x
-      })
-      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-          if (tax_row["Genus"] != "unclassified") {
-          return(paste0("g_", tax_row["Genus"]))
-          }
-          for (i in (length(tax_ranks)-1):1) {  # skip Genus
-          if (tax_row[i] != "unclassified") {
-              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-          }
-          }
-          return("unclassified")
-      })
-      return(df)
-  }
-  fill_na_zero_numeric <- function(x) {
-      if (is.data.frame(x)) {
-          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-      } else if (is.matrix(x) && is.numeric(x)) {
-          x[is.na(x)] <- 0
-      } else if (is.list(x)) {
-          x <- lapply(x, fill_na_zero_numeric)
-      }
-      x
-  }
 
-  # ---- counts and tax and proportions ----
-  dat <- read_xlsx_zip(zipfile = supp8_zip,sheet = "Sequencing-determined counts",skip = 1)
-  counts <- dat[,2:56]
-
-  tax <- dat[,57:62]
-  tax <- tax %>% mutate(across(everything(), 
-                  ~ trimws(gsub("\\(.*?\\)", "", .))))
-
-  tax = make_taxa_label(tax)
-  rownames(tax) <- dat$`cOTU-ID`
-  rownames(counts) <- dat$`cOTU-ID`
-  counts = as.data.frame(t(counts))
-
-  if (!raw) {
-    matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
-    colnames(counts) <- matched_taxa
-    counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
-  }
-
-  # ---- scale ----
-  scale <- read_xlsx_zip(zipfile = supp8_zip, sheet = "Absolute total abundance", skip = 1)
   
   # ---- metadata ----
   #extract metadata from sample id
@@ -138,6 +69,29 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE) {
   
   #technical replicate if applicable (not every diet group have technical replicates)
   metadata$technical_replicate <- as.numeric(substr(scale$Sample, start = 8, stop = 8))
+
+  # ---- counts and tax and proportions ----
+  dat <- read_xlsx_zip(zipfile = supp8_zip,sheet = "Sequencing-determined counts",skip = 1)
+  counts <- dat[,2:56]
+
+  tax <- dat[,57:62]
+  tax <- tax %>% mutate(across(everything(), 
+                  ~ trimws(gsub("\\(.*?\\)", "", .))))
+
+  tax = make_taxa_label(tax)
+  rownames(tax) <- dat$`cOTU-ID`
+  rownames(counts) <- dat$`cOTU-ID`
+  counts = as.data.frame(t(counts))
+
+  if (!raw) {
+   aligned = rename_and_align(counts_original = counts, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+   counts = aligned$counts_original
+  }
+  if (!raw) {
+    matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
+    colnames(counts) <- matched_taxa
+    counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
+  }
 
   # --- Compute proportions from counts ---
   proportions <- sweep(counts, MARGIN = 1,STATS  = rowSums(counts), FUN = "/")
@@ -172,6 +126,11 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE) {
     # Taxonomy rownames = ASVs/Features: prefix if needed
     tax_reprocessed$BioProject <- study_prefix
     tax_reprocessed$Sequence <- rownames(tax_reprocessed)
+
+    if (!raw) {
+      aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+      counts_reprocessed = aligned$reprocessed
+    }
 
     # Rename counts columns using taxonomy
     if (!raw) {

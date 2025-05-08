@@ -1,9 +1,15 @@
-parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE) {
+parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("stringr", "tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
       stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
             ". Please install them before running this function.")
+    }
+    if (!is.logical(raw)) {
+        stop("raw must be a logical value")
+    }
+    if (!is.logical(align)) {
+        stop("align must be a logical value")
     }
 
     library(stringr)
@@ -20,52 +26,6 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE) {
     metadata_16s_zip     <- file.path(local, "Stammler_2016_metadata.csv.zip")
     metadata_SRA_zip     <- file.path(local, "SraRunTable (38).csv.zip")
 
-    # ---- helper functions ----
-    make_taxa_label <- function(df) {
-      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-      prefixes  <- c("k", "p", "c", "o", "f", "g")
-      if (!all(tax_ranks %in% colnames(df))) {
-          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-      }
-      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-          x[is.na(x) | trimws(x) == ""] <- "unclassified"
-          x
-      })
-      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-          if (tax_row["Genus"] != "unclassified") {
-          return(paste0("g_", tax_row["Genus"]))
-          }
-          for (i in (length(tax_ranks)-1):1) {  # skip Genus
-          if (tax_row[i] != "unclassified") {
-              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-          }
-          }
-          return("unclassified")
-      })
-      return(df)
-    }
-    fill_na_zero_numeric <- function(x) {
-    if (missing(x)) return(NULL)
-    if (is.data.frame(x)) {
-        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-    } else if (is.matrix(x) && is.numeric(x)) {
-        x[is.na(x)] <- 0
-    } else if (is.list(x)) {
-        x <- lapply(x, fill_na_zero_numeric)
-    }
-    x
-    }
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-        if (file.exists(zip_path)) {
-        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-        con <- unz(zip_path, inner_file)
-        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-        } else {
-        warning(paste("File not found:", zip_path))
-        return(NA)
-        }
-    }
-
     # ----- Initialize everything as NA -----
     counts_original_mice <- NA
     proportions_original_mice <- NA
@@ -76,30 +36,6 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE) {
     counts_reprocessed <- NA
     proportions_reprocessed <- NA
     tax_reprocessed <- NA
-
-    # ------ original counts ------
-    counts_original_mice <- read_zipped_csv(counts_16s_zip)
-
-    if (!is.na(counts_original_mice)[1]) {
-      original_taxa <- colnames(counts_original_mice)
-
-      # Create taxa mapping data frame
-      tax_original_mice <- data.frame(
-        Taxa = original_taxa,
-        stringsAsFactors = FALSE
-      )
-
-      # ------ proportions from counts ------
-      proportions_original_mice <- sweep(
-        counts_original_mice,
-        MARGIN = 1,                          
-        STATS = rowSums(counts_original_mice, na.rm = TRUE),
-        FUN = "/"
-      )
-    } else {
-      proportions_original_mice <- NA
-      tax_original_mice <- NA
-    }
 
     # ---- scale and metadata -----
     scale     <- read_zipped_csv(scale_16s_zip)
@@ -113,7 +49,38 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE) {
       full_join(sra, by = c("SampleID" = "Sample_name")) %>%
       rename(Accession = Run)
     scale     = scale %>%
-      left_join(metadata %>% select(Sample_name, Accession), by = c("SampleID" = "Sample_name"))
+      left_join(metadata %>% select(Sample_name, Accession), by = c("SampleID" = "Sample_name")) %>%
+      mutate(log2_qPCR_copies = ifelse(10^`16S rDNA copies per sample`>0, log2(10^`16S rDNA copies per sample`), NA)) %>%
+      rename(log10_qPCR_copies = `16S rDNA copies per sample`)
+
+    # ------ original counts ------
+    counts_original_mice <- read_zipped_csv(counts_16s_zip)
+
+    if (!is.na(counts_original_mice)[1]) {
+      original_taxa <- colnames(counts_original_mice)
+
+      # Create taxa mapping data frame
+      tax_original_mice <- data.frame(
+        Taxa = original_taxa,
+        stringsAsFactors = FALSE
+      )
+
+      if (!raw) {
+        align <- rename_and_align(counts_original = counts_original_mice, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+        counts_original_mice = align$counts_original
+      }
+
+      # ------ proportions from counts ------
+      proportions_original_mice <- sweep(
+        counts_original_mice,
+        MARGIN = 1,                          
+        STATS = rowSums(counts_original_mice, na.rm = TRUE),
+        FUN = "/"
+      )
+    } else {
+      proportions_original_mice <- NA
+      tax_original_mice <- NA
+    }
 
     # ----- Reprocessed counts from RDS ZIP -----
     temp_rds <- tempfile(fileext = ".rds")
@@ -136,7 +103,10 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE) {
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+    if (!raw) {
+      align <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+      counts_reprocessed = align$reprocessed
+    }
 
     # taxa
     if (!raw) {

@@ -1,10 +1,17 @@
-parse_2021_vandeputte_naturecommunications_flow_timeseries <- function(raw = FALSE) {
+parse_2021_vandeputte_naturecommunications_flow_timeseries <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
+  if (!is.logical(raw)) {
+    stop("raw must be a logical value")
+  }
+  if (!is.logical(align)) {
+    stop("align must be a logical value")
+  }
+
   library(tidyverse)
   library(readxl)
 
@@ -23,47 +30,29 @@ parse_2021_vandeputte_naturecommunications_flow_timeseries <- function(raw = FAL
   # placeholders
   counts      <- proportions <- tax <- scale <- metadata <- NULL
 
-  # Helper: unzip, read the first file, KEEP first column
-  read_zip_table <- function(zipfile, sep = "\t", stringsAsFactors = FALSE) {
-    if (!file.exists(zipfile)) {
-      warning("Archive not found: ", zipfile)
-      return(NULL)
-    }
-    tmpdir <- tempfile("unzip_")
-    dir.create(tmpdir)
-    on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+  # ----- scale, metadata -----
+  scale    <- read_zipped_table(scale_zip, sep = "\t", row.names = NULL) %>% 
+                mutate(log2_FC_g_mean = ifelse(10^Cell_count_per_gram > 0, log2(10^Cell_count_per_gram), NA)) %>%
+                rename(log10_FC_g_mean = Cell_count_per_gram)
+  metadata <- read_zipped_table(metadata_zip, row.names = NULL)
 
-    files_in_zip <- unzip(zipfile, exdir = tmpdir)
-    if (length(files_in_zip) == 0) {
-      warning("Zip is empty: ", zipfile)
-      return(NULL)
-    }
-    read.table(files_in_zip[1],
-               header           = TRUE,
-               sep              = sep,
-               row.names        = NULL,   
-               check.names      = FALSE,
-               stringsAsFactors = stringsAsFactors)
-  }
-
-  fill_na_zero_numeric <- function(x) {
-    if (is.data.frame(x)) {
-      x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-    } else if (is.matrix(x) && is.numeric(x)) {
-      x[is.na(x)] <- 0
-    } else if (is.list(x)) {
-      x <- lapply(x, fill_na_zero_numeric)
-    }
-    x
-  }
 
   # ----- Read counts (keep first column) -----
-  counts_df <- read_zip_table(counts_zip, sep = "\t")
+  counts_df <- read_zipped_table(counts_zip, sep = "\t", row.names = NULL)
   if (!is.null(counts_df)) {
     id_col          <- counts_df[[1]]            # first column values
     counts_matrix   <- as.matrix(counts_df[ , -1, drop = FALSE])
     rownames(counts_matrix) <- id_col            # give them row names
     counts          <- counts_matrix
+
+    if (!raw) {
+      aligned = rename_and_align(counts_original = counts, metadata=metadata, scale=scale, by_col="Sample_ID", align = align, study_name=basename(local))
+      counts = aligned$counts_original
+    }
+
+    tax      <- read_zipped_table(tax_zip, row.names = NULL)
+    tax$Taxa <- tax[[1]]
+    tax      <- tax[ , -1] 
 
     row_sums        <- rowSums(counts, na.rm = TRUE)
     proportions     <- sweep(counts, 1, row_sums, FUN = "/")
@@ -71,13 +60,6 @@ parse_2021_vandeputte_naturecommunications_flow_timeseries <- function(raw = FAL
   } else {
     counts <- proportions <- NULL
   }
-
-  # ----- Other tables: tax, scale, metadata -----
-  tax      <- read_zip_table(tax_zip,      sep = ",")
-  tax$Taxa <- tax[[1]]
-  tax      <- tax[ , -1] 
-  scale    <- read_zip_table(scale_zip,    sep = "\t")
-  metadata <- read_zip_table(metadata_zip, sep = ",")
 
   counts_reprocessed = NA
   proportions_reprocessed = NA
@@ -101,30 +83,13 @@ parse_2021_vandeputte_naturecommunications_flow_timeseries <- function(raw = FAL
 
   
   # # ----- Convert sequences to lowest rank taxonomy found and update key -----
-  # make_taxa_label <- function(df) {
-  #     tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-  #     prefixes  <- c("k", "p", "c", "o", "f", "g")
-  #     if (!all(tax_ranks %in% colnames(df))) {
-  #     stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-  #     }
-  #     df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-  #     x[is.na(x) | trimws(x) == ""] <- "unclassified"
-  #     return(x)
-  #     })
-  #     df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-  #     for (i in length(tax_ranks):1) {
-  #         if (tax_row[i] != "unclassified") {
-  #         return(paste0(prefixes[i], "_", tax_row[i]))
-  #         }
-  #     }
-  #     return("unclassified")  
-  #     })
-  #     return(df)
-  # }
   # tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # # accessions to sampleIDs is study specific: IF NEED BE
+  # if (!raw) { 
+  # aligned = rename_and_align(counts_reprocessed = counts, metadata=metadata, scale=scale, by_col="Sample_ID", align = align, study_name=basename(local))
+  # counts_reprocessed = aligned$reprocessed
+  # }
 
   # # taxa
   # if (!raw) {

@@ -1,9 +1,15 @@
-parse_2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics <- function(raw = FALSE) {
+parse_2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("stringr", "tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
         stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
             ". Please install them before running this function.")
+    }
+    if (!is.logical(raw) || length(raw) != 1) {
+        stop("`raw` must be a single logical value (TRUE or FALSE)")
+    }
+    if (!is.logical(align) || length(align) != 1) {
+        stop("`align` must be a single logical value (TRUE or FALSE)")
     }
 
     library(stringr)
@@ -18,29 +24,6 @@ parse_2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics <- function(raw
     scale_meta_zip       <- file.path(local, "")
     counts_meta_zip      <- file.path(local, "")
     metadata_meta_zip    <- file.path(local, "")
-
-
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-      if (file.exists(zip_path)) {
-        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-        con <- unz(zip_path, inner_file)
-        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-      } else {
-        warning(paste("File not found:", zip_path))
-        return(NA)
-      }
-    }
-    fill_na_zero_numeric <- function(x) {
-    if (missing(x)) return(NULL)
-    if (is.data.frame(x)) {
-        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-    } else if (is.matrix(x) && is.numeric(x)) {
-        x[is.na(x)] <- 0
-    } else if (is.list(x)) {
-        x <- lapply(x, fill_na_zero_numeric)
-    }
-    x
-    }
 
     # ----- Initialize everything as NA -----
     counts_reprocessed <- NA
@@ -64,6 +47,10 @@ parse_2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics <- function(raw
             df <- read_tsv(motus_path)
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
+            if (!raw) {
+                align = rename_and_align(counts_reprocessed= df, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
+                df = align$reprocessed
+            }
             proportions <- apply(df, 2, function(col) col / sum(col))
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
@@ -89,6 +76,10 @@ parse_2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics <- function(raw
             df <- read_tsv(path)
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
+            if (!raw) {
+                align = rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
+                df = align$reprocessed
+            }
             proportions <- apply(df, 2, function(col) col / sum(col))
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%

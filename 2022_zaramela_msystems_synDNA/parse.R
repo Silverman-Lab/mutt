@@ -1,9 +1,15 @@
-parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE) {
+parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("stringr", "tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
         stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
             ". Please install them before running this function.")
+    }
+    if (!is.logical(raw)) {
+        stop("raw must be a boolean")
+    }
+    if (!is.logical(align)) {
+        stop("align must be a boolean")
     }
 
     library(stringr)
@@ -13,62 +19,15 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE) {
     local <- file.path("2022_zaramela_msystems_synDNA")
 
     # ----- File paths -----
-    motus_zip      <- file.path(local, "PRJNA940499_motus_merged.tsv.zip")
-    metaphlan4_zip <- file.path(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")
+    motus_zip            <- file.path(local, "PRJNA940499_motus_merged.tsv.zip")
+    metaphlan4_zip       <- file.path(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")
     metadata_SRA_zip     <- file.path(local, "SraRunTable (34).csv.zip")
     metadatareadin       <- file.path(local, "synDNA_metadata_updated.tsv.zip")
     countsreadin         <- file.path(local, "HMP_frequency_table.tsv.zip")
     scalereadin          <- file.path(local, "Saliva_Flow_data.tsv.zip")
     taxreadin            <- file.path(local, "taxaID_length_fulllineage.tsv.zip")
 
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-        if (file.exists(zip_path)) {
-        inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-        con <- unz(zip_path, inner_file)
-        read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-        } else {
-        warning(paste("File not found:", zip_path))
-        return(NA)
-        }
-    }
-
-    # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
-        prefixes  <- c("k", "p", "c", "o", "f", "g", "s")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Species"] != "unclassified") {
-            return(paste0("s_", tax_row["Species"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
-    fill_na_zero_numeric <- function(x) {
-        if (is.data.frame(x)) {
-            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-        } else if (is.matrix(x) && is.numeric(x)) {
-            x[is.na(x)] <- 0
-        } else if (is.list(x)) {
-            x <- lapply(x, fill_na_zero_numeric)
-        }
-        x
-    }
-
     # ----- scale and metadata -----
-
     metadata1 <- read_zipped_table(metadata_SRA_zip, row.names=NULL) %>%
                     rename(Accession = Run, Sample = `Sample Name`)
     metadata2 <- read_zipped_table(metadatareadin, sep="\t")
@@ -78,7 +37,12 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE) {
              rename(Sample = SampleID)
     metadata = left_join(metadata, scale %>% select(c("Sample", "gender", "saliva_weight_g", 
                 "saliva_volume_mL_collected_in_5_min", "saliva_flow_rate_mL_per_min")), by="Sample")
-    scale = scale %>% select(-c("gender")) 
+    scale = scale %>% select(-c("gender"))  %>% 
+        mutate(log2_FC_avg_cells_per_ul = ifelse(FC_avg_cells_per_ul > 0, log2(FC_avg_cells_per_ul), NA)) %>%
+        mutate(log2_FC_avg_cells_5_min = ifelse(FC_avg_cells_5_min > 0, log2(FC_avg_cells_5_min), NA)) %>%
+        mutate(log10_FC_avg_cells_per_ul = ifelse(FC_avg_cells_per_ul > 0, log10(FC_avg_cells_per_ul), NA)) %>%
+        mutate(log10_FC_avg_cells_5_min = ifelse(FC_avg_cells_5_min > 0, log10(FC_avg_cells_5_min), NA))
+
 
     # ----- counts and proportions and taxa -----
 
@@ -94,13 +58,25 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE) {
     tax <- read_tsv(tmp_file, quote = "", col_types = cols(.default = "c")) %>%
     rename(Kingdom = superkingdom, Phylum = phylum, Class = class, 
             Order = order, Family = family, Genus = genus, Species = species, 
-            OTUID = GenomeID)
+            OTUID = GenomeID) %>%
+    mutate(
+        MetaPhlAn4_lineage = paste(
+            paste0("k__", Kingdom),
+            paste0("p__", Phylum),
+            paste0("c__", Class),
+            paste0("o__", Order),
+            paste0("f__", Family),
+            paste0("g__", Genus),
+            paste0("s__", Species),
+            sep = "|"
+        )
+    )
 
     tax = make_taxa_label(tax)
     rownames(tax) = tax$OTUID
 
     if (!raw) {
-        matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
+        matched_taxa <- tax$MetaPhlAn4_lineage[match(colnames(counts), rownames(tax))]
         colnames(counts) <- matched_taxa
         counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
     }
@@ -119,6 +95,10 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE) {
             df <- read_tsv(motus_path)
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
+            if (!raw) {
+                aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+                df = aligned$reprocessed
+            }
             proportions <- apply(df, 2, function(col) col / sum(col))
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
@@ -143,6 +123,10 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE) {
             df <- read_tsv(path)
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
+            if (!raw) {
+                aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+                df = aligned$reprocessed
+            }
             proportions <- apply(df, 2, function(col) col / sum(col))
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%

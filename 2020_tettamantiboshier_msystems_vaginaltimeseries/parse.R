@@ -1,9 +1,15 @@
-parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE) {
+parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tibble", "tidyverse")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
+  }
+  if (!is.logical(raw) || length(raw) != 1) {
+    stop("`raw` must be a single logical value (TRUE or FALSE)")
+  }
+  if (!is.logical(align) || length(align) != 1) {
+    stop("`align` must be a single logical value (TRUE or FALSE)")
   }
   library(tibble)
   library(tidyverse)
@@ -18,84 +24,13 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE)
   repro_counts_rds_zip <- file.path(local, "PRJNA549339_dada2_counts.rds.zip")
   repro_tax_zip        <- file.path(local, "PRJNA549339_dada2_taxa.rds.zip")
 
-  # ---- helper functions ----
-  make_taxa_label <- function(df) {
-    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-    prefixes  <- c("k", "p", "c", "o", "f", "g")
-    if (!all(tax_ranks %in% colnames(df))) {
-        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-    }
-    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-        x[is.na(x) | trimws(x) == ""] <- "unclassified"
-        x
-    })
-    df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-        if (tax_row["Genus"] != "unclassified") {
-        return(paste0("g_", tax_row["Genus"]))
-        }
-        for (i in (length(tax_ranks)-1):1) {  # skip Genus
-        if (tax_row[i] != "unclassified") {
-            return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-        }
-        }
-        return("unclassified")
-    })
-    return(df)
-  }
-  fill_na_zero_numeric <- function(x) {
-    if (missing(x)) return(NULL)
-    if (is.data.frame(x)) {
-        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-    } else if (is.matrix(x) && is.numeric(x)) {
-        x[is.na(x)] <- 0
-    } else if (is.list(x)) {
-        x <- lapply(x, fill_na_zero_numeric)
-    }
-    x
-  }
-  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-      if (file.exists(zip_path)) {
-      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-      con <- unz(zip_path, inner_file)
-      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-      } else {
-      warning(paste("File not found:", zip_path))
-      return(NA)
-      }
-  }
-
-  # ----- Read counts & proportions -----
-  if (file.exists(counts_zip)) {
-    counts_file <- unzip(counts_zip, list = TRUE)$Name[1]
-    counts_con  <- unz(counts_zip, counts_file)
-    countsdata  <- read.csv(counts_con) %>% as.data.frame()
-
-    columns_to_drop <- c("Participant", "Hours_In_Study", "Sample_ID")
-    counts_original <- countsdata[, !(names(countsdata) %in% columns_to_drop)]
-    metadatacols    <- countsdata[, names(countsdata) %in% columns_to_drop]
-
-    tax <- tibble(
-      Taxa = colnames(countsdata)[!(colnames(countsdata) %in% columns_to_drop)]
-    )
-
-    counts <- bind_cols(metadatacols, counts_original)
-
-    row_sums    <- rowSums(counts_original)
-    prop_mat    <- sweep(as.matrix(counts_original), 1, row_sums, FUN = "/")
-    prop_mat[is.nan(prop_mat)] <- 0
-    proportions <- bind_cols(metadatacols, as_tibble(prop_mat))
-
-  } else {
-    counts      <- NA
-    proportions <- NA
-    tax         <- NA
-  }
-
   # ----- Scale data -----
   if (file.exists(scale_zip)) {
     scale_file <- unzip(scale_zip, list = TRUE)$Name[1]
     scale_con  <- unz(scale_zip, scale_file)
-    scale  = read.csv(scale_con) %>% as.data.frame()
+    scale  = read.csv(scale_con) %>% as.data.frame() %>% 
+      mutate(log2_total_16S  = ifelse(Total_16S > 0, log2(Total_16S), NA)) %>%
+      mutate(log10_total_16S = ifelse(Total_16S > 0, log10(Total_16S), NA)) %>% rename(Sample_ID = `Sample Name`)
 
   } else {
     scale <- NA
@@ -105,13 +40,49 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE)
   if (file.exists(metadata_zip)) {
     metadata_file <- unzip(metadata_zip, list = TRUE)$Name[1]
     metadata_con  <- unz(metadata_zip, metadata_file)
-    metadata = read.csv(metadata_con) %>% as.data.frame()
+    metadata = read.csv(metadata_con) %>% as.data.frame() %>% rename(Accession = Run, Sample_ID = `Sample Name`)
     # This needs to be cleaned up for the originals because im not sure how to link the sample IDs.
   } else {
     metadata <- NA
   }
 
- # ----- Reprocessed counts from RDS ZIP -----
+   # ----- Read counts & proportions -----
+  if (file.exists(counts_zip)) {
+    counts_file <- unzip(counts_zip, list = TRUE)$Name[1]
+    counts_con  <- unz(counts_zip, counts_file)
+    countsdata  <- read.csv(counts_con) %>% as.data.frame()
+
+    columns_to_drop <- c("Participant", "Hours_In_Study", "Sample_ID")
+    counts_original <- countsdata[, !(names(countsdata) %in% columns_to_drop)]
+    metadatacols    <- countsdata[, names(countsdata) %in% columns_to_drop]
+
+    tax_original <- tibble(
+      Taxa = colnames(countsdata)[!(colnames(countsdata) %in% columns_to_drop)]
+    )
+
+    counts_original <- bind_cols(metadatacols, counts_original)
+
+    if (!raw) {
+      align = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
+      counts_original = align$counts_original
+    }
+
+    row_sums    <- rowSums(counts_original)
+    prop_mat    <- sweep(as.matrix(counts_original), 1, row_sums, FUN = "/")
+    prop_mat[is.nan(prop_mat)] <- 0
+    proportions_original <- bind_cols(metadatacols, as_tibble(prop_mat))
+
+  } else {
+    counts_original      <- NA
+    proportions_original <- NA
+    tax_original         <- NA
+  }
+
+  counts_reprocessed <- NA
+  proportions_reprocessed <- NA
+  tax_reprocessed <- NA 
+
+  # ----- Reprocessed counts from RDS ZIP -----
   temp_rds <- tempfile(fileext = ".rds")
   unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
@@ -126,36 +97,13 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE)
   tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
   if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
   tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-
-  
-  # ----- Convert sequences to lowest rank taxonomy found and update key -----
-  make_taxa_label <- function(df) {
-    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-    prefixes  <- c("k", "p", "c", "o", "f", "g")
-    if (!all(tax_ranks %in% colnames(df))) {
-        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-    }
-    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-        x[is.na(x) | trimws(x) == ""] <- "unclassified"
-        x
-    })
-    df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-        if (tax_row["Genus"] != "unclassified") {
-        return(paste0("g_", tax_row["Genus"]))
-        }
-        for (i in (length(tax_ranks)-1):1) {  # skip Genus
-        if (tax_row[i] != "unclassified") {
-            return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-        }
-        }
-        return("unclassified")
-    })
-    return(df)
-  }
   tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # accessions to sampleIDs is study specific: IF NEED BE
+  if (!raw) {
+    align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
+    counts_reprocessed = align$reprocessed
+  }
 
   # taxa
   if (!raw) {
@@ -181,15 +129,15 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE)
   # ----- Return combined object -----
   return(list(
     counts      = list(
-      original = counts,
+      original = counts_original,
       reprocessed = counts_reprocessed
       ),
     proportions = list(
-      original = proportions,
+      original = proportions_original,
       reprocessed = proportions_reprocessed
       ),
     tax         = list(
-      original = tax,
+      original = tax_original,
       reprocessed = tax_reprocessed
       ),
     scale       = scale,

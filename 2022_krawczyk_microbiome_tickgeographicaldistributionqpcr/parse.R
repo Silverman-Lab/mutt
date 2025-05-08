@@ -1,10 +1,17 @@
-parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=FALSE) {
+parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=FALSE, align=FALSE) {
   required_pkgs <- c("tibble", "tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
+  if (!is.logical(raw) || length(raw) != 1) {
+    stop("raw must be a boolean")
+  }
+  if (!is.logical(align) || length(align) != 1) {
+    stop("align must be a boolean")
+  }
+  
   library(tibble)
   library(tidyverse)
   library(readxl)
@@ -24,8 +31,10 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=
   scale_file <- unzip(scale_zip, list = TRUE)$Name[1]
   scale_con  <- unz(scale_zip, scale_file)
   scaledata  <- read.csv(scale_con) %>% as.data.frame() 
-  cleaned <- as.numeric(scaledata$`X16S.rRNA.content.in.ng.µL`)  # Will coerce character "no DNA left" to NA
-  scale = data.frame(Sample_name = scaledata$`Sample.ID`, `16S rRNA content in ng/µL` = cleaned)
+  cleaned <- as.numeric(scaledata$`X16S.rRNA.content.in.ng.µL`) 
+  scale = data.frame(Sample_name = scaledata$`Sample.ID`, `16S rRNA content in ng/µL` = cleaned) %>%
+    mutate(log2_qPCR_16S_ng_ul = ifelse(`16S rRNA content in ng/µL` > 0, log2(`16S rRNA content in ng/µL`), NA)) %>%
+    mutate(log10_qPCR_16S_ng_ul = ifelse(`16S rRNA content in ng/µL` > 0, log10(`16S rRNA content in ng/µL`), NA))
   
   # ----- Metadata -----
   meta_file <- unzip(metadata_zip, list = TRUE)$Name[1]
@@ -36,51 +45,6 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=
   metadata_two <- read_excel(extracted_xlsx, sheet = 2) %>% rename(Sample_name = `Sample ID`)
   metadata <- left_join(metadata, metadata_two, by = "Sample_name") %>% 
               rename(Accession = Run)
-
-  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-    if (file.exists(zip_path)) {
-    inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-    con <- unz(zip_path, inner_file)
-    read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-    } else {
-    warning(paste("File not found:", zip_path))
-    return(NA)
-    }
-  }
-  make_taxa_label <- function(df) {
-    tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-    prefixes  <- c("k", "p", "c", "o", "f", "g")
-    if (!all(tax_ranks %in% colnames(df))) {
-        stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-    }
-    df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-        x[is.na(x) | trimws(x) == ""] <- "unclassified"
-        x
-    })
-    df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-        if (tax_row["Genus"] != "unclassified") {
-        return(paste0("g_", tax_row["Genus"]))
-        }
-        for (i in (length(tax_ranks)-1):1) {  # skip Genus
-        if (tax_row[i] != "unclassified") {
-            return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-        }
-        }
-        return("unclassified")
-    })
-    return(df)
-  }
-  fill_na_zero_numeric <- function(x) {
-      if (is.data.frame(x)) {
-          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-      } else if (is.matrix(x) && is.numeric(x)) {
-          x[is.na(x)] <- 0
-      } else if (is.list(x)) {
-          x <- lapply(x, fill_na_zero_numeric)
-      }
-      x
-  }
-
   # -------- Counts --------
   if (file.exists(counts_zip)) {
     counts_file <- unzip(counts_zip, list = TRUE)$Name[1]
@@ -99,7 +63,7 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=
         remove = FALSE
       ) %>%
       mutate(across(Kingdom:Genus, ~ sub("D_\\d+__", "", .)))
-    tax = make_taxa_label(tax)
+    tax = make_taxa_label(tax) # ----------  instead of doing this I need to reclassify the taxonomic levels with RDP for MLSCALE so for now ill just load in my other already processed file.
 
     # Counts
     rownames(tax) <- tax$Sequence
@@ -108,10 +72,16 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=
     counts_original = as.data.frame(t(counts_original))
 
     if (!raw) {
+      aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+      counts_original = aligned$counts_original
+    }
+
+    if (!raw) {
       matched_taxa <- tax$Taxa[match(colnames(counts_original), rownames(tax))]
       colnames(counts_original) <- matched_taxa
       counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
     }
+
   } else {
     counts_original = NA
   }
@@ -140,7 +110,10 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=
   tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # accessions to sampleIDs is study specific: IF NEED BE
+  if (!raw) {
+    aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+    counts_reprocessed = aligned$reprocessed
+  }
 
   # taxa
   if (!raw) {
@@ -159,6 +132,10 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=
   # DELETE LATER #####################################
   maxwellreprocessedpreviously = file.path(local, "Krawczyk_2022_16S.csv.zip")
   counts_original = read_zipped_table(maxwellreprocessedpreviously, row.names = NULL) %>% as.data.frame()
+  if (!raw) {
+    aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+    counts_original = aligned$counts_original
+  }
   proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
   ####################################################
   if (!raw) {

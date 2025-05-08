@@ -1,10 +1,17 @@
-parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw=FALSE) {
+parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw=FALSE, align=FALSE) {
   required_pkgs <- c("tibble", "tidyverse")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
+  if (!is.logical(raw) || length(raw) != 1) {
+  stop("`raw` must be a single logical value (TRUE or FALSE)")
+  }
+  if (!is.logical(align) || length(align) != 1) {
+  stop("`align` must be a single logical value (TRUE or FALSE)")
+  }
+
   library(tibble)
   library(tidyverse)
 
@@ -18,52 +25,6 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw=FALSE) 
   metadata_zip_2       <- file.path(local, "41598_2024_75477_MOESM4_ESM.csv.zip")
   repro_counts_rds_zip <- file.path(local, "PRJNA1162476_dada2_counts.rds.zip")
   repro_tax_zip        <- file.path(local, "PRJNA1162476_dada2_taxa.rds.zip")
-
-  # ---- functions ----
-  make_taxa_label <- function(df) {
-      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-      prefixes  <- c("k", "p", "c", "o", "f", "g")
-      if (!all(tax_ranks %in% colnames(df))) {
-          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-      }
-      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-          x[is.na(x) | trimws(x) == ""] <- "unclassified"
-          x
-      })
-      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-          if (tax_row["Genus"] != "unclassified") {
-          return(paste0("g_", tax_row["Genus"]))
-          }
-          for (i in (length(tax_ranks)-1):1) {  # skip Genus
-          if (tax_row[i] != "unclassified") {
-              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-          }
-          }
-          return("unclassified")
-      })
-      return(df)
-  }
-
-  read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-    if (file.exists(zip_path)) {
-      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-      con <- unz(zip_path, inner_file)
-      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-    } else {
-      warning(paste("File not found:", zip_path))
-      return(NA)
-    }
-  }
-  fill_na_zero_numeric <- function(x) {
-    if (is.data.frame(x)) {
-        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-    } else if (is.matrix(x) && is.numeric(x)) {
-        x[is.na(x)] <- 0
-    } else if (is.list(x)) {
-        x <- lapply(x, fill_na_zero_numeric)
-    }
-    x
-  }
 
   # ---- counts ----
   if (!file.exists(counts_zip)) stop("Counts file not found: ", counts_zip)
@@ -91,9 +52,14 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw=FALSE) 
                   "Mean bacteria copies_per mg total weight", 
                   "Mean bacteria copies_per mg dry weight")
   scale    <- dataset[, scale_cols]
-
-  # ---- counts ----
-  counts_original <- dataset[, !(colnames(dataset) %in% c(metadata_cols, scale_cols))]
+  scale <- scale %>% mutate(log2_Mean_Fungi_copies_per_mg_total_weight = ifelse(`Mean Fungi copies_per mg total weight` > 0, log2(`Mean Fungi copies_per mg total weight`),NA),
+                         log2_Mean_Fungi_copies_per_mg_dry_weight = ifelse(`Mean Fungi copies_per mg dry weight` > 0, log2(`Mean Fungi copies_per mg dry weight`),NA),
+                         log2_Mean_bacteria_copies_per_mg_total_weight = ifelse(`Mean bacteria copies_per mg total weight` > 0, log2(`Mean bacteria copies_per mg total weight`),NA),
+                         log2_Mean_bacteria_copies_per_mg_dry_weight = ifelse(`Mean bacteria copies_per mg dry weight` > 0, log2(`Mean bacteria copies_per mg dry weight`),NA),
+                         log10_Mean_Fungi_copies_per_mg_total_weight = ifelse(`Mean Fungi copies_per mg total weight` > 0, log10(`Mean Fungi copies_per mg total weight`),NA),
+                         log10_Mean_Fungi_copies_per_mg_dry_weight = ifelse(`Mean Fungi copies_per mg dry weight` > 0, log10(`Mean Fungi copies_per mg dry weight`),NA),
+                         log10_Mean_bacteria_copies_per_mg_total_weight = ifelse(`Mean bacteria copies_per mg total weight` > 0, log10(`Mean bacteria copies_per mg total weight`),NA),
+                         log10_Mean_bacteria_copies_per_mg_dry_weight = ifelse(`Mean bacteria copies_per mg dry weight` > 0, log10(`Mean bacteria copies_per mg dry weight`),NA)) 
   counts <- bind_cols(dataset[, c("Subject", "Timepoint")], counts_original)
   counts_original <- counts %>% select(-c(3:19))
   counts_metabolomics <- counts %>% select(c(1:19))
@@ -134,7 +100,14 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw=FALSE) 
   tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # accessions to sampleIDs is study specific: IF NEED BE
+  if (!raw) {
+  aligned = rename_and_align(counts_reprocessed = counts_reprocessed, counts_original = counts_original, 
+                            proportions_original = proportions, metadata=metadata, scale=scale, 
+                            by_col=c("Subject", "Timepoint"), align = align, study_name=basename(local))
+  counts_reprocessed = aligned$reprocessed
+  counts_original = aligned$counts_original
+  proportions = aligned$proportions_original
+  }
 
   # taxa
   if (!raw) {

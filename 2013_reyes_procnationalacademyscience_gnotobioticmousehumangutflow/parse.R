@@ -1,4 +1,4 @@
-parse_2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow <- function(raw = FALSE) {
+parse_2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -6,6 +6,12 @@ parse_2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow <- func
             "Missing required packages: ", paste(missing_pkgs, collapse = ", "),
             ". Please install them before running this function."
         )
+    }
+    if (!is.logical(raw)) {
+        stop("raw must be a logical value")
+    }
+    if (!is.logical(align)) {
+        stop("align must be a logical value")
     }
     # Load needed libraries
     library(tidyverse)
@@ -22,53 +28,25 @@ parse_2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow <- func
     motus_zip      <- file.path(local, "PRJNA1075117_motus_merged.tsv.zip")
     metaphlan4_zip <- file.path(local, "PRJNA1075117_MetaPhlAn_merged.tsv.zip")
 
-    # ----- Helper functions -----
-    read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
-      if (file.exists(zip_path)) {
-      inner_file <- unzip(zip_path, list = TRUE)$Name[1]
-      con <- unz(zip_path, inner_file)
-      read.table(con, sep = sep, header = header, row.names = row.names, check.names = check.names, stringsAsFactors = FALSE)
-      } else {
-      warning(paste("File not found:", zip_path))
-      return(NA)
-      }
-    }
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
-        prefixes  <- c("k", "p", "c", "o", "f", "g", "s")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Species"] != "unclassified") {
-            return(paste0("s_", tax_row["Species"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
+     # ----- Metadata -----
+    metadata <- NA
+    if (file.exists(metadata_zip)) {
+        metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
+        metadata_con <- unz(metadata_zip, metadata_csv)
+        metadata <- read.csv(metadata_con, row.names = "Sample_name") %>%
+        as.data.frame() %>%
+        rownames_to_column("Sample")
     }
 
-    fill_na_zero_numeric <- function(x) {
-    if (missing(x)) return(NULL)
-    if (is.data.frame(x)) {
-        x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-    } else if (is.matrix(x) && is.numeric(x)) {
-        x[is.na(x)] <- 0
-    } else if (is.list(x)) {
-        x <- lapply(x, fill_na_zero_numeric)
+    # ----- Scale ----- # Needs to be fixed. Supp table 3 and 4 so sheets 3 and 4
+    scale <- NA
+    if (file.exists(scale_zip)) {
+        scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
+        scale_con <- unz(scale_zip, scale_csv)
+        scale <- read.csv(scale_con, row.names = "Sample ID") %>%
+        as.data.frame() %>%
+        rownames_to_column("Sample")
     }
-    x
-    }
-
 
     # ----- Initialize everything as NA -----
     counts_original <- NA
@@ -94,6 +72,10 @@ parse_2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow <- func
             df <- read_tsv(motus_path)
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
+            if (!raw) {
+                align <- rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+                df = align$reprocessed
+            }
             proportions <- apply(df, 2, function(col) col / sum(col))
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
@@ -119,6 +101,10 @@ parse_2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow <- func
             df <- read_tsv(path)
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
+            if (!raw) {
+                align <- rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+                df = align$reprocessed
+            }
             proportions <- apply(df, 2, function(col) col / sum(col))
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
@@ -131,27 +117,6 @@ parse_2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow <- func
             MetaPhlAn4_proportions <- proportions
             MetaPhlAn4_tax <- tax_df
         }
-    }
-
-
-    # ----- Metadata -----
-    metadata <- NA
-    if (file.exists(metadata_zip)) {
-        metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
-        metadata_con <- unz(metadata_zip, metadata_csv)
-        metadata <- read.csv(metadata_con, row.names = "Sample_name") %>%
-        as.data.frame() %>%
-        rownames_to_column("Sample")
-    }
-
-    # ----- Scale ----- # Needs to be fixed. Supp table 3 and 4 so sheets 3 and 4
-    scale <- NA
-    if (file.exists(scale_zip)) {
-        scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
-        scale_con <- unz(scale_zip, scale_csv)
-        scale <- read.csv(scale_con, row.names = "Sample ID") %>%
-        as.data.frame() %>%
-        rownames_to_column("Sample")
     }
 
     if (!raw) {

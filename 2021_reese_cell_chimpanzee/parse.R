@@ -1,4 +1,4 @@
-parse_2021_reese_cell_chimpanzee <- function(raw = FALSE) {
+parse_2021_reese_cell_chimpanzee <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("tidyverse", "readxl", "readr")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -7,6 +7,13 @@ parse_2021_reese_cell_chimpanzee <- function(raw = FALSE) {
             ". Please install them before running this function."
         )
     }
+    if (!is.logical(raw)) {
+        stop("raw must be a logical value")
+    }
+    if (!is.logical(align)) {
+        stop("align must be a logical value")
+    }
+    
     # Load needed libraries
     library(tidyverse)
     library(readxl)
@@ -20,41 +27,6 @@ parse_2021_reese_cell_chimpanzee <- function(raw = FALSE) {
     repro_tax_zip       <- file.path(local, "PRJEB39807_dada2_taxa.rds.zip")
     metadata_zip        <- file.path(local, "SraRunTable.csv.zip")
     scale_zip           <- file.path(local,"1-s2.0-S0960982220316523-mmc3.xlsx.zip")
-
-    # ---- helper functions ----
-        make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
-    fill_na_zero_numeric <- function(x) {
-        if (is.data.frame(x)) {
-            x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-        } else if (is.matrix(x) && is.numeric(x)) {
-            x[is.na(x)] <- 0
-        } else if (is.list(x)) {
-            x <- lapply(x, fill_na_zero_numeric)
-        }
-        x
-    }
 
     # ---- scale and metadata -------------------
     metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1] # list file inside zip
@@ -82,7 +54,9 @@ parse_2021_reese_cell_chimpanzee <- function(raw = FALSE) {
         )
 
     scale <- scale_data %>%
-        left_join(metadata %>% select(Accession, Sample_name), by = "Sample_name")
+        left_join(metadata %>% select(Accession, Sample_name), by = "Sample_name") %>%
+        mutate(log2_qPCR_copies_g = ifelse(`16S copies per g feces` > 0, log2(`16S copies per g feces`), NA)) %>%
+        mutate(log10_qPCR_copies_g = ifelse(`16S copies per g feces` > 0, log10(`16S copies per g feces`), NA))
 
 
     # ----- Reprocessed counts from RDS ZIP -----
@@ -106,7 +80,10 @@ parse_2021_reese_cell_chimpanzee <- function(raw = FALSE) {
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+    if (!raw) {
+        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+        counts_reprocessed = aligned$reprocessed
+    }
 
     # taxa
     if (!raw) {

@@ -1,4 +1,4 @@
-parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE) {
+parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, align = align) {
 
   # THIS STUDY IS THE SAME AS MAROTZ ET AL. AND CAN BE ARCHIVED WITHOUT FURTHER WORK.
   #
@@ -16,6 +16,12 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE) {
             stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
                 ". Please install them before running this function.")
     }
+    if (!is.logical(align)) {
+      stop("align must be a logical value")
+    }
+    if (!is.logical(raw)) {
+      stop("raw must be a logical value")
+    }
 
     library(stringr)
     library(tidyverse)
@@ -26,38 +32,49 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE) {
     # ----- File paths -----
     repro_counts_rds_zip <- file.path(local, "PRJNA1233249_dada2_counts.rds.zip")
     repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxa.rds.zip")
-    scale_16s_zip        <- file.path(local, "PMID-28743816_samples-v1.csv.zip")
-    metadata_16s_zip     <- file.path(local, "metadata.csv.zip")
+    #scale_zip            <- file.path(local, "PMID-28743816_samples-v1.csv.zip")
+    metadata_zip         <- file.path(local, "oral_trimmed_metadata.csv")
+    counts_zip           <- file.path(local, "2019_morton_songbird_oral_counts.RDS.zip")
 
+    ## Get metadata, add average flowcount, round to avoid fraction of a cell
+    metadata <- read_zipped_table(metadata_zip)
+    metadata$avg_norm_flowcounts <- rowMeans(metadata[,c("flow.cells.ul.1", "flow.cells.ul.2")])
+    metadata$sd_norm_flowcounts <- rowSds(as.matrix(metadata[,c("flow.cells.ul.1", "flow.cells.ul.2")]))
+    scale <- scale %>% select(ID, avg_norm_flowcounts, sd_norm_flowcounts) %>% 
+                        mutate(log2_flowcounts = ifelse(avg_norm_flowcounts > 0, log2(avg_norm_flowcounts), NA)) %>%
+                        mutate(log10_flowcounts = ifelse(avg_norm_flowcounts > 0, log10(avg_norm_flowcounts), NA)) %>%
+                        mutate(log2_flowcounts_sd = ifelse(sd_norm_flowcounts > 0, log2(sd_norm_flowcounts), NA)) %>%
+                        mutate(log10_flowcounts_sd = ifelse(sd_norm_flowcounts > 0, log10(sd_norm_flowcounts), NA))
+    names(scale) <- row.names(metadata)
 
+    ## Read Counts
+    temp_rds <- tempfile(fileext = ".rds")
+    unzip(counts_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
+    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+    counts<- as.data.frame(readRDS(rds_files[1]))
+    if (!raw) {
+        align = rename_and_align(counts_original= counts, metadata, scale, by_col = "ID", align = align, study_name = basename(local))
+        counts <- align$counts_original
+    }
+    proportions <- apply(counts, 2, function(col) col/sum(col))
 
+    ## Taxonomy Information
+    raw_tax <- read.csv("taxonomy.tsv", sep="\t")
+    tax <- raw_tax %>%
+        mutate(Taxon=str_trim(Taxon)) %>%
+        separate(
+        Taxon,
+        into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+        sep = "\\s*;\\s*",
+        extra = "drop",
+        fill = "right"
+    )
+    row.names(tax) <- tax$Feature.ID
+    tax <- tax[,c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")]
 
-  ## Read Counts
-  counts <- readRDS("2019_morton_songbird_oral_counts.RDS")
-  proportions <- apply(counts, 2, function(col) col/sum(col))
-
-  ## Taxonomy Information
-  raw_tax <- read.csv("taxonomy.tsv", sep="\t")
-  tax <- raw_tax %>%
-    mutate(Taxon=str_trim(Taxon)) %>%
-    separate(
-      Taxon,
-      into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
-      sep = "\\s*;\\s*",
-      extra = "drop",
-      fill = "right"
-  )
-  row.names(tax) <- tax$Feature.ID
-  tax <- tax[,c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")]
-
-  ## Get metadata, add average flowcount, round to avoid fraction of a cell
-  metadata <- data.frame(read.csv("oral_trimmed_metadata.csv", sep="\t", row.names=1))
-  metadata$avg_norm_flowcounts <- round(rowMeans(metadata[,c("flow.cells.ul.1", "flow.cells.ul.2")]))
-  scale <- metadata$avg_norm_flowcounts
-  names(scale) <- row.names(metadata)
-
-      # ----- Reprocessed counts from RDS ZIP -----
+    # ----- Reprocessed counts from RDS ZIP -----
     temp_rds <- tempfile(fileext = ".rds")
     unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
@@ -75,33 +92,13 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE) {
 
     
     # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  # skip Genus
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+    if (!raw) {
+        align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata, scale, by_col = "ID", align = align, study_name = basename(local))
+        counts_reprocessed <- align$reprocessed
+    }
 
     # taxa
     if (!raw) {

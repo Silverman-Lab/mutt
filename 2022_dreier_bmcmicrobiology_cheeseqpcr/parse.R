@@ -1,10 +1,17 @@
-parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE) {
+parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tibble", "tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
   }
+  if (!is.logical(raw)) {
+    stop("raw must be a logical value")
+  }
+  if (!is.logical(align)) {
+    stop("align must be a logical value")
+  }
+
   library(tibble)
   library(tidyverse)
   library(readxl)
@@ -19,84 +26,7 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE) {
   orig_prop_zip        <- NA
   repro_counts_rds_zip <- file.path(local, "PRJNA786903_dada2_counts.rds.zip") # Taxa need to be identified using cheese database
   repro_tax_zip        <- file.path(local, "PRJNA786903_dada2_taxa.rds.zip") # Taxa need to be identified using cheese database
-
-  # ----- Convert sequences to lowest rank taxonomy found and update key -----
-  make_taxa_label <- function(df) {
-      tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-      prefixes  <- c("k", "p", "c", "o", "f", "g")
-      if (!all(tax_ranks %in% colnames(df))) {
-          stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-      }
-      df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-          x[is.na(x) | trimws(x) == ""] <- "unclassified"
-          x
-      })
-      df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-          if (tax_row["Genus"] != "unclassified") {
-          return(paste0("g_", tax_row["Genus"]))
-          }
-          for (i in (length(tax_ranks)-1):1) {  # skip Genus
-          if (tax_row[i] != "unclassified") {
-              return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-          }
-          }
-          return("unclassified")
-      })
-      return(df)
-  }
-  fill_na_zero_numeric <- function(x) {
-      if (is.data.frame(x)) {
-          x[] <- lapply(x, function(y) if (is.numeric(y)) replace(y, is.na(y), 0) else y)
-      } else if (is.matrix(x) && is.numeric(x)) {
-          x[is.na(x)] <- 0
-      } else if (is.list(x)) {
-          x <- lapply(x, fill_na_zero_numeric)
-      }
-      x
-  }
-
-  # ----- Original counts from CSV.zip -----
-  if (file.exists(orig_counts_zip)) {
-    orig_csv <- unzip(orig_counts_zip, list = TRUE)$Name[1]
-    orig_con <- unz(orig_counts_zip, orig_csv)
-    orig_mat <- read.csv(orig_con, row.names = 1, check.names = FALSE)
-    counts_original <- as.data.frame(orig_mat)
-    counts_original$ASV <- rownames(counts_original)
-    rownames(counts_original) = counts_original$Sequence
-    # Taxa
-    taxonomy_cols <- c("ASV", "Sequence", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Haplotype")
-    tax_original = counts_original[, names(counts_original) %in% taxonomy_cols]
-    tax_original = make_taxa_label(tax_original)
-    # Counts
-    drop <- c("ASV", "Sequence", "Kingdom", "Phylum", "Class", 
-          "Order", "Family", "Genus", "Species", "Haplotype")
-    counts_original <- counts_original %>% select(-all_of(drop))
-    counts_original <- as.data.frame(t(counts_original))
-    if (!raw) {
-      matched_taxa <- tax_original$Taxa[match(colnames(counts_original), rownames(tax_original))]
-      colnames(counts_original) <- matched_taxa
-      counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
-    }
-  } else {
-    counts_original = NA
-  }
-
-  if (file.exists(orig_counts_zip)) {
-    proportions_original = counts_original
-    proportions_original[-1] <- lapply(
-      counts_original[-1],
-      function(col) col / sum(col)
-    )
-  } else if (file.exists(orig_prop_zip)) {
-    prop_csv <- unzip(orig_prop_zip, list = TRUE)$Name[1]
-    prop_con <- unz(orig_prop_zip, prop_csv)
-    proportions_original = read.csv(prop_con, row.names = 1, check.names = FALSE) %>%
-      as.data.frame() %>%
-      tibble::rownames_to_column("Sequence") %>%
-      dplyr::select(Sequence, everything())
-  } else {
-  proportions_original = NA
-  }
+  deletewhenfinished   <- file.path(local, "Dreier_2022_16S.csv.zip")
 
   # Scale
   if (file.exists(scale_zip)) {
@@ -153,19 +83,27 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE) {
         !is.na(Ct_Value),
         str_to_lower(Sample_Type) != "standard" & str_to_lower(Sample_Name) != "not relevant"
       ) %>%
+      # First calculate copies per replicate using standard curve
       mutate(copy_est = 10^((Ct_Value - b) / m)) %>%
       group_by(Sample_Name) %>%
       summarise(
-        total_copies_est = sum(copy_est, na.rm = TRUE),
-        mean_Ct          = mean(Ct_Value, na.rm = TRUE),
-        sd_Ct            = sd(Ct_Value,  na.rm = TRUE),
-        n_reps           = n(),
+        # Calculate mean copies across replicates (not sum)
+        mean_copies = mean(copy_est, na.rm = TRUE),
+        sd_copies = sd(copy_est, na.rm = TRUE),
+        # Keep Ct values for reference but don't use for abundance
+        mean_Ct = mean(Ct_Value, na.rm = TRUE), 
+        sd_Ct = sd(Ct_Value, na.rm = TRUE),
+        n_reps = n(),
         .groups = "drop"
       )
   } else {
     scale = NA
   }
 
+  scale = scale %>% mutate(log2_qPCR_mean = ifelse(mean_copies > 0, log2(mean_copies), NA)) %>%
+                    mutate(log2_qPCR_sd = ifelse(mean_copies > 0, log2(sd_copies), NA)) %>% 
+                    mutate(log10_qPCR_mean = ifelse(mean_copies > 0, log10(mean_copies), NA)) %>%
+                    mutate(log10_qPCR_sd = ifelse(mean_copies > 0, log10(sd_copies), NA))
   # Metadata
   meta_csv     <- unzip(metadata_zip, list = TRUE)$Name[1]
   meta_con     <- unz(metadata_zip, meta_csv)
@@ -194,6 +132,61 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE) {
     by = "Sample_name"
   )
 
+    # ----- Original counts from CSV.zip -----
+  if (file.exists(orig_counts_zip)) {
+    orig_csv <- unzip(orig_counts_zip, list = TRUE)$Name[1]
+    orig_con <- unz(orig_counts_zip, orig_csv)
+    orig_mat <- read.csv(orig_con, row.names = 1, check.names = FALSE)
+    counts_original <- as.data.frame(orig_mat)
+    counts_original$ASV <- rownames(counts_original)
+    rownames(counts_original) = counts_original$Sequence
+    # Taxa
+    taxonomy_cols <- c("ASV", "Sequence", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Haplotype")
+    tax_original = counts_original[, names(counts_original) %in% taxonomy_cols]
+    tax_original = make_taxa_label(tax_original)
+    # Counts
+    drop <- c("ASV", "Sequence", "Kingdom", "Phylum", "Class", 
+          "Order", "Family", "Genus", "Species", "Haplotype")
+    counts_original <- counts_original %>% select(-all_of(drop))
+    counts_original <- as.data.frame(t(counts_original))
+    if (!raw) {
+      aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+      counts_original = aligned$counts_original
+    }
+    if (!raw) {
+      matched_taxa <- tax_original$Taxa[match(colnames(counts_original), rownames(tax_original))]
+      colnames(counts_original) <- matched_taxa
+      counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
+    }
+  } else {
+    counts_original = NA
+  }
+
+  if (file.exists(orig_counts_zip)) {
+    proportions_original = counts_original
+    proportions_original[-1] <- lapply(
+      counts_original[-1],
+      function(col) col / sum(col)
+    )
+  } else if (file.exists(orig_prop_zip)) {
+    prop_csv <- unzip(orig_prop_zip, list = TRUE)$Name[1]
+    prop_con <- unz(orig_prop_zip, prop_csv)
+    proportions_original = read.csv(prop_con, row.names = 1, check.names = FALSE) %>%
+      as.data.frame() %>%
+      tibble::rownames_to_column("Sequence") %>%
+      dplyr::select(Sequence, everything())
+  } else {
+  proportions_original = NA
+  }
+
+  # CAN DELETE LATER -- CLASSIFIED WITH RDP
+  counts_original = read_zipped_table(deletewhenfinished) %>% as.data.frame() 
+  if (!raw) {
+    aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+    counts_original = aligned$counts_original
+  }
+  proportions_original = sweep(counts_original, 2, colSums(counts_original), "/")
+
   # ----- Reprocessed counts from RDS ZIP -----
   temp_rds <- tempfile(fileext = ".rds")
   unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
@@ -212,7 +205,10 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE) {
   tax_reprocessed = make_taxa_label(tax_reprocessed)
 
   # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  # accessions to sampleIDs is study specific: IF NEED BE
+  if (!raw) {
+    aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+    counts_reprocessed = aligned$reprocessed
+  }
 
   # taxa
   if (!raw) {
