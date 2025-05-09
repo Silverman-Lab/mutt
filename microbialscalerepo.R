@@ -174,17 +174,28 @@ microbialscalerepo <- function(
       utils::setTxtProgressBar(pb, i); next
     }
     
-    res <- tryCatch(suppressWarnings(suppressMessages(get(fun_name, envir = env)(raw = rawdata, align = align_samples))), error = function(e) e)
+    res <- tryCatch(
+      suppressWarnings(suppressMessages(get(fun_name, envir = env)(raw = rawdata, align = align_samples))), 
+      error = function(e) {
+        warning(sprintf("\n\n----------------------------------------\nError in parser '%s': %s\nStack trace:\n%s\n----------------------------------------\n", 
+                       parser, 
+                       e$message,
+                       paste(capture.output(traceback()), collapse = "\n")))
+        e
+      }
+    )
 
     if(verbose) {
       if (inherits(res, "error")) {
-        warning("Error in parser '", parser, "': ", res$message)
+        warning(sprintf("\n\n----------------------------------------\nError in parser '%s': %s\n----------------------------------------\n", 
+                       parser, 
+                       res$message))
         utils::setTxtProgressBar(pb, i); next
       }
     }
 
     # Store the original parsed result
-    parsed_list[[i]] <- res
+    parsed_list[[i]] <- standardize_output_order(res)
     
     # Collect validation result separately
     validation_results[[i]] <- validate_output_structure(res, study_name = parser)
@@ -197,6 +208,7 @@ microbialscalerepo <- function(
   if (!is.null(save_to)) {
     dir.create(dirname(save_to), showWarnings = FALSE, recursive = TRUE)
     save(parsed_list, file = save_to)
+    cat(sprintf("File saved to:", save_to))
     
     # Save validation results to a separate file
     validation_file <- sub("\\.RData$", "_validation.RData", save_to)
@@ -205,21 +217,27 @@ microbialscalerepo <- function(
     if (verbose) {
       # Generate and save validation summary
       summary_file <- sub("\\.RData$", "_validation_summary.txt", save_to)
-      sink(summary_file)
-      cat("Validation Summary\n")
-      cat("=================\n\n")
       
-      for (study in names(validation_results)) {
-        if (!is.null(validation_results[[study]])) {
-          cat(sprintf("Study: %s\n", study))
-          cat("Structure:\n")
-          for (elem in names(validation_results[[study]])) {
-            cat(sprintf("  %s: %s\n", elem, validation_results[[study]][[elem]]))
-          }
+      # Print to both console and file
+      summary_text <- capture.output({
+        cat("Validation Summary\n")
+        cat("=================\n\n")
+        
+        for (study in names(validation_results)) {
+          if (!is.null(validation_results[[study]])) {
+            cat(sprintf("Study: %s\n", study))
+            cat("Structure:\n")
+            for (elem in names(validation_results[[study]])) {
+              cat(sprintf("  %s: %s\n", elem, validation_results[[study]][[elem]]))
+            }
             cat("\n")
           }
         }
-        sink()
+      })
+      
+      # Write summary to file and print to console
+      writeLines(summary_text, summary_file)
+      cat(summary_text, sep="\n")
     }
   }
 
@@ -264,7 +282,8 @@ if (!interactive()) {
     base_directory = opts$base,
     rawdata        = opts$raw,
     align_samples  = opts$align,
-    save_to        = opts$output
+    save_to        = opts$output,
+    verbose        = opts$verbose
   )
 
   if (is.null(opts$output)) {

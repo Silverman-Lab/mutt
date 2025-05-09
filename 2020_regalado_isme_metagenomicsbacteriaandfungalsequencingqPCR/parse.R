@@ -25,12 +25,12 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
     ITS_metadata_zip     <- file.path(local, "ITS_blackblue_metadata_v2.txt.zip")
     scale_16s_zip         <- file.path(local, "")
     repro_counts_zips <- c(
-    file.path(local, "PRJNA31530_dada2_counts.rds.zip")#,
+    file.path(local, "PRJNA31530_dada2_counts.rds.zip"),
     file.path(local, "PRJNA31530_SILVA_counts.rds.zip")
     )
 
     repro_tax_zips <- c(
-    file.path(local, "PRJNA31530_dada2_taxa.rds.zip")#,
+    file.path(local, "PRJNA31530_dada2_taxa.rds.zip"),
     file.path(local, "PRJNA31530_SILVA_taxa.rds.zip")
     )
 

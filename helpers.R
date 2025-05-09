@@ -460,24 +460,97 @@ validate_output_structure <- function(output, study_name = NULL) {
                        paste(missing_elements, collapse = ", ")))
     }
 
+    # Helper function to get structure of an object
+    get_structure <- function(obj, name = "") {
+        tryCatch({
+            if (is.null(obj)) {
+                return("NULL")
+            } else if (is.matrix(obj)) {
+                return(sprintf("MATRIX(%d x %d)", nrow(obj), ncol(obj)))
+            } else if (is.data.frame(obj)) {
+                return(sprintf("DATAFRAME(%d x %d)", nrow(obj), ncol(obj)))
+            } else if (is.list(obj)) {
+                if (length(obj) == 0) return("EMPTY_LIST")
+                nested <- sapply(names(obj), function(n) {
+                    paste(n, "=", get_structure(obj[[n]], n))
+                })
+                return(sprintf("LIST={%s}", paste(nested, collapse=", ")))
+            } else if (is.logical(obj) && all(is.na(obj))) {
+                return("NULL")
+            } else if (is.vector(obj)) {
+                return(sprintf("VECTOR(length=%d)", length(obj)))
+            } else {
+                return(class(obj)[1])
+            }
+        }, error = function(e) {
+            return(sprintf("ERROR: %s", e$message))
+        })
+    }
+
     # Create a structured output showing what's present
     result <- list()
-    for (elem in names(output)) {
-        if (is.list(output[[elem]])) {
-            if (all(c("original", "reprocessed") %in% names(output[[elem]]))) {
-                result[[elem]] <- "LIST={original,reprocessed}"
-            } else {
-                result[[elem]] <- "LIST"
-            }
-        } else if (is.data.frame(output[[elem]])) {
-            result[[elem]] <- "DATAFRAME"
-        } else if (is.matrix(output[[elem]])) {
-            result[[elem]] <- "MATRIX"
-        } else {
-            result[[elem]] <- class(output[[elem]])[1]
+    
+    # Add standard elements in order if they exist
+    for (elem in required_elements) {
+        if (elem %in% names(output)) {
+            result[[elem]] <- get_structure(output[[elem]], elem)
         }
+    }
+    
+    # Add any remaining elements
+    other_elements <- setdiff(names(output), required_elements)
+    for (elem in other_elements) {
+        result[[elem]] <- get_structure(output[[elem]], elem)
     }
 
     return(result)
+}
+
+#' Standardize the order of elements in a dataset output
+#'
+#' Reorders the elements of a dataset output to follow the standard order:
+#' counts, proportions, tax, scale, metadata, followed by any additional elements
+#'
+#' @param output A list containing the dataset output
+#'
+#' @return The same list with elements reordered to the standard order
+#'
+#' @examples
+#' \dontrun{
+#' # Standardize the order of elements in a dataset output
+#' standardized_output <- standardize_output_order(my_output)
+#' }
+#'
+#' @export
+standardize_output_order <- function(output) {
+    if (!is.list(output)) {
+        stop("Input must be a list")
+    }
+    
+    # Define the standard order for main elements
+    standard_order <- c("counts", "proportions", "tax", "scale", "metadata")
+    
+    # Get all current elements
+    current_elements <- names(output)
+    
+    # Get elements that are not in standard order
+    other_elements <- setdiff(current_elements, standard_order)
+    
+    # Create new list with standardized order
+    result <- list()
+    
+    # Add standard elements in order if they exist
+    for (elem in standard_order) {
+        if (elem %in% current_elements) {
+            result[[elem]] <- output[[elem]]
+        }
+    }
+    
+    # Add any remaining elements in their original order
+    for (elem in other_elements) {
+        result[[elem]] <- output[[elem]]
+    }
+    
+    result
 }
 

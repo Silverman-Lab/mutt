@@ -21,9 +21,9 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     # ----- File paths -----
     repro_counts_rds_zip <- file.path(local, "PRJEB51873_dada2_counts.rds.zip") 
     repro_tax_zip        <- file.path(local, "PRJEB51873_dada2_taxa.rds.zip") 
-    scale_16s_zip        <- file.path(local, "VandeVelde2022_scale.csv.zip")
-    counts_16s_zip       <- file.path(local, "VandeVelde_2022_16S.csv.zip")
-    metadata_16s_zip     <- file.path(local, "VandeVelde_2022_metadata.csv.zip")
+    scale_zip            <- file.path(local, "VandeVelde2022_scale.csv.zip")
+    counts_zip           <- file.path(local, "VandeVelde_2022_16S.csv.zip")
+    metadata_zip         <- file.path(local, "VandeVelde_2022_metadata.csv.zip")
     sra_zip              <- file.path(local, "SraRunTable (39).csv.zip")
 
     # ----- Initialize everything as NA -----
@@ -33,90 +33,148 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     counts_reprocessed <- NA
     proportions_reprocessed <- NA
     tax_reprocessed <- NA
+    scale <- NA
+    metadata <- NA
+    sra <- NA
 
     # ---- scale and metadata -----
-    scale     <- read_zipped_csv(scale_16s_zip) %>% as.data.frame() %>% rename(Sample = SampleID) %>%
-                    mutate(log2_FC = ifelse(10^load > 0, log2(10^mean_FC), NA)) %>%
-                    rename(log10_FC = load)
+    tryCatch({
+        scale <- read_zipped_table(scale_zip, row.names = NULL) %>% 
+            as.data.frame() %>% 
+            rename(Sample = SampleID) %>%
+            mutate(log2_FC = ifelse(10^load > 0, log2(10^mean_FC), NA)) %>%
+            rename(log10_FC = load)
+    }, error = function(e) {
+        warning("Error reading scale file: ", e$message)
+    })
 
     # no way to connect the metadata to the scale and counts because non similar sampleIDs, I suspect it might have to do with plate names but cant figure out.
     # need to email authors about this, but also, there are a ton more samples in the metadata and reprocessed data and in the flow cytometry data that needs to be added.
     # Actually the counts might be in supplementary data, but I dont really know if theyre useable for this -- i dont think so. so need to review study and ask authors about the genomic
     # data connection to our scale. 
-    metadata  <- read_zipped_csv(metadata_16s_zip) %>% as.data.frame() %>% rename(Sample = SampleID)
-    sra       <- read_zipped_table(sra_zip) %>% rename(Accession = Run) 
+    tryCatch({
+        metadata <- read_zipped_csv(metadata_zip) %>% 
+            as.data.frame() %>% 
+            rename(Sample = SampleID)
+    }, error = function(e) {
+        warning("Error reading metadata file: ", e$message)
+    })
+
+    tryCatch({
+        sra <- read_zipped_table(sra_zip) %>% 
+            rename(Accession = Run)
+    }, error = function(e) {
+        warning("Error reading SRA file: ", e$message)
+    })
 
     # ------ original counts ------
-    counts_original <- read_zipped_csv(counts_16s_zip)
+    tryCatch({
+        counts_original <- read_zipped_csv(counts_zip)
 
-    if (!is.na(counts_original)[1]) {
-        original_taxa <- colnames(counts_original)
+        if (!is.na(counts_original)[1]) {
+            original_taxa <- colnames(counts_original)
 
-        # Create taxa mapping data frame
-        tax_original <- data.frame(
-            Taxa = original_taxa,
-            stringsAsFactors = FALSE
-        )
+            # Create taxa mapping data frame
+            tax_original <- data.frame(
+                Taxa = original_taxa,
+                stringsAsFactors = FALSE
+            )
 
-        if (!raw) {
-            aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
-            counts_original = aligned$counts_original
+            if (!raw) {
+                aligned = rename_and_align(counts_original = counts_original, 
+                                        metadata = metadata, 
+                                        scale = scale, 
+                                        by_col = "Sample", 
+                                        align = align, 
+                                        study_name = basename(local))
+                counts_original = aligned$counts_original
+            }
+
+            # ------ proportions from counts ------
+            proportions_original <- t(counts_original)
+            proportions_original <- as.data.frame(t(proportions_original / rowSums(proportions_original, na.rm = TRUE)))
         }
-
-        # ------ proportions from counts ------
-        proportions_original <- t(counts_original)
-        proportions_original <- as.data.frame(t(proportions_original / rowSums(proportions_original, na.rm = TRUE)))
-        
-    } else {
-        proportions_original <- NA
-        tax_original <- NA
-    }
+    }, error = function(e) {
+        warning("Error processing original counts: ", e$message)
+    })
 
     # ----- Reprocessed counts from RDS ZIP -----
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+    tryCatch({
+        temp_rds <- tempfile(fileext = ".rds")
+        unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+        rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+        if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+        counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+    }, error = function(e) {
+        warning("Error processing reprocessed counts: ", e$message)
+    })
 
     # ----- Taxonomy reprocessed -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+    tryCatch({
+        temp_tax <- tempfile(fileext = ".rds")
+        unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
 
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-
-    
-    # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    tax_reprocessed = make_taxa_label(tax_reprocessed)
+        tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+        if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+        tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+        
+        # ----- Convert sequences to lowest rank taxonomy found and update key -----
+        tax_reprocessed = make_taxa_label(tax_reprocessed)
+    }, error = function(e) {
+        warning("Error processing reprocessed taxonomy: ", e$message)
+    })
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    if (!raw) {
-        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
-        counts_reprocessed = aligned$reprocessed
-    }
+    if (!raw && !is.na(counts_reprocessed)[1]) {
+        tryCatch({
+            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, 
+                                    metadata = metadata, 
+                                    scale = scale, 
+                                    by_col = "Sample_name", 
+                                    align = align_samples, 
+                                    study_name = basename(local))
+            counts_reprocessed = aligned$reprocessed
 
-    # taxa
-    if (!raw) {
-        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-        colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+            # taxa
+            matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+            colnames(counts_reprocessed) <- matched_taxa
+            counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+        }, error = function(e) {
+            warning("Error aligning reprocessed data: ", e$message)
+        })
     }
 
     # proportions reprocessed
-    proportions_reprocessed = counts_reprocessed
-    proportions_reprocessed[-1] <- lapply(
-        counts_reprocessed[-1],
-        function(col) col / sum(col)
-    )
+    if (!is.na(counts_reprocessed)[1]) {
+        tryCatch({
+            proportions_reprocessed = counts_reprocessed
+            proportions_reprocessed[-1] <- lapply(
+                counts_reprocessed[-1],
+                function(col) col / sum(col)
+            )
+        }, error = function(e) {
+            warning("Error calculating reprocessed proportions: ", e$message)
+        })
+    }
 
     if (!raw) {
-        counts_original = fill_na_zero_numeric(counts_original)
-        proportions_original = fill_na_zero_numeric(proportions_original)
-        counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
-        proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+        tryCatch({
+            if (!is.na(counts_original)[1]) {
+                counts_original = fill_na_zero_numeric(counts_original)
+            }
+            if (!is.na(proportions_original)[1]) {
+                proportions_original = fill_na_zero_numeric(proportions_original)
+            }
+            if (!is.na(counts_reprocessed)[1]) {
+                counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+            }
+            if (!is.na(proportions_reprocessed)[1]) {
+                proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+            }
+        }, error = function(e) {
+            warning("Error filling NA values: ", e$message)
+        })
     }
 
     # ----- Return structured list -----
