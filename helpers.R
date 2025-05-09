@@ -31,62 +31,71 @@ rename_and_align <- function(counts_reprocessed = NULL,
   
   # Create target samples based on all by_col columns
   target_samples <- if (align) {
-    # Get unique combinations of all by_col values
+    # Get unique combinations of all by_col values from scale
     unique(do.call(paste, c(scale[by_col], sep = "_")))
   } else NULL
+
+  # Create mapping using all by_col columns   
+  acc_to_name <- setNames(
+    do.call(paste, c(metadata[by_col], sep = "_")),
+    metadata$Accession
+  )
 
   if (!is.null(counts_reprocessed) &&
       (is.matrix(counts_reprocessed) || is.data.frame(counts_reprocessed))) {
 
     stopifnot("Accession" %in% colnames(metadata), all(by_col %in% colnames(metadata)))
     
-    # Create mapping using all by_col columns
-    acc_to_name <- setNames(
-      do.call(paste, c(metadata[by_col], sep = "_")),
-      metadata$Accession
-    )
-    
-    mapped_names <- acc_to_name[rownames(counts_reprocessed)]
-    valid <- !is.na(mapped_names)
-    dropped <- sum(!valid)
-    if (dropped > 0)
-      message("\n", study_name, " | counts_reprocessed: dropped ", dropped, " unmatched")
+    # Verify we have accessions as rownames in counts_reprocessed
+    if (length(intersect(rownames(counts_reprocessed), metadata$Accession)) == 0) {
+      warning("\n", study_name, " | No matching accessions found between counts_reprocessed and metadata")
+      reprocessed = counts_reprocessed
+    } else {
+      mapped_names <- acc_to_name[rownames(counts_reprocessed)]
+      valid <- !is.na(mapped_names)
+      dropped <- sum(!valid)
+      if (dropped > 0)
+        message("\n", study_name, " | counts_reprocessed: dropped ", dropped, " unmatched accessions")
 
-    counts_reprocessed <- counts_reprocessed[valid, , drop = FALSE]
-    mapped_names <- make.unique(mapped_names[valid])
-    rownames(counts_reprocessed) <- mapped_names
-    
-    # Update metadata and scale with unique combinations
-    metadata$combined_col <- make.unique(acc_to_name[metadata$Accession])
-    scale$combined_col <- make.unique(do.call(paste, c(scale[by_col], sep = "_")))
+      counts_reprocessed <- counts_reprocessed[valid, , drop = FALSE]
+      mapped_names <- make.unique(mapped_names[valid])
+      rownames(counts_reprocessed) <- mapped_names
+    }
+  }
 
-    if (align) {
+  if (align) {
+    # First align counts_reprocessed to target samples
+    if (!is.null(counts_reprocessed)) {
       before_n <- nrow(counts_reprocessed)
       counts_reprocessed <- counts_reprocessed[rownames(counts_reprocessed) %in% target_samples, , drop = FALSE]
       after_n <- nrow(counts_reprocessed)
       if (before_n != after_n)
-        message("\n", study_name, " | counts_reprocessed: dropped ", before_n - after_n, " unaligned")
+        message("\n", study_name, " | counts_reprocessed: dropped ", before_n - after_n, " unaligned samples")
     }
-  }
 
-  if (!is.null(counts_original) &&
-      (is.matrix(counts_original) || is.data.frame(counts_original)) &&
-      align) {
-    before_n <- nrow(counts_original)
-    counts_original <- counts_original[rownames(counts_original) %in% target_samples, , drop = FALSE]
-    after_n <- nrow(counts_original)
-    if (before_n != after_n)
-      message("\n", study_name, " | counts_original: dropped ", before_n - after_n, " unaligned")
-  }
+    # Then align counts_original to target samples
+    if (!is.null(counts_original) &&
+        (is.matrix(counts_original) || is.data.frame(counts_original))) {
+      before_n <- nrow(counts_original)
+      counts_original <- counts_original[rownames(counts_original) %in% target_samples, , drop = FALSE]
+      after_n <- nrow(counts_original)
+      if (before_n != after_n)
+        message("\n", study_name, " | counts_original: dropped ", before_n - after_n, " unaligned samples")
+    }
 
-  if (!is.null(proportions_original) &&
-      (is.matrix(proportions_original) || is.data.frame(proportions_original)) &&
-      align) {
-    before_n <- nrow(proportions_original)
-    proportions_original <- proportions_original[rownames(proportions_original) %in% target_samples, , drop = FALSE]
-    after_n <- nrow(proportions_original)
-    if (before_n != after_n)
-      message("\n", study_name, " | proportions_original: dropped ", before_n - after_n, " unaligned")
+    # Then align proportions_original to target samples
+    if (!is.null(proportions_original) &&
+        (is.matrix(proportions_original) || is.data.frame(proportions_original))) {
+      before_n <- nrow(proportions_original)
+      proportions_original <- proportions_original[rownames(proportions_original) %in% target_samples, , drop = FALSE]
+      after_n <- nrow(proportions_original)
+      if (before_n != after_n)
+        message("\n", study_name, " | proportions_original: dropped ", before_n - after_n, " unaligned samples")
+    }
+
+    # Finally update metadata to only include samples that are in target_samples
+    metadata$combined_col <- make.unique(acc_to_name[metadata$Accession])
+    metadata <- metadata[metadata$combined_col %in% target_samples, , drop = FALSE]
   }
 
   list(

@@ -1,4 +1,4 @@
-parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- function(raw = FALSE, align=FALSE) {
+parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tidyverse")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
 
@@ -87,7 +87,7 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
       if (!raw) {
         counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
         align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata, scale, by_col = "sampleID", align = align, study_name = basename(local))
-        counts_reprocessed <- align$counts_reprocessed
+        counts_reprocessed <- align$reprocessed
       }
 
 

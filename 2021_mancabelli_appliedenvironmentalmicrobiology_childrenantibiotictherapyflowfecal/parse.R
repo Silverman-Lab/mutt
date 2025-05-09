@@ -54,7 +54,7 @@ parse_2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapy
             df[[1]] <- NULL
             if (!raw) {
                 align <- rename_and_align(counts_reprocessed = df, metadata = metadata_df, scale = scale_df, by_col = "Sample_name", align = align, study_name = basename(local))
-                df <- align$counts_reprocessed
+                df <- align$reprocessed
             }
             separate(taxa,
                     into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
@@ -80,7 +80,7 @@ parse_2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapy
             df[[1]] <- NULL
             if (!raw) {
                 align <- rename_and_align(counts_reprocessed = df, metadata = metadata_df, scale = scale_df, by_col = "Sample_name", align = align, study_name = basename(local))
-                df <- align$counts_reprocessed
+                df <- align$reprocessed
             }
             proportions <- apply(df, 2, function(col) col / sum(col))
             tax_df <- data.frame(taxa = rownames(df)) %>%

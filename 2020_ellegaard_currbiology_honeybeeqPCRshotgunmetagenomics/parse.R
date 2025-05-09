@@ -48,7 +48,7 @@ parse_2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics <- function(raw
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
             if (!raw) {
-                align = rename_and_align(counts_reprocessed= df, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
+                align = rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
                 df = align$reprocessed
             }
             proportions <- apply(df, 2, function(col) col / sum(col))

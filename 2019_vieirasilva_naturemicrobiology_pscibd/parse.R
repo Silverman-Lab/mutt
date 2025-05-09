@@ -1,4 +1,4 @@
-parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw=FALSE,align=FALSE,entrez_key = NULL) {
+parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align = FALSE, entrez_key = NULL) {
   # if (is.null(entrez_key) || !nzchar(entrez_key)) {
   #   message("No NCBI Entrez API key provided.")
   #   response <- readline(prompt = "Would you like to enter an NCBI API key? (y/n): ")

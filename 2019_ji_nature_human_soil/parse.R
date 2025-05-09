@@ -1,4 +1,4 @@
-parse_2019_ji_nature_human_soil <- function(raw = FALSE, align=FALSE) {
+parse_2019_ji_nature_human_soil <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("stringr", "tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {

@@ -1,4 +1,4 @@
-parse_2024_jin_pnas_semen <- function(raw=FALSE, align=FALSE) {
+parse_2024_jin_pnas_semen <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tidyverse", "readxl", "stringr", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {

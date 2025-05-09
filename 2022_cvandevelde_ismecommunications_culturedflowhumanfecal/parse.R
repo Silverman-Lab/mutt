@@ -40,9 +40,10 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     # ---- scale and metadata -----
     tryCatch({
         scale <- read_zipped_table(scale_zip, row.names = NULL) %>% 
-            as.data.frame() %>% 
-            rename(Sample = SampleID) %>%
-            mutate(log2_FC = ifelse(10^load > 0, log2(10^mean_FC), NA)) %>%
+            as.data.frame() 
+        scale <- scale %>% 
+            rename(Sample = sampleID) %>%
+            mutate(log2_FC = ifelse(10^load > 0, log2(10^load), NA)) %>%
             rename(log10_FC = load)
     }, error = function(e) {
         warning("Error reading scale file: ", e$message)
@@ -54,8 +55,9 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     # data connection to our scale. 
     tryCatch({
         metadata <- read_zipped_csv(metadata_zip) %>% 
-            as.data.frame() %>% 
-            rename(Sample = SampleID)
+            as.data.frame() 
+        metadata <- metadata %>% 
+            rename(Sample = Sample_ID)
     }, error = function(e) {
         warning("Error reading metadata file: ", e$message)
     })
@@ -132,13 +134,28 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
                                     metadata = metadata, 
                                     scale = scale, 
                                     by_col = "Sample_name", 
-                                    align = align_samples, 
+                                    align = align, 
                                     study_name = basename(local))
             counts_reprocessed = aligned$reprocessed
 
-            # taxa
-            matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+            # taxa - match ASV sequences to taxonomy
+            # First ensure sequences match exactly by trimming any whitespace
+            asv_seqs <- trimws(colnames(counts_reprocessed))
+            tax_seqs <- trimws(rownames(tax_reprocessed))
+            
+            # Create mapping between sequences and taxa
+            seq_to_taxa <- setNames(tax_reprocessed$Taxa, tax_seqs)
+            
+            # Match sequences and replace with taxa names
+            matched_taxa <- seq_to_taxa[asv_seqs]
+            
+            # Set unmatched to "unclassified"
+            matched_taxa[is.na(matched_taxa)] <- "unclassified"
+            
+            # Update column names
             colnames(counts_reprocessed) <- matched_taxa
+            
+            # Sum counts for identical taxa
             counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
         }, error = function(e) {
             warning("Error aligning reprocessed data: ", e$message)

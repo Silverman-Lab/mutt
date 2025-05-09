@@ -1,4 +1,4 @@
-parse_2018_tourlousse_scientificreports_soilsewagespikein <- function(raw = FALSE, align=FALSE) {
+parse_2018_tourlousse_scientificreports_soilsewagespikein <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("stringr", "tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {

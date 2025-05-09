@@ -1,4 +1,4 @@
-parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw=FALSE, align=FALSE) {
+parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tibble", "tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {

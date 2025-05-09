@@ -1,4 +1,4 @@
-parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, align = align) {
+parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, align = FALSE) {
 
   # THIS STUDY IS THE SAME AS MAROTZ ET AL. AND CAN BE ARCHIVED WITHOUT FURTHER WORK.
   #
@@ -55,7 +55,7 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
     if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
     counts<- as.data.frame(readRDS(rds_files[1]))
     if (!raw) {
-        align = rename_and_align(counts_original= counts, metadata, scale, by_col = "ID", align = align, study_name = basename(local))
+        align = rename_and_align(counts_original = counts, metadata, scale, by_col = "ID", align = align, study_name = basename(local))
         counts <- align$counts_original
     }
     proportions <- apply(counts, 2, function(col) col/sum(col))

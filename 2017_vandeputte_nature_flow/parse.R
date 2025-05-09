@@ -21,7 +21,7 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
     # ----- File paths -----
     metadata_zip         <- file.path(local, "Vandeputte_2017_metadata.csv.zip")
     metadata_two_zip     <- file.path(local, "cellcountstotal.csv.zip")
-    orig_counts_zip      <- file.path(local, "OTU_nochim.zip")
+    orig_counts_zip      <- file.path(local, "OTU_nochim.csv.zip")
     orig_tax_rdp_zip     <- file.path(local, "otu_taxonomy_rdp.csv.zip")
     orig_tax_silva_zip   <- file.path(local, "otu_taxonomy_silva.csv.zip")
     orig_prop_zip        <- NA
@@ -35,35 +35,40 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
 
     # Read metadata
     metadata_df <- read_zipped_table(metadata_zip, row.names = NULL)
-    sra         <- read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run, Sample = Sample_name)
+    # Remove empty columns and clean up column names
+    metadata_df <- metadata_df[, !sapply(metadata_df, function(x) all(is.na(x) | x == ""))]
+    # Keep only the first 8 columns which have the actual metadata
+    metadata_df <- metadata_df[, 1:8]
+    colnames(metadata_df) <- make.unique(colnames(metadata_df))
+    
+    sra <- read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run, Sample = Sample_name)
 
-    # Join and select
-    df <- full_join(
-        metadata_df,
-        metadata_two,
-        by = c("Sample" = "Individual")
-    )
+    # Join metadata
+    df <- full_join(metadata_df, metadata_two, by = c('Sample' = 'Individual'))
+    
+    # Create metadata
     metadata <- df %>%
         select(
             Accession = sampleID,
             Sample,
             Cohort = Cohort.x,
             Day,
-            `Health status` = Health.status,
+            `Health status` = Health,
             Enterotype = Enterotype.x
         )
 
-    metadata = merge(metadata, sra, by = "Accession")
+    metadata = merge(metadata, sra, by = "Accession") %>% rename(Sample = Sample.x)
 
+    # Create scale
     scale <- df %>%
         select(
             Sample,
             Day,
             Accession = sampleID,
-            `Average cell count (per gram of fresh feces)` = Average.cell.count..per.gram.of.fresh.feces.,
-            `STDEV cell count (per gram of fresh feces)` = STDEV.cell.count..per.gram.of.fresh.feces.,
-            `Average cell count (per gram of frozen feces)` = Average.cell.count..per.gram.of.frozen.feces..y,
-            `STDEV cell count (per gram of frozen feces)` = STDEV.cell.count..per.gram.of.frozen.feces..y
+            `Average cell count (per gram of fresh feces)`,
+            `STDEV cell count (per gram of fresh feces)`,
+            `Average cell count (per gram of frozen feces)` = `Average cell count (per gram of frozen feces).y`,
+            `STDEV cell count (per gram of frozen feces)` = `STDEV cell count (per gram of frozen feces).y`
         ) %>% 
         mutate(log2_FC_cell_g = ifelse(`Average cell count (per gram of fresh feces)`>0, log2(`Average cell count (per gram of fresh feces)`), NA)) %>%
         mutate(log10_FC_cell_g = ifelse(`Average cell count (per gram of frozen feces)`>0, log10(`Average cell count (per gram of frozen feces)`), NA))
@@ -73,7 +78,36 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
     orig_csv <- unzip(orig_counts_zip, list = TRUE)$Name[1]
     orig_con <- unz(orig_counts_zip, orig_csv)
     orig_mat <- read.csv(orig_con, row.names = 1, check.names = FALSE)
-    counts_original <- as.data.frame(orig_mat)
+
+    # Read original taxonomy
+    orig_tax_rdp_zip <- file.path(local, "otu_taxonomy_rdp.csv.zip")
+    orig_tax_rdp_csv <- unzip(orig_tax_rdp_zip, list = TRUE)$Name[1]
+    orig_tax_rdp_con <- unz(orig_tax_rdp_zip, orig_tax_rdp_csv)
+    orig_tax_rdp <- read.csv(orig_tax_rdp_con, row.names = 1, check.names = FALSE)
+
+    orig_tax_silva_zip <- file.path(local, "otu_taxonomy_silva.csv.zip")
+    orig_tax_silva_csv <- unzip(orig_tax_silva_zip, list = TRUE)$Name[1]
+    orig_tax_silva_con <- unz(orig_tax_silva_zip, orig_tax_silva_csv)
+    orig_tax_silva <- read.csv(orig_tax_silva_con, row.names = 1, check.names = FALSE)
+
+    # Combine taxonomy
+    orig_tax <- data.frame(
+        Sequence = colnames(orig_mat),
+        Kingdom_rdp = orig_tax_rdp$Kingdom,
+        Phylum_rdp = orig_tax_rdp$Phylum,
+        Class_rdp = orig_tax_rdp$Class,
+        Order_rdp = orig_tax_rdp$Order,
+        Family_rdp = orig_tax_rdp$Family,
+        Genus_rdp = orig_tax_rdp$Genus,
+        Kingdom_silva = orig_tax_silva$Kingdom,
+        Phylum_silva = orig_tax_silva$Phylum,
+        Class_silva = orig_tax_silva$Class,
+        Order_silva = orig_tax_silva$Order,
+        Family_silva = orig_tax_silva$Family,
+        Genus_silva = orig_tax_silva$Genus
+    )
+
+    counts_original <- orig_mat
     counts_original$Sequence <- rownames(counts_original)
     counts_original <- counts_original[, c("Sequence", setdiff(names(counts_original), "Sequence"))]
     rownames(counts_original) <- counts_original$Sequence
@@ -129,62 +163,70 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
         tax_original <- NA
     }
 
+
+    # ----- Reprocessed counts from RDS ZIP -----
     if (all(file.exists(repro_counts_rds_zip))) {
-      # ----- Reprocessed counts from RDS ZIP -----
-      temp_rds <- tempfile(fileext = ".rds")
-      unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-
-      rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-      if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-      counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
-
-      # ----- Taxonomy reprocessed -----
-      temp_tax <- tempfile(fileext = ".rds")
-      unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-
-      tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-      if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-      tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-
-
-      # ----- Convert sequences to lowest rank taxonomy found and update key -----
-      tax_reprocessed = make_taxa_label(tax_reprocessed)
-
-      # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-      if (!raw) {
-          tryCatch({
-              align <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
-              counts_reprocessed <- align$counts_reprocessed
-              
-              # taxa
-              matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-              colnames(counts_reprocessed) <- matched_taxa
-              
-              # Handle duplicate column names by making them unique
-              if(any(duplicated(colnames(counts_reprocessed)))) {
-                  warning("Duplicate column names found in counts_reprocessed, making them unique")
-                  colnames(counts_reprocessed) <- make.unique(colnames(counts_reprocessed))
-              }
-              
-              counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), 
-                                                         group = colnames(counts_reprocessed))))
-          }, error = function(e) {
-              warning("Error processing reprocessed data: ", e$message)
-          })
-      }
-
-      # proportions reprocessed
-      if (!is.na(counts_reprocessed)[1]) {
-          tryCatch({
-              proportions_reprocessed = counts_reprocessed
-              proportions_reprocessed[-1] <- lapply(
-                  counts_reprocessed[-1],
-                  function(col) col / sum(col)
-              )
-          }, error = function(e) {
-              warning("Error calculating reprocessed proportions: ", e$message)
-          })
-      }
+        # Create temporary directory for unzipped files
+        temp_dir <- tempfile("reprocessed_data")
+        dir.create(temp_dir)
+        
+        # Unzip counts file
+        unzip(repro_counts_rds_zip, exdir = temp_dir)
+        counts_file <- list.files(temp_dir, pattern = "_counts\\.rds$", full.names = TRUE)[1]
+        if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+        counts_reprocessed <- as.data.frame(readRDS(counts_file))
+        
+        # Unzip taxonomy file
+        unzip(repro_tax_zip, exdir = temp_dir)
+        tax_file <- list.files(temp_dir, pattern = "_taxa\\.rds$", full.names = TRUE)[1]
+        if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+        tax_reprocessed <- as.data.frame(readRDS(tax_file))
+        
+        # Clean up temporary directory
+        unlink(temp_dir, recursive = TRUE)
+        
+        # Convert sequences to lowest rank taxonomy found and update key
+        tax_reprocessed = make_taxa_label(tax_reprocessed)
+        
+        # Convert accessions to sample IDs / Sequences to Taxa
+        if (!raw) {
+            tryCatch({
+                align <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+                counts_reprocessed <- align$counts_reprocessed
+                
+                # taxa
+                matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+                colnames(counts_reprocessed) <- matched_taxa
+                
+                # Handle duplicate column names by making them unique
+                if(any(duplicated(colnames(counts_reprocessed)))) {
+                    warning("Duplicate column names found in counts_reprocessed, making them unique")
+                    colnames(counts_reprocessed) <- make.unique(colnames(counts_reprocessed))
+                }
+                
+                counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), 
+                                                           group = colnames(counts_reprocessed))))
+            }, error = function(e) {
+                warning("Error processing reprocessed data: ", e$message)
+            })
+        }
+        
+        # Calculate proportions
+        if (!is.na(counts_reprocessed)[1]) {
+            tryCatch({
+                proportions_reprocessed = counts_reprocessed
+                proportions_reprocessed[-1] <- lapply(
+                    counts_reprocessed[-1],
+                    function(col) col / sum(col)
+                )
+            }, error = function(e) {
+                warning("Error calculating reprocessed proportions: ", e$message)
+            })
+        }
+    } else {
+        counts_reprocessed <- NA
+        tax_reprocessed <- NA
+        proportions_reprocessed <- NA
     }
 
     if (!raw) {
