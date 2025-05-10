@@ -157,8 +157,7 @@ parse_2021_forslund_nature_metacardis <- function(raw = FALSE, align = FALSE) {
       align <- rename_and_align(counts_original = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
       counts <- align$counts_original
     }
-    row_sums <- rowSums(counts)
-    proportions <- sweep(counts, 1, row_sums, FUN = "/")
+    proportions <- sweep(counts, 1, rowSums(counts), FUN = "/")
     proportions[is.nan(proportions)] <- 0  
 
   } else {
@@ -191,7 +190,7 @@ parse_2021_forslund_nature_metacardis <- function(raw = FALSE, align = FALSE) {
         }
 
         # Normalize to proportions
-        prop <- apply(df, 2, function(col) col / sum(col))
+        prop <- sweep(df, 1, rowSums(df), FUN = "/")
 
         # Taxonomy table
         tax_df <- data.frame(taxa = rownames(df)) %>%
@@ -236,7 +235,7 @@ parse_2021_forslund_nature_metacardis <- function(raw = FALSE, align = FALSE) {
         }
 
         # Normalize to proportions
-        prop <- apply(df, 2, function(col) col / sum(col))
+        prop <- sweep(df, 1, rowSums(df), FUN = "/")
 
         # Taxonomy table
         tax_df <- data.frame(taxa = rownames(df)) %>%

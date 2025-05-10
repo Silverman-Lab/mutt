@@ -1,4 +1,4 @@
-parse_2024_garciamartinez_bmcmicrobiology_ckdflow <- function(raw = FALSE, align = FALSE) {
+parse_2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tidyverse", "readxl")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   

@@ -40,46 +40,15 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
   MetaPhlAn4_tax <- NA
 
   # ----- Metadata -----
-  metadata          <- read_zipped_table(metadata_zip, row.names=NULL) %>% 
-                        rename(Accession = Run, Sample = `Sample.Name`)
-  metadataprocessed <- read_zipped_table(metadataprocessed_zip, row.names=NULL)
-  # if (file.exists(metadata_zip)) {
-  #   metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
-  #   metadata_con <- unz(metadata_zip, metadata_csv)
-  #   metadata <- read.csv(metadata_con, row.names = "Sample.Name") %>%
-  #     as.data.frame() %>%
-  #     rownames_to_column("Sample")
-  # }
+  sra          <- read_zipped_table(metadata_zip, row.names=NULL) %>% rename(Accession = Run, Sample = `Sample Name`)
+  metadata <- read_zipped_table(metadataprocessed_zip, row.names=1) %>% rename(Accession = Run, Sample = `Sample.Name`)
+  #no need to merge, just use metadata
 
   # ----- Scale -----
-  scale <- read_zipped_table(scale_zip, row.names=NULL) %>% 
-            mutate(log2_Bacterial_load = ifelse(`Bacterial total count` > 0, log2(`Bacterial total count`),NA)) %>% 
-            mutate(log10_Bacterial_load = ifelse(`Bacterial total count` > 0, log10(`Bacterial total count`),NA))
+  scale <- read_zipped_table(scale_zip, row.names=1) %>% 
+            mutate(log2_FC_Bacterial_load = ifelse(10^`Bacterial total count` > 0, log2(10^`Bacterial total count`),NA)) %>% 
+            rename(log10_FC_Bacterial_load = `Bacterial total count`)
             
-  # if (file.exists(scale_zip)) {
-  #   scale_files <- unzip(scale_zip, list = TRUE)
-  #   if (nrow(scale_files) > 0) {
-  #     scale_xlsx <- scale_files$Name[1]
-  #     temp_dir <- tempdir()
-  #     unzip(scale_zip, files = scale_xlsx, exdir = temp_dir, overwrite = TRUE)
-  #     scale_path <- file.path(temp_dir, scale_xlsx)
-  #     sheet7 <- read_xlsx(scale_path, sheet = 7)
-  #     sheet8 <- read_xlsx(scale_path, sheet = 8)
-  #     sheet10 <- read_xlsx(scale_path, sheet = 10)
-  #     sheet11 <- read_xlsx(scale_path, sheet = 11)
-  #     merged <- reduce(list(sheet7, sheet8, sheet10, sheet11), full_join, by = "Sample")
-
-  #     scale <- merged %>%
-  #       select(Sample, `Bacterial total count`) %>%
-  #       column_to_rownames("Sample")
-  #     additional_metadata <- merged %>% select(-`Bacterial total count`)
-  #     if (!is.null(metadata) && !is.na(metadata)) {
-  #       metadata <- metadata %>%
-  #         full_join(additional_metadata, by = "Sample") %>%
-  #         column_to_rownames("Sample")
-  #     }
-  #   }
-  # }
 
   # ----- mOTU3 Reprocessed -----
   if (file.exists(motus_zip)) {
@@ -97,7 +66,7 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
                             by_col="Sample", align = align, study_name=basename(local))
           df = aligned$reprocessed
         }
-        proportions <- apply(df, 2, function(col) col / sum(col))
+        proportions <- sweep(df, 1, rowSums(df), FUN = "/")
         tax_df <- data.frame(taxa = rownames(df)) %>%
         mutate(taxa = str_trim(taxa)) %>%
         separate(taxa,
@@ -127,7 +96,7 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
                             by_col="Sample", align = align, study_name=basename(local))
           df = aligned$reprocessed
         }
-        proportions <- apply(df, 2, function(col) col / sum(col))
+        proportions <- sweep(df, 1, rowSums(df), FUN = "/")
         tax_df <- data.frame(taxa = rownames(df)) %>%
         mutate(taxa = str_trim(taxa)) %>%
         separate(taxa,
@@ -142,7 +111,7 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
   }
 
   # ---- old processed, delete later ----
-  counts_original <- read_zipped_table(oldprocessed_zip, row.names=NULL)
+  counts_original <- read_zipped_table(oldprocessed_zip)
   if (!raw) {
     aligned = rename_and_align(counts_reprocessed = counts_original, metadata=metadata, scale=scale, 
                               by_col="Sample", align = align, study_name=basename(local))

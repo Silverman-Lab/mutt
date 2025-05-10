@@ -13,11 +13,13 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
   library(readr)
 
   # -------- local path -----------
-  local                       <- file.path("2021_forslund_nature_metacardis")
+  local                       <- file.path("2022_fromentin_naturemedicine_metacardissubset")
 
   # -------- file paths -----------
   metamatmetformin_zip        <- file.path(local, "metaMatMetformin (1).RData.zip")
   metadata_zip                <- file.path(local, "41591_2022_1688_MOESM3_ESM.xlsx.zip")
+  metacardismicrobiome_zip    <- file.path(local, "metacardismicrobiome.zip")
+  
   sra_zips                    <- c(
     file.path(local, "SraRunTable (36).csv.zip")
   )
@@ -40,10 +42,11 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
       metadata_file <- excel_files[1]
       metadata_sheets <- c("ST9","ST10", "ST11", "ST12", "ST13", "ST14")
       
-      metadata_list <- list()
+      raw_data_list <- list()
       scale <- NULL
       st10_selected <- NULL
       st14_df <- NULL
+      st9_df <- NULL
 
       for (sheet in metadata_sheets) {
         df_raw <- read_excel(metadata_file, sheet = sheet, col_names = FALSE)
@@ -68,6 +71,7 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
             scale <- df %>%
               select(Sample, MicrobialLoad = `Microbial load`) %>%
               as.data.frame(stringsAsFactors = FALSE)
+            raw_data_list$microbiome <- df %>% select(Sample, starts_with("F"))
           }
           if (all(c("Status", "MGS count", "Gene count", "Microbial load") %in% colnames(df))) {
             st10_selected <- df %>%
@@ -77,9 +81,12 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
           st14_df <- df
         } else if (sheet == "ST9") {
           st9_df <- df
+        } else if (sheet %in% c("ST11", "ST12", "ST13")) {
+          df <- df %>% select(-any_of("Status"))
+          raw_data_list[[df_name]] <- df
         } else {
           df <- df %>% select(-any_of(c("Status", "MGS count", "Gene count", "Microbial load")))
-          metadata_list[[df_name]] <- df
+          raw_data_list[[df_name]] <- df
         }
       }
 
@@ -88,6 +95,63 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
                         reduce(full_join, by = "Sample")
       } else {
         metadata_df <- NULL
+      }
+
+      sra_list = list()
+
+      for (sra_zip in sra_zips) {
+        if (file.exists(sra_zip)) {
+          zinfo <- unzip(sra_zip, list = TRUE)
+          csv_name <- zinfo$Name[grepl("\\.csv$", zinfo$Name)][1]
+          if (!is.na(csv_name)) {
+            tmpdir <- tempfile("sra_csv_")
+            dir.create(tmpdir)
+            unzip(sra_zip, files = csv_name, exdir = tmpdir)
+            csv_path <- file.path(tmpdir, csv_name)
+
+            sra_df <- read_csv(csv_path, show_col_types = FALSE)
+            sra_list[[length(sra_list) + 1]] <- sra_df
+
+            unlink(tmpdir, recursive = TRUE)
+          }
+        }
+      }
+
+      combined_sra_df <- bind_rows(sra_list) %>% rename(Accession = Run, Sample = Submitter_Id)
+
+      metadata <- full_join(
+        combined_sra_df,
+        metadata_df,
+        by = "Sample" 
+      )
+
+      # Now, after metadata is constructed, align and create proportions
+      metadata_list <- list()
+      proportions_list <- list()
+      tax_list <- list()
+      for (df_name in names(raw_data_list)) {
+        df <- raw_data_list[[df_name]]
+        if (!raw) {
+          aligned = rename_and_align(counts_original = df, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+          df = aligned$counts_original
+        }
+        metadata_list[[df_name]] <- df
+        # Proportions
+        df_numeric <- df %>% mutate(across(everything(), as.numeric))
+        row_sums <- rowSums(df_numeric, na.rm = TRUE)
+        df_prop <- sweep(df_numeric, 1, row_sums, "/")
+        df_prop <- cbind(Sample = rownames(df), df_prop)
+        proportions_list[[df_name]] <- df_prop
+        # Taxonomy
+        feature_names <- colnames(df_numeric)
+        tax_df <- data.frame(
+          Feature = feature_names,
+          Description = feature_names,
+          Type = df_name,
+          stringsAsFactors = FALSE
+        )
+        rownames(tax_df) <- feature_names
+        tax_list[[df_name]] <- tax_df
       }
     } else {
       warning("No .xlsx file found in ", metadata_zip)
@@ -98,40 +162,24 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
     warning("Metadata zip file not found: ", metadata_zip)
   }
 
-  for (sra_zip in sra_zips) {
-    if (file.exists(sra_zip)) {
-      zinfo <- unzip(sra_zip, list = TRUE)
-      csv_name <- zinfo$Name[grepl("\\.csv$", zinfo$Name)][1]
-      if (!is.na(csv_name)) {
-        tmpdir <- tempfile("sra_csv_")
-        dir.create(tmpdir)
-        unzip(sra_zip, files = csv_name, exdir = tmpdir)
-        csv_path <- file.path(tmpdir, csv_name)
+  # --- scale ----
+  scale$MicrobialLoad <- as.numeric(scale$MicrobialLoad)
+  scale = scale %>% mutate(log2_FC = ifelse(MicrobialLoad >0, log2(MicrobialLoad), NA)) %>% 
+                    mutate(log10_FC = ifelse(MicrobialLoad > 0, log10(MicrobialLoad), NA))
 
-        sra_df <- read_csv(csv_path, show_col_types = FALSE)
-        sra_list[[length(sra_list) + 1]] <- sra_df
-
-        unlink(tmpdir, recursive = TRUE)
-      }
-    }
-  }
-
-  combined_sra_df <- bind_rows(sra_list)
-
-  metadata <- full_join(
-    combined_sra_df,
-    metadata_df,
-    by = c("Submitter_Id" = "Sample") 
+  # --- nishijima2024_mOTU25 ----
+  csv_file <- unzip(file.path(local, "MetaCardis_shotgunmetagenomics.csv.zip"), list = TRUE)$Name[1]
+  nishijima2024_mOTU25 <- read.csv(
+    unz(file.path(local, "MetaCardis_shotgunmetagenomics.csv.zip"), csv_file),
+    check.names = FALSE,
+    stringsAsFactors = FALSE, 
+    row.names = 1
   )
-
-  # --- original counts, proportions, tax ----
-
-  # NEED TO FINALIZE THIS
-
-  # ---- initialize dataframes ----
-  counts = NA
-  proportions = NA
-  tax = NA
+  if (!raw) {
+    aligned = rename_and_align(proportions_original = nishijima2024_mOTU25, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+    nishijima2024_mOTU25 = aligned$proportions_original
+  }
+  nishijima2024_mOTU25_tax <- data.frame(Taxa = colnames(nishijima2024_mOTU25), stringsAsFactors = FALSE)
 
   # reduced_feature_zip <- paste0(local, "reduced_feature (1).RData.zip")
   # if (file.exists(reduced_feature_zip)) {
@@ -203,7 +251,7 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
         }
 
         # Normalize to proportions
-        prop <- apply(df, 2, function(col) col / sum(col))
+        prop <- sweep(df, 1, rowSums(df), FUN = "/")
 
         # Taxonomy table
         tax_df <- data.frame(taxa = rownames(df)) %>%
@@ -246,7 +294,7 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
           aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
           df = aligned$reprocessed
         }
-        prop <- apply(df, 2, function(col) col / sum(col))
+        prop <- sweep(df, 1, rowSums(df), FUN = "/")
 
         # Taxonomy table
         tax_df <- data.frame(taxa = rownames(df)) %>%
@@ -275,15 +323,15 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
 
   cleanup_tempfiles(c(temp_dir))
 
-
-
   # ----- Return -----
   return(list(
       counts = list(
         original = list(
-            microbiome = if (!raw) {fill_na_zero_numeric(metadata_list$microbiome)} else {metadata_list$microbiome},
+            microbiome = list(MAG = if (!raw) {fill_na_zero_numeric(metadata_list$microbiome)} else {metadata_list$microbiome},
+                              mOTU25 = NA
+            ),
             GMMandKEGGabundances = metadata_list$GMMandKEGGabundances,
-            serummetabolites = NA,
+            serummetabolites = metadata_list$logtransformedserummetabolites,
             urinemetabolites = metadata_list$urinemetabolitesdata
         ),
         reprocessed = list(
@@ -293,10 +341,12 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
       ),
       proportions = list(
         original = list(
-            microbiome = if (!raw) {fill_na_zero_numeric(proportions_list$microbiome)} else {proportions_list$microbiome},
+            microbiome = list(MAG = if (!raw) {fill_na_zero_numeric(proportions_list$microbiome)} else {proportions_list$microbiome},
+                            mOTU25 = if (!raw) {fill_na_zero_numeric(nishijima2024_mOTU25)} else {nishijima2024_mOTU25}
+            ),
             GMMandKEGGabundances = proportions_list$GMMandKEGGabundances,
-            serummetabolites = metadata_list$logtransformedserummetabolites,
-            urinemetabolites = proportions_list$urinemetabolites
+            serummetabolites = proportions_list$logtransformedserummetabolites,
+            urinemetabolites = proportions_list$urinemetabolitesdata
         ),
         reprocessed = list(
             mOTU3 = if (!raw) {fill_na_zero_numeric(mOTU3_proportions)} else {mOTU3_proportions},
@@ -305,10 +355,12 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
       ),
       tax = list(
         original = list(
-            microbiome = tax_list$microbiome,
+            microbiome = list(MAG = tax_list$microbiome,
+                              mOTU25 = nishijima2024_mOTU25_tax
+            ),
             GMMandKEGGabundances = tax_list$GMMandKEGGabundances,
             serummetabolites = tax_list$logtransformedserummetabolites,
-            urinemetabolites = tax_list$urinemetabolites
+            urinemetabolites = tax_list$urinemetabolitesdata
         ),
         reprocessed = list(
             mOTU3 = mOTU3_tax,

@@ -1,4 +1,4 @@
-parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE, align = FALSE) {
+parse_2023_maghini_naturebiotechnology_samplemesurement <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tibble", "tidyverse", "readr")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
@@ -22,6 +22,7 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE, align = FALSE)
   scale_zip      <- file.path(local, "Maghini2023_scale.csv.zip")
   metadata_zip   <- file.path(local, "Maghini_2023_metadata.csv.zip")
   original_zip   <- file.path(local, "Maghini_2023_shotgunmetagenomics.csv.zip")
+  metadatafromsra_path <- file.path(local, "SraRunTable (3).csv.zip")
 
   # ----- Initialize everything as NA -----
   counts_original <- NA
@@ -51,8 +52,11 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE, align = FALSE)
       sd_logCopyNumber   = sd(logCopyNumber, na.rm = TRUE),
       n_reps             = n(),
       .groups = "drop"
-    ) %>% mutate(log2_CopyNumber = ifelse(CopyNumber > 0, log2(CopyNumber), NA)) %>%
-          mutate(log10_CopyNumber = ifelse(CopyNumber > 0, log10(CopyNumber), NA))
+    ) %>%
+  mutate(
+    log2_CopyNumber = ifelse(mean_CopyNumber > 0, log2(mean_CopyNumber), NA),
+    log10_CopyNumber = ifelse(mean_CopyNumber > 0, log10(mean_CopyNumber), NA)
+  )
 
   # ----- Extract and deduplicate metadata -----
   metadata <- qPCR %>%
@@ -60,23 +64,23 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE, align = FALSE)
     distinct()
 
   # ----- SRA metadata and merge -----
-  metadatafromsra_path <- paste0(local, "/SraRunTable (3).csv")
-  metadatafromsra <- read.csv(metadatafromsra_path, check.names = FALSE) %>%
-    mutate(Library.Name = gsub("(_DNA)", "", Library.Name)) %>% rename(Accession = Run)
+  metadatafromsra <- read_zipped_table(metadatafromsra_path, row.names=NULL) %>%
+    mutate(ID = gsub("(_DNA)", "", `Library Name`)) %>% rename(Accession = Run)
 
   scale$ID <- gsub("-", "_", scale$ID)
   metadata$ID <- gsub("-", "_", metadata$ID)
 
   metadata <- merge(
     metadatafromsra, metadata,
-    by.x = "Library.Name",
-    by.y = "ID",
+    by = "ID",
     all = TRUE
   )
 
-  # ----- Read taxonomic counts -----
 
-  ## UNCOMMENT WHEN FIXED 
+  ## vvvvvvvvv UNCOMMENT WHEN FIXED vvvvvvvvv
+
+
+  # ----- Read taxonomic counts -----
 
   # tax_levels <- c("kingdom", "phylum", "class", "order", "family", "genus", "species")
   # read_bracken_table <- function(tax_level) {
@@ -141,10 +145,9 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE, align = FALSE)
 
   # # ------- Proportions ----------
   # proportions_original <- map(counts_original, function(df) {
-  #   rsums <- rowSums(df)
-  #   prop  <- sweep(df, 1, rsums, FUN = "/")
+  #   prop  <- sweep(df, 1, rowSums(df), FUN = "/")
   #   prop[is.nan(prop)] <- 0
-  #   return(as_tibble(prop, rownames = "Taxon"))
+  #   return(as_tibble(prop))
   # })
 
   # ----- mOTU3 Reprocessed -----
@@ -162,7 +165,7 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE, align = FALSE)
             aligned = rename_and_align(counts_original = df, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
             df = aligned$counts_original
         }
-        proportions <- apply(df, 2, function(col) col / sum(col))
+        proportions <- sweep(df, 1, rowSums(df), FUN = "/")
         tax_df <- data.frame(taxa = rownames(df)) %>%
         mutate(taxa = str_trim(taxa)) %>%
         separate(taxa,
@@ -190,7 +193,7 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE, align = FALSE)
             aligned = rename_and_align(counts_original = df, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
             df = aligned$counts_original
         }
-        proportions <- apply(df, 2, function(col) col / sum(col))
+        proportions <- sweep(df, 1, rowSums(df), FUN = "/")
         tax_df <- data.frame(taxa = rownames(df)) %>%
         mutate(taxa = str_trim(taxa)) %>%
         separate(taxa,
@@ -210,12 +213,8 @@ parse_2023_maghini_naturebio_metagenomic <- function(raw = FALSE, align = FALSE)
     aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
     counts_original = aligned$counts_original
   }
-  proportions_original <- map(counts_original, function(df) {
-    rsums <- rowSums(df)
-    prop  <- sweep(df, 1, rsums, FUN = "/")
-    prop[is.nan(prop)] <- 0
-    return(as_tibble(prop, rownames = "Taxon"))
-  })
+  tax_original <- data.frame(Taxa = colnames(counts_original))
+  proportions_original <- sweep(counts_original, MARGIN = 1, STATS = rowSums(counts_original), FUN = "/")
   
   
   # Dont delete:

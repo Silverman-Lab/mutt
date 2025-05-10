@@ -110,7 +110,7 @@ parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE, align = FALSE) {
             align = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
             counts_original = align$counts_original
         }
-        proportions_original <- sweep(counts_original, 2, colSums(counts_original), FUN = "/")
+        proportions_original <- sweep(counts_original, 1, rowSums(counts_original), FUN = "/")
         old_colnames <- colnames(proportions_original)
         tax_original <- data.frame(
         Taxa = old_colnames,
@@ -134,7 +134,7 @@ parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE, align = FALSE) {
                 align = rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
                 df = align$reprocessed
             }
-            proportions <- apply(df, 2, function(col) col / sum(col))
+            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
             separate(taxa,
@@ -163,7 +163,7 @@ parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE, align = FALSE) {
                 align = rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
                 df = align$reprocessed
             }
-            proportions <- apply(df, 2, function(col) col / sum(col))
+            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
             separate(taxa,

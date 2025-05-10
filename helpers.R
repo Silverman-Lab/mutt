@@ -116,15 +116,21 @@ rename_and_align <- function(counts_reprocessed = NULL,
 #' @param header Logical; whether the file has a header row
 #' @param row.names Index or name of column to use as row names
 #' @param check.names Logical; whether to check and fix column names
+#' @param skip Number of lines to skip before reading data
 #'
 #' @return A data frame read from the zipped file, or NA if the file does not exist
 #' @export
-read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE) {
+read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE, skip=0) {
   if (file.exists(zip_path)) {
     inner_file <- unzip(zip_path, list = TRUE)$Name[1]
     con <- unz(zip_path, inner_file)
-    read.table(con, sep = sep, header = header, row.names = row.names,
-               check.names = check.names, stringsAsFactors = FALSE)
+    if (is.null(row.names)) {
+      read.table(con, sep = sep, header = header, row.names = NULL,
+                 check.names = check.names, stringsAsFactors = FALSE, skip = skip)
+    } else {
+      read.table(con, sep = sep, header = header, row.names = row.names,
+                 check.names = check.names, stringsAsFactors = FALSE, skip = skip)
+    }
   } else {
     warning(paste("File not found:", zip_path))
     return(NA)

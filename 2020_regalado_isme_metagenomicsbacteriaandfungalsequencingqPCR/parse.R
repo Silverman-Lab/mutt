@@ -80,7 +80,7 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
                 align = rename_and_align(counts_original = df, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
                 df = align$counts_original
             }
-            proportions <- apply(df, 2, function(col) col / sum(col))
+            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
             separate(taxa,
@@ -109,7 +109,7 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
                 align = rename_and_align(counts_original = df, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
                 df = align$counts_original
             }
-            proportions <- apply(df, 2, function(col) col / sum(col))
+            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
             separate(taxa,

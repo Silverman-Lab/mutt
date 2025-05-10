@@ -87,16 +87,18 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
   }
 
   # ----- Initialize objects -----
-  counts      <- NA
-  proportions <- NA
-  tax         <- NA
+  counts_original      <- NA
+  proportions_original <- NA
+  tax_original         <- NA
   scale       <- NA
   metadata    <- NA
   proportions_reprocessed <- NA
   counts_reprocessed <- NA
   tax_reprocessed <- NA
+
   # ----- Read SCALE -----
   if (!is.na(scale_zip) && file.exists(scale_zip)) {
+    temp_dir <- tempdir()
     scale_files <- unzip(scale_zip, list = TRUE)
     if (nrow(scale_files) > 0) {
       scale_xlsx <- scale_files$Name[1]
@@ -107,25 +109,30 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
       scale_df <- scale_df %>%
         dplyr::rename(!!!setNames(names(rename_dict), rename_dict))
       scale <- scale_df %>%
-        dplyr::select(ID, `Average faecal cell count (cells/g)`)
+        dplyr::select(ID, `Average faecal cell count (cells/g)`) %>% 
+        mutate(log2_FC_cell_g = ifelse(`Average faecal cell count (cells/g)` > 0, log2(`Average faecal cell count (cells/g)`), NA)) %>%
+        mutate(log10_FC_cell_g = ifelse(`Average faecal cell count (cells/g)` > 0, log10(`Average faecal cell count (cells/g)`), NA))
     }
   }
 
   # ----- Read METADATA -----
   if (!is.na(metadata_zip) && file.exists(metadata_zip)) {
-    metadata_csv <- unzip(metadata_zip, list = TRUE)$Name[1]
-    metadata_con <- unz(metadata_zip, metadata_csv)
-    metadata <- read.csv(metadata_con, row.names = NULL) %>%
+    temp_dir <- tempdir()
+    metadata_files <- unzip(metadata_zip, list = TRUE)
+    metadata_xlsx <- metadata_files$Name[1]
+    unzip(metadata_zip, files = metadata_xlsx, exdir = temp_dir, overwrite = TRUE)
+    metadata_path <- file.path(temp_dir, metadata_xlsx)
+    metadata <- read_excel(metadata_path, sheet = 2) %>%
       as.data.frame() %>%
       dplyr::rename(ID = `Anonymised ID`)
   }
 
   # IF WE EVER GET THE DATA FROM THE AUTHORS ...... THEN WE CAN DELETE:collapse
-  proportions <- read_zipped_table(file.path(local, "VieraSilva_2019_16S.csv.zip"))
-  tax <- data.frame(Taxa = colnames(proportions), stringsAsFactors = FALSE)
+  proportions_original <- read_zipped_table(file.path(local, "VieiraSilva_2019_16S.csv.zip"))
+  tax_original <- data.frame(Taxa = colnames(proportions_original), stringsAsFactors = FALSE)
   if (!raw) {
-    align = rename_and_align(proportions_original = proportions, metadata, scale, by_col = "ID", align = align, study_name = basename(local))
-    proportions <- align$proportions_original
+    align = rename_and_align(proportions_original = proportions_original, metadata=metadata, scale=scale, by_col = "ID", align = align, study_name = basename(local))
+    proportions_original <- align$proportions_original
   }
   #temp_dir <- tempdir()
 
@@ -150,7 +157,7 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
   #       common_samples <- intersect(colnames(qmp_matrix), scale$ID)
   #       scale_values <- scale %>% filter(ID %in% common_samples)
   #       scale_vector <- setNames(scale_values[["Average faecal cell count (cells/g)"]], scale_values$ID)
-  #       proportions <- sweep(qmp_matrix[, names(scale_vector), drop = FALSE], 2, scale_vector, FUN = "/")
+  #       proportions <- sweep(qmp_matrix[, names(scale_vector), drop = FALSE], 1, scale_vector, FUN = "/")
   #     } else {
   #       proportions <- qmp_matrix / rowSums(qmp_matrix)
   #     }
@@ -201,9 +208,9 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
   #     tax <- tibble::rownames_to_column(tax, var = "Taxon")
   #   }
   # }
-  
+
+  # ----- Reprocessed counts from RDS ZIP -----
   if (file.exists(repro_counts_rds_zip) && file.exists(repro_tax_rds_zip)) {
-      # ----- Reprocessed counts from RDS ZIP -----
     temp_rds <- tempfile(fileext = ".rds")
     unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
@@ -221,33 +228,13 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
 
     
     # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    make_taxa_label <- function(df) {
-        tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-        prefixes  <- c("k", "p", "c", "o", "f", "g")
-        if (!all(tax_ranks %in% colnames(df))) {
-            stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-        }
-        df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-            x[is.na(x) | trimws(x) == ""] <- "unclassified"
-            x
-        })
-        df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-            if (tax_row["Genus"] != "unclassified") {
-            return(paste0("g_", tax_row["Genus"]))
-            }
-            for (i in (length(tax_ranks)-1):1) {  # skip Genus
-            if (tax_row[i] != "unclassified") {
-                return(paste0("uc_", prefixes[i], "_", tax_row[i]))
-            }
-            }
-            return("unclassified")
-        })
-        return(df)
-    }
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    # accessions to sampleIDs is study specific: IF NEED BE
+    if (!raw) {
+      align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col = "ID", align = align, study_name = basename(local))
+      counts_reprocessed <- align$counts_reprocessed
+    }
 
     # taxa
     if (!raw) {
@@ -273,15 +260,15 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
 
   return(list(
     counts = list(
-      original = counts,
+      original = counts_original,
       reprocessed = counts_reprocessed
     ),
     proportions = list(
-      original = proportions,
+      original = proportions_original,
       reprocessed = proportions_reprocessed
     ),
     tax = list(
-      original = tax,
+      original = tax_original,
       reprocessed = tax_reprocessed
     ),
     scale = scale,

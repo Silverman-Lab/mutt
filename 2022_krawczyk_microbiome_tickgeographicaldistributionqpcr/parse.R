@@ -30,12 +30,11 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
   # ----- Scale -----
   scale_file <- unzip(scale_zip, list = TRUE)$Name[1]
   scale_con  <- unz(scale_zip, scale_file)
-  scaledata  <- read.csv(scale_con) %>% as.data.frame() 
-  cleaned <- as.numeric(scaledata$`X16S.rRNA.content.in.ng.µL`) 
-  scale = data.frame(Sample_name = scaledata$`Sample.ID`, `16S rRNA content in ng/µL` = cleaned) %>%
-    mutate(log2_qPCR_16S_ng_ul = ifelse(`16S rRNA content in ng/µL` > 0, log2(`16S rRNA content in ng/µL`), NA)) %>%
-    mutate(log10_qPCR_16S_ng_ul = ifelse(`16S rRNA content in ng/µL` > 0, log10(`16S rRNA content in ng/µL`), NA))
-  
+  scale  <- read.csv(scale_con) %>% as.data.frame() %>% mutate(rRNA_content = as.numeric(`X16S.rRNA.content.in.ng.µL`)) %>%
+    mutate(log2_qPCR_16S_ng_ul = ifelse(rRNA_content > 0, log2(rRNA_content), NA)) %>%
+    mutate(log10_qPCR_16S_ng_ul = ifelse(rRNA_content > 0, log10(rRNA_content), NA)) %>% 
+    rename(Sample_name = `Sample.ID`) %>% select(Sample_name, rRNA_content, log2_qPCR_16S_ng_ul, log10_qPCR_16S_ng_ul)
+
   # ----- Metadata -----
   meta_file <- unzip(metadata_zip, list = TRUE)$Name[1]
   meta_con  <- unz(metadata_zip, meta_file)
@@ -93,50 +92,56 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
   )
 
   # ----- Reprocessed counts from RDS ZIP -----
-  temp_rds <- tempfile(fileext = ".rds")
-  unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+  if (file.exists(repro_counts_rds_zip)) {
+    temp_rds <- tempfile(fileext = ".rds")
+    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
-  rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-  if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-  counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-  # ----- Taxonomy reprocessed -----
-  temp_tax <- tempfile(fileext = ".rds")
-  unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+    # ----- Taxonomy reprocessed -----
+    temp_tax <- tempfile(fileext = ".rds")
+    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
 
-  tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-  if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-  tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-  tax_reprocessed = make_taxa_label(tax_reprocessed)
+    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+    tax_reprocessed = make_taxa_label(tax_reprocessed)
 
-  # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  if (!raw) {
-    aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
-    counts_reprocessed = aligned$reprocessed
+    # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+    if (!raw) {
+      aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+      counts_reprocessed = aligned$reprocessed
+    }
+
+    # taxa
+    if (!raw) {
+        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+        colnames(counts_reprocessed) <- matched_taxa
+        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+    }
+
+    # proportions reprocessed
+    proportions_reprocessed = counts_reprocessed
+    proportions_reprocessed[-1] <- lapply(
+        counts_reprocessed[-1],
+        function(col) col / sum(col)
+    )
   }
-
-  # taxa
-  if (!raw) {
-      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-      colnames(counts_reprocessed) <- matched_taxa
-      counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
-  }
-
-  # proportions reprocessed
-  proportions_reprocessed = counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-      counts_reprocessed[-1],
-      function(col) col / sum(col)
-  )
 
   # DELETE LATER #####################################
-  maxwellreprocessedpreviously = file.path(local, "Krawczyk_2022_16S.csv.zip")
-  counts_original = read_zipped_table(maxwellreprocessedpreviously, row.names = NULL) %>% as.data.frame()
-  if (!raw) {
-    aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
-    counts_original = aligned$counts_original
-  }
-  proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
+
+  # maxwellreprocessedpreviously = file.path(local, "Krawczyk_2022_16S.csv.zip")
+  # counts_original = read_zipped_table(maxwellreprocessedpreviously, row.names = NULL) %>% as.data.frame() 
+  # counts_original <- counts_original %>% rownames_to_column("Sample_name") 
+  # if (!raw) {
+  #   aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+  #   counts_original = aligned$counts_original
+  # }
+  # rownames(counts_original) <- counts_original$Sample_name
+  # counts_original <- counts_original[, -1, drop = FALSE]  
+  # proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
   ####################################################
   if (!raw) {
       counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)

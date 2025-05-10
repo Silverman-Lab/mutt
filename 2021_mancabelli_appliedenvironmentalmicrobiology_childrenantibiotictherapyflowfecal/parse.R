@@ -56,6 +56,9 @@ parse_2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapy
                 align <- rename_and_align(counts_reprocessed = df, metadata = metadata_df, scale = scale_df, by_col = "Sample_name", align = align, study_name = basename(local))
                 df <- align$reprocessed
             }
+            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
+            tax_df <- data.frame(taxa = rownames(df)) %>%
+            mutate(taxa = str_trim(taxa)) %>%
             separate(taxa,
                     into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
                     sep = "\\s*;\\s*", extra = "drop", fill = "right")
@@ -82,7 +85,7 @@ parse_2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapy
                 align <- rename_and_align(counts_reprocessed = df, metadata = metadata_df, scale = scale_df, by_col = "Sample_name", align = align, study_name = basename(local))
                 df <- align$reprocessed
             }
-            proportions <- apply(df, 2, function(col) col / sum(col))
+            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
             separate(taxa,

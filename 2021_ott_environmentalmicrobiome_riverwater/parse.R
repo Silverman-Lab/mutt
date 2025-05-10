@@ -21,6 +21,7 @@ parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE, align
 
   # ----- File paths -----
   metadata_zip         <- file.path(local, "metadata.csv.zip")
+  metadata_zip_2       <- file.path(local, "Metadatapaper.csv.zip")
   sra_zip              <- file.path(local, "SraRunTable (30).csv.zip")
   repro_counts_rds_zip <- file.path(local, "PRJEB42314_dada2_counts.rds.zip")
   repro_tax_zip        <- file.path(local, "PRJEB42314_dada2_taxa.rds.zip")
@@ -34,11 +35,25 @@ parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE, align
   tax_reprocessed <- NA
 
   # ------ metadata and scale -----
-  metadata     <- read_zipped_table(metadata_zip)  # NEED Sample_name from Amelie Ott -- May 5th 2025 follow up with her
+  metadata     <- read_zipped_table(metadata_zip, row.names=NULL) %>%
+  pivot_longer(
+    cols = starts_with("Sequencing_ID(replicate"),
+    names_to = "Replicate",
+    names_pattern = "Sequencing_ID\\(replicate(\\d)\\)",
+    values_to = "Sequencing_ID"
+  )
+  metadata_2   <- read_zipped_table(metadata_zip_2, row.names=NULL) %>%
+  pivot_longer(
+    cols = starts_with("Sequencing_ID(replicate"),
+    names_to = "Replicate",
+    names_pattern = "Sequencing_ID\\(replicate(\\d)\\)",
+    values_to = "Sequencing_ID"
+  )
   sra          <- read_zipped_table(sra_zip) %>%
                       rename(Accession = run) 
 
-  metadata <- full_join(metadata, sra, by = "Sample_name")
+  metadata <- full_join(metadata, sra, by = "Sequencing_ID")
+  metadata <- full_join(metadata, metadata_2, by = "Sequencing_ID")
   scale <- metadata %>% dplyr::select("Accession", "Sample_name", "S16_rRNA_ml") %>%
                     mutate(log2_S16_rRNA_ml = ifelse(S16_rRNA_ml > 0, log2(S16_rRNA_ml), NA)) %>%
                     mutate(log10_S16_rRNA_ml = ifelse(S16_rRNA_ml > 0, log10(S16_rRNA_ml), NA))
@@ -65,7 +80,7 @@ parse_2021_ott_environmentalmicrobiome_riverwater <- function(raw = FALSE, align
     aligned_counts <- rename_and_align(counts_reprocessed = counts_reprocessed,
                                       metadata = metadata,
                                       scale = scale,
-                                      by_col = "Sample_name",
+                                      by_col = "Sequencing_ID",
                                       align = align,
                                       study_name = basename(local))
     counts_reprocessed <- aligned_counts$counts_reprocessed

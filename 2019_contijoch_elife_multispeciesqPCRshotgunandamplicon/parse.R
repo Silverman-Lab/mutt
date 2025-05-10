@@ -75,7 +75,7 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
                 aligned = rename_and_align(counts_reprocessed = df, metadata=metadata_meta_df, scale=scale_meta_df, by_col="Sample Name", align = align, study_name=basename(local))
                 df = aligned$reprocessed
             }
-            proportions <- apply(df, 2, function(col) col / sum(col))
+            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
             separate(taxa,
@@ -104,7 +104,7 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
                 aligned = rename_and_align(counts_reprocessed = df, metadata=metadata_meta_df, scale=scale_meta_df, by_col="Sample Name", align = align, study_name=basename(local))
                 df = aligned$reprocessed
             }
-            proportions <- apply(df, 2, function(col) col / sum(col))
+            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
             separate(taxa,

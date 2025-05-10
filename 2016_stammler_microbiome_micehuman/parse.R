@@ -37,24 +37,33 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE, align = FALSE)
     proportions_reprocessed <- NA
     tax_reprocessed <- NA
 
+    
     # ---- scale and metadata -----
-    scale     <- read_zipped_csv(scale_16s_zip)
-    metadata  <- read_zipped_csv(metadata_16s_zip)
-    sra       <- read_zipped_csv(metadata_SRA_zip)
-
+    scale     <- read_zipped_table(scale_16s_zip) 
+    
+    # Read metadata directly with read.csv to handle # characters
+    metadata_csv <- unzip(metadata_16s_zip, list = TRUE)$Name[1]
+    metadata_con <- unz(metadata_16s_zip, metadata_csv)
+    metadata <- read.csv(metadata_con, row.names = NULL, comment.char = "") 
+    
+    sra       <- read_zipped_table(metadata_SRA_zip, row.names = NULL) %>% rename(Accession = Run)
     sra <- sra %>%
-      mutate(Sample_name = sub(".*(MID.*)", "\\1", Sample_name))
+      mutate(SampleID = sub(".*(MID.*)", "\\1", Sample_name))
 
-    metadata  =  metadata %>%
-      full_join(sra, by = c("SampleID" = "Sample_name")) %>%
-      rename(Accession = Run)
-    scale     = scale %>%
-      left_join(metadata %>% select(Sample_name, Accession), by = c("SampleID" = "Sample_name")) %>%
-      mutate(log2_qPCR_copies = ifelse(10^`16S rDNA copies per sample`>0, log2(10^`16S rDNA copies per sample`), NA)) %>%
-      rename(log10_qPCR_copies = `16S rDNA copies per sample`)
+    metadata  = merge(sra, metadata, by = "SampleID", all = TRUE)
+    
+    # First rename the problematic column to a simpler name
+    scale <- scale %>% rename(copies = "16S rDNA copies per sample")
+    
+    scale = scale %>%
+      left_join(metadata %>% select(SampleID, Accession), by = "SampleID") %>%
+      mutate(log2_qPCR_copies = ifelse(!is.na(copies) & copies != "" & 10^copies > 0, 
+                                      log2(10^copies), 
+                                      NA)) %>%
+      rename(log10_qPCR_copies = copies)
 
     # ------ original counts ------
-    counts_original_mice <- read_zipped_csv(counts_16s_zip)
+    counts_original_mice <- read_zipped_table(counts_16s_zip)
 
     if (!is.na(counts_original_mice)[1]) {
       original_taxa <- colnames(counts_original_mice)
@@ -82,47 +91,49 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE, align = FALSE)
       tax_original_mice <- NA
     }
 
-    # ----- Reprocessed counts from RDS ZIP -----
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+    if (file.exists(repro_counts_rds_zip)) {
+      # ----- Reprocessed counts from RDS ZIP -----
+      temp_rds <- tempfile(fileext = ".rds")
+      unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+      rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+      if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+      counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-    # ----- Taxonomy reprocessed -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+      # ----- Taxonomy reprocessed -----
+      temp_tax <- tempfile(fileext = ".rds")
+      unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
 
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+      tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+      if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+      tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
 
 
-    # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    tax_reprocessed = make_taxa_label(tax_reprocessed)
+      # ----- Convert sequences to lowest rank taxonomy found and update key -----
+      tax_reprocessed = make_taxa_label(tax_reprocessed)
 
-    # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    if (!raw) {
-      align <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-      counts_reprocessed = align$reprocessed
-    }
-
-    # taxa
-    if (!raw) {
-        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-        colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
-    }
-
-    # proportions reprocessed
-    proportions_reprocessed = counts_reprocessed
-    proportions_reprocessed[-1] <- lapply(
-        counts_reprocessed[-1],
-        function(col) col / sum(col)
-    )
-
+      # ----- Convert accessions to sample IDs / Sequences to Taxa -----
       if (!raw) {
+        align <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+        counts_reprocessed = align$reprocessed
+      }
+
+      # taxa
+      if (!raw) {
+          matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+          colnames(counts_reprocessed) <- matched_taxa
+          counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+      }
+
+      # proportions reprocessed
+      proportions_reprocessed = counts_reprocessed
+      proportions_reprocessed[-1] <- lapply(
+          counts_reprocessed[-1],
+          function(col) col / sum(col)
+      )
+    }
+
+    if (!raw) {
       counts_original_mice = fill_na_zero_numeric(counts_original_mice)
       counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
       proportions_original_mice = fill_na_zero_numeric(proportions_original_mice)

@@ -104,7 +104,7 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE, align = 
                 aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align)
                 df = aligned$reprocessed
             }
-            proportions <- apply(df, 2, function(col) col / sum(col))
+            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
             separate(taxa,
@@ -133,7 +133,7 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE, align = 
                 aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align)
                 df = aligned$reprocessed
             }
-            proportions <- apply(df, 2, function(col) col / sum(col))
+            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
             separate(taxa,
