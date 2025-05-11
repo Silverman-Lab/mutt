@@ -38,19 +38,16 @@ parse_2020_zemb_microOpen_spike <- function(raw = FALSE, align = FALSE) {
 
     sra_metadata_csv <- unzip(sra_metadata_zip, list = TRUE)$Name[1]
     sra_metadata_path <- unzip(sra_metadata_zip, files = sra_metadata_csv, exdir = tempdir(), overwrite = TRUE)
-    sra_metadata <- read.csv(sra_metadata_path, row.names = 1, stringsAsFactors = FALSE) %>% rename(Accession = Run)
+    sra_metadata <- read.csv(sra_metadata_path, row.names = NULL, stringsAsFactors = FALSE) %>% rename(Accession = Run)
+    sra_metadata$Sample.Name <- paste0("oz1802-", str_extract(sra_metadata$Sample.Name, "(?<=Tube).*")) 
     rownames(sra_metadata) <- sra_metadata$Sample.Name
-    sra_metadata <- subset(sra_metadata, select = -Sample.Name)
-    rownames(sra_metadata) <- paste0("oz1802-", str_extract(rownames(sra_metadata), "(?<=Tube).*")) 
 
     # --- Scale (qPCR) ---
-    scale_csv <- unzip(scale_zip, list = TRUE)$Name[1]
-    scale_path <- unzip(scale_zip, files = scale_csv, exdir = tempdir(), overwrite = TRUE)
-    scale <- read.csv(scale_path, row.names = 1, stringsAsFactors = FALSE) %>%
+    scale <- read_zipped_table(scale_zip, row.names = 1) %>% rownames_to_column("Sample.Name") %>%
         rename(
-            standard_measure1_copies_per_ul = "Std_M1(copies/ulPCR)",
-            standard_measure2_copies_per_ul = "Std_M2(copies/ulPCR)", 
-            standard_measure3_copies_per_ul = "Std_M3(copies/ulPCR)",
+            standard_measure1_copies_per_ul = "Std_M1(compies/ulPCR)",
+            standard_measure2_copies_per_ul = "Std_M2(compies/ulPCR)", 
+            standard_measure3_copies_per_ul = "Std_M3(compies/ulPCR)",
             standard_copies_in_tube = "Std_in_tube (copies)",
             pcr_efficiency = "efficiency",
             total_16s_measure1_copies_per_ul = "total16S_M1(copies/ul pcr)",
@@ -71,80 +68,77 @@ parse_2020_zemb_microOpen_spike <- function(raw = FALSE, align = FALSE) {
 
 
     # Merge sra_metadata and metadata
-    metadata = cbind(metadata, sra_metadata[rownames(metadata), , drop = FALSE])
+    metadata = cbind(metadata, sra_metadata[rownames(metadata), , drop = FALSE]) %>% rename(SampleID = Sample.Name) %>% rownames_to_column("Sample.Name")
+
 
     # --- Counts ---
     counts_csv <- unzip(counts_zip, list = TRUE)$Name[1]
     counts_path <- unzip(counts_zip, files = counts_csv, exdir = tempdir(), overwrite = TRUE)
     counts = read.csv(counts_path, row.names = 1, stringsAsFactors = FALSE)
-    colnames(counts) <- paste0("oz1802-", str_extract(colnames(counts), "(?<=Tube).*"))
+    metadata2 <- counts %>% rownames_to_column("Sample.Name") %>% select(c("Sample.Name", "X.1"))
+    counts <- counts %>% select(-c("X.1"))
+    colnames(counts) <- sapply(colnames(counts), function(x) {
+      tube_num <- str_match(x, "Tube(\\d+)")[,2]
+      if (!is.na(tube_num)) {
+        paste0("oz1802-", tube_num)
+      } else {
+        x
+      }
+    })
+    counts <- counts %>% t() %>% as.data.frame()
 
     # --- Create taxa dataframe ---
-    original_taxa <- rownames(counts)
+    original_taxa <- colnames(counts)
     tax <- data.frame(
     Taxa = original_taxa,
     stringsAsFactors = FALSE
     )
 
     if (!raw) {
-        align <- rename_and_align(counts_original = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-        counts <- align$counts_original
+        aligned <- rename_and_align(counts_original = counts, metadata = metadata, scale = scale, by_col = "Sample.Name", align = align, study_name = basename(local))
+        counts <- aligned$counts_original
     }
 
     # --- Compute proportions from counts ---
-    proportions <- counts
-    proportions[] <- lapply(
-    proportions,
-    function(col) {
-        if (is.numeric(col)) {
-        total <- sum(col, na.rm = TRUE)
-        if (total == 0) return(rep(NA, length(col)))
-        return(col / total)
-        } else {
-        return(col)
-        }
-    }
-    )
+    proportions <- sweep(counts, 1, rowSums(counts, na.rm = TRUE), '/')
 
     # ----- Reprocessed counts from RDS ZIP -----
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+    if (all(file.exists(repro_counts_rds_zip))) {
+        temp_rds <- tempfile(fileext = ".rds")
+        unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+        rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+        if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+        counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-    # ----- Taxonomy reprocessed -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+        # ----- Taxonomy reprocessed -----
+        temp_tax <- tempfile(fileext = ".rds")
+        unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
 
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+        tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+        if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+        tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
 
-    
-    # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    tax_reprocessed = make_taxa_label(tax_reprocessed)
+        
+        # ----- Convert sequences to lowest rank taxonomy found and update key -----
+        tax_reprocessed = make_taxa_label(tax_reprocessed)
 
-    # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    if (!raw) {
-        align <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-        counts_reprocessed <- align$reprocessed
+        # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+        if (!raw) {
+            aligned <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample.Name", align = align, study_name = basename(local))
+            counts_reprocessed <- aligned$reprocessed
+            matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+            colnames(counts_reprocessed) <- matched_taxa
+            counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+        }
+
+        # proportions reprocessed
+        proportions_reprocessed = counts_reprocessed
+        proportions_reprocessed[-1] <- lapply(
+            counts_reprocessed[-1],
+            function(col) col / sum(col)
+        )
     }
-
-    # taxa
-    if (!raw) {
-        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-        colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
-    }
-
-    # proportions reprocessed
-    proportions_reprocessed = counts_reprocessed
-    proportions_reprocessed[-1] <- lapply(
-        counts_reprocessed[-1],
-        function(col) col / sum(col)
-    )
 
     if (!raw) {
       counts = fill_na_zero_numeric(counts)

@@ -44,12 +44,12 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
     metadata <- full_join(sra_metadata, scale, by = "Sample") 
     metadata = read_zipped_table(sraplusload_zip, row.names = NULL) %>% rename(Accession = Run) %>%
                     full_join(metadata, by = "Accession")
-    dups <- duplicated(as.list(df))
-    metadata <- metadata[, !dups] 
+    dups <- duplicated(as.list(metadata))
+    metadata <- metadata[, !dups] %>% 
+        as.data.frame() 
     scale = metadata %>% select(c("Sample" ,"Accession", "Total Load (16S Copies/g)")) %>%
             mutate(log2_total_16S_copies_g = ifelse(`Total Load (16S Copies/g)` > 0, log2(`Total Load (16S Copies/g)`), NA)) %>% 
             mutate(log10_total_16S_copies_g = ifelse(`Total Load (16S Copies/g)` > 0, log10(`Total Load (16S Copies/g)`), NA))
-
     metadata = metadata %>% select(-c("Total Load (16S Copies/g)"))
 
         # --- proportions ---
@@ -65,8 +65,8 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
     proportions <- proportions %>% select(-c(Diet, Site, Day, mouse, Cage))
 
     if (!raw) {
-        align = rename_and_align(proportions_original = proportions, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
-        proportions = align$proportions_original
+        aligned = rename_and_align(proportions_original = proportions, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+        proportions = aligned$proportions_original
     }
 
     # --- Assign Taxon_1 ... Taxon_N as rownames and store original names ---
@@ -75,26 +75,24 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
     # --- Create taxa dataframe (lookup table) ---
     tax <- data.frame(taxonomy = original_taxa, stringsAsFactors = FALSE)
     rownames(tax) <- tax$taxonomy
-    if (any(grepl("^D_\\d+__", tax$taxonomy))) {
-    tax <- tax %>%
+    tax$ogtaxonomy <- tax$taxonomy
+    tax_original <- tax %>%
         separate(taxonomy,
-                into = paste0("D", 0:6),
-                sep = ";", fill = "right") %>%
-        mutate(across(everything(), ~ gsub("^D_\\d+__", "", .))) %>%
-        mutate(across(everything(), ~ ifelse(. == "" | . == "__", "unclassified", .))) %>%
+                    into = paste0("D", 0:6),
+                    sep = ";", fill = "right", remove = FALSE) %>%
+        mutate(across(starts_with("D"), ~ gsub("^D_\\d+__", "", .))) %>%
+        mutate(across(starts_with("D"), ~ ifelse(. == "" | . == "__" | is.na(.), "unclassified", .))) %>%
         transmute(
-        Kingdom = D0,
-        Phylum  = D1,
-        Class   = D2,
-        Order   = D3,
-        Family  = D4,
-        Genus   = D5,
-        Species = D6
+            Kingdom = D0,
+            Phylum  = D1,
+            Class   = D2,
+            Order   = D3,
+            Family  = D4,
+            Genus   = D5,
+            Species = D6
         )
-    }
 
-    tax_original = make_taxa_label(tax) %>% as.data.frame(stringsAsFactors = FALSE)
-    rownames(tax_original) <- tax_original$taxonomy
+    tax_original = make_taxa_label(tax_original) %>% as.data.frame(stringsAsFactors = FALSE)
     proportions <- as.data.frame(proportions, stringsAsFactors = FALSE)
     if (!raw) {
         matched_taxa <- tax_original$Taxa[match(colnames(proportions), rownames(tax_original))]
@@ -103,49 +101,47 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
     }
     
     # ----- Reprocessed counts from RDS ZIP -----
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+    if (all(file.exists(c(repro_counts_rds_zip, repro_tax_zip)))) {
+        temp_rds <- tempfile(fileext = ".rds")
+        unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+        rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+        if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+        counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-    # ----- Taxonomy reprocessed -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+        # ----- Taxonomy reprocessed -----
+        temp_tax <- tempfile(fileext = ".rds")
+        unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
 
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+        tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+        if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+        tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
 
-    
-    # ----- Convert sequences to lowest rank taxonomy found and update key -----
-    tax_reprocessed = make_taxa_label(tax_reprocessed)
+        
+        # ----- Convert sequences to lowest rank taxonomy found and update key -----
+        tax_reprocessed = make_taxa_label(tax_reprocessed)
 
-    # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    if (!raw) {
-        align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
-        counts_reprocessed = align$reprocessed
+        # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+        if (!raw) {
+            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+            counts_reprocessed = aligned$reprocessed
+            matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+            colnames(counts_reprocessed) <- matched_taxa
+            counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+        }
+
+        # proportions reprocessed
+        proportions_reprocessed = counts_reprocessed
+        proportions_reprocessed[-1] <- lapply(
+            counts_reprocessed[-1],
+            function(col) col / sum(col)
+        )
     }
 
-    # taxa
     if (!raw) {
-        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-        colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
-    }
-
-    # proportions reprocessed
-    proportions_reprocessed = counts_reprocessed
-    proportions_reprocessed[-1] <- lapply(
-        counts_reprocessed[-1],
-        function(col) col / sum(col)
-    )
-
-    if (!raw) {
-      counts_original = fill_na_zero_numeric(counts_original)
+      counts = fill_na_zero_numeric(counts)
       counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
-      proportions_original = fill_na_zero_numeric(proportions_original)
+      proportions = fill_na_zero_numeric(proportions)
       proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
     }
 
@@ -156,7 +152,7 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
             reprocessed = counts_reprocessed
         ),
         tax = list(
-            original = tax,
+            original = tax_original,
             reprocessed = tax_reprocessed
         ),
         proportions = list(
@@ -164,6 +160,6 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
             reprocessed = proportions_reprocessed
         ),
         metadata = metadata,
-        scale = genomicscale
+        scale = scale
     ))
 }

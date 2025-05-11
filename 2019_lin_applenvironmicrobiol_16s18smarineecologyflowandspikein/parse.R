@@ -35,23 +35,21 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
   )
 
   # ----- Metadata -----
-  metadata_txt <- unzip(metadata_16s_zip, list = TRUE)$Name[1] 
-  metadata_16s <- read.csv(unz(metadata_16s_zip, metadata_txt), row.names = 1)
+  metadata_16s <- read_zipped_table(metadata_16s_zip, row.names = NULL)
   metadata_16s$source <- "16S"
-  metadata_txt <- unzip(metadata_18s_zip, list = TRUE)$Name[1]
-  metadata_18s <- read.csv(unz(metadata_18s_zip, metadata_txt), row.names = 1)
+  metadata_18s <- read_zipped_table(metadata_18s_zip, row.names = NULL)
   metadata_18s$source <- "18S"
-  metadata = bind_rows(metadata_16s, metadata_18s) %>% rename(Accession = Run)
+  metadata = bind_rows(metadata_16s, metadata_18s) 
+  metadata <- metadata %>% rename(Accession = Run, SampleID = sampleid)
 
   # ----- Scale -----
-  scale_txt <- unzip(scale_zip, list = TRUE)$Name[1]
-  scale = read.csv(unz(scale_zip, scale_txt), row.names = 1)
-  mergedwmetadata = scale %>% select(sampleID, Line, Station, `Filtered Seawater Vol [L]`, `SurfChl [mg m-3]`) 
-  scale = scale %>% select(sampleID, `FCM [cells/ml]`) %>% 
+  scale = read_zipped_table(scale_zip, row.names = NULL)
+  mergedwmetadata = scale %>% select(SampleID, Line, Station, `Filtered Seawater Vol [L]`, `SurfChl [mg m-3]`) 
+  scale = scale %>% select(SampleID, `FCM [cells/ml]`) %>% 
                         mutate(log2_fc_cells_ml = ifelse(`FCM [cells/ml]` > 0, log2(`FCM [cells/ml]`), NA)) %>%
                         mutate(log10_fc_cells_ml = ifelse(`FCM [cells/ml]` > 0, log10(`FCM [cells/ml]`), NA))  
 
-  metadata = merge(metadata, mergedwmetadata, by.x = "ID", by.y = "sampleID")
+  metadata = merge(metadata, mergedwmetadata, by = "SampleID")
 
   # ----- Reprocessed Counts and Taxonomy -----
   repro_labels <- c("16S", "18S")
@@ -80,20 +78,18 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
       tax_reprocessed <- make_taxa_label(tax_reprocessed)
 
       # ----- Match taxa and collapse -----
-      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-      colnames(counts_reprocessed) <- matched_taxa
-      counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
-
       if (!raw) {
-        counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
-        align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata, scale, by_col = "sampleID", align = align, study_name = basename(local))
-        counts_reprocessed <- align$reprocessed
+        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+        counts_reprocessed <- aligned$reprocessed
+        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+        colnames(counts_reprocessed) <- matched_taxa
+        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
       }
 
+      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
 
       # ----- Proportions -----
-      proportions_reprocessed <- counts_reprocessed
-      proportions_reprocessed[] <- lapply(proportions_reprocessed, function(col) col / sum(col))
+      proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
 
       # ----- Store -----
       label <- repro_labels[i]

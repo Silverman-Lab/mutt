@@ -177,10 +177,9 @@ microbialscalerepo <- function(
     res <- tryCatch(
       suppressWarnings(suppressMessages(get(fun_name, envir = env)(raw = rawdata, align = align_samples))), 
       error = function(e) {
-        warning(sprintf("\n\n----------------------------------------\nError in parser '%s': %s\nStack trace:\n%s\n----------------------------------------\n", 
+        warning(sprintf("\n\n----------------------------------------\nError in parser '%s': %s\n----------------------------------------\n", 
                        parser, 
-                       e$message,
-                       paste(capture.output(traceback()), collapse = "\n")))
+                       e$message))
         e
       }
     )

@@ -31,8 +31,8 @@ parse_2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum <- function(r
   tax_original = NA
 
   # ---- Metadata ----
-  metadata = read_zipped_table(metadata_zip, row.names=NULL) %>% rename(Accession = Run)
-  
+  metadata = read_zipped_table(metadata_zip, row.names=NULL) %>% rename(Accession = Run, Sample = `Sample Name`) %>% mutate(Sample = as.character(Sample))
+
   # ---- Scale ----
   scale_files <- unzip(scale_zip, list = TRUE)
   scale_xlsx <- scale_files$Name[1]
@@ -41,11 +41,11 @@ parse_2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum <- function(r
   scale_path <- file.path(temp_dir, scale_xlsx)
   
   scale_raw <- read_xlsx(scale_path, sheet = 1) %>%
-    separate(col = 1, into = c("population", "Sample.Name"), sep = "_", remove = TRUE)
+    separate(col = 1, into = c("population", "Sample"), sep = "_", remove = TRUE) %>% mutate(Sample = as.character(Sample))
   metadata <- metadata %>%
-    left_join(scale_raw %>% select(Sample.Name, population), by = "Sample.Name") %>% rename(Sample = Sample.Name)
+    left_join(scale_raw %>% select(Sample, population), by = "Sample") 
   scale <- scale_raw %>%
-    select(-population) %>% rename(Sample = Sample.Name) %>% 
+    select(-population) %>% 
                   mutate(log2_Microbial_load = ifelse(`Microbial_load (no. cells/g)` > 0, log2(`Microbial_load (no. cells/g)`),NA)) %>% 
                   mutate(log10_Microbial_load = ifelse(`Microbial_load (no. cells/g)` > 0, log10(`Microbial_load (no. cells/g)`),NA))
 
@@ -83,11 +83,7 @@ parse_2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum <- function(r
   }
 
   # proportions reprocessed
-  proportions_reprocessed = counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-      counts_reprocessed[-1],
-      function(col) col / sum(col)
-  )
+  proportions_reprocessed = sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), FUN = "/")
 
   if (!raw) {
       counts_original = fill_na_zero_numeric(counts_original)

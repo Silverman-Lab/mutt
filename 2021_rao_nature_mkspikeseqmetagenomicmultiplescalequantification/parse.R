@@ -85,15 +85,19 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
       column_to_rownames("taxonomy") %>%
       t() %>%
       as.data.frame() %>%
-      rownames_to_column("Sample") %>%
-      rename(Observed_total = Observed_total, Expected_total = Expected_total)
+      rownames_to_column("Sample_name") %>%
+      rename(Observed_total = Observed_total, Expected_total = Expected_total) %>%
+      mutate(log2_Observed_total = ifelse(Observed_total > 0, log2(Observed_total), NA),
+             log2_Expected_total = ifelse(Expected_total > 0, log2(Expected_total), NA),
+             log10_Observed_total = ifelse(Observed_total > 0, log10(Observed_total), NA),
+             log10_Expected_total = ifelse(Expected_total > 0, log10(Expected_total), NA))
 
     # Process taxonomy table
     tax_df <- make_mock_tax_table(df)
 
     # Subset OTU table (excluding scale rows)
     otu_df <- df %>%
-      filter(!taxonomy %in% c("Observed_total", "Expected_total")) %>%
+      filter(!taxonomy %in% c("Observed_total", "Expected_total", "log2_Observed_total", "log2_Expected_total", "log10_Observed_total", "log10_Expected_total")) %>%
       mutate(Taxa = paste0("g_", sub("\\..*", "", taxonomy), "_", sub(".*?\\.\\s*", "", taxonomy))) %>%
       select(-taxonomy) %>%
       column_to_rownames("Taxa")
@@ -159,8 +163,6 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
 
   taxa_bacteria = make_taxa_label(taxa_bacteria)
   taxa_fungi    = make_taxa_label(taxa_fungi)
-  counts_bacteria = first_row_to_colnames(as.data.frame(t(counts_bacteria)))
-  counts_fungi = first_row_to_colnames(as.data.frame(t(counts_fungi)))
 
   tmp_dir <- tempdir()
   unzip(supplemental_zip, exdir = tmp_dir)
@@ -174,7 +176,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
     # Read Scale sheets
     scale_ <- readxl::read_excel(file, sheet = "sTable4")
     scale_ITS <- readxl::read_excel(file, sheet = "sTable6")
-    scale <- bind_rows(Filter(Negate(is.null), list(scale_, scale_ITS))) %>%
+    scale <- bind_rows(Filter(Negate(is.null), list(scale_, scale_ITS))) %>% select(-c(`Sample description`)) %>%
       rename(
         MK_spike_univ16S = `MK-SpikeSeq-univ16S`,
         MK_spike_arch16S = `MK-SpikeSeq-arch16S`, 
@@ -196,6 +198,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
         ITS1_spikein_reads = `ITS1-spikein-reads`,
         ITS1_total_abundance = `ITS1-total-abundance`
       ) %>%
+      mutate(across(-Sample_name, as.numeric)) %>%
       mutate(
         log2_MK_spike_univ16S = ifelse(MK_spike_univ16S > 0, log2(MK_spike_univ16S), NA),
         log10_MK_spike_univ16S = ifelse(MK_spike_univ16S > 0, log10(MK_spike_univ16S), NA),
@@ -234,7 +237,6 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
 
     # ---- Load Sheet3 and extract mock_metadata ----
     sheet3 <- read_excel(file, sheet = "sTable3", col_names = FALSE)
-    # Extract only the first 40 data rows
     mock_metadata <- sheet3 %>%
       slice(1:40) %>%
       rename_with(~ make.names(., unique = TRUE)) %>%
@@ -275,8 +277,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
       group_by(Taxa) %>%
       summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>%
       as.data.frame()
-    rownames(mock_otu_tables$originalcounts_mockfecal) <- mock_otu_tables$originalcounts_mockfecal$Taxa
-    mock_otu_tables$originalcounts_mockfecal$Taxa <- NULL
+    mock_otu_tables$originalcounts_mockfecal <- mock_otu_tables$originalcounts_mockfecal %>%
+      column_to_rownames("Taxa")
 
     # ---- Apply to both mockbacteria and mockfungi ----
     mock_bacteria_result <- process_mock_table(mock_otu_tables$originalcounts_mockbacteria)
@@ -289,108 +291,6 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
     scale_mockfungi    <- mock_fungi_result$scale
 
   }
-
-  if (!raw) {
-      # Align original bacteria counts
-      aligned_bacteria = rename_and_align(counts_reprocessed = otu_tables$originalcounts_bacteria, 
-                                        metadata = metadata, 
-                                        scale = scale, 
-                                        by_col = "Sample_name",
-                                        align = align,
-                                        study_name = basename(local))
-      otu_tables$originalcounts_bacteria = fill_na_zero_numeric(aligned_bacteria$reprocessed)
-      
-      # Align original archaea counts
-      aligned_archaea = rename_and_align(counts_reprocessed = otu_tables$originalcounts_archaea,
-                                       metadata = metadata,
-                                       scale = scale,
-                                       by_col = "Sample_name", 
-                                       align = align,
-                                       study_name = basename(local))
-      otu_tables$originalcounts_archaea = fill_na_zero_numeric(aligned_archaea$reprocessed)
-      
-      # Align original fungi counts
-      aligned_fungi = rename_and_align(counts_reprocessed = otu_tables$originalcounts_fungi,
-                                     metadata = metadata,
-                                     scale = scale,
-                                     by_col = "Sample_name",
-                                     align = align,
-                                     study_name = basename(local))
-      otu_tables$originalcounts_fungi = fill_na_zero_numeric(aligned_fungi$reprocessed)
-      
-      # Align phase 2 bacteria counts
-      aligned_bacteria_p2 = rename_and_align(counts_reprocessed = otu_tables$originalcounts_bacteria_phase2,
-                                           metadata = metadata,
-                                           scale = scale,
-                                           by_col = "Sample_name",
-                                           align = align,
-                                           study_name = basename(local))
-      otu_tables$originalcounts_bacteria_phase2 = fill_na_zero_numeric(aligned_bacteria_p2$reprocessed)
-      
-      # Align phase 2 fungi counts
-      aligned_fungi_p2 = rename_and_align(counts_reprocessed = otu_tables$originalcounts_fungi_phase2,
-                                        metadata = metadata,
-                                        scale = scale,
-                                        by_col = "Sample_name",
-                                        align = align,
-                                        study_name = basename(local))
-      otu_tables$originalcounts_fungi_phase2 = fill_na_zero_numeric(aligned_fungi_p2$reprocessed)
-      
-      # Align mock bacteria counts
-      aligned_mock_bacteria = rename_and_align(counts_reprocessed = mock_otu_tables$originalcounts_mockbacteria,
-                                             metadata = mock_metadata,
-                                             scale = scale_mockbacteria,
-                                             by_col = "Sample_name",
-                                             align = align,
-                                             study_name = basename(local))
-      mock_otu_tables$originalcounts_mockbacteria = fill_na_zero_numeric(aligned_mock_bacteria$reprocessed)
-      
-      # Align mock fungi counts
-      aligned_mock_fungi = rename_and_align(counts_reprocessed = mock_otu_tables$originalcounts_mockfungi,
-                                          metadata = mock_metadata,
-                                          scale = scale_mockfungi,
-                                          by_col = "Sample_name",
-                                          align = align,
-                                          study_name = basename(local))
-      mock_otu_tables$originalcounts_mockfungi = fill_na_zero_numeric(aligned_mock_fungi$reprocessed)
-      
-      # Align mock fecal counts
-      aligned_mock_fecal = rename_and_align(counts_reprocessed = mock_otu_tables$originalcounts_mockfecal,
-                                          metadata = mock_metadata,
-                                          scale = scale_mockfungi,
-                                          by_col = "Sample_name",
-                                          align = align,
-                                          study_name = basename(local))
-      mock_otu_tables$originalcounts_mockfecal = fill_na_zero_numeric(aligned_mock_fecal$reprocessed)
-      
-      # Align reprocessed bacteria and fungi counts
-      aligned_bacteria_repro = rename_and_align(counts_reprocessed = counts_bacteria,
-                                              metadata = metadata,
-                                              scale = scale,
-                                              by_col = "Sample_name",
-                                              align = align,
-                                              study_name = basename(local))
-      counts_bacteria = fill_na_zero_numeric(aligned_bacteria_repro$reprocessed)
-      
-      aligned_fungi_repro = rename_and_align(counts_reprocessed = counts_fungi,
-                                           metadata = metadata,
-                                           scale = scale,
-                                           by_col = "Sample_name",
-                                           align = align,
-                                           study_name = basename(local))
-      counts_fungi = fill_na_zero_numeric(aligned_fungi_repro$reprocessed)
-  }
-
-  proportions_bacteria                = make_proportions(counts_bacteria)
-  proportions_fungi                   = make_proportions(counts_fungi)
-  originalproportions_bacteria        = make_proportions(otu_tables$originalcounts_bacteria)
-  originalproportions_archaea         = make_proportions(otu_tables$originalcounts_archaea)
-  originalproportions_fungi           = make_proportions(otu_tables$originalcounts_fungi)
-  originalproportions_bacteria_phase2 = make_proportions(otu_tables$originalcounts_bacteria_phase2)
-  originalproportions_fungi_phase2    = make_proportions(otu_tables$originalcounts_fungi_phase2)
-  originalproportions_mockbacteria    = make_proportions(mock_otu_tables$originalcounts_mockbacteria)
-  originalproportions_mockfungi       = make_proportions(mock_otu_tables$originalcounts_mockfungi)
-  originalproportions_mockfecal       = make_proportions(mock_otu_tables$originalcounts_mockfecal)
   
   # Read existing metadata files
   sex_delivery_data <- safe_read_zip(sex_delivery_zip, is_xlsx = FALSE)
@@ -439,6 +339,169 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
       as.data.frame()
   }
 
+  counts_bacteria <- counts_bacteria %>%
+    left_join(taxa_bacteria %>% select(OTU_ID, Taxa), by = "OTU_ID") %>%
+    select(-OTU_ID) %>%
+    group_by(Taxa) %>%
+    summarise(across(everything(), sum)) %>%
+    column_to_rownames("Taxa") %>% t() %>% as.data.frame()
+
+  counts_fungi <- counts_fungi %>%
+    left_join(taxa_fungi %>% select(OTU_ID, Taxa), by = "OTU_ID") %>%
+    select(-OTU_ID) %>%
+    group_by(Taxa) %>%
+    summarise(across(everything(), sum)) %>%
+    column_to_rownames("Taxa") %>% t() %>% as.data.frame()
+
+  otu_tables$originalcounts_bacteria = otu_tables$originalcounts_bacteria %>% t() %>% as.data.frame() %>% rownames_to_column("OTU_ID")
+  otu_tables$originalcounts_bacteria <- otu_tables$originalcounts_bacteria %>%
+    left_join(taxonomy_tables$originalcounts_bacteria %>% select(OTU_ID, Taxa), by = "OTU_ID") %>%
+    select(-OTU_ID) %>%
+    group_by(Taxa) %>%
+    mutate(across(everything(), as.numeric)) %>%
+    summarise(across(everything(), sum)) %>%
+    column_to_rownames("Taxa") %>% t() %>% as.data.frame()
+
+  otu_tables$originalcounts_fungi = otu_tables$originalcounts_fungi %>% t() %>% as.data.frame() %>% rownames_to_column("OTU_ID")
+  otu_tables$originalcounts_fungi <- otu_tables$originalcounts_fungi %>%
+    left_join(taxonomy_tables$originalcounts_fungi %>% select(OTU_ID, Taxa), by = "OTU_ID") %>%
+    select(-OTU_ID) %>%
+    group_by(Taxa) %>%
+    mutate(across(everything(), as.numeric)) %>%
+    summarise(across(everything(), sum)) %>%
+    column_to_rownames("Taxa") %>% t() %>% as.data.frame()
+    
+  otu_tables$originalcounts_archaea = otu_tables$originalcounts_archaea %>% t() %>% as.data.frame() %>% rownames_to_column("OTU_ID")
+  otu_tables$originalcounts_archaea <- otu_tables$originalcounts_archaea %>%
+    left_join(taxonomy_tables$originalcounts_archaea %>% select(OTU_ID, Taxa), by = "OTU_ID") %>%
+    select(-OTU_ID) %>%
+    group_by(Taxa) %>%
+    mutate(across(everything(), as.numeric)) %>%
+    summarise(across(everything(), sum)) %>%
+    column_to_rownames("Taxa") %>% t() %>% as.data.frame()
+    
+  otu_tables$originalcounts_bacteria_phase2 = otu_tables$originalcounts_bacteria_phase2 %>% t() %>% as.data.frame() %>% rownames_to_column("OTU_ID")
+  otu_tables$originalcounts_bacteria_phase2 <- otu_tables$originalcounts_bacteria_phase2 %>%
+    left_join(taxonomy_tables$originalcounts_bacteria_phase2 %>% select(OTU_ID, Taxa), by = "OTU_ID") %>%
+    select(-OTU_ID) %>%
+    group_by(Taxa) %>%
+    mutate(across(everything(), as.numeric)) %>%
+    summarise(across(everything(), sum)) %>%
+    column_to_rownames("Taxa") %>% t() %>% as.data.frame()
+  
+  otu_tables$originalcounts_fungi_phase2 = otu_tables$originalcounts_fungi_phase2 %>% t() %>% as.data.frame() %>% rownames_to_column("OTU_ID")
+  otu_tables$originalcounts_fungi_phase2 <- otu_tables$originalcounts_fungi_phase2 %>%
+    left_join(taxonomy_tables$originalcounts_fungi_phase2 %>% select(OTU_ID, Taxa), by = "OTU_ID") %>%
+    select(-OTU_ID) %>%
+    group_by(Taxa) %>%
+    mutate(across(everything(), as.numeric)) %>%
+    summarise(across(everything(), sum)) %>%
+    column_to_rownames("Taxa") %>% t() %>% as.data.frame()
+
+
+
+    if (!raw) {
+      # Align original bacteria counts
+      aligned_bacteria = rename_and_align(counts_original = otu_tables$originalcounts_bacteria, 
+                                        metadata = metadata, 
+                                        scale = scale, 
+                                        by_col = "Sample_name",
+                                        align = align,
+                                        study_name = basename(local))
+      otu_tables$originalcounts_bacteria = fill_na_zero_numeric(aligned_bacteria$counts_original)
+      
+      # Align original archaea counts
+      aligned_archaea = rename_and_align(counts_original = otu_tables$originalcounts_archaea,
+                                       metadata = metadata,
+                                       scale = scale,
+                                       by_col = "Sample_name", 
+                                       align = align,
+                                       study_name = basename(local))
+      otu_tables$originalcounts_archaea = fill_na_zero_numeric(aligned_archaea$counts_original)
+      
+      # Align original fungi counts
+      aligned_fungi = rename_and_align(counts_original = otu_tables$originalcounts_fungi,
+                                     metadata = metadata,
+                                     scale = scale,
+                                     by_col = "Sample_name",
+                                     align = align,
+                                     study_name = basename(local))
+      otu_tables$originalcounts_fungi = fill_na_zero_numeric(aligned_fungi$counts_original)
+      
+      # Align phase 2 bacteria counts
+      aligned_bacteria_p2 = rename_and_align(counts_original = otu_tables$originalcounts_bacteria_phase2,
+                                           metadata = metadata,
+                                           scale = scale,
+                                           by_col = "Sample_name",
+                                           align = align,
+                                           study_name = basename(local))
+      otu_tables$originalcounts_bacteria_phase2 = fill_na_zero_numeric(aligned_bacteria_p2$counts_original)
+      
+      # Align phase 2 fungi counts
+      aligned_fungi_p2 = rename_and_align(counts_original = otu_tables$originalcounts_fungi_phase2,
+                                        metadata = metadata,
+                                        scale = scale,
+                                        by_col = "Sample_name",
+                                        align = align,
+                                        study_name = basename(local))
+      otu_tables$originalcounts_fungi_phase2 = fill_na_zero_numeric(aligned_fungi_p2$counts_original)
+      
+      # Align mock bacteria counts
+      aligned_mock_bacteria = rename_and_align(counts_original = mock_otu_tables$originalcounts_mockbacteria,
+                                             metadata = mock_metadata,
+                                             scale = scale_mockbacteria,
+                                             by_col = "Sample_name",
+                                             align = align,
+                                             study_name = basename(local))
+      mock_otu_tables$originalcounts_mockbacteria = fill_na_zero_numeric(aligned_mock_bacteria$counts_original)
+      
+      # Align mock fungi counts
+      aligned_mock_fungi = rename_and_align(counts_original = mock_otu_tables$originalcounts_mockfungi,
+                                          metadata = mock_metadata,
+                                          scale = scale_mockfungi,
+                                          by_col = "Sample_name",
+                                          align = align,
+                                          study_name = basename(local))
+      mock_otu_tables$originalcounts_mockfungi = fill_na_zero_numeric(aligned_mock_fungi$counts_original)
+      
+      # Align mock fecal counts
+      aligned_mock_fecal = rename_and_align(counts_original = mock_otu_tables$originalcounts_mockfecal,
+                                          metadata = mock_metadata,
+                                          scale = scale_mockfungi,
+                                          by_col = "Sample_name",
+                                          align = align,
+                                          study_name = basename(local))
+      mock_otu_tables$originalcounts_mockfecal = fill_na_zero_numeric(aligned_mock_fecal$counts_original)
+      
+      # Align reprocessed bacteria and fungi counts
+      aligned_bacteria_repro = rename_and_align(counts_reprocessed = counts_bacteria,
+                                              metadata = metadata,
+                                              scale = scale,
+                                              by_col = "Sample_name",
+                                              align = align,
+                                              study_name = basename(local))
+      counts_bacteria = fill_na_zero_numeric(aligned_bacteria_repro$reprocessed)
+      
+      aligned_fungi_repro = rename_and_align(counts_reprocessed = counts_fungi,
+                                           metadata = metadata,
+                                           scale = scale,
+                                           by_col = "Sample_name",
+                                           align = align,
+                                           study_name = basename(local))
+      counts_fungi = fill_na_zero_numeric(aligned_fungi_repro$reprocessed)
+  }
+
+  proportions_bacteria                = make_proportions(counts_bacteria)
+  proportions_fungi                   = make_proportions(counts_fungi)
+  originalproportions_bacteria        = make_proportions(otu_tables$originalcounts_bacteria)
+  originalproportions_archaea         = make_proportions(otu_tables$originalcounts_archaea)
+  originalproportions_fungi           = make_proportions(otu_tables$originalcounts_fungi)
+  originalproportions_bacteria_phase2 = make_proportions(otu_tables$originalcounts_bacteria_phase2)
+  originalproportions_fungi_phase2    = make_proportions(otu_tables$originalcounts_fungi_phase2)
+  originalproportions_mockbacteria    = make_proportions(mock_otu_tables$originalcounts_mockbacteria)
+  originalproportions_mockfungi       = make_proportions(mock_otu_tables$originalcounts_mockfungi)
+  originalproportions_mockfecal       = make_proportions(mock_otu_tables$originalcounts_mockfecal)
+
   # NEED TO SEPARATE THE DIFFERENT SAMPLES INTO SPECIFIC DATASETS
 
   # ----- Reprocessed counts from RDS ZIP -----
@@ -475,11 +538,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   }
 
   # proportions reprocessed
-  proportions_reprocessed = counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-      counts_reprocessed[-1],
-      function(col) col / sum(col)
-  )
+  proportions_reprocessed = sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), FUN = "/")
 
   if (!raw) {
       counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
@@ -547,25 +606,25 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
     tax = list(
       original = list(
         combinedphases = list(
-          bacteria = proportions_bacteria,
+          bacteria = taxa_bacteria,
           archaea = NA,
-          fungi = proportions_fungi
+          fungi = taxa_fungi
         ),
         phase1 = list(
-          bacteria = originalproportions_bacteria,
-          archaea = originalproportions_archaea,
-          fungi = originalproportions_fungi
+          bacteria = taxonomy_tables$originaltax_bacteria,
+          archaea = taxonomy_tables$originaltax_archaea,
+          fungi = taxonomy_tables$originaltax_fungi
         ),
         phase2 = list(
-          bacteria = originalproportions_bacteria_phase2,
+          bacteria = taxonomy_tables$originaltax_bacteria_phase2,
           archaea = NA,
-          fungi = originalproportions_fungi_phase2
+          fungi = taxonomy_tables$originaltax_fungi_phase2
         ),
         mock = list(
-          bacteria = mock_otu_tables$originalproportions_mockbacteria,
+          bacteria = originaltax_mockbacteria,
           archaea = NA,
-          fungi = mock_otu_tables$originalproportions_mockfungi,
-          fecal = mock_otu_tables$originalproportions_mockfecal
+          fungi = originaltax_mockfungi,
+          fecal = originaltax_mockfecal
         )
       ),
       reprocessed = list(

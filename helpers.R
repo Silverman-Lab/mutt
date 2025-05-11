@@ -27,8 +27,18 @@ rename_and_align <- function(counts_reprocessed = NULL,
                              study_name = NULL) {
   # Validate by_col is a character vector
   stopifnot(is.character(by_col))
-  stopifnot(all(by_col %in% colnames(scale)))
+  # Removed redundant check since it's handled in the if statement below
   
+  # Check if by_col exists in scale
+  if (!all(by_col %in% colnames(scale))) {
+    message("\n", study_name, " | by_col '", by_col, "' not found in scale columns. Returning original dataframes.")
+    return(list(
+      reprocessed = counts_reprocessed,
+      counts_original = counts_original,
+      proportions_original = proportions_original
+    ))
+  }
+
   # Create target samples based on all by_col columns
   target_samples <- if (align) {
     # Get unique combinations of all by_col values from scale

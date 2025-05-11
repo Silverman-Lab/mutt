@@ -92,7 +92,7 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE, align = FALSE
   MetaPhlAn4_counts <- NA
   MetaPhlAn4_proportions <- NA
   MetaPhlAn4_tax <- NA
-
+  
   # ----- mOTU3 Reprocessed -----
   if (file.exists(motus_zip)) {
     motus_files <- unzip(motus_zip, list = TRUE)
@@ -151,12 +151,14 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE, align = FALSE
     }
   }
 
-
   if (!raw) {
-      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
-      proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
-      proportions = fill_na_zero_numeric(proportions)
+
+      mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
+      mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
+      MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+      MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
       mockproportions = fill_na_zero_numeric(mockproportions)
+      proportions = fill_na_zero_numeric(proportions)
   }
 
   return(list(
@@ -166,7 +168,7 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE, align = FALSE
                         ),
                       reprocessed = list(
                         mock = NA,
-                        samples = counts_reprocessed
+                        samples = list(mOTU3 = mOTU3_counts, MetaPhlAn4 = MetaPhlAn4_counts)
                         )
                       ),
     proportions = list(original = list(
@@ -175,7 +177,7 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE, align = FALSE
                       ),
                       reprocessed = list(
                         mock = NA,
-                        samples = proportions_reprocessed 
+                        samples = list(mOTU3 = mOTU3_proportions, MetaPhlAn4 = MetaPhlAn4_proportions)
                       )
                       ),
     tax         = list(original = list(
@@ -184,15 +186,15 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE, align = FALSE
                         ),
                       reprocessed = list(
                         mock = NA,
-                        samples = tax_reprocessed
-                        ),
+                        samples = list(mOTU3 = mOTU3_tax, MetaPhlAn4 = MetaPhlAn4_tax)
+                        )
                       ),
     scale       = list(
                     mock = scale,
                     samples = NA #IDK
                       ), 
     metadata    = list(
-                    mock = mockmetadata,
+                    mock = NA,
                     samples = sra
                       )
   ))

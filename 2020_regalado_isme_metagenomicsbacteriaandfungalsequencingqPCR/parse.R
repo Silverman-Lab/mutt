@@ -23,7 +23,8 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
     metaphlan4_zip       <- file.path(local, "PRJNA31530_MetaPhlAn_merged.tsv.zip")
     metadata_zip         <- file.path(local, "SraRunTable (38).csv.zip")
     ITS_metadata_zip     <- file.path(local, "ITS_blackblue_metadata_v2.txt.zip")
-    scale_16s_zip         <- file.path(local, "")
+    scale_16s_zip         <- file.path(local, "total_seq.txt.zip")
+
     repro_counts_zips <- c(
     file.path(local, "PRJNA31530_dada2_counts.rds.zip"),
     file.path(local, "PRJNA31530_SILVA_counts.rds.zip")
@@ -58,8 +59,8 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
     tax_ITS_reprocessed <- NA
 
     # ---- scale and metadata -----
-    scale_16s_df     <- read_zipped_table(scale_16s_zip) %>% mutate(log2_total_16S = ifelse(Total_16S > 0, log2(Total_16S), NA)) %>% 
-                                                             mutate(log10_total_16S = ifelse(Total_16S > 0, log10(Total_16S), NA)) # Replace column when we know what it is
+    scale_16s_df     <- read_zipped_table(scale_16s_zip, sep = "\t", row.names = NULL) %>% mutate(log2_qPCR = ifelse(TotalSeq > 0, log2(TotalSeq), NA)) %>% 
+                                                             mutate(log10_qPCR = ifelse(TotalSeq > 0, log10(TotalSeq), NA)) 
     metadata_16s_df  <- read_zipped_table(metadata_16s_zip)
     metadata_meta_df <- read_zipped_table(metadata_meta_zip)
 
@@ -77,8 +78,8 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
             if (!raw) {
-                align = rename_and_align(counts_original = df, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
-                df = align$counts_original
+                aligned = rename_and_align(counts_original = df, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
+                df = aligned$counts_original
             }
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
@@ -106,8 +107,8 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
             if (!raw) {
-                align = rename_and_align(counts_original = df, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
-                df = align$counts_original
+                aligned = rename_and_align(counts_original = df, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
+                df = aligned$counts_original
             }
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
@@ -123,8 +124,8 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
         }
     }
 
+    # ----- Reprocessed counts from RDS ZIP -----
     if (all(file.exists(repro_counts_zips))) {
-        # ----- Reprocessed counts from RDS ZIP -----
         temp_rds <- tempfile(fileext = ".rds")
         unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
@@ -146,8 +147,8 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
 
         # ----- Convert accessions to sample IDs / Sequences to Taxa -----
         if (!raw) {
-            counts_reprocessed <- rename_and_align(counts_reprocessed=counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
-            counts_reprocessed <- counts_reprocessed$reprocessed
+            aligned <- rename_and_align(counts_reprocessed=counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
+            counts_reprocessed <- aligned$reprocessed
         }
 
         # taxa

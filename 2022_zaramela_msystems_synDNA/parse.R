@@ -18,6 +18,17 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE, align = FALSE) {
     # ----- Local base directory -----
     local <- file.path("2022_zaramela_msystems_synDNA")
 
+    # ---- initialize ----
+    mOTU3_counts = NA
+    mOTU3_proportions = NA
+    mOTU3_tax = NA
+    MetaPhlAn4_counts = NA
+    MetaPhlAn4_proportions = NA
+    MetaPhlAn4_tax = NA
+    counts = NA
+    proportions = NA
+    tax = NA
+
     # ----- File paths -----
     motus_zip            <- file.path(local, "PRJNA940499_motus_merged.tsv.zip")
     metaphlan4_zip       <- file.path(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")

@@ -38,6 +38,28 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   )
   supp8_zip           <- file.path(local, "Supplementary Data 8.xlsx.zip")
 
+  sra_zips <- c(
+    file.path(local, "SraRunTable (40).csv.zip"),
+    file.path(local, "SraRunTable (41).csv.zip"),
+    file.path(local, "SraRunTable (42).csv.zip"),
+    file.path(local, "SraRunTable (43).csv.zip")
+  )
+
+  # Read and combine SRA tables
+  sra_tables <- lapply(sra_zips, function(zip) {
+    if (file.exists(zip)) {
+      read_zipped_table(zip, row.names = NULL) %>% rename(Accession = Run, Sample = `Sample Name`)
+    } else {
+      NULL
+    }
+  })
+  
+  # Combine all tables keeping all columns
+  sra <- bind_rows(sra_tables[!sapply(sra_tables, is.null)])
+
+  # Remove ^ characters from Sample column
+  sra$Sample <- gsub("\\^", "", sra$Sample)
+
    # ---- scale ----
   scale <- read_xlsx_zip(zipfile = supp8_zip, sheet = "Absolute total abundance", skip = 1) %>% as.data.frame() %>%
               mutate(log2_copies_mg_mean = ifelse(`Absolute total abudance (copies/mg)` > 0, log2(`Absolute total abudance (copies/mg)`), NA)) %>%
@@ -45,8 +67,6 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
               mutate(log2_copies_mg_sd = ifelse(`Standard deviation (N  = 4 or 5)` > 0, log2(`Standard deviation (N  = 4 or 5)`), NA)) %>%
               mutate(log10_copies_mg_sd = ifelse(`Standard deviation (N  = 4 or 5)` > 0, log10(`Standard deviation (N  = 4 or 5)`), NA))
 
-
-  
   # ---- metadata ----
   #extract metadata from sample id
   metadata <- as.data.frame(matrix(NA, nrow = nrow(scale), ncol = 5))
@@ -69,6 +89,10 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   
   #technical replicate if applicable (not every diet group have technical replicates)
   metadata$technical_replicate <- as.numeric(substr(scale$Sample, start = 8, stop = 8))
+  metadata = metadata %>% rownames_to_column(var = "Sample")
+
+  metadata = merge(metadata, sra, by = "Sample")
+
 
   # ---- counts and tax and proportions ----
   dat <- read_xlsx_zip(zipfile = supp8_zip,sheet = "Sequencing-determined counts",skip = 1)
@@ -84,10 +108,8 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   counts = as.data.frame(t(counts))
 
   if (!raw) {
-   aligned = rename_and_align(counts_original = counts, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
-   counts = aligned$counts_original
-  }
-  if (!raw) {
+    aligned = rename_and_align(counts_original = counts, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+    counts = aligned$counts_original
     matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
     colnames(counts) <- matched_taxa
     counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
@@ -101,55 +123,53 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   all_props  <- list()
   all_taxa   <- list()
 
-  for (i in seq_along(repro_counts_zips)) {
-    counts_zip <- repro_counts_zips[i]
-    tax_zip    <- repro_tax_zips[i]
+  if (all(file.exists(repro_counts_zips)) && all(file.exists(repro_tax_zips))) {
+    for (i in seq_along(repro_counts_zips)) {
+      counts_zip <- repro_counts_zips[i]
+      tax_zip    <- repro_tax_zips[i]
 
-    # ----- Study prefix -----
-    study_prefix <- gsub("_dada2_counts\\.rds\\.zip$", "", basename(counts_zip))
+      # ----- Study prefix -----
+      study_prefix <- gsub("_dada2_counts\\.rds\\.zip$", "", basename(counts_zip))
 
-    # ----- Unzip and read counts -----
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(counts_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found in: ", counts_zip)
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+      # ----- Unzip and read counts -----
+      temp_rds <- tempfile(fileext = ".rds")
+      unzip(counts_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+      rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+      if (length(rds_files) == 0) stop("No *_counts.rds file found in: ", counts_zip)
+      counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-    # ----- Unzip and read taxonomy -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found in: ", tax_zip)
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-    tax_reprocessed <- make_taxa_label(tax_reprocessed)
+      # ----- Unzip and read taxonomy -----
+      temp_tax <- tempfile(fileext = ".rds")
+      unzip(tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+      tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+      if (length(tax_files) == 0) stop("No *_taxa.rds file found in: ", tax_zip)
+      tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+      tax_reprocessed <- make_taxa_label(tax_reprocessed)
 
-    # Taxonomy rownames = ASVs/Features: prefix if needed
-    tax_reprocessed$BioProject <- study_prefix
-    tax_reprocessed$Sequence <- rownames(tax_reprocessed)
+      # Taxonomy rownames = ASVs/Features: prefix if needed
+      tax_reprocessed$BioProject <- study_prefix
+      tax_reprocessed$Sequence <- rownames(tax_reprocessed)
 
-    if (!raw) {
-      aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
-      counts_reprocessed = aligned$reprocessed
+      if (!raw) {
+        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+        counts_reprocessed = aligned$reprocessed
+        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), tax_reprocessed$Sequence)]
+        colnames(counts_reprocessed) <- matched_taxa
+        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+      }
+
+      # ----- Proportions -----
+      proportions_reprocessed <- counts_reprocessed
+      proportions_reprocessed[] <- lapply(
+        proportions_reprocessed,
+        function(col) col / sum(col)
+      )
+
+      # Store results
+      all_counts[[i]] <- counts_reprocessed
+      all_props[[i]]  <- proportions_reprocessed
+      all_taxa[[i]]   <- tax_reprocessed
     }
-
-    # Rename counts columns using taxonomy
-    if (!raw) {
-      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), tax_reprocessed$Sequence)]
-      colnames(counts_reprocessed) <- matched_taxa
-      counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
-    }
-
-    # ----- Proportions -----
-    proportions_reprocessed <- counts_reprocessed
-    proportions_reprocessed[] <- lapply(
-      proportions_reprocessed,
-      function(col) col / sum(col)
-    )
-
-    # Store results
-    all_counts[[i]] <- counts_reprocessed
-    all_props[[i]]  <- proportions_reprocessed
-    all_taxa[[i]]   <- tax_reprocessed
   }
 
   # ----- Merge all dataframes -----

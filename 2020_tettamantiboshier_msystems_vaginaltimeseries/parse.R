@@ -28,10 +28,11 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE,
   if (file.exists(scale_zip)) {
     scale_file <- unzip(scale_zip, list = TRUE)$Name[1]
     scale_con  <- unz(scale_zip, scale_file)
-    scale  = read.csv(scale_con) %>% as.data.frame() %>% 
-      mutate(log2_total_16S  = ifelse(Total_16S > 0, log2(Total_16S), NA)) %>%
-      mutate(log10_total_16S = ifelse(Total_16S > 0, log10(Total_16S), NA)) %>% rename(Sample_ID = `Sample Name`)
-
+    scale  = read.csv(scale_con) %>% as.data.frame() %>% rename(Accession = Run, Sample = `Sample.Name`, Sample_ID = `X`) 
+    scale = scale %>% 
+      mutate(log2_total_16S = log2(Total_16S),
+             log10_total_16S = log10(Total_16S)) %>%
+      mutate(across(c(log2_total_16S, log10_total_16S), ~ifelse(is.infinite(.), NA, .)))
   } else {
     scale <- NA
   }
@@ -40,35 +41,31 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE,
   if (file.exists(metadata_zip)) {
     metadata_file <- unzip(metadata_zip, list = TRUE)$Name[1]
     metadata_con  <- unz(metadata_zip, metadata_file)
-    metadata = read.csv(metadata_con) %>% as.data.frame() %>% rename(Accession = Run, Sample_ID = `Sample Name`)
-    # This needs to be cleaned up for the originals because im not sure how to link the sample IDs.
+    metadata = read.csv(metadata_con) %>% as.data.frame() %>% rename(Accession = Run, Sample = `Sample.Name`)
   } else {
     metadata <- NA
   }
 
    # ----- Read counts & proportions -----
   if (file.exists(counts_zip)) {
-    counts_file <- unzip(counts_zip, list = TRUE)$Name[1]
-    counts_con  <- unz(counts_zip, counts_file)
-    countsdata  <- read.csv(counts_con) %>% as.data.frame()
+    countsdata  <- read_zipped_table(counts_zip) 
 
-    columns_to_drop <- c("Participant", "Hours_In_Study", "Sample_ID")
-    counts_original <- countsdata[, !(names(countsdata) %in% columns_to_drop)]
-    metadatacols    <- countsdata[, names(countsdata) %in% columns_to_drop]
+    counts_original <- countsdata[, !(names(countsdata) %in% c("Participant", "Hours_In_Study"))]
+    metadatacols    <- countsdata[, c("Participant", "Hours_In_Study") ] %>% rownames_to_column(var = "Sample_ID")
+
+    metadata = metadata %>% merge(scale %>% select(Sample_ID, Participant, Hours_In_Study, `Lactobacillus_crispatus`, `Lactobacillus_jensenii`, `Lactobacillus_iners`, `Gardnerella_vaginalis`, `Megasphaera`, `BVAB2`, `Atopobium_vaginae`, `Accession`), by = "Accession")
+    scale = scale %>% select(Sample_ID, Participant, Hours_In_Study, Accession, `log2_total_16S`, `log10_total_16S`)
 
     tax_original <- tibble(
-      Taxa = colnames(countsdata)[!(colnames(countsdata) %in% columns_to_drop)]
+      Taxa = colnames(countsdata)[!(colnames(countsdata) %in% c("Participant", "Hours_In_Study"))]
     )
 
-    counts_original <- bind_cols(metadatacols, counts_original)
-
     if (!raw) {
-      align = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
-      counts_original = align$counts_original
+      aligned_data = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
+      counts_original = aligned_data$counts_original
     }
 
-    row_sums    <- rowSums(counts_original)
-    prop_mat    <- sweep(as.matrix(counts_original), 1, row_sums, FUN = "/")
+    prop_mat    <- sweep(as.matrix(counts_original), 1, rowSums(counts_original), FUN = "/")
     prop_mat[is.nan(prop_mat)] <- 0
     proportions_original <- bind_cols(metadatacols, as_tibble(prop_mat))
 
@@ -83,41 +80,42 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE,
   tax_reprocessed <- NA 
 
   # ----- Reprocessed counts from RDS ZIP -----
-  temp_rds <- tempfile(fileext = ".rds")
-  unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+  if (all(file.exists(c(repro_counts_rds_zip, repro_tax_zip)))) {
+    temp_rds <- tempfile(fileext = ".rds")
+    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
 
-  rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-  if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-  counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
+    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-  # ----- Taxonomy reprocessed -----
-  temp_tax <- tempfile(fileext = ".rds")
-  unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
+    # ----- Taxonomy reprocessed -----
+    temp_tax <- tempfile(fileext = ".rds")
+    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
 
-  tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-  if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-  tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-  tax_reprocessed = make_taxa_label(tax_reprocessed)
+    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
+    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+    tax_reprocessed = make_taxa_label(tax_reprocessed)
 
-  # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-  if (!raw) {
-    align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
-    counts_reprocessed = align$reprocessed
+    # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+    if (!raw) {
+      aligned_data = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
+      counts_reprocessed = aligned_data$reprocessed
+    }
+
+    # taxa
+    if (!raw) {
+        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+        colnames(counts_reprocessed) <- matched_taxa
+        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+    }
+
+    # proportions reprocessed
+    proportions_reprocessed <- sweep(as.matrix(counts_reprocessed), 1, rowSums(counts_reprocessed), FUN = "/")
+    proportions_reprocessed[is.nan(proportions_reprocessed)] <- 0
+    proportions_reprocessed <- as.data.frame(proportions_reprocessed)
   }
 
-  # taxa
-  if (!raw) {
-      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-      colnames(counts_reprocessed) <- matched_taxa
-      counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
-  }
-
-  # proportions reprocessed
-  proportions_reprocessed = counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-      counts_reprocessed[-1],
-      function(col) col / sum(col)
-  )
 
   if (!raw) {
     counts_original = fill_na_zero_numeric(counts_original)
