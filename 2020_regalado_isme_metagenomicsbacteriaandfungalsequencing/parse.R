@@ -1,4 +1,4 @@
-parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function(raw = FALSE, align = FALSE) {
+parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencing <- function(raw = FALSE, align = FALSE) {
     required_pkgs <- c("stringr", "tidyverse")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
@@ -14,26 +14,23 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
 
     library(stringr)
     library(tidyverse)
-
     # ----- Local base directory -----
-    local <- file.path("2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR")
+    local <- file.path("2020_regalado_isme_metagenomicsbacteriaandfungalsequencing")
 
     # ----- File paths -----
-    motus_zip            <- file.path(local, "PRJNA31530_motus_merged.tsv.zip")
-    metaphlan4_zip       <- file.path(local, "PRJNA31530_MetaPhlAn_merged.tsv.zip")
-    metadata_zip         <- file.path(local, "SraRunTable (38).csv.zip")
-    ITS_metadata_zip     <- file.path(local, "ITS_blackblue_metadata_v2.txt.zip")
-    scale_16s_zip         <- file.path(local, "total_seq.txt.zip")
-
-    repro_counts_zips <- c(
-    file.path(local, "PRJNA31530_dada2_counts.rds.zip"),
-    file.path(local, "PRJNA31530_SILVA_counts.rds.zip")
-    )
-
-    repro_tax_zips <- c(
-    file.path(local, "PRJNA31530_dada2_taxa.rds.zip"),
-    file.path(local, "PRJNA31530_SILVA_taxa.rds.zip")
-    )
+    motus_zip                   <- file.path(local, "PRJNA31530_motus_merged.tsv.zip")
+    metaphlan4_zip              <- file.path(local, "PRJNA31530_MetaPhlAn_merged.tsv.zip")
+    metadata_zip                <- file.path(local, "SraRunTable (38).csv.zip")
+    ITS_metadata_zip            <- file.path(local, "ITS_blackblue_metadata_v2.txt.zip")
+    ITS_og_otu_zip              <- file.path(local, "AgITS1blackblue_READ1_271_all_Zotutab.txt.zip")
+    ITS_og_tax_zip              <- file.path(local, "AgITS1blackblue_READ1_271_all_Zotus.tax.zip")
+    16S_og_otu_zip              <- file.path(local, "515_blackblue_all_Zotutab_20181206.txt.zip")
+    16S_og_tax_zip              <- file.path(local, "515_blackblue_all_zotus.tax.zip")
+    16S_og_metadata_zip         <- file.path(local, "515_blackblue_metadata.txt.zip")
+    metagenomic_og_bacteria_zip <- file.path(local, "BacteriaGenusRaw.txt.zip")
+    metagenomic_og_fungi_zip    <- file.path(local, "FungiGenusRaw.txt.zip")
+    scale_16s_zip               <- file.path(local, "total_seq.txt.zip")
+    metadataconnection          <- file.path(local, "Metadata_PRJEB31530.csv.zip")
 
     # ----- Initialize everything as NA -----
     counts_original_16s <- NA
@@ -58,13 +55,30 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR <- function
     proportions_ITS_reprocessed <- NA
     tax_ITS_reprocessed <- NA
 
+
+    repro_counts_zips <- c(
+    file.path(local, "PRJNA31530_dada2_counts.rds.zip"),
+    file.path(local, "PRJNA31530_SILVA_counts.rds.zip")
+    )
+
+    repro_tax_zips <- c(
+    file.path(local, "PRJNA31530_dada2_taxa.rds.zip"),
+    file.path(local, "PRJNA31530_SILVA_taxa.rds.zip")
+    )
+
     # ---- scale and metadata -----
-    scale_16s_df     <- read_zipped_table(scale_16s_zip, sep = "\t", row.names = NULL) %>% mutate(log2_qPCR = ifelse(TotalSeq > 0, log2(TotalSeq), NA)) %>% 
+    scale_16s_df        <- read_zipped_table(scale_16s_zip, sep = "\t", row.names = NULL) %>% mutate(log2_qPCR = ifelse(TotalSeq > 0, log2(TotalSeq), NA)) %>% 
                                                              mutate(log10_qPCR = ifelse(TotalSeq > 0, log10(TotalSeq), NA)) 
-    metadata_16s_df  <- read_zipped_table(metadata_16s_zip)
-    metadata_meta_df <- read_zipped_table(metadata_meta_zip)
+    metadata_16s_df     <- read_zipped_table(metadata_16s_zip)
+    metadata_meta_df    <- read_zipped_table(metadata_meta_zip)
+    metadata_ITS_df     <- read_zipped_table(metadata_ITS_zip)
+    metadata_connection <- read_zipped_table(metadataconnection)
 
     # ------ original counts ------
+    counts_original_16s <- read_zipped_table(16S_og_otu_zip)
+    counts_original_ITS <- read_zipped_table(ITS_og_otu_zip)
+    counts_original_meta <- read_zipped_table(metagenomic_og_bacteria_zip)
+    counts_original_meta <- read_zipped_table(metagenomic_og_fungi_zip)
 
     # ----- mOTU3 Reprocessed -----
     if (file.exists(motus_zip)) {

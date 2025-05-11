@@ -1,5 +1,5 @@
 parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, align = FALSE) {
-  required_pkgs <- c("stringr", "tidyverse")
+  required_pkgs <- c("stringr", "tidyverse", "matrixStats")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
             stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
@@ -21,62 +21,99 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
     # ----- File paths -----
     repro_counts_rds_zip <- file.path(local, "ERP111447_dada2_counts.rds.zip")
     repro_tax_zip        <- file.path(local, "ERP111447_dada2_taxa.rds.zip")
-    metadata_zip         <- file.path(local, "oral_trimmed_metadata.csv")
+    metadata_zip         <- file.path(local, "oral_trimmed_metadata.csv.zip")
     counts_zip           <- file.path(local, "2019_morton_songbird_oral_counts.RDS.zip")
     sra_zip              <- file.path(local, "SraRunTable (40).csv.zip")
+    tax_zip              <- file.path(local, "taxonomy.tsv.zip")
 
-    metadata <- read_zipped_table(metadata_zip)
-    metadata$avg_FC_cells_ul <- rowMeans(metadata[,c("flow.cells.ul.1", "flow.cells.ul.2")])
-    metadata$sd_FC_cells_ul <- rowSds(as.matrix(metadata[,c("flow.cells.ul.1", "flow.cells.ul.2")]))
-    metadata$avg_qpcr_cells_ul <- rowMeans(metadata[,c("qPCR.cell.ul.1", "qPCR.cell.ul.2", "qPCR.cell.ul.3")])
-    metadata$sd_qpcr_cells_ul <- rowSds(as.matrix(metadata[,c("qPCR.cell.ul.1", "qPCR.cell.ul.2", "qPCR.cell.ul.3")]))
-    metadata$avg_qpcr_cells_5min <- rowMeans(metadata[,c("qPCR.cell.5min.1", "qPCR.cell.5min.2", "qPCR.cell.5min.3")])
-    metadata$sd_qpcr_cells_5min <- rowSds(as.matrix(metadata[,c("qPCR.cell.5min.1", "qPCR.cell.5min.2", "qPCR.cell.5min.3")]))
-    metadata$SampleID <- paste0(metadata$`participant-timepoint`, ".", metadata$Timepoint, ".", metadata$treatment)
+    # ----- Initialize -----
+    counts = NULL
+    proportions = NULL
+    tax = NULL
+    metadata = NULL
+    scale = NULL
+    counts_reprocessed = NULL
+    proportions_reprocessed = NULL
+    tax_reprocessed = NULL
+
+    # ----- Metadata -----
+    metadata <- read_zipped_table(metadata_zip, row.names=NULL)
+    metadata <- metadata[, !is.na(names(metadata)) & names(metadata) != ""] 
+
+    metadata <- metadata %>%
+      mutate(across(c("flow cells/ul 1", "flow cells/ul 2"), as.numeric)) %>%
+      mutate(across(c("qPCR cell/ul 1", "qPCR cell/ul 2", "qPCR cell/ul 3"), as.numeric)) %>%
+      mutate(across(c("qPCR cell 5 min 1", "qPCR cell 5 min 2", "qPCR cell 5 min 3"), as.numeric)) %>%
+      mutate(
+        avg_FC_cells_ul = rowMeans(select(., "flow cells/ul 1", "flow cells/ul 2"), na.rm = TRUE),
+        sd_FC_cells_ul = apply(select(., "flow cells/ul 1", "flow cells/ul 2"), 1, sd, na.rm = TRUE),
+        avg_qpcr_cells_ul = rowMeans(select(., "qPCR cell/ul 1", "qPCR cell/ul 2", "qPCR cell/ul 3"), na.rm = TRUE),
+        sd_qpcr_cells_ul = apply(select(., "qPCR cell/ul 1", "qPCR cell/ul 2", "qPCR cell/ul 3"), 1, sd, na.rm = TRUE),
+        avg_qpcr_cells_5min = rowMeans(select(., "qPCR cell 5 min 1", "qPCR cell 5 min 2", "qPCR cell 5 min 3"), na.rm = TRUE),
+        sd_qpcr_cells_5min = apply(select(., "qPCR cell 5 min 1", "qPCR cell 5 min 2", "qPCR cell 5 min 3"), 1, sd, na.rm = TRUE),
+        SampleID = paste0(`participant-timepoint`, ".", Timepoint, ".", treatment)
+      ) 
 
     sra = read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run)
     sra$SampleID <- paste0(sra$saliva_sample_id, ".", sra$timepoint, ".", sra$processing)
     metadata <- merge(sra, metadata, by = "SampleID")
 
     scale <- metadata %>% select(SampleID, avg_FC_cells_ul, sd_FC_cells_ul, avg_qpcr_cells_5min, sd_qpcr_cells_5min, avg_qpcr_cells_ul, sd_qpcr_cells_ul) %>% 
-                        mutate(log2_FC_cells_ul = ifelse(avg_FC_cells_ul > 0, log2(avg_FC_cells_ul), NA)) %>%
-                        mutate(log10_FC_cells_ul = ifelse(avg_FC_cells_ul > 0, log10(avg_FC_cells_ul), NA)) %>%
-                        mutate(log2_qpcr_cells_5min = ifelse(avg_qpcr_cells_5min > 0, log2(avg_qpcr_cells_5min), NA)) %>%
-                        mutate(log10_qpcr_cells_5min = ifelse(avg_qpcr_cells_5min > 0, log10(avg_qpcr_cells_5min), NA)) %>%
-                        mutate(log2_qpcr_cells_5min_sd = ifelse(sd_qpcr_cells_5min > 0, log2(sd_qpcr_cells_5min), NA)) %>%
-                        mutate(log10_qpcr_cells_5min_sd = ifelse(sd_qpcr_cells_5min > 0, log10(sd_qpcr_cells_5min), NA)) %>%
-                        mutate(log2_qpcr_cells_ul = ifelse(avg_qpcr_cells_ul > 0, log2(avg_qpcr_cells_ul), NA)) %>%
-                        mutate(log10_qpcr_cells_ul = ifelse(avg_qpcr_cells_ul > 0, log10(avg_qpcr_cells_ul), NA)) %>%
-                        mutate(log2_qpcr_cells_ul_sd = ifelse(sd_qpcr_cells_ul > 0, log2(sd_qpcr_cells_ul), NA)) %>%
-                        mutate(log10_qpcr_cells_ul_sd = ifelse(sd_qpcr_cells_ul > 0, log10(sd_qpcr_cells_ul), NA))
-    names(scale) <- row.names(metadata)
+      mutate(log2_FC_avg_cells_ul = ifelse(avg_FC_cells_ul > 0, log2(avg_FC_cells_ul), NA)) %>%
+      mutate(log10_FC_avg_cells_ul = ifelse(avg_FC_cells_ul > 0, log10(avg_FC_cells_ul), NA)) %>%
+      mutate(log2_FC_sd_cells_ul = ifelse(sd_FC_cells_ul > 0, log2(sd_FC_cells_ul), NA)) %>%
+      mutate(log10_FC_sd_cells_ul = ifelse(sd_FC_cells_ul > 0, log10(sd_FC_cells_ul), NA)) %>%
+      mutate(log2_qpcr_avg_cells_5min = ifelse(avg_qpcr_cells_5min > 0, log2(avg_qpcr_cells_5min), NA)) %>%
+      mutate(log10_qpcr_avg_cells_5min = ifelse(avg_qpcr_cells_5min > 0, log10(avg_qpcr_cells_5min), NA)) %>%
+      mutate(log2_qpcr_avg_cells_ul = ifelse(avg_qpcr_cells_ul > 0, log2(avg_qpcr_cells_ul), NA)) %>%
+      mutate(log10_qpcr_avg_cells_ul = ifelse(avg_qpcr_cells_ul > 0, log10(avg_qpcr_cells_ul), NA)) %>%
+      mutate(log2_qpcr_sd_cells_5min = ifelse(sd_qpcr_cells_5min > 0, log2(sd_qpcr_cells_5min), NA)) %>%
+      mutate(log10_qpcr_sd_cells_5min = ifelse(sd_qpcr_cells_5min > 0, log10(sd_qpcr_cells_5min), NA)) %>%
+      mutate(log2_qpcr_sd_cells_ul = ifelse(sd_qpcr_cells_ul > 0, log2(sd_qpcr_cells_ul), NA)) %>%
+      mutate(log10_qpcr_sd_cells_ul = ifelse(sd_qpcr_cells_ul > 0, log10(sd_qpcr_cells_ul), NA))
+    
 
     ## Read Counts
     temp_rds <- tempfile(fileext = ".rds")
     unzip(counts_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-    counts<- as.data.frame(readRDS(rds_files[1]))
-    if (!raw) {
-        align = rename_and_align(counts_original = counts, metadata, scale, by_col = "SampleID", align = align, study_name = basename(local))
-        counts <- align$counts_original
-    }
-    proportions <- sweep(counts, 1, rowSums(counts), FUN = "/")
+    rds_files <- list.files(dirname(temp_rds), pattern = "2019_morton_songbird_oral_counts\\.RDS$", full.names = TRUE)
+    if (length(rds_files) == 0) stop("No 2019_morton_songbird_oral_counts.rds file found after unzip")
+    counts <- as.data.frame(readRDS(rds_files[1])) %>% t() %>% as.data.frame()
 
     ## Taxonomy Information
-    raw_tax <- read.csv("taxonomy.tsv", sep="\t")
+    raw_tax <- read_zipped_table(tax_zip, sep="\t", row.names = NULL)
     tax <- raw_tax %>%
-        mutate(Taxon=str_trim(Taxon)) %>%
+        mutate(taxonomy = str_replace_all(Taxon, "\\s+", "")) %>%
+        mutate(ogtaxonomy = taxonomy) %>%
         separate(
-        Taxon,
-        into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
-        sep = "\\s*;\\s*",
-        extra = "drop",
-        fill = "right"
-    )
-    row.names(tax) <- tax$Feature.ID
+            taxonomy,
+            into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+            sep = ";",
+            extra = "drop",
+            fill = "right"
+        ) %>%
+        mutate(across(c(Kingdom, Phylum, Class, Order, Family, Genus, Species), 
+                     ~gsub("^[kpcofgs]__", "", .))) %>%
+        mutate(across(c(Kingdom, Phylum, Class, Order, Family, Genus, Species), 
+                     ~gsub("\\[|\\]|\\(|\\)", "", .))) %>% 
+        mutate(across(c(Kingdom, Phylum, Class, Order, Family, Genus, Species), 
+                     ~gsub("_+", "_", .))) %>% 
+        mutate(across(c(Kingdom, Phylum, Class, Order, Family, Genus, Species), 
+                     ~ifelse(. == "" | . == "__" | is.na(.), "unclassified", .)))
     tax = make_taxa_label(tax)
-    tax <- tax[,c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Taxa")]
+    tax <- tax[,c("Feature ID", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Taxa", "ogtaxonomy")]
+    row.names(tax) <- tax$`Feature ID`
+
+
+
+    if (!raw) {
+        aligned = rename_and_align(counts_original = counts, metadata=metadata, scale=scale, by_col = "anonymized_name", align = align, study_name = basename(local))
+        counts <- aligned$counts_original
+        matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
+        colnames(counts) <- matched_taxa
+        counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
+    }
+    proportions <- sweep(counts, 1, rowSums(counts), FUN = "/")
 
     # ----- Reprocessed counts from RDS ZIP -----
     if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
@@ -102,8 +139,8 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
 
         # ----- Convert accessions to sample IDs / Sequences to Taxa -----
         if (!raw) {
-            align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata, scale, by_col = "SampleID", align = align, study_name = basename(local))
-            counts_reprocessed <- align$reprocessed
+            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col = "SampleID", align = align, study_name = basename(local))
+            counts_reprocessed <- aligned$reprocessed
         }
 
         # taxa

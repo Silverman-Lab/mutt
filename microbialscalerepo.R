@@ -207,7 +207,7 @@ microbialscalerepo <- function(
   if (!is.null(save_to)) {
     dir.create(dirname(save_to), showWarnings = FALSE, recursive = TRUE)
     save(parsed_list, file = save_to)
-    cat(sprintf("File saved to:", save_to))
+    cat(sprintf("File saved to: %s\n", save_to))
     
     # Save validation results to a separate file
     validation_file <- sub("\\.RData$", "_validation.RData", save_to)

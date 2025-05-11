@@ -1,3 +1,17 @@
+Paper: https://academic.oup.com/ismej/article/14/8/2116/7474856
+
+Shotgun sequencing supplies information on the total DNA content of microorganisms as opposed to a specific locus, which in principle enables the functional characterization of reads, de novo assembly of genes, and in the best cases, leads to the recovery of entire metagenome assembled genomes [8, 18–20].
+We estimated absolute microbial load as the ratio of microbial reads to plant chromosomal reads in each sample, and observed that the microbial load varied across samples from <1% to up to 77% of plant reads. We used the bacterial load calculated from the metagenome data to similarly scale the 16S data.
+
+
+
+
+
+
+
+
+
+
 Dear Maxwell,
 
 We intended to put these types of files in an organized way in a public Dryad directory but sadly that's not operational. For expediency I am giving you the files directly from my laptop, as I used them for the analysis (therefore, the file names are all in the original shorthand instead). I give you a key of what's what below. I also attached the R script I used to integrate these data for the publication. Again, this R script is not unfortunately well-annotated as a public document, but it may be helpful. I can easily imagine some further confusion or clarification will arise - feel welcome to reach out to me and I'll try to help you get going.
