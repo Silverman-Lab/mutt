@@ -83,7 +83,9 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
         counts_reprocessed <- aligned$reprocessed
         matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
         colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+        counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+        original_names <- colnames(counts_reprocessed)
+        counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
       }
 
       counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)

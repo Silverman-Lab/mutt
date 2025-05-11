@@ -58,6 +58,10 @@ parse_2017_liu_mbio_penilehivqPCR <- function(raw = FALSE, align = FALSE) {
         stringsAsFactors = FALSE
         )
 
+        # convert to numeric
+        original_names <- colnames(counts_original)
+        counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
+
         # ------ proportions from counts ------
         proportions_original <- sweep(counts_original, 1, rowSums(counts_original, na.rm = TRUE), FUN = "/")
 
@@ -89,23 +93,17 @@ parse_2017_liu_mbio_penilehivqPCR <- function(raw = FALSE, align = FALSE) {
 
         # ----- Convert accessions to sample IDs / Sequences to Taxa -----
         if (!raw) {
-            align <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
-            counts_reprocessed = align$reprocessed
-        }
-
-        # taxa
-        if (!raw) {
+            aligned <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
+            counts_reprocessed = aligned$reprocessed
             matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
             colnames(counts_reprocessed) <- matched_taxa
-            counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+            counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+            original_names <- colnames(counts_reprocessed)
+            counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
         }
 
-        # proportions reprocessedF_cell_ml
-        proportions_reprocessed = counts_reprocessed
-        proportions_reprocessed[-1] <- lapply(
-            counts_reprocessed[-1],
-            function(col) col / sum(col)
-        )
+        # proportions reprocessed
+        proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
     }
 
     if (!raw) {

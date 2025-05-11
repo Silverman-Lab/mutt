@@ -75,6 +75,8 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
                 aligned = rename_and_align(counts_reprocessed = df, metadata=metadata_meta_df, scale=scale_meta_df, by_col="Sample Name", align = align, study_name=basename(local))
                 df = aligned$reprocessed
             }
+            original_names <- colnames(df)
+            df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
@@ -104,6 +106,8 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
                 aligned = rename_and_align(counts_reprocessed = df, metadata=metadata_meta_df, scale=scale_meta_df, by_col="Sample Name", align = align, study_name=basename(local))
                 df = aligned$reprocessed
             }
+            original_names <- colnames(df)
+            df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
@@ -140,23 +144,16 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
 
         # ----- Convert accessions to sample IDs / Sequences to Taxa ----- 
         if (!raw) {
-        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata_16s_df, scale=scale_16s_df, by_col="Sample Name", align = align, study_name=basename(local))
-        counts_reprocessed = aligned$reprocessed
-        }
-
-        # taxa
-        if (!raw) {
+            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata_16s_df, scale=scale_16s_df, by_col="Sample Name", align = align, study_name=basename(local))
+            counts_reprocessed = aligned$reprocessed
             matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
             colnames(counts_reprocessed) <- matched_taxa
-            counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+            counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+            original_names <- colnames(counts_reprocessed)
+            counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
         }
-
         # proportions reprocessed
-        proportions_reprocessed = counts_reprocessed
-        proportions_reprocessed[-1] <- lapply(
-            counts_reprocessed[-1],
-            function(col) col / sum(col)
-        )
+        proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
     }
 
     # CAN DELETE LATER WHEN REPROCESSING FINISHES -- MY OLD REPROCESSING:
@@ -165,8 +162,12 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
     if (!raw) {
         aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata_16s_df, scale=scale_16s_df, by_col="Sample Name", align = align, study_name=basename(local))
         counts_reprocessed = aligned$reprocessed
+        original_names <- colnames(counts_reprocessed)
+        counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
         aligned = rename_and_align(counts_reprocessed = MetaPhlAn4_counts, metadata=metadata_meta_df, scale=scale_meta_df, by_col="Sample Name", align = align, study_name=basename(local))
         MetaPhlAn4_counts = aligned$reprocessed
+        original_names <- colnames(MetaPhlAn4_counts)
+        MetaPhlAn4_counts <- as.data.frame(lapply(MetaPhlAn4_counts, as.numeric), row.names = rownames(MetaPhlAn4_counts), col.names = original_names, check.names = FALSE)
     }
     proportions_reprocessed <- sweep(counts_reprocessed, MARGIN = 1,STATS  = rowSums(counts_reprocessed), FUN = "/")
     MetaPhlAn4_proportions <- sweep(MetaPhlAn4_counts, MARGIN = 1,STATS  = rowSums(MetaPhlAn4_counts), FUN = "/")

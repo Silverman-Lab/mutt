@@ -63,10 +63,11 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE,
     if (!raw) {
       aligned_data = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
       counts_original = aligned_data$counts_original
+      original_names <- colnames(counts_original)
+      counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
     }
 
     prop_mat    <- sweep(as.matrix(counts_original), 1, rowSums(counts_original), FUN = "/")
-    prop_mat[is.nan(prop_mat)] <- 0
     proportions_original <- bind_cols(metadatacols, as_tibble(prop_mat))
 
   } else {
@@ -99,21 +100,17 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE,
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
     if (!raw) {
-      aligned_data = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
-      counts_reprocessed = aligned_data$reprocessed
-    }
-
-    # taxa
-    if (!raw) {
+        aligned_data = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
+        counts_reprocessed = aligned_data$reprocessed
         matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
         colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+        counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+        original_names <- colnames(counts_reprocessed)
+        counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
     }
-
     # proportions reprocessed
-    proportions_reprocessed <- sweep(as.matrix(counts_reprocessed), 1, rowSums(counts_reprocessed), FUN = "/")
-    proportions_reprocessed[is.nan(proportions_reprocessed)] <- 0
-    proportions_reprocessed <- as.data.frame(proportions_reprocessed)
+    proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+    proportions_reprocessed <- as.data.frame(proportions_reprocessed, check.names = FALSE)
   }
 
 

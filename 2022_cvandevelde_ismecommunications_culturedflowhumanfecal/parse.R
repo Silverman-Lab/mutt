@@ -90,11 +90,12 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
                                         align = align, 
                                         study_name = basename(local))
                 counts_original = aligned$counts_original
+                original_names <- colnames(counts_original)
+                counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
             }
 
             # ------ proportions from counts ------
-            proportions_original <- t(counts_original)
-            proportions_original <- as.data.frame(t(proportions_original / rowSums(proportions_original, na.rm = TRUE)))
+            proportions_original <- sweep(counts_original, 1, rowSums(counts_original), '/')
         }
     }, error = function(e) {
         warning("Error processing original counts: ", e$message)
@@ -137,26 +138,15 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
                                     align = align, 
                                     study_name = basename(local))
             counts_reprocessed = aligned$reprocessed
-
-            # taxa - match ASV sequences to taxonomy
-            # First ensure sequences match exactly by trimming any whitespace
             asv_seqs <- trimws(colnames(counts_reprocessed))
             tax_seqs <- trimws(rownames(tax_reprocessed))
-            
-            # Create mapping between sequences and taxa
             seq_to_taxa <- setNames(tax_reprocessed$Taxa, tax_seqs)
-            
-            # Match sequences and replace with taxa names
             matched_taxa <- seq_to_taxa[asv_seqs]
-            
-            # Set unmatched to "unclassified"
             matched_taxa[is.na(matched_taxa)] <- "unclassified"
-            
-            # Update column names
             colnames(counts_reprocessed) <- matched_taxa
-            
-            # Sum counts for identical taxa
-            counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+            counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+            original_names <- colnames(counts_reprocessed)
+            counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
         }, error = function(e) {
             warning("Error aligning reprocessed data: ", e$message)
         })
@@ -165,11 +155,7 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     # proportions reprocessed
     if (!is.na(counts_reprocessed)[1]) {
         tryCatch({
-            proportions_reprocessed = counts_reprocessed
-            proportions_reprocessed[-1] <- lapply(
-                counts_reprocessed[-1],
-                function(col) col / sum(col)
-            )
+            proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
         }, error = function(e) {
             warning("Error calculating reprocessed proportions: ", e$message)
         })

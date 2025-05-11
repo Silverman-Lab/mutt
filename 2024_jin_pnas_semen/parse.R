@@ -66,7 +66,9 @@ parse_2024_jin_pnas_semen <- function(raw = FALSE, align = FALSE) {
   if (!raw) {
       matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
       colnames(counts) <- matched_taxa
-      counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
+      counts <- collapse_duplicate_columns_exact(counts)
+      original_names <- colnames(counts)
+      counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
   }
   # --- proportions ---
   proportions_original <- sweep(counts, MARGIN = 1,STATS  = rowSums(counts), FUN = "/")
@@ -95,24 +97,22 @@ parse_2024_jin_pnas_semen <- function(raw = FALSE, align = FALSE) {
   aligned = rename_and_align(counts_reprocessed = counts_reprocessed, counts_original = counts, 
                             proportions_original = proportions_original, metadata=metadata, scale=scale, 
                             by_col="Sample", align = align, study_name=basename(local))
-  counts_reprocessed = aligned$reprocessed
-  counts_original = aligned$counts_original
-  proportions_original = aligned$proportions_original
-  }
-
-  # taxa
-  if (!raw) {
-      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-      colnames(counts_reprocessed) <- matched_taxa
-      counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+    counts_reprocessed = aligned$reprocessed
+    counts_original = aligned$counts_original
+    proportions_original = aligned$proportions_original
+    matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+    colnames(counts_reprocessed) <- matched_taxa
+    counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+    original_names <- colnames(counts_reprocessed)
+    counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
+    original_names <- colnames(counts_original)
+    counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
+    original_names <- colnames(proportions_original)
+    proportions_original <- as.data.frame(lapply(proportions_original, as.numeric), row.names = rownames(proportions_original), col.names = original_names, check.names = FALSE)
   }
 
   # proportions reprocessed
-  proportions_reprocessed = counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-      counts_reprocessed[-1],
-      function(col) col / sum(col)
-  )
+  proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
 
   if (!raw) {
       counts = fill_na_zero_numeric(counts)

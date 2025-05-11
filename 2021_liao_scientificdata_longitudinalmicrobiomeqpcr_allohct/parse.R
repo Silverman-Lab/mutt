@@ -56,12 +56,13 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
         )
 
         if (!raw) {
-            align <- rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-            counts_original <- align$counts_original
+            aligned <- rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+            counts_original <- aligned$counts_original
+            original_names <- colnames(counts_original)
+            counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
         }
-
-        # ------ proportions from counts ------
-        proportions_original <- sweep(counts_original, 1, rowSums(counts_original, na.rm = TRUE), FUN = "/")
+        # proportions
+        proportions_original <- sweep(counts_original, MARGIN = 1, STATS = rowSums(counts_original), FUN = "/")
     } else {
         proportions_original <- NA
         tax_original <- NA
@@ -99,13 +100,13 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
             counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
 
             if (!raw) {
-                align <- rename_and_align(counts_reprocessed = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-                counts <- align$counts_reprocessed
+                aligned <- rename_and_align(counts_reprocessed = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+                counts <- aligned$counts_reprocessed
+                original_names <- colnames(counts)
+                counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
             }
-
-            # Compute proportions
-            proportions <- counts
-            proportions[] <- lapply(counts, function(col) col / sum(col))
+            # proportions
+            proportions <- sweep(counts, 1, rowSums(counts), '/')
 
             # Label with study name based on zip filename prefix
             study_id <- sub("_.*$", "", basename(tools::file_path_sans_ext(repro_counts_zips[i])))

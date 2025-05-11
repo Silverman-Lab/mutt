@@ -89,7 +89,9 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE, align = FALSE) {
     if (!raw) {
         matched_taxa <- tax$MetaPhlAn4_lineage[match(colnames(counts), rownames(tax))]
         colnames(counts) <- matched_taxa
-        counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
+        counts <- collapse_duplicate_columns_exact(counts)
+        original_names <- colnames(counts)
+        counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
     }
 
     # --- Compute proportions from counts ---
@@ -109,6 +111,8 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE, align = FALSE) {
             if (!raw) {
                 aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
                 df = aligned$reprocessed
+                original_names <- colnames(df)
+                df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             }
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
@@ -137,6 +141,8 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE, align = FALSE) {
             if (!raw) {
                 aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
                 df = aligned$reprocessed
+                original_names <- colnames(df)
+                df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             }
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%

@@ -55,6 +55,9 @@ parse_2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome <-
         select(-`Cell counts (cells/g)`)
 
     # ----- Initialize everything as NA -----
+    counts = NA
+    proportions = NA
+    tax = NA
     mOTU3_counts <- NA
     mOTU3_proportions <- NA
     mOTU3_tax <- NA
@@ -76,6 +79,8 @@ parse_2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome <-
             if (!raw) {
                 aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
                 df = aligned$reprocessed
+                original_names <- colnames(df)
+                df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             }
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
@@ -105,6 +110,8 @@ parse_2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome <-
             if (!raw) {
                 aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
                 df = aligned$reprocessed
+                original_names <- colnames(df)
+                df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             }
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
@@ -121,9 +128,9 @@ parse_2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome <-
     }
 
     if (!raw) {
-        #counts = fill_na_zero_numeric(counts)
+        counts = fill_na_zero_numeric(counts)
         mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
-        #proportions = fill_na_zero_numeric(proportions)
+        proportions = fill_na_zero_numeric(proportions)
         MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
         mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
         MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)

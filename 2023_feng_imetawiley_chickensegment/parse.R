@@ -55,8 +55,12 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
     if (!raw) {
         aligned = rename_and_align(counts_original = counts_16s, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
         counts_16s = aligned$counts_original
+        original_names <- colnames(counts_16s)
+        counts_16s <- as.data.frame(lapply(counts_16s, as.numeric), row.names = rownames(counts_16s), col.names = original_names, check.names = FALSE)
         aligned = rename_and_align(counts_original = counts_ITS, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
         counts_ITS = aligned$counts_original
+        original_names <- colnames(counts_ITS)
+        counts_ITS <- as.data.frame(lapply(counts_ITS, as.numeric), row.names = rownames(counts_ITS), col.names = original_names, check.names = FALSE)
     }
 
     tax_16s <- data.frame(taxonomy = colnames(counts_16s), stringsAsFactors = FALSE)
@@ -103,7 +107,9 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
     if (!raw) {
         matched_taxa <- tax_ITS$Taxa[match(colnames(counts_ITS), rownames(tax_ITS))]
         colnames(counts_ITS) <- matched_taxa
-        counts_ITS <- as.data.frame(t(rowsum(t(counts_ITS), group = colnames(counts_ITS))))
+        counts_ITS <- collapse_duplicate_columns_exact(counts_ITS)
+        original_names <- colnames(counts_ITS)
+        counts_ITS <- as.data.frame(lapply(counts_ITS, as.numeric), row.names = rownames(counts_ITS), col.names = original_names, check.names = FALSE)
     }
 
     # --- Compute proportions from counts ---
@@ -131,21 +137,15 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
     if (!raw) {
         aligned = rename_and_align(counts_original = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
         counts_reprocessed = aligned$counts_original
-    }
-
-    # taxa
-    if (!raw) {
         matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
         colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+        counts_reprocessed = collapse_duplicate_columns_exact(counts_reprocessed)
+        original_names <- colnames(counts_reprocessed)
+        counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
     }
 
     # proportions reprocessed
-    proportions_reprocessed = counts_reprocessed
-    proportions_reprocessed[-1] <- lapply(
-        counts_reprocessed[-1],
-        function(col) col / sum(col)
-    )
+    proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
 
     if (!raw) {
         counts_16s = fill_na_zero_numeric(counts_16s)

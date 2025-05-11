@@ -131,8 +131,8 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
   proportions_original <- read_zipped_table(file.path(local, "VieiraSilva_2019_16S.csv.zip"))
   tax_original <- data.frame(Taxa = colnames(proportions_original), stringsAsFactors = FALSE)
   if (!raw) {
-    align = rename_and_align(proportions_original = proportions_original, metadata=metadata, scale=scale, by_col = "ID", align = align, study_name = basename(local))
-    proportions_original <- align$proportions_original
+    aligned = rename_and_align(proportions_original = proportions_original, metadata=metadata, scale=scale, by_col = "ID", align = align, study_name = basename(local))
+    proportions_original <- aligned$proportions_original
   }
   #temp_dir <- tempdir()
 
@@ -240,15 +240,13 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
     if (!raw) {
         matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
         colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+        counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+        original_names <- colnames(counts_reprocessed)
+        counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
     }
 
     # proportions reprocessed
-    proportions_reprocessed = counts_reprocessed
-    proportions_reprocessed[-1] <- lapply(
-        counts_reprocessed[-1],
-        function(col) col / sum(col)
-    )
+    proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
   }
 
   if (!raw) {

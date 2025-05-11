@@ -25,9 +25,10 @@ rename_and_align <- function(counts_reprocessed = NULL,
                              by_col,
                              align = TRUE,
                              study_name = NULL) {
+
+  
   # Validate by_col is a character vector
   stopifnot(is.character(by_col))
-  # Removed redundant check since it's handled in the if statement below
   
   # Check if by_col exists in scale
   if (!all(by_col %in% colnames(scale))) {
@@ -39,22 +40,28 @@ rename_and_align <- function(counts_reprocessed = NULL,
     ))
   }
 
+  # Convert by_col columns to character type
+  scale[by_col] <- lapply(scale[by_col], as.character)
+
   # Create target samples based on all by_col columns
   target_samples <- if (align) {
-    # Get unique combinations of all by_col values from scale
     unique(do.call(paste, c(scale[by_col], sep = "_")))
   } else NULL
 
-  # Create mapping using all by_col columns   
-  acc_to_name <- setNames(
-    do.call(paste, c(metadata[by_col], sep = "_")),
-    metadata$Accession
-  )
-
+  # Handle counts_reprocessed (which uses Accessions)
   if (!is.null(counts_reprocessed) &&
       (is.matrix(counts_reprocessed) || is.data.frame(counts_reprocessed))) {
-
+    
     stopifnot("Accession" %in% colnames(metadata), all(by_col %in% colnames(metadata)))
+    
+    # Convert by_col columns in metadata to character type
+    metadata[by_col] <- lapply(metadata[by_col], as.character)
+    
+    # Create mapping using all by_col columns
+    acc_to_name <- setNames(
+      do.call(paste, c(metadata[by_col], sep = "_")),
+      metadata$Accession
+    )
     
     # Verify we have accessions as rownames in counts_reprocessed
     if (length(intersect(rownames(counts_reprocessed), metadata$Accession)) == 0) {
@@ -83,7 +90,7 @@ rename_and_align <- function(counts_reprocessed = NULL,
         message("\n", study_name, " | counts_reprocessed: dropped ", before_n - after_n, " unaligned samples")
     }
 
-    # Then align counts_original to target samples
+    # Then align counts_original to target samples (no Accession handling needed)
     if (!is.null(counts_original) &&
         (is.matrix(counts_original) || is.data.frame(counts_original))) {
       before_n <- nrow(counts_original)
@@ -93,7 +100,7 @@ rename_and_align <- function(counts_reprocessed = NULL,
         message("\n", study_name, " | counts_original: dropped ", before_n - after_n, " unaligned samples")
     }
 
-    # Then align proportions_original to target samples
+    # Then align proportions_original to target samples (no Accession handling needed)
     if (!is.null(proportions_original) &&
         (is.matrix(proportions_original) || is.data.frame(proportions_original))) {
       before_n <- nrow(proportions_original)
@@ -103,9 +110,11 @@ rename_and_align <- function(counts_reprocessed = NULL,
         message("\n", study_name, " | proportions_original: dropped ", before_n - after_n, " unaligned samples")
     }
 
-    # Finally update metadata to only include samples that are in target_samples
-    metadata$combined_col <- make.unique(acc_to_name[metadata$Accession])
-    metadata <- metadata[metadata$combined_col %in% target_samples, , drop = FALSE]
+    # Update metadata to only include samples that are in target_samples
+    if (!is.null(counts_reprocessed)) {
+      metadata$combined_col <- make.unique(acc_to_name[metadata$Accession])
+      metadata <- metadata[metadata$combined_col %in% target_samples, , drop = FALSE]
+    }
   }
 
   list(
@@ -171,7 +180,11 @@ make_taxa_label <- function(df) {
     prefixes  <- c(prefixes, "s")
   }
 
+  # Remove existing prefixes if they exist
   df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
+    # Remove any existing prefixes (e.g., "k__", "p_", etc.)
+    x <- gsub("^[a-z]_{1,2}", "", x)
+    # Handle empty or NA values
     x[is.na(x) | trimws(x) == ""] <- "unclassified"
     x
   })
@@ -577,5 +590,90 @@ standardize_output_order <- function(output) {
     }
     
     result
+}
+
+#' Collapse duplicate columns while preserving original column names
+#'
+#' This function collapses duplicate columns in a data frame by summing their values,
+#' while preserving the original column names. It's particularly useful when dealing
+#' with taxonomic data where multiple sequences might map to the same taxon.
+#'
+#' @param df A data frame with numeric values and column names that may have duplicates
+#'
+#' @return A data frame with duplicate columns collapsed and original column names preserved
+#'
+#' @examples
+#' \dontrun{
+#' # Collapse duplicate columns in a data frame
+#' df <- data.frame(
+#'   A = c(1, 2, 3),
+#'   B = c(4, 5, 6),
+#'   A = c(7, 8, 9)
+#' )
+#' colnames(df) <- c("A", "B", "A")
+#' result <- collapse_duplicate_columns_exact(df)
+#' }
+#'
+#' @export
+collapse_duplicate_columns_exact <- function(df) {
+  # Store original column names
+  orig_colnames <- colnames(df)
+  
+  # Create mapping between original and new column names
+  new_cols <- colnames(as.data.frame(t(rowsum(t(df), group = colnames(df)))))
+  col_mapping <- data.frame(
+    orig_col = orig_colnames,
+    new_col = colnames(df)[match(orig_colnames, colnames(df))]
+  )
+  
+  # Collapse duplicate columns
+  result <- as.data.frame(t(rowsum(t(df), group = colnames(df))))
+  
+  # Reassign original column names
+  colnames(result) <- col_mapping$orig_col[match(colnames(result), col_mapping$new_col)]
+  
+  return(result)
+}
+
+#' Remove columns that are entirely NA, empty strings, or whitespace
+#'
+#' This function removes columns from a data frame where all values are either:
+#' - NA
+#' - Empty strings ("")
+#' - Whitespace only (" ")
+#'
+#' @param df A data frame
+#'
+#' @return A data frame with empty columns removed
+#'
+#' @examples
+#' \dontrun{
+#' # Remove empty columns from a data frame
+#' df <- data.frame(
+#'   A = c(1, 2, 3),
+#'   B = c("", "", ""),
+#'   C = c(NA, NA, NA),
+#'   D = c(" ", " ", " ")
+#' )
+#' clean_df <- remove_empty_columns(df)
+#' }
+#'
+#' @export
+remove_empty_columns <- function(df) {
+  if (!is.data.frame(df)) {
+    stop("Input must be a data frame")
+  }
+  
+  # Function to check if a column is empty
+  is_empty_column <- function(x) {
+    if (is.numeric(x)) {
+      all(is.na(x))
+    } else {
+      all(is.na(x) | trimws(x) == "")
+    }
+  }
+  
+  # Remove empty columns
+  df[, !sapply(df, is_empty_column), drop = FALSE]
 }
 

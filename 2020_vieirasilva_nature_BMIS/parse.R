@@ -109,6 +109,8 @@ parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE, align = FALSE) {
         if (!raw) {
             align = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
             counts_original = align$counts_original
+            original_names <- colnames(counts_original)
+            counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
         }
         proportions_original <- sweep(counts_original, 1, rowSums(counts_original), FUN = "/")
         old_colnames <- colnames(proportions_original)
@@ -131,8 +133,10 @@ parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE, align = FALSE) {
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
             if (!raw) {
-                align = rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-                df = align$reprocessed
+                aligned = rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+                df = aligned$reprocessed
+                original_names <- colnames(df)
+                df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             }
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
@@ -160,8 +164,10 @@ parse_2020_vieirasilva_nature_BMIS <- function(raw = FALSE, align = FALSE) {
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
             if (!raw) {
-                align = rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-                df = align$reprocessed
+                aligned = rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+                df = aligned$reprocessed
+                original_names <- colnames(df)
+                df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             }
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%

@@ -38,17 +38,22 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
   metadata <- read.csv(unz(metadata_zip, metadata_txt), sep = ",")
   sra <- read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run, saliva_sample_ID = saliva_sample_id) 
   sra$SampleID <- paste0(sra$saliva_sample_ID, ".", sra$timepoint, ".", sra$processing)
-  metadata$SampleID <- paste0(metadata$saliva_sample_ID, ".", metadata$processing)
+  metadata$Sample <- paste0(metadata$saliva_sample_ID, ".", metadata$processing)
   metadata <- merge(sra, metadata, by = "SampleID")
+  
+  # Add replicate column based on run_date within SampleID groups
+  metadata <- metadata %>%
+    arrange(Sample, `run_date (exp)`) %>%
+    group_by(Sample) %>%
+    mutate(replicate = row_number()) %>%
+    ungroup()
+
+  metadata$SampleID <- paste0(metadata$Sample, ".", metadata$replicate)
+    
+  metadata = remove_empty_columns(metadata)
 
   scale <- metadata %>% select(SampleID, FC_cells_per_ul_r1, FC_cells_per_ul_r2, FC_avg_cells_per_ul, 
-                              FC_avg_cells_5_min, qpcr_median_16s_copies_per_2ul_dna, 
-                              all_flow_cellsperul_avg_units, all_qpcr_cells_5min_avg_units, all_qpcr_cellsperul_avg_units,
-                              live_flow_cells_5min_avg_units, live_flow_cellsperul_avg_units, live_qpcr_cells_5min_avg_units,
-                              live_qpcr_cellsperul_avg_units, 
-                              all_flow_cells_5min_avg, all_flow_cellsperul_avg, all_qpcr_cells_5min_avg,
-                              all_qpcr_cellsperul_avg, live_flow_cells_5min_avg, live_flow_cellsperul_avg,
-                              live_qpcr_cells_5min_avg, live_qpcr_cellsperul_avg) %>% 
+                              FC_avg_cells_5_min, qpcr_median_16s_copies_per_2ul_dna) %>% 
            mutate(FC_sd_cells_per_ul = sqrt((FC_cells_per_ul_r1 - FC_avg_cells_per_ul)^2 + (FC_cells_per_ul_r2 - FC_avg_cells_per_ul)^2) / 2)
 
   scale = scale %>% 
@@ -59,54 +64,27 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
     mutate(log2_FC_sd_cells_per_ul = ifelse(FC_sd_cells_per_ul > 0, log2(FC_sd_cells_per_ul), NA)) %>%
     mutate(log10_FC_sd_cells_per_ul = ifelse(FC_sd_cells_per_ul > 0, log10(FC_sd_cells_per_ul), NA)) %>%
     mutate(log2_qpcr_median_16s_copies_per_2ul_dna = ifelse(qpcr_median_16s_copies_per_2ul_dna > 0, log2(qpcr_median_16s_copies_per_2ul_dna), NA)) %>%
-    mutate(log10_qpcr_median_16s_copies_per_2ul_dna = ifelse(qpcr_median_16s_copies_per_2ul_dna > 0, log10(qpcr_median_16s_copies_per_2ul_dna), NA)) %>%
-    mutate(log2_all_flow_cellsperul_avg_units = ifelse(all_flow_cellsperul_avg_units > 0, log2(all_flow_cellsperul_avg_units), NA)) %>%
-    mutate(log10_all_flow_cellsperul_avg_units = ifelse(all_flow_cellsperul_avg_units > 0, log10(all_flow_cellsperul_avg_units), NA)) %>%
-    mutate(log2_all_qpcr_cells_5min_avg_units = ifelse(all_qpcr_cells_5min_avg_units > 0, log2(all_qpcr_cells_5min_avg_units), NA)) %>%
-    mutate(log10_all_qpcr_cells_5min_avg_units = ifelse(all_qpcr_cells_5min_avg_units > 0, log10(all_qpcr_cells_5min_avg_units), NA)) %>%
-    mutate(log2_all_qpcr_cellsperul_avg_units = ifelse(all_qpcr_cellsperul_avg_units > 0, log2(all_qpcr_cellsperul_avg_units), NA)) %>%
-    mutate(log10_all_qpcr_cellsperul_avg_units = ifelse(all_qpcr_cellsperul_avg_units > 0, log10(all_qpcr_cellsperul_avg_units), NA)) %>% 
-    mutate(log2_live_flow_cells_5min_avg_units = ifelse(live_flow_cells_5min_avg_units > 0, log2(live_flow_cells_5min_avg_units), NA)) %>%
-    mutate(log10_live_flow_cells_5min_avg_units = ifelse(live_flow_cells_5min_avg_units > 0, log10(live_flow_cells_5min_avg_units), NA)) %>%
-    mutate(log2_live_flow_cellsperul_avg_units = ifelse(live_flow_cellsperul_avg_units > 0, log2(live_flow_cellsperul_avg_units), NA)) %>%
-    mutate(log10_live_flow_cellsperul_avg_units = ifelse(live_flow_cellsperul_avg_units > 0, log10(live_flow_cellsperul_avg_units), NA)) %>%
-    mutate(log2_live_qpcr_cells_5min_avg_units = ifelse(live_qpcr_cells_5min_avg_units > 0, log2(live_qpcr_cells_5min_avg_units), NA)) %>%
-    mutate(log10_live_qpcr_cells_5min_avg_units = ifelse(live_qpcr_cells_5min_avg_units > 0, log10(live_qpcr_cells_5min_avg_units), NA)) %>% 
-    mutate(log2_live_qpcr_cellsperul_avg_units = ifelse(live_qpcr_cellsperul_avg_units > 0, log2(live_qpcr_cellsperul_avg_units), NA)) %>%
-    mutate(log10_live_qpcr_cellsperul_avg_units = ifelse(live_qpcr_cellsperul_avg_units > 0, log10(live_qpcr_cellsperul_avg_units), NA)) %>% 
-    mutate(log2_all_flow_cells_5min_avg = ifelse(all_flow_cells_5min_avg > 0, log2(all_flow_cells_5min_avg), NA)) %>%
-    mutate(log10_all_flow_cells_5min_avg = ifelse(all_flow_cells_5min_avg > 0, log10(all_flow_cells_5min_avg), NA)) %>%
-    mutate(log2_all_flow_cellsperul_avg = ifelse(all_flow_cellsperul_avg > 0, log2(all_flow_cellsperul_avg), NA)) %>%
-    mutate(log10_all_flow_cellsperul_avg = ifelse(all_flow_cellsperul_avg > 0, log10(all_flow_cellsperul_avg), NA)) %>%
-    mutate(log2_all_qpcr_cells_5min_avg = ifelse(all_qpcr_cells_5min_avg > 0, log2(all_qpcr_cells_5min_avg), NA)) %>%
-    mutate(log10_all_qpcr_cells_5min_avg = ifelse(all_qpcr_cells_5min_avg > 0, log10(all_qpcr_cells_5min_avg), NA)) %>%
-    mutate(log2_all_qpcr_cellsperul_avg = ifelse(all_qpcr_cellsperul_avg > 0, log2(all_qpcr_cellsperul_avg), NA)) %>%
-    mutate(log10_all_qpcr_cellsperul_avg = ifelse(all_qpcr_cellsperul_avg > 0, log10(all_qpcr_cellsperul_avg), NA)) %>%
-    mutate(log2_live_flow_cells_5min_avg = ifelse(live_flow_cells_5min_avg > 0, log2(live_flow_cells_5min_avg), NA)) %>%
-    mutate(log10_live_flow_cells_5min_avg = ifelse(live_flow_cells_5min_avg > 0, log10(live_flow_cells_5min_avg), NA)) %>%
-    mutate(log2_live_flow_cellsperul_avg = ifelse(live_flow_cellsperul_avg > 0, log2(live_flow_cellsperul_avg), NA)) %>%  
-    mutate(log10_live_flow_cellsperul_avg = ifelse(live_flow_cellsperul_avg > 0, log10(live_flow_cellsperul_avg), NA)) %>%
-    mutate(log2_live_qpcr_cells_5min_avg = ifelse(live_qpcr_cells_5min_avg > 0, log2(live_qpcr_cells_5min_avg), NA)) %>%
-    mutate(log10_live_qpcr_cells_5min_avg = ifelse(live_qpcr_cells_5min_avg > 0, log10(live_qpcr_cells_5min_avg), NA)) %>%
-    mutate(log2_live_qpcr_cellsperul_avg = ifelse(live_qpcr_cellsperul_avg > 0, log2(live_qpcr_cellsperul_avg), NA)) %>%
-    mutate(log10_live_qpcr_cellsperul_avg = ifelse(live_qpcr_cellsperul_avg > 0, log10(live_qpcr_cellsperul_avg), NA))
+    mutate(log10_qpcr_median_16s_copies_per_2ul_dna = ifelse(qpcr_median_16s_copies_per_2ul_dna > 0, log10(qpcr_median_16s_copies_per_2ul_dna), NA))
 
   # ----- Original Counts and Taxonomy -----
   orig_rds_file <- unzip(counts_zip, list = TRUE)$Name[1]
   tmp_rds <- tempfile(fileext = ".rds")
   unzip(counts_zip, files = orig_rds_file, exdir = dirname(tmp_rds), overwrite = TRUE)
   counts_original <- readRDS(file.path(dirname(tmp_rds), orig_rds_file)) %>% t() %>% as.data.frame()
-  summed_counts <- t(rowsum(t(counts_original), group = colnames(counts_original)))
-  counts_original <- summed_counts %>% as.data.frame()
-  raw_tax <- colnames(counts_original)
+  counts_original <- collapse_duplicate_columns_exact(counts_original)
+  original_names <- colnames(counts_original)
+  counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
 
   if (!raw) {
     aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
     counts_original = aligned$counts_original
+    original_names <- colnames(counts_original)
+    counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
   }
   proportions_original <- sweep(counts_original, 1, rowSums(counts_original), "/")
 
-  raw_tax <- data.frame(Taxa = raw_tax)
+
+  raw_tax <- data.frame(Taxa = colnames(counts_original))
   tax_original <- raw_tax %>%
     mutate(taxa = str_trim(Taxa)) %>%
     separate(
@@ -118,7 +96,6 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
     )
 
   tax_original = make_taxa_label(tax_original)
-  metadata <- metadata[rownames(counts_original), ]
 
   counts_reprocessed <- NA
   proportions_reprocessed <- NA
@@ -147,16 +124,16 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
         tax <- make_taxa_label(tax)
 
         if (!raw) {
-          matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
-          colnames(counts) <- matched_taxa
-          counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
           aligned = rename_and_align(counts_reprocessed = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
           counts = aligned$reprocessed
+          matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
+          colnames(counts) <- matched_taxa
+          counts = collapse_duplicate_columns_exact(counts)
+          original_names <- colnames(counts)
+          counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
         }
-
-        # Compute proportions
-        proportions <- counts
-        proportions[] <- lapply(counts, function(col) col / sum(col))
+        # proportions
+        proportions <- sweep(counts, 1, rowSums(counts), '/')
 
         # Label with study name based on zip filename prefix
         study_id <- sub("_.*$", "", basename(tools::file_path_sans_ext(repro_counts_zips[i])))
@@ -180,8 +157,10 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
   counts_reprocessed = read_zipped_table(counts_zip) %>% as.data.frame()
   counts_reprocessed <- counts_reprocessed %>% mutate(across(everything(), as.numeric))
   if (!raw) {
-    aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+    aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
     counts_reprocessed = aligned$counts_original
+    original_names <- colnames(counts_reprocessed)
+    counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
   }
   proportions_reprocessed <- sweep(counts_reprocessed, MARGIN = 1,STATS  = rowSums(counts_reprocessed), FUN = "/")
   tax_reprocessed <- data.frame(Taxa = colnames(counts_reprocessed), stringsAsFactors = FALSE)

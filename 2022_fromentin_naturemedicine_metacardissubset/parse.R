@@ -134,16 +134,17 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
         if (!raw) {
           aligned = rename_and_align(counts_original = df, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
           df = aligned$counts_original
+          original_names <- colnames(df)
+          df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
         }
         metadata_list[[df_name]] <- df
         # Proportions
-        df_numeric <- df %>% mutate(across(everything(), as.numeric))
-        row_sums <- rowSums(df_numeric, na.rm = TRUE)
-        df_prop <- sweep(df_numeric, 1, row_sums, "/")
+        row_sums <- rowSums(df, na.rm = TRUE)
+        df_prop <- sweep(df, 1, row_sums, "/")
         df_prop <- cbind(Sample = rownames(df), df_prop)
         proportions_list[[df_name]] <- df_prop
         # Taxonomy
-        feature_names <- colnames(df_numeric)
+        feature_names <- colnames(df)
         tax_df <- data.frame(
           Feature = feature_names,
           Description = feature_names,
@@ -178,6 +179,8 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
   if (!raw) {
     aligned = rename_and_align(proportions_original = nishijima2024_mOTU25, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
     nishijima2024_mOTU25 = aligned$proportions_original
+    original_names <- colnames(nishijima2024_mOTU25)
+    nishijima2024_mOTU25 <- as.data.frame(lapply(nishijima2024_mOTU25, as.numeric), row.names = rownames(nishijima2024_mOTU25), col.names = original_names, check.names = FALSE)
   }
   nishijima2024_mOTU25_tax <- data.frame(Taxa = colnames(nishijima2024_mOTU25), stringsAsFactors = FALSE)
 
@@ -248,6 +251,8 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
         if (!raw) {
           aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
           df = aligned$reprocessed
+          original_names <- colnames(df)
+          df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
         }
 
         # Normalize to proportions
@@ -293,6 +298,8 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
         if (!raw) {
           aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
           df = aligned$reprocessed
+          original_names <- colnames(df)
+          df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
         }
         prop <- sweep(df, 1, rowSums(df), FUN = "/")
 

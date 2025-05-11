@@ -59,8 +59,10 @@ parse_2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflo
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
             if (!raw) {
-                align <- rename_and_align(counts_reprocessed = df, metadata = metadata_df, scale = scale_df, by_col = "Sample_name", align = align, study_name = basename(local))
-                df <- align$reprocessed
+                aligned <- rename_and_align(counts_reprocessed = df, metadata = metadata_df, scale = scale_df, by_col = "Sample_name", align = align, study_name = basename(local))
+                df <- aligned$reprocessed
+                original_names <- colnames(df)
+                df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             }
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
@@ -88,8 +90,10 @@ parse_2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflo
             rownames(df) <- df[[1]]
             df[[1]] <- NULL
             if (!raw) {
-                align <- rename_and_align(counts_reprocessed = df, metadata = metadata_df, scale = scale_df, by_col = "Sample_name", align = align, study_name = basename(local))
-                df <- align$reprocessed
+                aligned <- rename_and_align(counts_reprocessed = df, metadata = metadata_df, scale = scale_df, by_col = "Sample_name", align = align, study_name = basename(local))
+                df <- aligned$reprocessed
+                original_names <- colnames(df)
+                df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             }
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%

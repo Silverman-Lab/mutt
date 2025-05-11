@@ -68,8 +68,6 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
         aligned = rename_and_align(proportions_original = proportions, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
         proportions = aligned$proportions_original
     }
-
-    # --- Assign Taxon_1 ... Taxon_N as rownames and store original names ---
     original_taxa <- colnames(proportions)
 
     # --- Create taxa dataframe (lookup table) ---
@@ -97,7 +95,9 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
     if (!raw) {
         matched_taxa <- tax_original$Taxa[match(colnames(proportions), rownames(tax_original))]
         colnames(proportions) <- matched_taxa
-        proportions <- as.data.frame(t(rowsum(t(proportions), group = colnames(proportions))))
+        proportions <- collapse_duplicate_columns_exact(proportions)
+        original_names <- colnames(proportions)
+        proportions <- as.data.frame(lapply(proportions, as.numeric), row.names = rownames(proportions), col.names = original_names, check.names = FALSE)
     }
     
     # ----- Reprocessed counts from RDS ZIP -----
@@ -131,11 +131,7 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
         }
 
         # proportions reprocessed
-        proportions_reprocessed = counts_reprocessed
-        proportions_reprocessed[-1] <- lapply(
-            counts_reprocessed[-1],
-            function(col) col / sum(col)
-        )
+        proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
     }
 
     if (!raw) {

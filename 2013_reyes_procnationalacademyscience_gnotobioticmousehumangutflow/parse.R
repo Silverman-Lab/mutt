@@ -76,6 +76,8 @@ parse_2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow <- func
                 align <- rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
                 df = align$reprocessed
             }
+            original_names <- colnames(df)
+            df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%
@@ -105,6 +107,8 @@ parse_2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow <- func
                 align <- rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
                 df = align$reprocessed
             }
+            original_names <- colnames(df)
+            df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
             proportions <- sweep(df, 1, rowSums(df), FUN = "/")
             tax_df <- data.frame(taxa = rownames(df)) %>%
             mutate(taxa = str_trim(taxa)) %>%

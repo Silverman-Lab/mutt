@@ -111,7 +111,9 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
         counts <- aligned$counts_original
         matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
         colnames(counts) <- matched_taxa
-        counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
+        counts = collapse_duplicate_columns_exact(counts)
+        original_names <- colnames(counts)
+        counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
     }
     proportions <- sweep(counts, 1, rowSums(counts), FUN = "/")
 
@@ -151,11 +153,7 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
         }
 
         # proportions reprocessed
-        proportions_reprocessed = counts_reprocessed
-        proportions_reprocessed[-1] <- lapply(
-            counts_reprocessed[-1],
-            function(col) col / sum(col)
-        )
+        proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
     }
 
     if (!raw) {

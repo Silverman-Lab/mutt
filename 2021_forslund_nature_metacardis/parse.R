@@ -154,11 +154,13 @@ parse_2021_forslund_nature_metacardis <- function(raw = FALSE, align = FALSE) {
                             header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
     counts <- as.matrix(counts_df)
     if (!raw) {
-      align <- rename_and_align(counts_original = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-      counts <- align$counts_original
+      aligned <- rename_and_align(counts_original = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+      counts <- aligned$counts_original
+      original_names <- colnames(counts)
+      counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
     }
-    proportions <- sweep(counts, 1, rowSums(counts), FUN = "/")
-    proportions[is.nan(proportions)] <- 0  
+    
+    proportions <- sweep(counts, 1, rowSums(counts), '/')
 
   } else {
   warning("Counts file not found: ", counts_zip)
@@ -185,8 +187,10 @@ parse_2021_forslund_nature_metacardis <- function(raw = FALSE, align = FALSE) {
         rownames(df) <- df[[1]]
         df[[1]] <- NULL
         if (!raw) {
-          align <- rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-          df <- align$reprocessed
+          aligned <- rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+          df <- aligned$reprocessed
+          original_names <- colnames(df)
+          df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
         }
 
         # Normalize to proportions
@@ -230,8 +234,10 @@ parse_2021_forslund_nature_metacardis <- function(raw = FALSE, align = FALSE) {
         rownames(df) <- df[[1]]
         df[[1]] <- NULL
         if (!raw) {
-          align <- rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-          df <- align$reprocessed
+          aligned <- rename_and_align(counts_reprocessed = df, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+          df <- aligned$reprocessed
+          original_names <- colnames(df)
+          df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
         }
 
         # Normalize to proportions

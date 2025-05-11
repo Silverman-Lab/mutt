@@ -20,11 +20,11 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
 
     # ----- File paths -----
     repro_counts_rds_zip <- c(
-        file.path(local, "PRJNA703791_dada2_counts.rds.zip")
+        file.path(local, "PRJNA703791_dada2_counts.rds.zip"),
         file.path(local, "PRJNA734187_dada2_counts.rds.zip")
     )
     repro_tax_zip        <- c(
-        file.path(local, "PRJNA703791_dada2_taxa.rds.zip")
+        file.path(local, "PRJNA703791_dada2_taxa.rds.zip"),
         file.path(local, "PRJNA734187_dada2_taxa.rds.zip")
     )
 
@@ -50,7 +50,7 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
         sheet4 = read_excel(xlsx_file, sheet = 4)
     )
 
-    metadata4$sheet1 = metadata4$sheet4 %>% rename(Library Name = `BIOSAMPLE`)
+    metadata4$sheet1 = metadata4$sheet4 %>% rename(`Library Name` = `BIOSAMPLE`)
     
     # Merge metadata and metadata2 by Library Name
     metadata1 <- merge(metadata2, metadata4$sheet1, 
@@ -90,11 +90,6 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
         if (length(rds_files) == 0) stop("No *_counts.rds file found in: ", counts_zip)
         counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
 
-        if (!raw) {
-            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
-            counts_reprocessed = aligned$reprocessed
-        }
-
         # ----- Unzip and read taxonomy -----
         temp_tax <- tempfile(fileext = ".rds")
         unzip(tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
@@ -110,21 +105,15 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
         if (!raw) {
             aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
             counts_reprocessed = aligned$reprocessed
-        }
-
-        # Rename counts columns using taxonomy
-        if (!raw) {
-        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), tax_reprocessed$Sequence)]
-        colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+            matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), tax_reprocessed$Sequence)]
+            colnames(counts_reprocessed) <- matched_taxa
+            counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+            original_names <- colnames(counts_reprocessed)
+            counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
         }
 
         # ----- Proportions -----
-        proportions_reprocessed <- counts_reprocessed
-        proportions_reprocessed[] <- lapply(
-        proportions_reprocessed,
-        function(col) col / sum(col)
-        )
+        proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
 
         # Store results
         all_counts[[i]] <- counts_reprocessed

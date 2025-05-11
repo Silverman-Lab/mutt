@@ -81,13 +81,12 @@ parse_2024_nishijima_cell_galaxy <- function(raw = FALSE, align = FALSE, bind_al
   taxnames <- strsplit(line1, "\t")[[1]]
   seqids <- str_extract(taxnames[-1], "(?<=mOTU_v25_)[0-9]+")
   proportions_original <- read_zipped_table(file.path(local, "GALAXY_mOTUs_v25.tsv.zip"), sep="\t", header = FALSE, skip = 1)
-  proportions_original = proportions_original %>% rownames_to_column(var = "ID")
   if (!raw) {
     aligned = rename_and_align(proportions_original = proportions_original, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
     proportions_original = aligned$proportions_original
+    original_names <- colnames(proportions_original)
+    proportions_original <- as.data.frame(lapply(proportions_original, as.numeric), row.names = rownames(proportions_original), col.names = original_names, check.names = FALSE)
   }
-  rownames(proportions_original) <- proportions_original$ID
-  proportions_original<- proportions_original[, -1]
 
   # Map seqids to column names
   colnames(proportions_original) <- taxnames[-1]
@@ -117,16 +116,19 @@ parse_2024_nishijima_cell_galaxy <- function(raw = FALSE, align = FALSE, bind_al
   #     if (any(file.exists(sra_files))) {
   #       aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
   #       df = aligned$reprocessed
+  #       original_names <- colnames(df)    
+  #       df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
   #     } else {
   #       aligned = rename_and_align(counts_original = df, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
   #       df = aligned$counts_original
+  #       original_names <- colnames(df)
+  #       df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
   #     }
   #   }
     
   #   # Calculate proportions using matrix operations
   #   row_sums <- rowSums(df, na.rm = TRUE)
   #   prop <- sweep(df, 1, row_sums, FUN = "/")
-  #   prop[is.nan(prop)] <- 0
     
   #   # Handle taxonomy
   #   tax <- data.frame(taxa = rownames(df), stringsAsFactors = FALSE) %>%

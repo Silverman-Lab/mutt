@@ -136,17 +136,18 @@ parse_2023_maghini_naturebiotechnology_samplemesurement <- function(raw = FALSE,
   # tax = make_taxa_label(tax)
   # rownames(tax) <- tax$Species
   # if (!raw) {
-  #     matched_taxa <- tax$Taxa[match(colnames(counts_original), rownames(tax))]
-  #     colnames(counts_original) <- matched_taxa
-  #     counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
   #     aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="ID", align = align, study_name=basename(local))
   #     counts_original = aligned$counts_original
+  #     matched_taxa <- tax$Taxa[match(colnames(counts_original), rownames(tax))]
+  #     colnames(counts_original) <- matched_taxa
+  #     counts_original <- collapse_duplicate_columns_exact(counts_original)
+  #     original_names <- colnames(counts_original)
+  #     counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
   # }
 
   # # ------- Proportions ----------
   # proportions_original <- map(counts_original, function(df) {
   #   prop  <- sweep(df, 1, rowSums(df), FUN = "/")
-  #   prop[is.nan(prop)] <- 0
   #   return(as_tibble(prop))
   # })
 

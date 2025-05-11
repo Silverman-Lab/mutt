@@ -112,7 +112,9 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
     counts = aligned$counts_original
     matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
     colnames(counts) <- matched_taxa
-    counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
+    counts <- collapse_duplicate_columns_exact(counts)
+    original_names <- colnames(counts)
+    counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
   }
 
   # --- Compute proportions from counts ---
@@ -155,15 +157,13 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
         counts_reprocessed = aligned$reprocessed
         matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), tax_reprocessed$Sequence)]
         colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+        counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+        original_names <- colnames(counts_reprocessed)
+        counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
       }
 
       # ----- Proportions -----
-      proportions_reprocessed <- counts_reprocessed
-      proportions_reprocessed[] <- lapply(
-        proportions_reprocessed,
-        function(col) col / sum(col)
-      )
+      proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
 
       # Store results
       all_counts[[i]] <- counts_reprocessed

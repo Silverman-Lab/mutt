@@ -408,6 +408,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
                                         by_col = "Sample_name",
                                         align = align,
                                         study_name = basename(local))
+      original_names <- colnames(aligned_bacteria$counts_original)
+      aligned_bacteria$counts_original <- as.data.frame(lapply(aligned_bacteria$counts_original, as.numeric), row.names = rownames(aligned_bacteria$counts_original), col.names = original_names, check.names = FALSE)
       otu_tables$originalcounts_bacteria = fill_na_zero_numeric(aligned_bacteria$counts_original)
       
       # Align original archaea counts
@@ -417,6 +419,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
                                        by_col = "Sample_name", 
                                        align = align,
                                        study_name = basename(local))
+      original_names <- colnames(aligned_archaea$counts_original)
+      aligned_archaea$counts_original <- as.data.frame(lapply(aligned_archaea$counts_original, as.numeric), row.names = rownames(aligned_archaea$counts_original), col.names = original_names, check.names = FALSE)
       otu_tables$originalcounts_archaea = fill_na_zero_numeric(aligned_archaea$counts_original)
       
       # Align original fungi counts
@@ -426,6 +430,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
                                      by_col = "Sample_name",
                                      align = align,
                                      study_name = basename(local))
+      original_names <- colnames(aligned_fungi$counts_original)
+      aligned_fungi$counts_original <- as.data.frame(lapply(aligned_fungi$counts_original, as.numeric), row.names = rownames(aligned_fungi$counts_original), col.names = original_names, check.names = FALSE)
       otu_tables$originalcounts_fungi = fill_na_zero_numeric(aligned_fungi$counts_original)
       
       # Align phase 2 bacteria counts
@@ -435,6 +441,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
                                            by_col = "Sample_name",
                                            align = align,
                                            study_name = basename(local))
+      original_names <- colnames(aligned_bacteria_p2$counts_original)
+      aligned_bacteria_p2$counts_original <- as.data.frame(lapply(aligned_bacteria_p2$counts_original, as.numeric), row.names = rownames(aligned_bacteria_p2$counts_original), col.names = original_names, check.names = FALSE)
       otu_tables$originalcounts_bacteria_phase2 = fill_na_zero_numeric(aligned_bacteria_p2$counts_original)
       
       # Align phase 2 fungi counts
@@ -444,6 +452,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
                                         by_col = "Sample_name",
                                         align = align,
                                         study_name = basename(local))
+      original_names <- colnames(aligned_fungi_p2$counts_original)
+      aligned_fungi_p2$counts_original <- as.data.frame(lapply(aligned_fungi_p2$counts_original, as.numeric), row.names = rownames(aligned_fungi_p2$counts_original), col.names = original_names, check.names = FALSE)
       otu_tables$originalcounts_fungi_phase2 = fill_na_zero_numeric(aligned_fungi_p2$counts_original)
       
       # Align mock bacteria counts
@@ -453,6 +463,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
                                              by_col = "Sample_name",
                                              align = align,
                                              study_name = basename(local))
+      original_names <- colnames(aligned_mock_bacteria$counts_original)
+      aligned_mock_bacteria$counts_original <- as.data.frame(lapply(aligned_mock_bacteria$counts_original, as.numeric), row.names = rownames(aligned_mock_bacteria$counts_original), col.names = original_names, check.names = FALSE)
       mock_otu_tables$originalcounts_mockbacteria = fill_na_zero_numeric(aligned_mock_bacteria$counts_original)
       
       # Align mock fungi counts
@@ -462,6 +474,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
                                           by_col = "Sample_name",
                                           align = align,
                                           study_name = basename(local))
+      original_names <- colnames(aligned_mock_fungi$counts_original)
+      aligned_mock_fungi$counts_original <- as.data.frame(lapply(aligned_mock_fungi$counts_original, as.numeric), row.names = rownames(aligned_mock_fungi$counts_original), col.names = original_names, check.names = FALSE)
       mock_otu_tables$originalcounts_mockfungi = fill_na_zero_numeric(aligned_mock_fungi$counts_original)
       
       # Align mock fecal counts
@@ -471,6 +485,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
                                           by_col = "Sample_name",
                                           align = align,
                                           study_name = basename(local))
+      original_names <- colnames(aligned_mock_fecal$counts_original)
+      aligned_mock_fecal$counts_original <- as.data.frame(lapply(aligned_mock_fecal$counts_original, as.numeric), row.names = rownames(aligned_mock_fecal$counts_original), col.names = original_names, check.names = FALSE)
       mock_otu_tables$originalcounts_mockfecal = fill_na_zero_numeric(aligned_mock_fecal$counts_original)
       
       # Align reprocessed bacteria and fungi counts
@@ -480,6 +496,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
                                               by_col = "Sample_name",
                                               align = align,
                                               study_name = basename(local))
+      original_names <- colnames(aligned_bacteria_repro$reprocessed)
+      aligned_bacteria_repro$reprocessed <- as.data.frame(lapply(aligned_bacteria_repro$reprocessed, as.numeric), row.names = rownames(aligned_bacteria_repro$reprocessed), col.names = original_names, check.names = FALSE)
       counts_bacteria = fill_na_zero_numeric(aligned_bacteria_repro$reprocessed)
       
       aligned_fungi_repro = rename_and_align(counts_reprocessed = counts_fungi,
@@ -488,6 +506,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
                                            by_col = "Sample_name",
                                            align = align,
                                            study_name = basename(local))
+      original_names <- colnames(aligned_fungi_repro$reprocessed)
+      aligned_fungi_repro$reprocessed <- as.data.frame(lapply(aligned_fungi_repro$reprocessed, as.numeric), row.names = rownames(aligned_fungi_repro$reprocessed), col.names = original_names, check.names = FALSE)
       counts_fungi = fill_na_zero_numeric(aligned_fungi_repro$reprocessed)
   }
 
@@ -528,13 +548,11 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   if (!raw) {
     aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
     counts_reprocessed = aligned$reprocessed
-  }
-
-  # taxa
-  if (!raw) {
-      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-      colnames(counts_reprocessed) <- matched_taxa
-      counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+    matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+    colnames(counts_reprocessed) <- matched_taxa
+    counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+    original_names <- colnames(counts_reprocessed)
+    counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
   }
 
   # proportions reprocessed

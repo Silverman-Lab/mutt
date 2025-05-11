@@ -63,7 +63,9 @@ parse_2018_tkacz_microbiome_spikeinamplicon <- function(raw = FALSE, align = FAL
         # Match column names to tax labels
         matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
         colnames(counts) <- matched_taxa
-        counts <- as.data.frame(t(rowsum(t(counts), group = colnames(counts))))
+        counts <- collapse_duplicate_columns_exact(counts)
+        original_names <- colnames(counts)
+        counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
 
         # Store
         all_counts[[i]] <- counts
@@ -87,13 +89,14 @@ parse_2018_tkacz_microbiome_spikeinamplicon <- function(raw = FALSE, align = FAL
     metadata_merged <- bind_rows(all_metadata)
 
     if (!raw) {
-        align = rename_and_align(counts_reprocessed = counts_merged, metadata_merged, scale, by_col = "sampleID", align = align, study_name = basename(local))
-        counts_merged <- align$reprocessed
+        aligned = rename_and_align(counts_reprocessed = counts_merged, metadata = metadata_merged, scale = scale, by_col = "sampleID", align = align, study_name = basename(local))
+        counts_merged <- aligned$reprocessed
+        original_names <- colnames(counts_merged)
+        counts_merged <- as.data.frame(lapply(counts_merged, as.numeric), row.names = rownames(counts_merged), col.names = original_names, check.names = FALSE)
     }
 
     # ---- Proportions ----
-    proportions_merged <- counts_merged
-    proportions_merged[] <- lapply(counts_merged, function(col) col / sum(col))
+    proportions_merged <- sweep(counts_merged, 1, rowSums(counts_merged), '/')
 
     if (!raw) {
       counts = fill_na_zero_numeric(counts)

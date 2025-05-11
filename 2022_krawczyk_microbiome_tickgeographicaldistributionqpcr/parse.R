@@ -22,7 +22,7 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
   # ----- File paths -----
   metadata_two_zip     <- file.path(local, "40168_2022_1276_MOESM1_ESM.zip")
   metadata_zip         <- file.path(local, "SraRunTable (30).csv.zip")
-  counts_zip           <- file.path(local, "40168_2022_1276_MOESM3_ESM.zip")
+  counts_zip           <- file.path(local, "originalcounts.csv.zip")
   scale_zip            <- file.path(local, "scale_qpcr.zip")
   repro_counts_rds_zip <- file.path(local, "PRJNA813158_dada2_counts.rds.zip")
   repro_tax_zip        <- file.path(local, "PRJNA813158_dada2_taxa.rds.zip")
@@ -41,14 +41,13 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
   metadata  = read.csv(meta_con) %>% as.data.frame() %>% rename(Sample_name = `Sample.ID`)
   meta_two_file <- unzip(metadata_two_zip, list = TRUE)$Name[1]
   extracted_xlsx <- unzip(metadata_two_zip, files = meta_two_file, exdir = tempdir(), overwrite = TRUE)[1]
-  metadata_two <- read_excel(extracted_xlsx, sheet = 2) %>% rename(Sample_name = `Sample ID`)
+  metadata_two <- readxl::read_xlsx(extracted_xlsx, sheet = 2, col_names = TRUE) %>% rename(Sample_name = `Sample ID`)
   metadata <- left_join(metadata, metadata_two, by = "Sample_name") %>% 
               rename(Accession = Run)
+
   # -------- Counts --------
   if (file.exists(counts_zip)) {
-    counts_file <- unzip(counts_zip, list = TRUE)$Name[1]
-    extracted_xlsx <- unzip(counts_zip, files = counts_file, exdir = tempdir(), overwrite = TRUE)[1]
-    counts_original = read_excel(extracted_xlsx, sheet = 1)
+    counts_original = read_zipped_table(counts_zip, row.names = NULL)
     columns_to_drop <- c("Name","Taxonomy", "Combined Abundance",	"Min",	"Max",	"Mean",	"Median",	"Std")
 
     # Taxa
@@ -69,27 +68,26 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
     counts_original <- counts_original %>% column_to_rownames("Sequence")
     counts_original = counts_original[, !(names(counts_original) %in% columns_to_drop)]
     counts_original = as.data.frame(t(counts_original))
+    
+    # Ensure counts are numeric
+    counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original))
 
     if (!raw) {
       aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
       counts_original = aligned$counts_original
-    }
-
-    if (!raw) {
       matched_taxa <- tax$Taxa[match(colnames(counts_original), rownames(tax))]
       colnames(counts_original) <- matched_taxa
-      counts_original <- as.data.frame(t(rowsum(t(counts_original), group = colnames(counts_original))))
+      counts_original <- collapse_duplicate_columns_exact(counts_original)
+      original_names <- colnames(counts_original)
+      counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
     }
 
+    # Calculate proportions
+    proportions_original <- sweep(counts_original, MARGIN = 1, STATS = rowSums(counts_original), FUN = "/")
   } else {
     counts_original = NA
+    proportions_original = NA
   }
-
-  proportions_original = counts_original
-  proportions_original[-1] <- lapply(
-    counts_original[-1],
-    function(col) col / sum(col)
-  )
 
   # ----- Reprocessed counts from RDS ZIP -----
   if (file.exists(repro_counts_rds_zip)) {
@@ -99,6 +97,9 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
     rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
     if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
     counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+    
+    # Ensure counts are numeric
+    counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed))
 
     # ----- Taxonomy reprocessed -----
     temp_tax <- tempfile(fileext = ".rds")
@@ -113,39 +114,37 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
     if (!raw) {
       aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
       counts_reprocessed = aligned$reprocessed
-    }
+      matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+      colnames(counts_reprocessed) <- matched_taxa
+      counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+      original_names <- colnames(counts_reprocessed)
+      counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
 
-    # taxa
-    if (!raw) {
-        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
-        colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
     }
 
     # proportions reprocessed
-    proportions_reprocessed = counts_reprocessed
-    proportions_reprocessed[-1] <- lapply(
-        counts_reprocessed[-1],
-        function(col) col / sum(col)
-    )
-  }
+    proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
 
-  # DELETE LATER #####################################
+    # DELETE LATER #####################################
+    maxwellreprocessedpreviously = file.path(local, "Krawczyk_2022_16S.csv.zip")
+    counts_original = read_zipped_table(maxwellreprocessedpreviously, row.names = NULL) %>% as.data.frame() 
+    if (!raw) {
+      aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+      counts_original = aligned$counts_original
+      original_names <- colnames(counts_original)
+      counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
+    }
+    proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
+    ####################################################
 
-  # maxwellreprocessedpreviously = file.path(local, "Krawczyk_2022_16S.csv.zip")
-  # counts_original = read_zipped_table(maxwellreprocessedpreviously, row.names = NULL) %>% as.data.frame() 
-  # counts_original <- counts_original %>% rownames_to_column("Sample_name") 
-  # if (!raw) {
-  #   aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
-  #   counts_original = aligned$counts_original
-  # }
-  # rownames(counts_original) <- counts_original$Sample_name
-  # counts_original <- counts_original[, -1, drop = FALSE]  
-  # proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
-  ####################################################
-  if (!raw) {
-      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
-      proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+    if (!raw) {
+        counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+        proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+    }
+  } else {
+    counts_reprocessed = NA
+    proportions_reprocessed = NA
+    tax_reprocessed = NA
   }
 
   # ----- Return all -----

@@ -118,10 +118,10 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
                     rename(log10_FC_cells_ml = `Cells/mL`)
 
     # ------ original counts ------
-    counts_original <- read_zipped_table(counts_16s_zip) %>% rownames_to_column("Sample")
+    counts_original <- read_zipped_table(counts_16s_zip)
 
     if (!is.na(counts_original)[1]) {
-        original_taxa <- colnames(counts_original)[-1]  # Exclude Sample column
+        original_taxa <- colnames(counts_original)
 
         # Create taxa mapping data frame
         tax_original <- data.frame(
@@ -132,9 +132,9 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
         if (!raw) {
             aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
             counts_original = aligned$counts_original
+            original_names <- colnames(counts_original)
+            counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
         }
-        rownames(counts_original) <- counts_original$Sample
-        counts_original <- counts_original[, -1, drop = FALSE]  # Remove Sample column for calculations
 
         # ------ proportions from counts ------
         proportions_original <- sweep(counts_original, MARGIN = 1, STATS = rowSums(counts_original), FUN = "/")
@@ -171,15 +171,13 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
             counts_reprocessed = aligned$reprocessed
             matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
             colnames(counts_reprocessed) <- matched_taxa
-            counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+            counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+            original_names <- colnames(counts_reprocessed)
+            counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
         }
 
         # proportions reprocessed
-        proportions_reprocessed = counts_reprocessed
-        proportions_reprocessed[-1] <- lapply(
-            counts_reprocessed[-1],
-            function(col) col / sum(col)
-        )
+        proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
     }
 
     if (!raw) {
