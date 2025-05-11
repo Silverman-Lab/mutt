@@ -135,6 +135,7 @@ study_parsers <- c(
    Kallastu2023 = "2023_kallastu_research_foodscience_food"
 )
 
+# Run repo function
 studies <- microbialscalerepo(
   studies = study_parsers, # If not supplied, defaults to all
   base_directory = "data_repository/", # This is default, but you should change to wherever your local download is, for now.
