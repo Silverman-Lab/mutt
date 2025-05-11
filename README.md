@@ -84,3 +84,64 @@ return(list(
 `microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
 `microbialscalerepo.py` function to call parse scripts (with selection of individual studies) and optionally store in .pkl object
 
+## For now, functionality:
+
+```r
+
+# Source the files from the directory -- No R package just yet
+source("data_repository/microbialscalerepo.R") 
+source("data_repository/helpers.R")
+
+# Choose whichever dataset you want and supply like this or as named vector, or just supply a vector of the repo directories:
+study_parsers <- c(
+   Vandeputte2021 = "2021_vandeputte_naturecommunications_flow_timeseries",
+   CvandeVelde2022 = "2022_cvandevelde_ismecommunications_culturedflowhumanfecal",
+   Vandeputte2017 = "2017_vandeputte_nature_flow",
+   Pereira2023 = "2023_pereira_nature_nervous",
+   Krawczyk2022 = "2022_krawczyk_microbiome_tickgeographicaldistributionqpcr",
+   Liao2021 = "2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct",
+   Stammler2016 = "2016_stammler_microbiome_micehuman",
+   Dreier2022 = "2022_dreier_bmcmicrobiology_cheeseqpcr",
+   GALAXY = "2024_nishijima_cell_galaxy",
+   MetaCardis = "2022_fromentin_naturemedicine_metacardissubset",
+   Marotz2021 = "2021_marotz_mSystems_oral_mouthwash",
+   Vieira_Silva2019 = "2019_vieirasilva_naturemicrobiology_pscibd",
+   Contijoch2019 = "2019_contijoch_elife_multispeciesqPCRshotgunandamplicon",
+   Alessandri2024 = "2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota",
+   Maghini2023 = "2023_maghini_naturebiotechnology_samplemesurement",
+   Garcia_Martinez2024 = "2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum",
+   Sternes2024 = "2024_sternes_frontmicrobiol_IBDppiqPCR",
+   Rao2021 = "2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification",
+   Tettamanti_Boshier2020 = "2020_tettamantiboshier_msystems_vaginaltimeseries",
+   Kruger2024 = "2024_kruger_scientificreports_ddpcrhealthysubjects",
+   Liu2017 = "2017_liu_mbio_penilehivqPCR",
+   Fu2023 = "2023_fu_imeta_wasterwater_pathogens",
+   Jin2022 = "2022_jin_natureComm_technicalReplicates",
+   Zaramela2022 = "2022_zaramela_msystems_synDNA",
+   Feng2023 = "2023_feng_imetawiley_chickensegment",
+   Reese2022 = "2021_reese_cell_chimpanzee",
+   Barlow2020 = "2020_barlow_naturecommunications_miceGI",
+   Morton2019 = "2019_morton_naturecommunications_songbird_oral",
+   Prochazkova2024 = "2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal",
+   Zemb2020 = "2020_zemb_microOpen_spike",
+   Jin2024 = "2024_jin_pnas_semen",
+   Galazzo2020 = "2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy",
+   Lin2019 = "2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein",
+   Regalado2020_16S = "2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR",
+   Suriano2022 = "2022_suriano_aps_micefecal",
+   Thiruppathy2025 = "2025_thiruppathy_microbiome_relicDNAflow",
+   Wagner2025 = "2025_wagner_frontiersinmiccrobiology_flowpiglets",
+   Regalado2020 = "2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR",
+   Kallastu2023 = "2023_kallastu_research_foodscience_food"
+)
+
+subset <- microbialscalerepo(
+  studies = study_parsers, # If not supplied, defaults to all
+  base_directory = "data_repository/",
+  rawdata = FALSE, # Dont change this because its the un-reformatted original data non cleaned.
+  align_samples = FALSE, # This will align your matrices to the scale dataframe so all sample data is aligned (If it can be)
+  save_to = "datasetsfromrepo.RData",
+  verbose = TRUE
+)
+```
+
