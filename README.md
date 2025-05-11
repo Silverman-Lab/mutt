@@ -130,7 +130,6 @@ study_parsers <- c(
    Suriano2022 = "2022_suriano_aps_micefecal",
    Thiruppathy2025 = "2025_thiruppathy_microbiome_relicDNAflow",
    Wagner2025 = "2025_wagner_frontiersinmiccrobiology_flowpiglets",
-   Regalado2020 = "2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR",
    Kallastu2023 = "2023_kallastu_research_foodscience_food"
 )
 
