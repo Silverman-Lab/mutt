@@ -127,7 +127,6 @@ study_parsers <- c(
    Jin2024 = "2024_jin_pnas_semen",
    Galazzo2020 = "2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy",
    Lin2019 = "2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein",
-   Regalado2020_16S = "2020_regalado_isme_metagenomicsbacteriaandfungalsequencingqPCR",
    Suriano2022 = "2022_suriano_aps_micefecal",
    Thiruppathy2025 = "2025_thiruppathy_microbiome_relicDNAflow",
    Wagner2025 = "2025_wagner_frontiersinmiccrobiology_flowpiglets",
