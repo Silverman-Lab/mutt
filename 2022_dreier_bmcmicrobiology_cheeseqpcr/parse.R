@@ -187,6 +187,8 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
         if (!raw) {
           aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
           counts_original = aligned$counts_original
+          original_names <- colnames(counts_original)
+          counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
         }
         proportions_original = sweep(counts_original, 1, rowSums(counts_original), "/")
     }
@@ -205,7 +207,6 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
         tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
         if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
         tax_reprocessed <- as.data.frame(readRDS(tax_file))
-        tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
         tax_reprocessed = make_taxa_label(tax_reprocessed)
         # ----- Convert accessions to sample IDs / Sequences to Taxa -----
         if (!raw) {
