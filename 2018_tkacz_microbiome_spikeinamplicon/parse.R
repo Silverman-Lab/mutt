@@ -47,9 +47,9 @@ parse_2018_tkacz_microbiome_spikeinamplicon <- function(raw = FALSE, align = FAL
         # Unzip and read RDS
         temp_dir <- tempfile("study")
         dir.create(temp_dir)
-        unzip(repro_counts_rds_zip[i], exdir = temp_dir, overwrite = TRUE)
-        counts_file <- list.files(temp_dir, pattern = "_counts\\.rds$", full.names = TRUE)
-        stopifnot(length(counts_file) == 1)
+        unzipped = unzip(repro_counts_rds_zip[i], exdir = temp_dir, overwrite = TRUE)
+        counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
         counts <- as.data.frame(readRDS(counts_file))
 
         unzip(repro_tax_zip[i], exdir = temp_dir, overwrite = TRUE)
@@ -74,6 +74,7 @@ parse_2018_tkacz_microbiome_spikeinamplicon <- function(raw = FALSE, align = FAL
         # Read SRA metadata
         metadata <- read_zipped_table(metadata_SRA_zip[i], sep = ",", header = TRUE, row.names = 1)
         all_metadata[[i]] <- metadata
+        cleanup_tempfiles(temp_dir)
         }
     }
 

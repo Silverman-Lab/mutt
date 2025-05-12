@@ -155,6 +155,7 @@ parse_2024_nishijima_cell_galaxy <- function(raw = FALSE, align = FALSE, bind_al
   #     if (!is.null(metaphlan_res)) {
   #       MetaPhlAn4_reprocessed[[prefix]] <- metaphlan_res
   #     }
+  #     cleanup_tempfiles(dirname(temp_dir))    
   #   }
   # }
 

@@ -144,27 +144,19 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
 
     # ----- Reprocessed counts from RDS ZIP -----
     if (all(file.exists(repro_counts_rds_zip))) {
-        # Create temporary directory for unzipped files
-        temp_dir <- tempfile("reprocessed_data")
+        temp_dir <- tempfile("repro")   
         dir.create(temp_dir)
         
         # Unzip counts file
-        unzip(repro_counts_rds_zip, exdir = temp_dir)
-        counts_file <- list.files(temp_dir, pattern = "_counts\\.rds$", full.names = TRUE)[1]
+        unzipped =unzip(repro_counts_rds_zip, exdir = temp_dir)
+        counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
         if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
         counts_reprocessed <- as.data.frame(readRDS(counts_file))
         
-        # Ensure counts are numeric
-        counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed))
-        
-        # Unzip taxonomy file
-        unzip(repro_tax_zip, exdir = temp_dir)
-        tax_file <- list.files(temp_dir, pattern = "_taxa\\.rds$", full.names = TRUE)[1]
+        unzipped = unzip(repro_tax_zip, exdir = temp_dir)
+        tax_file <- unzipped[grep("_taxa\\.rds$",   unzipped, ignore.case = TRUE)][1]
         if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
         tax_reprocessed <- as.data.frame(readRDS(tax_file))
-        
-        # Clean up temporary directory
-        unlink(temp_dir, recursive = TRUE)
         
         # Convert sequences to lowest rank taxonomy found and update key
         tax_reprocessed = make_taxa_label(tax_reprocessed)
@@ -193,6 +185,7 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
             # Calculate proportions using sweep for raw data
             proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
         }
+        cleanup_tempfiles(temp_dir)
     } else {
         counts_reprocessed <- NA
         tax_reprocessed <- NA

@@ -112,6 +112,7 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
         dplyr::select(ID, `Average faecal cell count (cells/g)`) %>% 
         mutate(log2_FC_cell_g = ifelse(`Average faecal cell count (cells/g)` > 0, log2(`Average faecal cell count (cells/g)`), NA)) %>%
         mutate(log10_FC_cell_g = ifelse(`Average faecal cell count (cells/g)` > 0, log10(`Average faecal cell count (cells/g)`), NA))
+      cleanup_tempfiles(temp_dir)
     }
   }
 
@@ -125,7 +126,9 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
     metadata <- read_excel(metadata_path, sheet = 2) %>%
       as.data.frame() %>%
       dplyr::rename(ID = `Anonymised ID`)
+    cleanup_tempfiles(temp_dir)
   }
+  
 
   # IF WE EVER GET THE DATA FROM THE AUTHORS ...... THEN WE CAN DELETE:collapse
   proportions_original <- read_zipped_table(file.path(local, "VieiraSilva_2019_16S.csv.zip"))
@@ -134,7 +137,8 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
     aligned = rename_and_align(proportions_original = proportions_original, metadata=metadata, scale=scale, by_col = "ID", align = align, study_name = basename(local))
     proportions_original <- aligned$proportions_original
   }
-  #temp_dir <- tempdir()
+  #temp_dir <- tempdir("repro)
+  #dir.create(temp_dir)
 
   # # ----- Read QMP and compute proportions ----- # ORIGINAL PROCESSING OF QMP MATRIX
   # if (!is.na(qmp_zip) && file.exists(qmp_zip)) {
@@ -208,36 +212,30 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
   #     tax <- tibble::rownames_to_column(tax, var = "Taxon")
   #   }
   # }
+  # cleanup_tempfiles(temp_dir)
 
   # ----- Reprocessed counts from RDS ZIP -----
   if (file.exists(repro_counts_rds_zip) && file.exists(repro_tax_rds_zip)) {
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+    temp_dir <- tempdir("repro")
+    dir.create(temp_dir)
+    unzipped = unzip(repro_counts_rds_zip, exdir = temp_dir, overwrite = TRUE)
+    counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+    if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+    counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
     # ----- Taxonomy reprocessed -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-
+    unzipped = unzip(repro_tax_rds_zip, exdir = temp_dir, overwrite = TRUE)
+    tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+    if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+    tax_reprocessed <- as.data.frame(readRDS(tax_file))
     
     # ----- Convert sequences to lowest rank taxonomy found and update key -----
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
     if (!raw) {
-      align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col = "ID", align = align, study_name = basename(local))
-      counts_reprocessed <- align$counts_reprocessed
-    }
-
-    # taxa
-    if (!raw) {
+       align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col = "ID", align = align, study_name = basename(local))
+       counts_reprocessed <- align$counts_reprocessed
         matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
         colnames(counts_reprocessed) <- matched_taxa
         counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
@@ -247,6 +245,7 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
 
     # proportions reprocessed
     proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+    cleanup_tempfiles(temp_dir)
   }
 
   if (!raw) {

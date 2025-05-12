@@ -61,20 +61,16 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
   if (all(file.exists(repro_counts_zips))) {
     for (i in seq_along(repro_counts_zips)) {
       # ----- Reprocessed counts from RDS ZIP -----
-      temp_rds <- tempfile(fileext = ".rds")
-      unzip(repro_counts_zips[i], exdir = dirname(temp_rds), overwrite = TRUE)
-
-      rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-      if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-      counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+      unzipped = unzip(repro_counts_zips[i], exdir = temp_rds, overwrite = TRUE)
+      counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+      if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+      counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
       # ----- Taxonomy reprocessed -----
-      temp_tax <- tempfile(fileext = ".rds")
-      unzip(repro_tax_zips[i], exdir = dirname(temp_tax), overwrite = TRUE)
-
-      tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-      if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-      tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+      unzipped = unzip(repro_tax_zips[i], exdir = temp_rds, overwrite = TRUE)
+      tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+      if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+      tax_reprocessed <- as.data.frame(readRDS(tax_file))
       tax_reprocessed <- make_taxa_label(tax_reprocessed)
 
       # ----- Match taxa and collapse -----
@@ -98,6 +94,7 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
       counts_reprocessed_list[[label]]      <- counts_reprocessed
       proportions_reprocessed_list[[label]] <- proportions_reprocessed
       tax_reprocessed_list[[label]]         <- tax_reprocessed
+      cleanup_tempfiles(temp_rds)
     }
   }
 

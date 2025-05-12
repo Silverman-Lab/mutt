@@ -29,7 +29,6 @@ parse_2021_vandeputte_naturecommunications_flow_timeseries <- function(raw = FAL
   
   # placeholders
   counts      <- proportions <- tax <- scale <- metadata <- NULL
-
   # ----- scale, metadata -----
   scale    <- read_zipped_table(scale_zip, sep = "\t", row.names = NULL) %>% 
                 mutate(log2_FC_g_mean = ifelse(10^Cell_count_per_gram > 0, log2(10^Cell_count_per_gram), NA)) %>%
@@ -38,13 +37,9 @@ parse_2021_vandeputte_naturecommunications_flow_timeseries <- function(raw = FAL
 
 
   # ----- Read counts -----
-  counts_df <- read_zipped_table(counts_zip, sep = "\t", row.names = NULL)
-  if (!is.null(counts_df)) {
-    id_col          <- counts_df[[1]]            # first column values
-    counts_matrix   <- as.matrix(counts_df[ , -1, drop = FALSE])
-    rownames(counts_matrix) <- id_col            # give them row names
-    counts          <- counts_matrix
-
+  counts <- read_zipped_table(counts_zip, sep = "\t", row.names = 1)
+  if (!is.null(counts)) {
+    counts = fill_na_zero_numeric(counts)
 
     tax      <- read_zipped_table(tax_zip, row.names = NULL)
     tax$Taxa <- tax[[1]]
@@ -69,21 +64,18 @@ parse_2021_vandeputte_naturecommunications_flow_timeseries <- function(raw = FAL
 
   # ----- Reprocessed counts from RDS ZIP -----
   if (all(file.exists(c(repro_counts_rds_zip, repro_tax_zip)))) {
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+    temp_rds <- tempfile("repro")
+    dir.create(temp_rds)
+    unzipped = unzip(repro_counts_rds_zip, exdir = temp_rds, overwrite = TRUE)
+    counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+    if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+    counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
     # ----- Taxonomy reprocessed -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-
+    unzipped = unzip(repro_tax_zip, exdir = temp_rds, overwrite = TRUE)
+    tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+    if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+    tax_reprocessed <- as.data.frame(readRDS(tax_file))
     
     # ----- Convert sequences to lowest rank taxonomy found and update key -----
     tax_reprocessed = make_taxa_label(tax_reprocessed)
@@ -101,7 +93,8 @@ parse_2021_vandeputte_naturecommunications_flow_timeseries <- function(raw = FAL
 
     # proportions reprocessed
     proportions_reprocessed <- sweep(counts_reprocessed, MARGIN = 1,STATS  = rowSums(counts_reprocessed), FUN = "/")
-    
+
+    cleanup_tempfiles(temp_rds)
   }
 
   if (!raw) {

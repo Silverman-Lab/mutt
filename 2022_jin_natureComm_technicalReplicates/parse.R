@@ -134,18 +134,21 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
       study_prefix <- gsub("_dada2_counts\\.rds\\.zip$", "", basename(counts_zip))
 
       # ----- Unzip and read counts -----
-      temp_rds <- tempfile(fileext = ".rds")
-      unzip(counts_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-      rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
+      temp_dir <- tempdir()
+      unzip(counts_zip, exdir = temp_dir, overwrite = TRUE)
+      rds_files <- list.files(temp_dir, pattern = "_counts\\.rds$", full.names = TRUE)
       if (length(rds_files) == 0) stop("No *_counts.rds file found in: ", counts_zip)
       counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+      cleanup_tempfiles(temp_dir)
 
       # ----- Unzip and read taxonomy -----
-      temp_tax <- tempfile(fileext = ".rds")
-      unzip(tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-      tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
+      temp_dir <- tempdir()
+      unzip(tax_zip, exdir = temp_dir, overwrite = TRUE)
+      tax_files <- list.files(temp_dir, pattern = "_taxa\\.rds$", full.names = TRUE)
       if (length(tax_files) == 0) stop("No *_taxa.rds file found in: ", tax_zip)
       tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+      cleanup_tempfiles(temp_dir)
+
       tax_reprocessed <- make_taxa_label(tax_reprocessed)
 
       # Taxonomy rownames = ASVs/Features: prefix if needed

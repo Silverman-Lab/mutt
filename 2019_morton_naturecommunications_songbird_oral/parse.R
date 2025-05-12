@@ -74,12 +74,13 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
     
 
     ## Read Counts
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(counts_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-    rds_files <- list.files(dirname(temp_rds), pattern = "2019_morton_songbird_oral_counts\\.RDS$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No 2019_morton_songbird_oral_counts.rds file found after unzip")
-    counts <- as.data.frame(readRDS(rds_files[1])) %>% t() %>% as.data.frame()
-
+    temp_rds <- tempfile("repro")
+    dir.create(temp_rds)
+    unzipped = unzip(counts_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+    counts_file <- unzipped[grep("2019_morton_songbird_oral_counts\\.RDS$", unzipped, ignore.case = TRUE)][1]
+    if (is.na(counts_file)) stop("No 2019_morton_songbird_oral_counts.rds file found after unzip")
+    counts <- as.data.frame(readRDS(counts_file)) %>% t() %>% as.data.frame()
+    
     ## Taxonomy Information
     raw_tax <- read_zipped_table(tax_zip, sep="\t", row.names = NULL)
     tax <- raw_tax %>%
@@ -104,8 +105,6 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
     tax <- tax[,c("Feature ID", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Taxa", "ogtaxonomy")]
     row.names(tax) <- tax$`Feature ID`
 
-
-
     if (!raw) {
         aligned = rename_and_align(counts_original = counts, metadata=metadata, scale=scale, by_col = "anonymized_name", align = align, study_name = basename(local))
         counts <- aligned$counts_original
@@ -116,25 +115,19 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
         counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
     }
     proportions <- sweep(counts, 1, rowSums(counts), FUN = "/")
-
+    
     # ----- Reprocessed counts from RDS ZIP -----
     if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
-        
-        temp_rds <- tempfile(fileext = ".rds")
-        unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-
-        rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-        if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-        counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+        unzipped = unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+        counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+        counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
         # ----- Taxonomy reprocessed -----
-        temp_tax <- tempfile(fileext = ".rds")
-        unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-
-        tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-        if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-        tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-
+        unzipped = unzip(repro_tax_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+        tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+        tax_reprocessed <- as.data.frame(readRDS(tax_file))
         
         # ----- Convert sequences to lowest rank taxonomy found and update key -----
         tax_reprocessed = make_taxa_label(tax_reprocessed)
@@ -143,13 +136,11 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
         if (!raw) {
             aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col = "SampleID", align = align, study_name = basename(local))
             counts_reprocessed <- aligned$reprocessed
-        }
-
-        # taxa
-        if (!raw) {
             matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
             colnames(counts_reprocessed) <- matched_taxa
-            counts_reprocessed <- as.data.frame(t(rowsum(t(counts_reprocessed), group = colnames(counts_reprocessed))))
+            counts_reprocessed = collapse_duplicate_columns_exact(counts_reprocessed)   
+            original_names <- colnames(counts_reprocessed)
+            counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
         }
 
         # proportions reprocessed
@@ -162,6 +153,8 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
         counts = fill_na_zero_numeric(counts)
         proportions = fill_na_zero_numeric(proportions)
     }   
+
+    cleanup_tempfiles(temp_rds)
 
     # ----- Return structured list -----
     return(list(

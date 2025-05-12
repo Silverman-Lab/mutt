@@ -118,6 +118,10 @@ parse_2017_sinha_natureBiotec_spikeinhumanfecalreproducibility <- function(raw =
     aligned <- rename_and_align(counts_original = counts, proportions_original = proportions, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
     counts = aligned$counts_original
     proportions = aligned$proportions_original
+    original_names <- colnames(counts)
+    counts = as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
+    original_names <- colnames(proportions)
+    proportions = as.data.frame(lapply(proportions, as.numeric), row.names = rownames(proportions), col.names = original_names, check.names = FALSE)
   }
 
   # ----- Calculate scale factor for spike-ins -----
@@ -133,20 +137,18 @@ parse_2017_sinha_natureBiotec_spikeinhumanfecalreproducibility <- function(raw =
   
   if (all(file.exists(repro_counts_rds_zip))) {
     # ----- Reprocessed counts from RDS ZIP -----
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+    temp_rds <- tempfile("repro")
+    dir.create(temp_rds)
+    unzipped = unzip(repro_counts_rds_zip, exdir = temp_rds, overwrite = TRUE)
+    counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+    if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+    counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
     # ----- Taxonomy reprocessed -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+    unzipped = unzip(repro_tax_zip, exdir = temp_rds, overwrite = TRUE)
+    tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+    if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+    tax_reprocessed <- as.data.frame(readRDS(tax_file))
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
@@ -162,6 +164,7 @@ parse_2017_sinha_natureBiotec_spikeinhumanfecalreproducibility <- function(raw =
 
     # proportions reprocessed
     proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+    cleanup_tempfiles(temp_rds)
   }
 
   if (length(spike_taxa) > 0) {

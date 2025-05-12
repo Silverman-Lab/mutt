@@ -42,7 +42,8 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
     metadata = read_zipped_table(metadata_SRA1_zip, row.names = NULL) %>% rename(Accession = Run)
     metadata2 = read_zipped_table(metadata_SRA2_zip, row.names = NULL) %>% rename(Accession = Run)
     metadata3 = read_zipped_table(metadata1_zip, row.names = NULL) 
-    temp_dir <- tempdir()
+    temp_dir <- tempfile("metadata")
+    dir.create(temp_dir)
     unzip(metadata_zip, exdir = temp_dir)
     xlsx_file <- list.files(temp_dir, pattern = "\\.xlsx$", full.names = TRUE)[1]
     metadata4 <- list(
@@ -71,54 +72,61 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
         mutate(log10_miseq = ifelse(`16S rRNA gene copies / DNA ng (miseq)` > 0, log10(`16S rRNA gene copies / DNA ng (miseq)`), NA)) %>% 
         mutate(log10_ddPCR = ifelse(`16S rRNA gene copies  / DNA ng (ddPCR)` > 0, log10(`16S rRNA gene copies  / DNA ng (ddPCR)`), NA))
 
+    cleanup_tempfiles(temp_dir)
+
     # ---- Reprocessed data -----
     all_counts <- list()
     all_props  <- list()
     all_taxa   <- list()
 
-    for (i in seq_along(repro_counts_zips)) {
-        counts_zip <- repro_counts_zips[i]
-        tax_zip    <- repro_tax_zips[i]
+    if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
 
-        # ----- Study prefix -----
-        study_prefix <- gsub("_dada2_counts\\.rds\\.zip$", "", basename(counts_zip))
+        for (i in seq_along(repro_counts_rds_zip)) {
+            counts_zip <- repro_counts_rds_zip[i]
+            tax_zip    <- repro_tax_zip[i]
 
-        # ----- Unzip and read counts -----
-        temp_rds <- tempfile(fileext = ".rds")
-        unzip(counts_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-        rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-        if (length(rds_files) == 0) stop("No *_counts.rds file found in: ", counts_zip)
-        counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+            # ----- Study prefix -----
+            study_prefix <- gsub("_dada2_counts\\.rds\\.zip$", "", basename(counts_zip))
 
-        # ----- Unzip and read taxonomy -----
-        temp_tax <- tempfile(fileext = ".rds")
-        unzip(tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-        tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-        if (length(tax_files) == 0) stop("No *_taxa.rds file found in: ", tax_zip)
-        tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-        tax_reprocessed <- make_taxa_label(tax_reprocessed)
+            # ----- Unzip and read counts -----
+            temp_dir <- tempfile("repro")
+            dir.create(temp_dir)
+            unzipped <- unzip(counts_zip, exdir = temp_dir, overwrite = TRUE)
+            counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+            if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+            counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
-        # Taxonomy rownames = ASVs/Features: prefix if needed
-        tax_reprocessed$BioProject <- study_prefix
-        tax_reprocessed$Sequence <- rownames(tax_reprocessed)
+            # ----- Unzip and read taxonomy -----
+            unzipped = unzip(tax_zip, exdir = temp_dir, overwrite = TRUE)
+            tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+            if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+            tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+            tax_reprocessed <- make_taxa_label(tax_reprocessed)
 
-        if (!raw) {
-            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
-            counts_reprocessed = aligned$reprocessed
-            matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), tax_reprocessed$Sequence)]
-            colnames(counts_reprocessed) <- matched_taxa
-            counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
-            original_names <- colnames(counts_reprocessed)
-            counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
+            # Taxonomy rownames = ASVs/Features: prefix if needed
+            tax_reprocessed$BioProject <- study_prefix
+            tax_reprocessed$Sequence <- rownames(tax_reprocessed)
+
+            if (!raw) {
+                aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+                counts_reprocessed = aligned$reprocessed
+                matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), tax_reprocessed$Sequence)]
+                colnames(counts_reprocessed) <- matched_taxa
+                counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+                original_names <- colnames(counts_reprocessed)
+                counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
+            }
+
+            # ----- Proportions -----
+            proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+
+            # Store results
+            all_counts[[i]] <- counts_reprocessed
+            all_props[[i]]  <- proportions_reprocessed
+            all_taxa[[i]]   <- tax_reprocessed
+
+            cleanup_tempfiles(temp_dir)
         }
-
-        # ----- Proportions -----
-        proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
-
-        # Store results
-        all_counts[[i]] <- counts_reprocessed
-        all_props[[i]]  <- proportions_reprocessed
-        all_taxa[[i]]   <- tax_reprocessed
     }
 
     # ----- Merge all dataframes -----

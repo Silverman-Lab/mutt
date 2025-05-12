@@ -312,6 +312,7 @@ read_xlsx_zip <- function(zipfile,
 #' temporary files, such as unzipping archives or extracting data.
 #'
 #' @param temp_paths Character vector of file or directory paths to remove
+#' @param safety_check Logical. If TRUE, will not delete directories that might contain important files
 #'
 #' @return NULL (invisibly)
 #'
@@ -323,13 +324,29 @@ read_xlsx_zip <- function(zipfile,
 #' }
 #'
 #' @export
-cleanup_tempfiles <- function(temp_paths) {
-    for (p in temp_paths) {
-        if (file.exists(p)) {
-            unlink(p, recursive = TRUE, force = TRUE)
-        }
+cleanup_tempfiles <- function(temp_paths, safety_check = TRUE) {
+  for (p in temp_paths) {
+    if (!file.exists(p)) next
+
+    # never delete the top‑level session tempdir()
+    if (normalizePath(p) == normalizePath(tempdir())) {
+      warning("Not deleting session‑wide tempdir(): ", p)
+      next
     }
+
+    if (dir.exists(p) && safety_check) {
+      # proceed only if the path is inside the OS tmp hierarchy
+      if (grepl("^(/tmp|/var/tmp|/private/tmp)", normalizePath(p))) {
+        unlink(p, recursive = TRUE, force = TRUE)
+      } else {
+        warning("Skipping deletion of non‑tmp directory: ", p)
+      }
+    } else {
+      unlink(p, recursive = TRUE, force = TRUE)
+    }
+  }
 }
+
 
 #' Convert first row to column names
 #'

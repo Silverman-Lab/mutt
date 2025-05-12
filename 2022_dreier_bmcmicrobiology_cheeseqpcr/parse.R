@@ -40,9 +40,11 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
 
   # Scale
   if (file.exists(scale_zip)) {
+    temp_dir <- tempfile("scale")
+    dir.create(temp_dir)
     # Extract raw Fluidigm CSV from the zip archive
     scale_file <- unzip(scale_zip, list = TRUE)$Name[1]
-    csv_file   <- unzip(scale_zip, files = scale_file, exdir = tempdir(), overwrite = TRUE)[1]
+    csv_file   <- unzip(scale_zip, files = scale_file, exdir = temp_dir, overwrite = TRUE)[1]
 
     # Read and flatten Fluidigm 2-row header
     raw_hdr <- read_lines(csv_file, n_max = 12)
@@ -106,6 +108,7 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
         n_reps = n(),
         .groups = "drop"
       )
+      cleanup_tempfiles(temp_dir)
   } else {
     scale = NA
   }
@@ -190,25 +193,20 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
 
     # ----- Reprocessed counts from RDS ZIP -----
     if (file.exists(repro_counts_rds_zip)) {
-        temp_rds <- tempfile(fileext = ".rds")
-        unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-
-        rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-        if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-        counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
-        
-        # Ensure counts are numeric
-        counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed))
+        temp_dir <- tempfile("repro")
+        dir.create(temp_dir)
+        unzipped <- unzip(repro_counts_rds_zip, exdir = temp_dir, overwrite = TRUE)
+        counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+        counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
         # ----- Taxonomy reprocessed -----
-        temp_tax <- tempfile(fileext = ".rds")
-        unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-
+        unzipped <- unzip(repro_tax_zip, exdir = temp_dir, overwrite = TRUE)
+        tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+        tax_reprocessed <- as.data.frame(readRDS(tax_file))
         tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-        if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-        tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
         tax_reprocessed = make_taxa_label(tax_reprocessed)
-
         # ----- Convert accessions to sample IDs / Sequences to Taxa -----
         if (!raw) {
             aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
@@ -225,6 +223,8 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
 
         # proportions reprocessed
         proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+
+        cleanup_tempfiles(temp_dir)
     } else {
         counts_reprocessed = NA
         proportions_reprocessed = NA

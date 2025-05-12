@@ -49,65 +49,135 @@ parse_2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflo
 
     # ----- mOTU3 Reprocessed -----
     if (file.exists(motus_zip)) {
-        motus_files <- unzip(motus_zip, list = TRUE)
-        motus_filename <- motus_files$Name[grepl("\\.tsv$", motus_files$Name)][1]
-        if (!is.na(motus_filename)) {
-            temp_dir <- tempdir()
-            unzip(motus_zip, files = motus_filename, exdir = temp_dir, overwrite = TRUE)
-            motus_path <- file.path(temp_dir, motus_filename)
-            df <- read_tsv(motus_path)
-            rownames(df) <- df[[1]]
-            df[[1]] <- NULL
-            if (!raw) {
-                aligned <- rename_and_align(counts_reprocessed = df, metadata = metadata_df, scale = scale_df, by_col = "Sample_name", align = align, study_name = basename(local))
-                df <- aligned$reprocessed
-                original_names <- colnames(df)
-                df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
-            }
-            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
-            tax_df <- data.frame(taxa = rownames(df)) %>%
-            mutate(taxa = str_trim(taxa)) %>%
-            separate(taxa,
-                    into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
-                    sep = "\\s*;\\s*", extra = "drop", fill = "right")
-            rownames(tax_df) <- rownames(df)
+    # 1. create a private scratch folder
+    temp_dir <- tempfile("motus_")
+    dir.create(temp_dir)
 
-            mOTU3_counts <- df
-            mOTU3_proportions <- proportions
-            mOTU3_tax <- tax_df
+    # 2. find the .tsv inside the ZIP
+    motus_files    <- unzip(motus_zip, list = TRUE)
+    motus_filename <- motus_files$Name[
+                        grepl("\\.tsv$", motus_files$Name, ignore.case = TRUE)
+                    ][1]
+
+    if (!is.na(motus_filename)) {
+        # 3. extract just that file and grab its full path
+        unzipped    <- unzip(
+                        motus_zip,
+                        files     = motus_filename,
+                        exdir     = temp_dir,
+                        overwrite = TRUE
+                    )
+        motus_path  <- unzipped[1]
+
+        # 4. read counts + set rownames
+        df <- readr::read_tsv(motus_path, show_col_types = FALSE)
+        rownames(df) <- df[[1]]
+        df[[1]]      <- NULL
+
+        # 5. optional alignment
+        if (!raw) {
+        aligned <- rename_and_align(
+            counts_reprocessed = df,
+            metadata          = metadata_df,
+            scale             = scale_df,
+            by_col            = "Sample_name",
+            align             = align,
+            study_name        = basename(local)
+        )
+        df <- aligned$reprocessed
         }
+
+        # 6. numeric conversion + proportions
+        df[]        <- lapply(df, as.numeric)
+        proportions <- sweep(df, 1, rowSums(df), "/")
+
+        # 7. simple taxonomy table from rownames
+        tax_df <- tibble::tibble(taxa = rownames(df)) |>
+        dplyr::mutate(taxa = stringr::str_trim(taxa)) |>
+        tidyr::separate(
+            taxa,
+            into  = c("Kingdom","Phylum","Class","Order",
+                    "Family","Genus","Species","Strain"),
+            sep   = "\\s*;\\s*", extra = "drop", fill = "right"
+        )
+        rownames(tax_df) <- rownames(df)
+
+        # 8. assign out
+        mOTU3_counts       <- df
+        mOTU3_proportions  <- proportions
+        mOTU3_tax          <- tax_df
     }
+
+    # 9. clean up only your private folder
+    cleanup_tempfiles(temp_dir)
+    }
+
 
     # ----- MetaPhlAn4 Reprocessed -----
     if (file.exists(metaphlan4_zip)) {
-        metaphlan4_files <- unzip(metaphlan4_zip, list = TRUE)
-        metaphlan4_filename <- metaphlan4_files$Name[grepl("\\.tsv$", metaphlan4_files$Name)][1]
-        if (!is.na(metaphlan4_filename)) {
-            temp_dir <- tempdir()
-            unzip(metaphlan4_zip, files = metaphlan4_filename, exdir = temp_dir, overwrite = TRUE)
-            path <- file.path(temp_dir, metaphlan4_filename)
-            df <- read_tsv(path)
-            rownames(df) <- df[[1]]
-            df[[1]] <- NULL
-            if (!raw) {
-                aligned <- rename_and_align(counts_reprocessed = df, metadata = metadata_df, scale = scale_df, by_col = "Sample_name", align = align, study_name = basename(local))
-                df <- aligned$reprocessed
-                original_names <- colnames(df)
-                df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
-            }
-            proportions <- sweep(df, 1, rowSums(df), FUN = "/")
-            tax_df <- data.frame(taxa = rownames(df)) %>%
-            mutate(taxa = str_trim(taxa)) %>%
-            separate(taxa,
-                    into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
-                    sep = "\\s*;\\s*", extra = "drop", fill = "right")
-            rownames(tax_df) <- rownames(df)
+    # 1. private scratch folder
+    temp_dir <- tempfile("mp4_")
+    dir.create(temp_dir)
 
-            MetaPhlAn4_counts <- df
-            MetaPhlAn4_proportions <- proportions
-            MetaPhlAn4_tax <- tax_df
+    # 2. locate the .tsv in the ZIP
+    mp4_files    <- unzip(metaphlan4_zip, list = TRUE)
+    mp4_filename <- mp4_files$Name[
+                        grepl("\\.tsv$", mp4_files$Name, ignore.case = TRUE)
+                    ][1]
+
+    if (!is.na(mp4_filename)) {
+        # 3. extract and capture full path
+        unzipped  <- unzip(
+                    metaphlan4_zip,
+                    files     = mp4_filename,
+                    exdir     = temp_dir,
+                    overwrite = TRUE
+                    )
+        path      <- unzipped[1]
+
+        # 4. read + set rownames
+        df <- readr::read_tsv(path, show_col_types = FALSE)
+        rownames(df) <- df[[1]]
+        df[[1]]      <- NULL
+
+        # 5. optional alignment
+        if (!raw) {
+        aligned <- rename_and_align(
+            counts_reprocessed = df,
+            metadata          = metadata_df,
+            scale             = scale_df,
+            by_col            = "Sample_name",
+            align             = align,
+            study_name        = basename(local)
+        )
+        df <- aligned$reprocessed
         }
+
+        # 6. numeric + proportions
+        df[]        <- lapply(df, as.numeric)
+        proportions <- sweep(df, 1, rowSums(df), "/")
+
+        # 7. taxonomy table
+        tax_df <- tibble::tibble(taxa = rownames(df)) |>
+        dplyr::mutate(taxa = stringr::str_trim(taxa)) |>
+        tidyr::separate(
+            taxa,
+            into  = c("Kingdom","Phylum","Class","Order",
+                    "Family","Genus","Species","Strain"),
+            sep   = "\\s*;\\s*", extra = "drop", fill = "right"
+        )
+        rownames(tax_df) <- rownames(df)
+
+        # 8. assign out
+        MetaPhlAn4_counts      <- df
+        MetaPhlAn4_proportions <- proportions
+        MetaPhlAn4_tax         <- tax_df
     }
+
+    # 9. tidy up
+    cleanup_tempfiles(temp_dir)
+    }
+
 
     if (!raw) {
         counts_original = fill_na_zero_numeric(counts_original)

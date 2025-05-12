@@ -42,32 +42,26 @@ parse_2018_piwosz_ismej_spikeinampliconfreshwater <- function(raw = FALSE, align
     tax_original = NA
     proportions_original = NA
 
-    if (all(file.exists(repro_counts_rds_zip))) {
+    if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
         # ----- Reprocessed counts from RDS ZIP -----
-        temp_rds <- tempfile(fileext = ".rds")
-        unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-
-        rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-        if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-        counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
-
+        temp_rds <- tempfile("repro")
+        dir.create(temp_rds)
+        unzipped = unzip(repro_counts_rds_zip, exdir = temp_rds, overwrite = TRUE)
+        counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+        counts_reprocessed <- as.data.frame(readRDS(counts_file))
+    
         # ----- Taxonomy reprocessed -----
-        temp_tax <- tempfile(fileext = ".rds")
-        unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-
-        tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-        if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-        tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+        unzipped = unzip(repro_tax_zip, exdir = temp_rds, overwrite = TRUE)
+        tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+        tax_reprocessed <- as.data.frame(readRDS(tax_file))
         tax_reprocessed = make_taxa_label(tax_reprocessed)
 
         # ----- Convert accessions to sample IDs / Sequences to Taxa -----
         if (!raw) {
             align = rename_and_align(counts_reprocessed = counts_reprocessed, metadata, scale, by_col = "sampleID", align = align, study_name = basename(local))
             counts_reprocessed <- align$reprocessed
-        }
-
-        # taxa
-        if (!raw) {
             matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
             colnames(counts_reprocessed) <- matched_taxa
             counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
@@ -77,6 +71,7 @@ parse_2018_piwosz_ismej_spikeinampliconfreshwater <- function(raw = FALSE, align
 
         # proportions reprocessed
         proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+        cleanup_tempfiles(temp_rds)
     }
 
     if (!raw) {

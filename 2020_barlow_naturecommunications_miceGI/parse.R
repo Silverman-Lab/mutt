@@ -67,6 +67,8 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
     if (!raw) {
         aligned = rename_and_align(proportions_original = proportions, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
         proportions = aligned$proportions_original
+        original_names <- colnames(proportions)
+        proportions <- as.data.frame(lapply(proportions, as.numeric), row.names = rownames(proportions), col.names = original_names, check.names = FALSE)
     }
     original_taxa <- colnames(proportions)
 
@@ -102,20 +104,18 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
     
     # ----- Reprocessed counts from RDS ZIP -----
     if (all(file.exists(c(repro_counts_rds_zip, repro_tax_zip)))) {
-        temp_rds <- tempfile(fileext = ".rds")
-        unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-
-        rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-        if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-        counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+        temp_dir <- tempdir("repro")
+        dir.create(temp_dir)
+        unzipped = unzip(repro_counts_rds_zip, exdir = temp_dir, overwrite = TRUE)
+        counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+        counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
         # ----- Taxonomy reprocessed -----
-        temp_tax <- tempfile(fileext = ".rds")
-        unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-
-        tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-        if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-        tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+        unzipped = unzip(repro_tax_zip, exdir = temp_dir, overwrite = TRUE)
+        tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+        tax_reprocessed <- as.data.frame(readRDS(tax_file))
 
         
         # ----- Convert sequences to lowest rank taxonomy found and update key -----
@@ -132,6 +132,7 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
 
         # proportions reprocessed
         proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+        cleanup_tempfiles(temp_rds)
     }
 
     if (!raw) {

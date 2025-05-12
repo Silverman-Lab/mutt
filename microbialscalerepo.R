@@ -173,6 +173,8 @@ microbialscalerepo <- function(
       warning("Skipping ", parser, ": function ", fun_name, "() not found")
       utils::setTxtProgressBar(pb, i); next
     }
+
+    message(str(parser))
     
     res <- tryCatch(
       suppressWarnings(suppressMessages(get(fun_name, envir = env)(raw = rawdata, align = align_samples))), 

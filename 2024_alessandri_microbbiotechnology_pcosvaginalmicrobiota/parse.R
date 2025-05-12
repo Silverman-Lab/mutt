@@ -68,6 +68,7 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
           original_names <- colnames(df)
           df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
         }
+        cleanup_tempfiles(temp_dir)
         proportions <- sweep(df, 1, rowSums(df), FUN = "/")
         tax_df <- data.frame(taxa = rownames(df)) %>%
         mutate(taxa = str_trim(taxa)) %>%
@@ -84,10 +85,11 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
 
   # ----- MetaPhlAn4 Reprocessed -----
   if (file.exists(metaphlan4_zip)) {
+    temp_dir <- tempfile("repro_")   
+    dir.create(temp_dir)
     metaphlan4_files <- unzip(metaphlan4_zip, list = TRUE)
     metaphlan4_filename <- metaphlan4_files$Name[grepl("\\.tsv$", metaphlan4_files$Name)][1]
     if (!is.na(metaphlan4_filename)) {
-        temp_dir <- tempdir()
         unzip(metaphlan4_zip, files = metaphlan4_filename, exdir = temp_dir, overwrite = TRUE)
         path <- file.path(temp_dir, metaphlan4_filename)
         df <- read_tsv(path)
@@ -112,6 +114,7 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
         MetaPhlAn4_proportions <- proportions
         MetaPhlAn4_tax <- tax_df
     }
+    cleanup_tempfiles(temp_dir)
   }
 
   # ---- old processed, delete later ----

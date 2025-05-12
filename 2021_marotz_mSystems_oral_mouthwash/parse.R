@@ -68,13 +68,14 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
 
   # ----- Original Counts and Taxonomy -----
   orig_rds_file <- unzip(counts_zip, list = TRUE)$Name[1]
-  tmp_rds <- tempfile(fileext = ".rds")
-  unzip(counts_zip, files = orig_rds_file, exdir = dirname(tmp_rds), overwrite = TRUE)
-  counts_original <- readRDS(file.path(dirname(tmp_rds), orig_rds_file)) %>% t() %>% as.data.frame()
+  temp_dir <- tempfile("repro")
+  dir.create(temp_dir)
+  unzip(counts_zip, files = orig_rds_file, exdir = temp_dir, overwrite = TRUE)
+  counts_original <- readRDS(file.path(temp_dir, orig_rds_file)) %>% t() %>% as.data.frame()
   counts_original <- collapse_duplicate_columns_exact(counts_original)
   original_names <- colnames(counts_original)
   counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
-
+  cleanup_tempfiles(temp_dir)
   if (!raw) {
     aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
     counts_original = aligned$counts_original
@@ -109,18 +110,18 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
 
     for (i in seq_along(repro_counts_zips)) {
         # Unzip and read counts
-        temp_rds <- tempfile(fileext = ".rds")
-        unzip(repro_counts_zips[i], exdir = dirname(temp_rds), overwrite = TRUE)
-        rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-        if (length(rds_files) == 0) stop(paste("No *_counts.rds file found for index", i))
-        counts <- as.data.frame(readRDS(rds_files[1]))
+        temp_rds <- tempfile("repro")
+        dir.create(temp_rds)
+        unzipped = unzip(repro_counts_zips[i], exdir = temp_rds, overwrite = TRUE)
+        counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(counts_file)) stop(paste("No *_counts.rds file found for index", i))
+        counts <- as.data.frame(readRDS(counts_file))
 
         # Unzip and read taxonomy
-        temp_tax <- tempfile(fileext = ".rds")
-        unzip(repro_tax_zips[i], exdir = dirname(temp_tax), overwrite = TRUE)
-        tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-        if (length(tax_files) == 0) stop(paste("No *_taxa.rds file found for index", i))
-        tax <- as.data.frame(readRDS(tax_files[1]))
+        unzipped = unzip(repro_tax_zips[i], exdir = temp_rds, overwrite = TRUE)
+        tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+        if (is.na(tax_file)) stop(paste("No *_taxa.rds file found for index", i))
+        tax <- as.data.frame(readRDS(tax_file))
         tax <- make_taxa_label(tax)
 
         if (!raw) {
@@ -144,6 +145,8 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
         counts_reprocessed_list[[i]] <- counts
         proportions_reprocessed_list[[i]] <- proportions
         tax_reprocessed_list[[i]] <- tax
+
+        cleanup_tempfiles(temp_rds)
     }
 
     # Combine all

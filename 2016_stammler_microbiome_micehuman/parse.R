@@ -95,21 +95,18 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE, align = FALSE)
 
     if (file.exists(repro_counts_rds_zip)) {
       # ----- Reprocessed counts from RDS ZIP -----
-      temp_rds <- tempfile(fileext = ".rds")
-      unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+      temp_rds <- tempfile("repro")
+      dir.create(temp_rds)
+      unzipped = unzip(repro_counts_rds_zip, exdir = temp_rds, overwrite = TRUE)
+      counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+      if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+      counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
-      rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-      if (length(rds_files) == 0) stop("No *_counts.rds file found after unzip")
-      counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
-
-      # ----- Taxonomy reprocessed -----
-      temp_tax <- tempfile(fileext = ".rds")
-      unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-
-      tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-      if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-      tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-
+      # ----- Taxonomy reprocessed ----
+      unzipped = unzip(repro_tax_zip, exdir = temp_rds, overwrite = TRUE)
+      tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+      if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+      tax_reprocessed <- as.data.frame(readRDS(tax_file))
 
       # ----- Convert sequences to lowest rank taxonomy found and update key -----
       tax_reprocessed = make_taxa_label(tax_reprocessed)
@@ -125,6 +122,7 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE, align = FALSE)
 
       # proportions reprocessed
       proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+      cleanup_tempfiles(temp_rds)
     }
 
     if (!raw) {

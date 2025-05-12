@@ -37,7 +37,8 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
   # ----- Scale -----
   zip_list <- unzip(scale_zip, list = TRUE)
   scale_xlsx <- zip_list$Name[1]  
-  temp_dir <- tempdir()
+  temp_dir <- tempdir("oro")
+  dir.create(temp_dir)
   unzip(scale_zip, files = scale_xlsx, exdir = temp_dir, overwrite = TRUE)
   scale_path <- file.path(temp_dir, scale_xlsx)
   
@@ -118,23 +119,22 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
     mutate(log2_fc_sd= ifelse(facs_sd > 0, log2(facs_sd), NA)) %>% 
     mutate(log10_fc_sd= ifelse(facs_sd > 0, log10(facs_sd), NA))
 
-  # ----- Reprocessed counts from RDS ZIP -----
-  if (all(file.exists(repro_counts_rds_zip))) {
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
+  cleanup_tempfiles(temp_dir)
 
-    rds_files <- list.files(dirname(temp_rds), pattern = "_counts\\.rds$", full.names = TRUE)
-    if (length(rds_files) == 0) stop("No *%>%
-    rename(Sample_name = `Sample ID`)_counts.rds file found after unzip")
-    counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
+  # ----- Reprocessed counts from RDS ZIP -----
+  if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
+    temp_dir <- tempdir("repro")
+    dir.create(temp_dir)
+    unzipped = unzip(repro_counts_rds_zip, exdir = temp_dir, overwrite = TRUE)
+    counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
+    if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
+    counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
     # ----- Taxonomy reprocessed -----
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-
-    tax_files <- list.files(dirname(temp_tax), pattern = "_taxa\\.rds$", full.names = TRUE)
-    if (length(tax_files) == 0) stop("No *_taxa.rds file found after unzip")
-    tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
+    unzipped = unzip(repro_tax_zip, exdir = temp_dir, overwrite = TRUE)
+    tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
+    if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+    tax_reprocessed <- as.data.frame(readRDS(tax_file))
 
     
     # ----- Convert sequences to lowest rank taxonomy found and update key -----
@@ -153,6 +153,7 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
 
     # proportions reprocessed
     proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+    cleanup_tempfiles(temp_dir)
   }
 
   if (!raw) {
