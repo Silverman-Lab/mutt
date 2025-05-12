@@ -18,6 +18,7 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   library(readxl)
   library(stringr)
   library(readr)
+
   
   # -----local path ---------------------------
   local <- file.path("2022_jin_natureComm_technicalReplicates")
@@ -60,12 +61,46 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   # Remove ^ characters from Sample column
   sra$Sample <- gsub("\\^", "", sra$Sample)
 
+  normalize_library_name <- function(x) {
+    x %>%
+      str_remove("_rep\\d+") %>%
+      str_replace("_ecDNA$", "-ecDNA") %>%
+      str_replace("_cell$", "") %>%
+      str_replace("_unfilter$", "-Unfiltered") %>%
+      str_remove_all("_")
+  }
+
+  # ---- 2. Apply to your SRA metadata ----
+  # Assume sra is your existing SRA metadata table with column `Library Name`
+  sra <- sra %>%
+    mutate(Sample = normalize_library_name(`Library Name`))
+
+  sra <- sra %>%
+  mutate(
+    replicate_num = str_extract(replicate, "\\d+"),
+    replicate_num = ifelse(is.na(replicate_num), "", replicate_num),
+    Sample_disambiguated = case_when(
+      replicate_num == "" ~ Sample,
+      str_detect(Sample, "-ecDNA$") ~ str_replace(Sample, "-ecDNA$", paste0(replicate_num, "-ecDNA")),
+      TRUE ~ paste0(Sample, replicate_num)
+    )
+  )
+
    # ---- scale ----
   scale <- read_xlsx_zip(zipfile = supp8_zip, sheet = "Absolute total abundance", skip = 1) %>% as.data.frame() %>%
               mutate(log2_copies_mg_mean = ifelse(`Absolute total abudance (copies/mg)` > 0, log2(`Absolute total abudance (copies/mg)`), NA)) %>%
               mutate(log10_copies_mg_mean = ifelse(`Absolute total abudance (copies/mg)` > 0, log10(`Absolute total abudance (copies/mg)`), NA)) %>%
               mutate(log2_copies_mg_sd = ifelse(`Standard deviation (N  = 4 or 5)` > 0, log2(`Standard deviation (N  = 4 or 5)`), NA)) %>%
               mutate(log10_copies_mg_sd = ifelse(`Standard deviation (N  = 4 or 5)` > 0, log10(`Standard deviation (N  = 4 or 5)`), NA))
+
+  sra <- sra %>%
+  mutate(
+    Sample = ifelse(
+      Sample_disambiguated %in% scale$Sample,
+      Sample_disambiguated,
+      Sample
+    )
+  )
 
   # ---- metadata ----
   #extract metadata from sample id
@@ -91,8 +126,7 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   metadata$technical_replicate <- as.numeric(substr(scale$Sample, start = 8, stop = 8))
   metadata = metadata %>% rownames_to_column(var = "Sample")
 
-  metadata = merge(metadata, sra, by = "Sample")
-
+  metadata <- merge(metadata, sra, by = "Sample", all = TRUE)
 
   # ---- counts and tax and proportions ----
   dat <- read_xlsx_zip(zipfile = supp8_zip,sheet = "Sequencing-determined counts",skip = 1)
@@ -134,21 +168,32 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
       study_prefix <- gsub("_dada2_counts\\.rds\\.zip$", "", basename(counts_zip))
 
       # ----- Unzip and read counts -----
-      temp_dir <- tempdir()
-      unzip(counts_zip, exdir = temp_dir, overwrite = TRUE)
-      rds_files <- list.files(temp_dir, pattern = "_counts\\.rds$", full.names = TRUE)
-      if (length(rds_files) == 0) stop("No *_counts.rds file found in: ", counts_zip)
-      counts_reprocessed <- as.data.frame(readRDS(rds_files[1]))
-      cleanup_tempfiles(temp_dir)
+      temp_dir <- tempfile("repro")
+      dir.create(temp_dir)
+      unzipped = unzip(counts_zip, exdir = temp_dir, overwrite = TRUE)
+      counts_files = unzipped[grepl("_counts\\.rds$", unzipped)][1]
+      if (length(counts_files) == 0) stop("No *_counts.rds file found in: ", counts_zip)
+      counts_reprocessed <- as.data.frame(readRDS(counts_files))
+
+      # Move rownames to a column
+      counts_reprocessed <- counts_reprocessed %>%
+        tibble::rownames_to_column("Sample")
+
+      # Clean the Sample names
+      counts_reprocessed$Sample <- counts_reprocessed$Sample %>%
+        sub("filtered_", "", .) %>%
+        sub("_\\d+\\.fastq", "", .)
+
+      # Move cleaned names back to rownames
+      counts_reprocessed <- counts_reprocessed %>%
+        tibble::column_to_rownames("Sample")
+
 
       # ----- Unzip and read taxonomy -----
-      temp_dir <- tempdir()
-      unzip(tax_zip, exdir = temp_dir, overwrite = TRUE)
-      tax_files <- list.files(temp_dir, pattern = "_taxa\\.rds$", full.names = TRUE)
+      unzipped = unzip(tax_zip, exdir = temp_dir, overwrite = TRUE)
+      tax_files = unzipped[grepl("_taxa\\.rds$", unzipped)][1]
       if (length(tax_files) == 0) stop("No *_taxa.rds file found in: ", tax_zip)
-      tax_reprocessed <- as.data.frame(readRDS(tax_files[1]))
-      cleanup_tempfiles(temp_dir)
-
+      tax_reprocessed <- as.data.frame(readRDS(tax_files))
       tax_reprocessed <- make_taxa_label(tax_reprocessed)
 
       # Taxonomy rownames = ASVs/Features: prefix if needed
@@ -158,26 +203,36 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
       if (!raw) {
         aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
         counts_reprocessed = aligned$reprocessed
-        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), tax_reprocessed$Sequence)]
-        colnames(counts_reprocessed) <- matched_taxa
-        counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
-        original_names <- colnames(counts_reprocessed)
-        counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
+        
+        # Skip processing if no rows in counts_reprocessed
+        if (nrow(counts_reprocessed) > 0) {
+            matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), tax_reprocessed$Sequence)]
+            colnames(counts_reprocessed) <- matched_taxa
+            counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+            original_names <- colnames(counts_reprocessed)
+            counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
+        }
       }
 
-      # ----- Proportions -----
-      proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+      if (nrow(counts_reprocessed) > 0) {
+          # ----- Proportions -----
+          proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
+          
+          # Store results only if we have valid data
+          all_counts[[i]] <- counts_reprocessed
+          all_props[[i]]  <- proportions_reprocessed
+          all_taxa[[i]]   <- tax_reprocessed
+      } else {
+        warning("No valid data found in ", counts_zip)
+      }
 
-      # Store results
-      all_counts[[i]] <- counts_reprocessed
-      all_props[[i]]  <- proportions_reprocessed
-      all_taxa[[i]]   <- tax_reprocessed
-    }
+      cleanup_tempfiles(temp_dir)
+      }
   }
 
   # ----- Merge all dataframes -----
-  combined_counts <- do.call(rbind, all_counts)
-  combined_props  <- do.call(rbind, all_props)
+  combined_counts <- bind_rows(all_counts)
+  combined_props  <- bind_rows(all_props)
   combined_taxa   <- bind_rows(all_taxa)
 
   if (!raw) {

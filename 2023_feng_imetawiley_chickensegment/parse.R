@@ -134,8 +134,8 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
 
         # ----- Convert accessions to sample IDs / Sequences to Taxa -----
         if (!raw) {
-            aligned = rename_and_align(counts_original = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
-            counts_reprocessed = aligned$counts_original
+            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+            counts_reprocessed = aligned$reprocessed
             matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
             colnames(counts_reprocessed) <- matched_taxa
             counts_reprocessed = collapse_duplicate_columns_exact(counts_reprocessed)

@@ -18,7 +18,7 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
   counts <- NA
   proportions <- NA
   tax <- NA
-  
+
   # ----- Local base directory -----
   local <- file.path("2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy")
 
@@ -34,7 +34,7 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
   metadata <- metadata %>% rename(Sample_name_existing = Sample_name, Sample_name = anonymized_name, Accession = Run)
   rownames(metadata) <- metadata$Sample_name
 
-  # ----- Scale -----
+  # ----- Scale ----- # SHEET 9 has mock vs sample A,B,C for ddPCR replicates vs qPCR replicates at different dilution factors. We have not done that yet.
   zip_list <- unzip(scale_zip, list = TRUE)
   scale_xlsx <- zip_list$Name[1]  
   temp_dir <- tempdir("oro")
@@ -77,7 +77,9 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
       Sample_name = `Sample ID`,
       ddPCR_Mean  = `ddPCR average copies/uL DNA`,
       ddPCR_SD    = `ddPCR SD copies/ul DNA`,
-      qPCR_Mean   = `qPCR copies/ul DNA`
+      ddPCR_copies_ul_dna_rep1 = `ddPCR copies per uL DNA replicate 1`,
+      ddPCR_copies_ul_dna_rep2 = `ddPCR copies per uL DNA replicate 2`,
+      qPCR_copies_ul_dna = `qPCR copies/ul DNA`
     ) 
   
   scale <- scale_s3 %>%
@@ -99,25 +101,38 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
       str_detect(.x, "log copies per gram")  ~ "qpcr_log",
       str_detect(.x, "Copies per gram")      ~ "qpcr_copies",
 
+      str_detect(.x, "ddpcr_copies_ul_dna_rep1") ~ "ddpcr_copies_ul_dna_rep1",
+      str_detect(.x, "ddpcr_copies_ul_dna_rep2") ~ "ddpcr_copies_ul_dna_rep2",
+      str_detect(.x, "qpcr_copies_ul_dna") ~ "qpcr_copies_ul_dna",
+
       .x == "ddPCR_Mean"                     ~ "ddpcr_mean",
       .x == "ddPCR_SD"                       ~ "ddpcr_sd",
       .x == "qPCR_Mean"                      ~ "qpcr_mean",
 
       TRUE ~ .x 
-    )) %>%
+    )) 
+  scale$Sample_name <- gsub("-", ".", scale$Sample_name)
+  scale<- scale %>%
+  pivot_longer(
+    cols        = matches("_rep[12]$"),               
+    names_to    = c(".value", "Replicate"),            
+    names_pattern= "(.*)_rep(\\d)$"                     
+  ) %>% select(Sample_name, Replicate, facs, qpcr_ct, qpcr_log, qpcr_copies, ddPCR_copies_ul_dna, qPCR_copies_ul_dna) %>%
     mutate(across(-Sample_name, as.numeric)) %>%
-    mutate(log10_ddpcr_mean = ifelse(ddpcr_mean > 0, log10(ddpcr_mean), NA)) %>%
-    mutate(log10_qpcr_mean= ifelse(qpcr_mean > 0, log10(qpcr_mean), NA)) %>% 
-    mutate(log2_ddpcr_mean= ifelse(ddpcr_mean > 0, log2(ddpcr_mean), NA)) %>% 
-    mutate(log2_qpcr_mean= ifelse(qpcr_mean > 0, log2(qpcr_mean), NA)) %>% 
-    mutate(log2_ddpcr_sd= ifelse(ddpcr_sd > 0, log2(ddpcr_sd), NA)) %>% 
-    mutate(log10_ddpcr_sd= ifelse(ddpcr_sd > 0, log10(ddpcr_sd), NA)) %>%
-    mutate(log2_qpcr_sd= ifelse(qpcr_sd > 0, log2(qpcr_sd), NA)) %>% 
-    mutate(log10_qpcr_sd= ifelse(qpcr_sd > 0, log10(qpcr_sd), NA)) %>% 
-    mutate(log2_fc_mean= ifelse(facs_mean > 0, log2(facs_mean), NA)) %>% 
-    mutate(log10_fc_mean= ifelse(facs_mean > 0, log10(facs_mean), NA)) %>% 
-    mutate(log2_fc_sd= ifelse(facs_sd > 0, log2(facs_sd), NA)) %>% 
-    mutate(log10_fc_sd= ifelse(facs_sd > 0, log10(facs_sd), NA))
+    mutate(log10_FC = ifelse(facs > 0, log10(facs), NA)) %>%
+    mutate(log2_FC = ifelse(facs > 0, log2(facs), NA)) %>%
+    mutate(log2_qpcr_ct = ifelse(qpcr_ct > 0, log2(qpcr_ct), NA)) %>%
+    mutate(log10_qpcr_ct = ifelse(qpcr_ct > 0, log10(qpcr_ct), NA)) %>%
+    mutate(log2_ddpcr_copies_ul_dna = ifelse(ddPCR_copies_ul_dna > 0, log2(ddPCR_copies_ul_dna), NA)) %>%
+    mutate(log10_ddpcr_copies_ul_dna = ifelse(ddPCR_copies_ul_dna > 0, log10(ddPCR_copies_ul_dna), NA)) %>%
+    mutate(Sample_name = ifelse(str_detect(Sample_name, "\\.PMA$"),
+                               str_replace(Sample_name, "\\.PMA$", paste0(".", Replicate, ".PMA")),
+                               paste0(Sample_name, ".", Replicate))) %>%
+    # Duplicate rows for sample 26 and modify their names
+    bind_rows(
+      filter(., str_detect(Sample_name, "^26\\.[12]\\.PMA$")) %>%
+        mutate(Sample_name = str_replace(Sample_name, "\\.PMA$", ".duplo.PMA"))
+    )
 
   cleanup_tempfiles(temp_dir)
 
@@ -135,9 +150,6 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
     tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
     if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
     tax_reprocessed <- as.data.frame(readRDS(tax_file))
-
-    
-    # ----- Convert sequences to lowest rank taxonomy found and update key -----
     tax_reprocessed = make_taxa_label(tax_reprocessed)
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----

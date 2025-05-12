@@ -23,6 +23,7 @@ parse_2017_liu_mbio_penilehivqPCR <- function(raw = FALSE, align = FALSE) {
     repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxa.rds.zip")
     scale_16s_zip        <- file.path(local, "PMID-28743816_samples-v1.csv.zip")
     metadata_16s_zip     <- file.path(local, "metadata.csv.zip")
+    sra_zip              <- file.path(local, "SraRunTable (40).csv.zip")
 
     # ----- Initialize everything as NA -----
     counts_original <- NA
@@ -33,13 +34,17 @@ parse_2017_liu_mbio_penilehivqPCR <- function(raw = FALSE, align = FALSE) {
     tax_reprocessed <- NA
 
     # ---- scale and metadata -----
-    scale     <- read_zipped_table(scale_16s_zip, row.names = NULL)
-    metadata  <- read_zipped_table(metadata_16s_zip, row.names= NULL) 
+    scale        <- read_zipped_table(scale_16s_zip, row.names = NULL)
+    metadata16s  <- read_zipped_table(metadata_16s_zip, row.names= NULL) %>% rename(Sample = Accession, Sample_ID = `Sample ID`)
+    sra          <- read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run)
+
+    metadata <- metadata16s %>%
+        left_join(sra, by = "Sample_ID") 
 
     scale <- scale %>%
         select(ID, `16S Qty Mean`) %>%
         rename(Sample_name = ID) %>%
-        left_join(metadata %>% select(Sample_name, Accession), by = "Sample_name") %>%
+        left_join(metadata %>% select(Sample_name), by = "Sample_name") %>%
         mutate(log2_qPCR = ifelse(`16S Qty Mean`>0, log2(`16S Qty Mean`), NA)) %>%
         mutate(log10_qPCR = ifelse(`16S Qty Mean`>0, log10(`16S Qty Mean`), NA))
 
@@ -66,6 +71,7 @@ parse_2017_liu_mbio_penilehivqPCR <- function(raw = FALSE, align = FALSE) {
         proportions_original <- sweep(counts_original, 1, rowSums(counts_original, na.rm = TRUE), FUN = "/")
 
     } else {
+        counts_original <- NA
         proportions_original <- NA
         tax_original <- NA
     }

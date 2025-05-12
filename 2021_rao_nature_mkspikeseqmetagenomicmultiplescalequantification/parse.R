@@ -164,7 +164,6 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   taxa_bacteria = make_taxa_label(taxa_bacteria)
   taxa_fungi    = make_taxa_label(taxa_fungi)
 
-  tmp_dir <- tempdir()
   unzip(supplemental_zip, exdir = tmp_dir)
   supplemental_excel <- list.files(tmp_dir, pattern = "41586_2021_3241_MOESM4_ESM\\.xlsx$", full.names = TRUE)
 
@@ -330,7 +329,27 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
 
   metadata = sra_metadata %>%
       as.data.frame() %>%
-      rename(Accession = Run)
+      rename(Accession = Run) %>%
+  mutate(
+    sequencer_type = case_when(
+      str_detect(Instrument, regex("miseq", ignore_case = TRUE)) ~ "Miseq",
+      str_detect(Instrument, regex("nextseq", ignore_case = TRUE)) ~ "Nextseq",
+      TRUE ~ "Other"
+    )
+  ) %>%
+  mutate(
+    sample_type = case_when(
+      str_detect(Sample_name, "_bac16SV3V4") ~ "bac16SV3V4",
+      str_detect(Sample_name, "_ITS1") ~ "ITS1",
+      str_detect(Sample_name, "_arch16S") ~ "arch16S",
+      TRUE ~ NA_character_
+    ),
+    sample_prefix = str_remove(Sample_name, "_bac16SV3V4.*|_ITS1.*|_arch16S.*"),
+    combinedphasesamplename = case_when(
+      sequencer_type %in% c("Miseq", "Nextseq") ~ paste(sequencer_type, sample_prefix, sep = "_"),
+      TRUE ~ NA_character_
+    )
+  )
 
   # Merge SRA metadata with scale data using sample_name
   if (!is.null(metadata) && !is.null(scale)) {
@@ -338,6 +357,28 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
       left_join(metadata %>% select(Sample_name, Accession), by = "Sample_name") %>%
       as.data.frame()
   }
+
+  scale_expanded <- metadata %>%
+  select(Accession, Sample_name, combinedphasesamplename) %>%
+  mutate(
+    Sample_scale = map_chr(
+      Sample_name,
+      ~ {
+        hits <- scale$Sample_name[
+          str_detect(.x, fixed(scale$Sample_name))
+        ]
+        if (length(hits)>=1) hits[1] else NA_character_
+      }
+    )
+  ) %>%
+  left_join(
+    scale,
+    by = c("Sample_scale" = "Sample_name")
+  )
+
+  scale_matched_only <- scale_expanded %>%
+    filter(!is.na(Sample_scale)) 
+
 
   counts_bacteria <- counts_bacteria %>%
     left_join(taxa_bacteria %>% select(OTU_ID, Taxa), by = "OTU_ID") %>%
@@ -492,8 +533,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
       # Align reprocessed bacteria and fungi counts
       aligned_bacteria_repro = rename_and_align(counts_reprocessed = counts_bacteria,
                                               metadata = metadata,
-                                              scale = scale,
-                                              by_col = "Sample_name",
+                                              scale = scale_matched_only,
+                                              by_col = "combinedphasesamplename",
                                               align = align,
                                               study_name = basename(local))
       original_names <- colnames(aligned_bacteria_repro$reprocessed)
@@ -502,8 +543,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
       
       aligned_fungi_repro = rename_and_align(counts_reprocessed = counts_fungi,
                                            metadata = metadata,
-                                           scale = scale,
-                                           by_col = "Sample_name",
+                                           scale = scale_matched_only,
+                                           by_col = "combinedphasesamplename",
                                            align = align,
                                            study_name = basename(local))
       original_names <- colnames(aligned_fungi_repro$reprocessed)
@@ -544,7 +585,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
     if (!raw) {
-      aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+      aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale_matched_only, by_col="Sample_name", align = align, study_name=basename(local))
       counts_reprocessed = aligned$reprocessed
       matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
       colnames(counts_reprocessed) <- matched_taxa
@@ -649,7 +690,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
           tax = tax_reprocessed
       )
     ),
-    scale = scale,
+    scale = scale_matched_only,
     metadata = metadata
   ))
 }

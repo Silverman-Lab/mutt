@@ -174,7 +174,11 @@ microbialscalerepo <- function(
       utils::setTxtProgressBar(pb, i); next
     }
 
-    message(str(parser))
+
+    if (verbose) {
+      cat(sprintf("\r[%d/%d] %s", i, n, parser))
+      flush.console()  # make sure it shows immediately
+    }
     
     res <- tryCatch(
       suppressWarnings(suppressMessages(get(fun_name, envir = env)(raw = rawdata, align = align_samples))), 
@@ -204,6 +208,8 @@ microbialscalerepo <- function(
     utils::setTxtProgressBar(pb, i)
   }
   utils::setTxtProgressBar(pb, n)
+  close(pb)
+  if (verbose) cat("\n")
 
   # --- optional save ---------------------------------------------------------
   if (!is.null(save_to)) {

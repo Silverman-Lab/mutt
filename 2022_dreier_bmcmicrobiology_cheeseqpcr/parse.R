@@ -134,17 +134,14 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
     by = "Sample_name"
   )
 
-    # ----- Original counts from CSV.zip -----
-    if (file.exists(orig_counts_zip)) {
+  # ----- Original counts from CSV.zip -----
+  if (file.exists(orig_counts_zip)) {
         orig_csv <- unzip(orig_counts_zip, list = TRUE)$Name[1]
         orig_con <- unz(orig_counts_zip, orig_csv)
         orig_mat <- read.csv(orig_con, row.names = 1, check.names = FALSE)
         counts_original <- as.data.frame(orig_mat)
         counts_original$ASV <- rownames(counts_original)
         rownames(counts_original) = counts_original$Sequence
-        
-        # Ensure counts are numeric
-        counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original))
         
         # Taxa
         taxonomy_cols <- c("ASV", "Sequence", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Haplotype")
@@ -165,13 +162,14 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
                     str_detect(rowname, "MD1b") ~ "MD1b",
                     TRUE ~ NA_character_)
             ) %>%
-            select(-rowname)
+            select(-rowname) %>%
+            column_to_rownames("Sample_name")
+
+        
 
         if (!raw) {
             aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
             counts_original = aligned$counts_original
-            rownames(counts_original) <- counts_original$Sample_name
-            counts_original <- counts_original %>% select(-Sample_name)
             matched_taxa <- tax_original$Taxa[match(colnames(counts_original), rownames(tax_original))]
             colnames(counts_original) <- matched_taxa
             counts_original <- collapse_duplicate_columns_exact(counts_original)
@@ -205,7 +203,7 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
         # ----- Taxonomy reprocessed -----
         unzipped <- unzip(repro_tax_zip, exdir = temp_dir, overwrite = TRUE)
         tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
-        if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
+        if (is.na(tax_file)) stop("No *_taxa.rds file found FALSEafter unzip")
         tax_reprocessed <- as.data.frame(readRDS(tax_file))
         tax_reprocessed = make_taxa_label(tax_reprocessed)
         # ----- Convert accessions to sample IDs / Sequences to Taxa -----
@@ -217,9 +215,6 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
             counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
             original_names <- colnames(counts_reprocessed)
             counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
-            
-            # Ensure counts are numeric after alignment
-            counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed))
         }
 
         # proportions reprocessed

@@ -45,8 +45,6 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE, align = 
     MetaPhlAn4_proportions <- NA
     MetaPhlAn4_tax <- NA
 
-    browser()
-
     # ----- Metadata -----  
     sra         = read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame() %>% rename(Accession = Run, Sample = `Sample Name`)
     metadata1   = read_zipped_table(metadata_three_zip, row.names=NULL) %>% as.data.frame()
