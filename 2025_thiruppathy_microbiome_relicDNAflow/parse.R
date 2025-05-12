@@ -45,6 +45,8 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE, align = 
     MetaPhlAn4_proportions <- NA
     MetaPhlAn4_tax <- NA
 
+    browser()
+
     # ----- Metadata -----  
     sra         = read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame() %>% rename(Accession = Run, Sample = `Sample Name`)
     metadata1   = read_zipped_table(metadata_three_zip, row.names=NULL) %>% as.data.frame()
@@ -77,7 +79,7 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE, align = 
     rownames(tax_original) <- tax_original$OTU_ID
     
     if (!raw) {
-        aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample", align = align)
+        aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
         counts_original = aligned$counts_original
         matched_taxa <- tax_original$ogtaxonomy[match(colnames(counts_original), rownames(tax_original))]
         colnames(counts_original) <- matched_taxa

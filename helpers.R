@@ -633,24 +633,44 @@ standardize_output_order <- function(output) {
 #'
 #' @export
 collapse_duplicate_columns_exact <- function(df) {
-  # Store original column names
-  orig_colnames <- colnames(df)
+  # 1. Capture original dimnames
+  orig_rn <- rownames(df)
+  orig_cn <- colnames(df)
   
-  # Create mapping between original and new column names
-  new_cols <- colnames(as.data.frame(t(rowsum(t(df), group = colnames(df)))))
-  col_mapping <- data.frame(
-    orig_col = orig_colnames,
-    new_col = colnames(df)[match(orig_colnames, colnames(df))]
+  # 2. Coerce every column to numeric
+  #    (non-numeric columns become numeric via as.character → as.numeric)
+  df_num <- data.frame(
+    lapply(df, function(col) {
+      if (is.numeric(col)) {
+        col
+      } else {
+        # will introduce NAs if coercion fails
+        as.numeric(as.character(col))
+      }
+    }),
+    row.names = orig_rn,
+    check.names = FALSE
   )
   
-  # Collapse duplicate columns
-  result <- as.data.frame(t(rowsum(t(df), group = colnames(df))))
+  # 3. Sum duplicate columns by name
+  #    rowsum on t(df) groups "rows" of t(df) = original columns
+  summed <- rowsum(
+    t(as.matrix(df_num)),
+    group = orig_cn,
+    reorder = FALSE
+  )
   
-  # Reassign original column names
-  colnames(result) <- col_mapping$orig_col[match(colnames(result), col_mapping$new_col)]
+  # 4. Transpose back, restore colnames exactly, and keep rownames
+  result <- as.data.frame(
+    t(summed),
+    row.names   = orig_rn,
+    check.names = FALSE
+  )
   
   return(result)
 }
+
+
 
 #' Remove columns that are entirely NA, empty strings, or whitespace
 #'
