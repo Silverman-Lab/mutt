@@ -132,7 +132,7 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
 
         # proportions reprocessed
         proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
-        cleanup_tempfiles(temp_rds)
+        cleanup_tempfiles(temp_dir)
     }
 
     if (!raw) {

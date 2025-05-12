@@ -19,8 +19,8 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
   local <- file.path("2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal")
 
   # ----- File paths -----
-  repro_counts_rds_zip <- file.path(local, "PRJNA1233249_dada2_counts.rds.zip")
-  repro_tax_zip        <- file.path(local, "PRJNA1233249_dada2_taxa.rds.zip")
+  repro_counts_rds_zip <- file.path(local, "PRJNA1044006_dada2_counts.rds.zip")
+  repro_tax_zip        <- file.path(local, "PRJNA1044006_dada2_taxa.rds.zip")
   metadata_zip         <- file.path(local, "SraRunTable.csv.zip")
   scale_zip            <- file.path(local, "scale.csv.zip")
 
@@ -54,6 +54,7 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
     counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
     if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
     counts_reprocessed <- as.data.frame(readRDS(counts_file))
+
     # ----- Taxonomy reprocessed -----
     unzipped = unzip(repro_tax_zip, exdir = temp_dir, overwrite = TRUE)
     tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]

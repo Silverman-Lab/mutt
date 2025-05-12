@@ -534,6 +534,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
     counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
     # ----- Taxonomy reprocessed -----
+    unzipped = unzip(repro_tax_zip, exdir = temp_dir, overwrite = TRUE)
     tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
     if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
     tax_reprocessed <- as.data.frame(readRDS(tax_file))

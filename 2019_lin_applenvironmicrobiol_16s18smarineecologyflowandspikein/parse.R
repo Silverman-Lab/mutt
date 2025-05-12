@@ -61,13 +61,15 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
   if (all(file.exists(repro_counts_zips))) {
     for (i in seq_along(repro_counts_zips)) {
       # ----- Reprocessed counts from RDS ZIP -----
-      unzipped = unzip(repro_counts_zips[i], exdir = temp_rds, overwrite = TRUE)
+      temp_dir <- tempfile("repro")
+      dir.create(temp_dir)
+      unzipped = unzip(repro_counts_zips[i], exdir = temp_dir, overwrite = TRUE)
       counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
       if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
       counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
       # ----- Taxonomy reprocessed -----
-      unzipped = unzip(repro_tax_zips[i], exdir = temp_rds, overwrite = TRUE)
+      unzipped = unzip(repro_tax_zips[i], exdir = temp_dir, overwrite = TRUE)
       tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
       if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
       tax_reprocessed <- as.data.frame(readRDS(tax_file))
@@ -94,7 +96,7 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
       counts_reprocessed_list[[label]]      <- counts_reprocessed
       proportions_reprocessed_list[[label]] <- proportions_reprocessed
       tax_reprocessed_list[[label]]         <- tax_reprocessed
-      cleanup_tempfiles(temp_rds)
+      cleanup_tempfiles(temp_dir)
     }
   }
 

@@ -23,11 +23,11 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
   sra_zips                    <- c(
     file.path(local, "SraRunTable (36).csv.zip")
   )
-  repro_motus_zips            <- c(
+  motus_zip                   <- c(
     file.path(local, "PRJEB46098_motus_merged.tsv.zip")  
   )
 
-  repro_metaphlan_zips        <- c(
+  metaphlan4_zip              <- c(
     file.path(local, "PRJEB46098_MetaPhlAn_merged.tsv.zip")
   )
 
@@ -235,7 +235,7 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
   MetaPhlAn4_tax <- NULL
 
   # ----- mOTU3 Reprocessed -----
-  if (file.exists(motus_zip)) {
+  if (all(file.exists(motus_zip))) {
     # 1. create a private scratch folder
     temp_dir <- tempfile("motus_")
     dir.create(temp_dir)
@@ -301,7 +301,7 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
 
 
   # ----- MetaPhlAn4 Reprocessed -----
-  if (file.exists(metaphlan4_zip)) {
+  if (all(file.exists(metaphlan4_zip))) {
     # 1. private scratch folder
     temp_dir <- tempfile("mp4_")
     dir.create(temp_dir)

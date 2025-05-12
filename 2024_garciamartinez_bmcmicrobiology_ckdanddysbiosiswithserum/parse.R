@@ -39,9 +39,7 @@ parse_2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum <- function(r
   temp_dir <- tempfile("scale")
   dir.create(temp_dir)
   unzip(scale_zip, files = scale_xlsx, exdir = temp_dir, overwrite = TRUE)
-  scale_path <- file.path(temp_dir, scale_xlsx)
-  cleanup_tempfiles(temp_dir)
-  
+  scale_path <- file.path(temp_dir, scale_xlsx) 
   scale_raw <- read_xlsx(scale_path, sheet = 1) %>%
     separate(col = 1, into = c("population", "Sample"), sep = "_", remove = TRUE) %>% mutate(Sample = as.character(Sample))
   metadata <- metadata %>%
@@ -50,6 +48,8 @@ parse_2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum <- function(r
     select(-population) %>% 
                   mutate(log2_Microbial_load = ifelse(`Microbial_load (no. cells/g)` > 0, log2(`Microbial_load (no. cells/g)`),NA)) %>% 
                   mutate(log10_Microbial_load = ifelse(`Microbial_load (no. cells/g)` > 0, log10(`Microbial_load (no. cells/g)`),NA))
+
+  cleanup_tempfiles(temp_dir)
 
   # ----- Reprocessed counts from RDS ZIP -----
   if (file.exists(repro_counts_rds_zip)) {
