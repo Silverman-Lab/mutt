@@ -26,6 +26,14 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE, align = FALSE
   motus_zip            <- file.path(local, "PRJNA860773_motus_merged.tsv.zip")
   metaphlan4_zip       <- file.path(local, "PRJNA860773_MetaPhlAn_merged.tsv.zip")
 
+  counts = NA
+  proportions = NA
+  tax = NA
+  scale = NA
+  metadata = NA
+  sra = NA
+  mock = NA
+
   # scale
   mockscale = read_zipped_table(mock_scale_zip, row.names=NULL) %>% as.data.frame() %>% 
                       mutate(log2_FC_mean = ifelse(Flow_mean > 0, log2(Flow_mean), NA)) %>%
@@ -266,8 +274,8 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE, align = FALSE
                         )
                       ),
     scale       = list(
-                    mock = scale,
-                    samples = NA #IDK
+                    mock = mockscale,
+                    samples = scale #IDK
                       ), 
     metadata    = list(
                     mock = NA,

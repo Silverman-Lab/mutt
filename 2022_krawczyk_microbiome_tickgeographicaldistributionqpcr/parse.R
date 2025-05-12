@@ -61,10 +61,24 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
       mutate(across(Kingdom:Species, ~ sub("D_\\d+__", "", .)))
     tax$species <- tax$Species
     tax$Species <- NULL
-    tax = make_taxa_label(tax) # ----------  instead of doing this I need to reclassify the taxonomic levels with RDP for MLSCALE so for now ill just load in my other already processed file.
+    tax = make_taxa_label(tax) 
     tax$Species <- tax$species
     tax$species <- NULL
-
+    if (file.exists(file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"))) {
+      required_pkgs <- c("dada2", "Biostrings")
+      missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
+      if (length(missing_pkgs) > 0) {
+        stop("RDP classifier detected. Missing required packages: ", paste(missing_pkgs, collapse = ", "),
+            ". Please install them before running this function.")
+      }
+      library(dada2)
+      library(Biostrings)
+      tax = tax %>% rename_with(~ paste0(., "_silva"), .cols = c(Taxa, Kingdom, Phylum, Class, Order, Family, Genus, Species))
+      seqs <- DNAStringSet(tax$Sequence)
+      rdpclassified <- assignTaxonomy(seqs, file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"), multithread=TRUE) %>% as.data.frame()
+      tax <- cbind(tax, rdpclassified)
+      tax = make_taxa_label(tax) 
+    }
     # Counts
     rownames(tax) <- tax$Sequence
     counts_original <- counts_original %>% column_to_rownames("Sequence")
@@ -120,17 +134,17 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
 
     cleanup_tempfiles(temp_dir)
 
-    # DELETE LATER #####################################
-    maxwellreprocessedpreviously = file.path(local, "Krawczyk_2022_16S.csv.zip")
-    counts_original = read_zipped_table(maxwellreprocessedpreviously, row.names = NULL) %>% as.data.frame() 
-    if (!raw) {
-      aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
-      counts_original = aligned$counts_original
-      original_names <- colnames(counts_original)
-      counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
-    }
-    proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
-    ####################################################
+    # # DELETE LATER #####################################
+    # maxwellreprocessedpreviously = file.path(local, "Krawczyk_2022_16S.csv.zip")
+    # counts_original = read_zipped_table(maxwellreprocessedpreviously, check.names = TRUE) %>% as.data.frame() 
+    # if (!raw) {
+    #   aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+    #   counts_original = aligned$counts_original
+    #   original_names <- colnames(counts_original)
+    #   counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
+    # }
+    # proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
+    # ####################################################
 
     if (!raw) {
         counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
