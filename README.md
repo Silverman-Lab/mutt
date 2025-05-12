@@ -105,6 +105,7 @@ study_parsers <- c(
    GALAXY = "2024_nishijima_cell_galaxy",
    MetaCardis = "2022_fromentin_naturemedicine_metacardissubset",
    Marotz2021 = "2021_marotz_mSystems_oral_mouthwash",
+   Morton2019 = "2019_morton_naturecommunications_songbird_oral",
    Vieira_Silva2019 = "2019_vieirasilva_naturemicrobiology_pscibd",
    Contijoch2019 = "2019_contijoch_elife_multispeciesqPCRshotgunandamplicon",
    Alessandri2024 = "2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota",
