@@ -107,8 +107,8 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
     sra          <- read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run, Sample = `Library Name`)
     
     # Merge metadata components
-    metadata      <- merge(scale, metadata, by = "Sample", all = TRUE)
-    metadata      <- merge(sra, metadata, by = "Sample", all = TRUE)
+    metadata      <- full_join(scale, metadata, by = "Sample")
+    metadata      <- full_join(sra, metadata, by = "Sample")
     
     # Update scale with log transformations
     scale         <- scale %>% 

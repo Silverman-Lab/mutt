@@ -125,7 +125,7 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   metadata$technical_replicate <- as.numeric(substr(scale$Sample, start = 8, stop = 8))
   metadata = metadata %>% rownames_to_column(var = "Sample")
 
-  metadata <- merge(metadata, sra, by = "Sample", all = TRUE)
+  metadata <- full_join(metadata, sra, by = "Sample")
 
   # ---- counts and tax and proportions ----
   dat <- read_xlsx_zip(zipfile = supp8_zip,sheet = "Sequencing-determined counts",skip = 1)

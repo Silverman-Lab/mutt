@@ -50,7 +50,7 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE, align = FALSE)
     sra <- sra %>%
       mutate(SampleID = sub(".*(MID.*)", "\\1", Sample_name))
 
-    metadata  = merge(sra, metadata, by = "SampleID", all = TRUE)
+    metadata  = full_join(sra, metadata, by = "SampleID")
     
     # First rename the problematic column to a simpler name
     scale <- scale %>% rename(copies = "16S rDNA copies per sample")

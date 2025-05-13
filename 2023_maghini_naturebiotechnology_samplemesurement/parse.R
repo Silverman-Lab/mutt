@@ -70,10 +70,9 @@ parse_2023_maghini_naturebiotechnology_samplemesurement <- function(raw = FALSE,
   scale$ID <- gsub("-", "_", scale$ID)
   metadata$ID <- gsub("-", "_", metadata$ID)
 
-  metadata <- merge(
+  metadata <- full_join(
     metadatafromsra, metadata,
-    by = "ID",
-    all = TRUE
+    by = "ID"
   )
 
 

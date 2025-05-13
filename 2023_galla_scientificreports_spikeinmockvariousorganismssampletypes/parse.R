@@ -54,15 +54,12 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
     metadata4$sheet1 = metadata4$sheet4 %>% rename(`Library Name` = `BIOSAMPLE`)
     
     # Merge metadata and metadata2 by Library Name
-    metadata1 <- merge(metadata2, metadata4$sheet1, 
-                     by = "Library Name",
-                     all = TRUE)
+    metadata1 <- full_join(metadata2, metadata4$sheet1, 
+                     by = "Library Name")
     
     # Merge with metadata4 sheet1 by fastq ID
-    metadata <- merge(metadata, metadata4$sheet1,
-                     by.x = "Library Name",
-                     by.y = "fastq ID", 
-                     all = TRUE)
+    metadata <- full_join(metadata, metadata4$sheet1,
+                     by = c("Library Name" = "fastq ID"))
     
     metadata = bind_rows(metadata1, metadata) %>% rename(Sample = `Library Name`)
     

@@ -1,4 +1,4 @@
-parse_2024_nishijima_cell_galaxy <- function(raw = FALSE, align = FALSE, bind_all = FALSE) {
+parse_2024_nishijima_cell_galaxy <- function(raw = FALSE, align = FALSE, bind_all = TRUE) {
   required_pkgs <- c("stringr", "tidyverse")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
@@ -93,6 +93,11 @@ parse_2024_nishijima_cell_galaxy <- function(raw = FALSE, align = FALSE, bind_al
 
   # ----- Original Taxonomy from Mapping -----
   tax_original <- read_zipped_table(file.path(local, "motus2GTDB.txt.zip"), sep="\t")
+
+  tax_original = list(
+    motus2GTDB = tax_original,
+    mOTUs25 = taxnames[-1]
+  )
 
   # # ----- Helper to Load Reprocessed -----
   # load_reprocessed <- function(zip_path) {

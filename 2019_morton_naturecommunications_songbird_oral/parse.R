@@ -56,7 +56,7 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
 
     sra = read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run)
     sra$SampleID <- paste0(sra$saliva_sample_id, ".", sra$timepoint, ".", sra$processing)
-    metadata <- merge(sra, metadata, by = "SampleID")
+    metadata <- full_join(sra, metadata, by = "SampleID")
 
     scale <- metadata %>% select(SampleID, avg_FC_cells_ul, sd_FC_cells_ul, avg_qpcr_cells_5min, sd_qpcr_cells_5min, avg_qpcr_cells_ul, sd_qpcr_cells_ul) %>% 
       mutate(log2_FC_avg_cells_ul = ifelse(avg_FC_cells_ul > 0, log2(avg_FC_cells_ul), NA)) %>%

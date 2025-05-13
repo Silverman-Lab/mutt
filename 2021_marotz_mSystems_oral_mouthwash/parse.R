@@ -39,7 +39,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
   sra <- read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run, saliva_sample_ID = saliva_sample_id) 
   sra$SampleID <- paste0(sra$saliva_sample_ID, ".", sra$timepoint, ".", sra$processing)
   metadata$Sample <- paste0(metadata$saliva_sample_ID, ".", metadata$processing)
-  metadata <- merge(sra, metadata, by = "SampleID")
+  metadata <- full_join(sra, metadata, by = "SampleID")
   
   # Add replicate column based on run_date within SampleID groups
   metadata <- metadata %>%
@@ -48,7 +48,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
     mutate(replicate = row_number()) %>%
     ungroup()
 
-  metadata$SampleID <- paste0(metadata$Sample, ".", metadata$replicate)
+  metadata$SampleID <- ifelse(metadata$replicate == 1,metadata$Sample, paste0(metadata$Sample, ".", metadata$replicate))
     
   metadata = remove_empty_columns(metadata)
 
@@ -73,9 +73,16 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
   unzip(counts_zip, files = orig_rds_file, exdir = temp_dir, overwrite = TRUE)
   counts_original <- readRDS(file.path(temp_dir, orig_rds_file)) %>% t() %>% as.data.frame()
   counts_original <- collapse_duplicate_columns_exact(counts_original)
-  original_names <- colnames(counts_original)
-  counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
   cleanup_tempfiles(temp_dir)
+  counts_original <- counts_original %>%
+    rownames_to_column("SampleID") %>%
+    mutate(SampleID = if_else(
+      str_detect(SampleID, "raw"),
+      SampleID,
+      paste0(SampleID, ".PMA")
+    ))
+  counts_original <- counts_original %>% column_to_rownames("SampleID")
+
   if (!raw) {
     aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
     counts_original = aligned$counts_original
@@ -127,24 +134,29 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
         if (!raw) {
           aligned = rename_and_align(counts_reprocessed = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
           counts = aligned$reprocessed
-          matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
-          colnames(counts) <- matched_taxa
-          counts = collapse_duplicate_columns_exact(counts)
-          original_names <- colnames(counts)
-          counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
+          if (nrow(counts) > 0) {
+            matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
+            colnames(counts) <- matched_taxa
+            counts = collapse_duplicate_columns_exact(counts)
+            original_names <- colnames(counts)
+            counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
+          }
         }
-        # proportions
-        proportions <- sweep(counts, 1, rowSums(counts), '/')
 
-        # Label with study name based on zip filename prefix
-        study_id <- sub("_.*$", "", basename(tools::file_path_sans_ext(repro_counts_zips[i])))
-        counts$Study <- study_id
-        proportions$Study <- study_id
-        tax$Study <- study_id
+        if (nrow(counts) > 0) {
+          # proportions
+          proportions <- sweep(counts, 1, rowSums(counts), '/')
 
-        counts_reprocessed_list[[i]] <- counts
-        proportions_reprocessed_list[[i]] <- proportions
-        tax_reprocessed_list[[i]] <- tax
+          # Label with study name based on zip filename prefix
+          study_id <- sub("_.*$", "", basename(tools::file_path_sans_ext(repro_counts_zips[i])))
+          counts$Study <- study_id
+          proportions$Study <- study_id
+          tax$Study <- study_id
+
+          counts_reprocessed_list[[i]] <- counts
+          proportions_reprocessed_list[[i]] <- proportions
+          tax_reprocessed_list[[i]] <- tax
+        }
 
         cleanup_tempfiles(temp_rds)
     }
@@ -158,9 +170,16 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
   # DELETE LATER WHEN REPROCESS HAS FINALIZED:
   counts_zip = file.path(local, "Marotz_2021_16S.csv.zip")
   counts_reprocessed = read_zipped_table(counts_zip) %>% as.data.frame()
-  counts_reprocessed <- counts_reprocessed %>% mutate(across(everything(), as.numeric))
+  counts_reprocessed <- counts_reprocessed %>%
+    rownames_to_column("SampleID") %>%
+    mutate(SampleID = if_else(
+      str_detect(SampleID, "raw"),
+      SampleID,
+      paste0(SampleID, ".PMA")
+    ))
+  counts_reprocessed <- counts_reprocessed %>% column_to_rownames("SampleID")
   if (!raw) {
-    aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+    aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
     counts_reprocessed = aligned$counts_original
     original_names <- colnames(counts_reprocessed)
     counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)

@@ -56,7 +56,7 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
         ) %>%
         as.data.frame()  
 
-    metadata <- merge(metadata, sra, by = "Accession", suffixes = c(".x", ".y")) %>% rename(Sample = Sample.x)
+    metadata <- full_join(metadata, sra, by = "Accession") %>% rename(Sample = Sample.x)
 
     # Create scale
     scale <- df %>%

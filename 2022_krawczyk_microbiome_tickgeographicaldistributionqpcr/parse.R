@@ -47,40 +47,44 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
     columns_to_drop <- c("Name","Taxonomy", "Combined Abundance",	"Min",	"Max",	"Mean",	"Median",	"Std")
 
     # Taxa
-    taxonomy_cols <- c("Sequence","Taxonomy")
-    tax <- counts_original[, names(counts_original) %in% taxonomy_cols]
-    tax <- tax %>%
-      separate(
-        col = Taxonomy,
-        into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
-        sep = ",\\s*",
-        remove = FALSE, 
-        extra = "merge",   # merge extra pieces into Species
-        fill = "right"    # fill missing with NA
-      ) %>%
-      mutate(across(Kingdom:Species, ~ sub("D_\\d+__", "", .)))
-    tax$species <- tax$Species
-    tax$Species <- NULL
-    tax = make_taxa_label(tax) 
-    tax$Species <- tax$species
-    tax$species <- NULL
-    if (file.exists(file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"))) {
-      required_pkgs <- c("dada2", "Biostrings")
-      missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
-      if (length(missing_pkgs) > 0) {
-        stop("RDP classifier detected. Missing required packages: ", paste(missing_pkgs, collapse = ", "),
-            ". Please install them before running this function.")
-      }
-      library(dada2)
-      library(Biostrings)
-      tax = tax %>% rename_with(~ paste0(., "_silva"), .cols = c(Taxa, Kingdom, Phylum, Class, Order, Family, Genus, Species))
-      seqs <- DNAStringSet(tax$Sequence)
-      rdpclassified <- assignTaxonomy(seqs, file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"), multithread=TRUE) %>% as.data.frame()
-      tax <- cbind(tax, rdpclassified)
+    if (!file.exists(file.path("taxawsilvaandrdp.csv.zip"))) {
+      taxonomy_cols <- c("Sequence","Taxonomy")
+      tax <- counts_original[, names(counts_original) %in% taxonomy_cols]
+      tax <- tax %>%
+        separate(
+          col = Taxonomy,
+          into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+          sep = ",\\s*",
+          remove = FALSE, 
+          extra = "merge",   # merge extra pieces into Species
+          fill = "right"    # fill missing with NA
+        ) %>%
+        mutate(across(Kingdom:Species, ~ sub("D_\\d+__", "", .)))
+      tax$species <- tax$Species
+      tax$Species <- NULL
       tax = make_taxa_label(tax) 
+      tax$Species <- tax$species
+      tax$species <- NULL
+      if (file.exists(file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"))) {
+        required_pkgs <- c("dada2", "Biostrings")
+        missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
+        if (length(missing_pkgs) > 0) {
+          stop("RDP classifier detected. Missing required packages: ", paste(missing_pkgs, collapse = ", "),
+              ". Please install them before running this function.")
+        }
+        tax = tax %>% rename_with(~ paste0(., "_silva"), .cols = c(Taxa, Kingdom, Phylum, Class, Order, Family, Genus, Species))
+        seqs <- Biostrings::DNAStringSet(tax$Sequence)
+        rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"), multithread=TRUE) %>% as.data.frame()
+        tax <- cbind(tax, rdpclassified)
+        tax = make_taxa_label(tax) 
+      }
+      # Counts
+      rownames(tax) <- tax$Sequence
+      write.csv(tax, file = file.path(local, "taxawsilvaandrdp.csv"), row.names = TRUE)
+    } else {
+      tax <- read_zipped_table(file.path(local, "taxawsilvaandrdp.csv.zip"), row.names = 1)
     }
-    # Counts
-    rownames(tax) <- tax$Sequence
+
     counts_original <- counts_original %>% column_to_rownames("Sequence")
     counts_original = counts_original[, !(names(counts_original) %in% columns_to_drop)]
     counts_original = as.data.frame(t(counts_original))

@@ -49,7 +49,7 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
                         mutate(log2_fc_cells_ml = ifelse(`FCM [cells/ml]` > 0, log2(`FCM [cells/ml]`), NA)) %>%
                         mutate(log10_fc_cells_ml = ifelse(`FCM [cells/ml]` > 0, log10(`FCM [cells/ml]`), NA))  
 
-  metadata = merge(metadata, mergedwmetadata, by = "SampleID")
+  metadata = full_join(metadata, mergedwmetadata, by = "SampleID")
 
   # ----- Reprocessed Counts and Taxonomy -----
   repro_labels <- c("16S", "18S")

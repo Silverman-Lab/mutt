@@ -55,7 +55,10 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
         grepl("mill homogenized", `description:_sample_information`) ~ "mill_homogenized",
         grepl("hammered not milled", `description:_sample_information`) ~ "hammered",
         TRUE ~ NA_character_
-      )
+      ),
+      subject_timepoint_replicate = ifelse(is.na(Replicate) | Replicate == "", 
+                                              paste(Subject, Timepoint, sep = "_"),
+                                              paste(Subject, Timepoint, Replicate, sep = "_"))
     )
   metadata1 <- read_zipped_table(metadata_zip_1, row.names = NULL) %>%
     mutate(Replicate = gsub("Replicate ", "Replicate_", ID))
@@ -81,6 +84,8 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
                          log10_Mean_Fungi_copies_per_mg_dry_weight = ifelse(`Mean Fungi copies_per mg dry weight` > 0, log10(`Mean Fungi copies_per mg dry weight`),NA),
                          log10_Mean_bacteria_copies_per_mg_total_weight = ifelse(`Mean bacteria copies_per mg total weight` > 0, log10(`Mean bacteria copies_per mg total weight`),NA),
                          log10_Mean_bacteria_copies_per_mg_dry_weight = ifelse(`Mean bacteria copies_per mg dry weight` > 0, log10(`Mean bacteria copies_per mg dry weight`),NA)) 
+
+  scale = scale %>% left_join(sra %>% select(Sample, subject_timepoint_replicate), by = "subject_timepoint_replicate")
   
   scale_cols <- c("subject_timepoint_replicate", "TotalSCFAs_umolpermg", "TotalBCFAs_umolpermg" )
   metabolomicsscale <- dataset %>% 
@@ -113,24 +118,24 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
   proportions_metabolomics <- sweep(counts_metabolomics, 1, rowSums(counts_metabolomics), '/')
 
   if (!raw) {
-  aligned = rename_and_align(counts_original = counts_original, 
-                            proportions_original = proportions, metadata=metadata, scale=scale, 
-                            by_col="subject_timepoint_replicate", align = align, study_name=basename(local))
-  counts_original = aligned$counts_original
-  proportions = aligned$proportions_original
-  original_names <- colnames(counts_original)
-  counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
-  original_names <- colnames(proportions)
-  proportions <- as.data.frame(lapply(proportions, as.numeric), row.names = rownames(proportions), col.names = original_names, check.names = FALSE)
-  aligned = rename_and_align(counts_original = counts_metabolomics, 
-                            proportions_original = proportions_metabolomics, metadata=metadata, scale=scale, 
-                            by_col="subject_timepoint_replicate", align = align, study_name=basename(local))
-  counts_metabolomics = aligned$counts_original
-  proportions_metabolomics = aligned$proportions_original
-  original_names <- colnames(counts_metabolomics)
-  counts_metabolomics <- as.data.frame(lapply(counts_metabolomics, as.numeric), row.names = rownames(counts_metabolomics), col.names = original_names, check.names = FALSE)
-  original_names <- colnames(proportions_metabolomics)
-  proportions_metabolomics <- as.data.frame(lapply(proportions_metabolomics, as.numeric), row.names = rownames(proportions_metabolomics), col.names = original_names, check.names = FALSE)
+    aligned = rename_and_align(counts_original = counts_original, 
+                              proportions_original = proportions, metadata=metadata, scale=scale, 
+                              by_col="subject_timepoint_replicate", align = align, study_name=basename(local))
+    counts_original = aligned$counts_original
+    proportions = aligned$proportions_original
+    original_names <- colnames(counts_original)
+    counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
+    original_names <- colnames(proportions)
+    proportions <- as.data.frame(lapply(proportions, as.numeric), row.names = rownames(proportions), col.names = original_names, check.names = FALSE)
+    aligned = rename_and_align(counts_original = counts_metabolomics, 
+                              proportions_original = proportions_metabolomics, metadata=metadata, scale=scale, 
+                              by_col="subject_timepoint_replicate", align = align, study_name=basename(local))
+    counts_metabolomics = aligned$counts_original
+    proportions_metabolomics = aligned$proportions_original
+    original_names <- colnames(counts_metabolomics)
+    counts_metabolomics <- as.data.frame(lapply(counts_metabolomics, as.numeric), row.names = rownames(counts_metabolomics), col.names = original_names, check.names = FALSE)
+    original_names <- colnames(proportions_metabolomics)
+    proportions_metabolomics <- as.data.frame(lapply(proportions_metabolomics, as.numeric), row.names = rownames(proportions_metabolomics), col.names = original_names, check.names = FALSE)
   }
 
   # ----- Reprocessed counts from RDS ZIP -----

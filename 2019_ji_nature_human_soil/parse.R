@@ -33,7 +33,7 @@ parse_2019_ji_nature_human_soil <- function(raw = FALSE, align = FALSE) {
     # ---- scale andmetadata ----
     sra = read_zipped_table(sra_zip, row.names= NULL) %>% rename(Accession = Run, sampleID = `sample name`)
     metadata = read_zipped_table(metadata_zip, row.names= NULL) 
-    metadata = merge(metadata, sra, by = "sampleID")
+    metadata = full_join(metadata, sra, by = "sampleID")
     scale = metadata %>% select(sampleID, `gDNA quant ng/uL`, `PCR quant`) %>%
                         mutate(log2_gDNA_quant = ifelse(`gDNA quant ng/uL` > 0, log2(`gDNA quant ng/uL`), NA)) %>%
                         mutate(log10_gDNA_quant = ifelse(`gDNA quant ng/uL` > 0, log10(`gDNA quant ng/uL`), NA)) %>%

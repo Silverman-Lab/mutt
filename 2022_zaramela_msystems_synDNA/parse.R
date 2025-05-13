@@ -47,16 +47,16 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE, align = FALSE) {
     scale <- read_zipped_table(scalereadin, row.names=NULL, sep="\t") %>%
              rename(Sample = SampleID)
     metadata = left_join(metadata, scale %>% select(c("Sample", "gender", "saliva_weight_g", 
-                "saliva_volume_mL_collected_in_5_min", "saliva_flow_rate_mL_per_min")), by="Sample")
-    scale = scale %>% select(-c("gender"))  %>% 
+                "saliva_volume_mL_collected_in_5_min", "saliva_flow_rate_mL_per_min", "FC_avg_cells_per_ul", "FC_avg_cells_5_min")), by=c("SampleID" = "Sample"))
+    scale = metadata %>% select(ID, Sample, FC_avg_cells_per_ul, FC_avg_cells_5_min)  %>% 
         mutate(log2_FC_avg_cells_per_ul = ifelse(FC_avg_cells_per_ul > 0, log2(FC_avg_cells_per_ul), NA)) %>%
         mutate(log2_FC_avg_cells_5_min = ifelse(FC_avg_cells_5_min > 0, log2(FC_avg_cells_5_min), NA)) %>%
         mutate(log10_FC_avg_cells_per_ul = ifelse(FC_avg_cells_per_ul > 0, log10(FC_avg_cells_per_ul), NA)) %>%
         mutate(log10_FC_avg_cells_5_min = ifelse(FC_avg_cells_5_min > 0, log10(FC_avg_cells_5_min), NA))
+    metadata = metadata %>% select(-c("FC_avg_cells_per_ul", "FC_avg_cells_5_min"))
 
 
     # ----- counts and proportions and taxa -----
-
     counts <- read_zipped_table(countsreadin, row.names=NULL, sep="\t") %>%
                 group_by(OTUID) %>%  
                 summarise(across(where(is.numeric), sum, na.rm = TRUE))
@@ -90,6 +90,8 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE, align = FALSE) {
     cleanup_tempfiles(tmp_dir)
 
     if (!raw) {
+        aligned = rename_and_align(counts_original = counts, metadata = metadata, scale = scale, by_col = "ID", align = align, study_name = basename(local))
+        counts = aligned$counts_original
         matched_taxa <- tax$MetaPhlAn4_lineage[match(colnames(counts), rownames(tax))]
         colnames(counts) <- matched_taxa
         counts <- collapse_duplicate_columns_exact(counts)

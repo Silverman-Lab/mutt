@@ -21,14 +21,23 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
   metacardismicrobiome_zip    <- file.path(local, "metacardismicrobiome.zip")
   
   sra_zips                    <- c(
-    file.path(local, "SraRunTable (36).csv.zip")
+    file.path(local, "SraRunTable (36).csv.zip"),
+    file.path(local, "SraRunTable (40).csv.zip"),
+    file.path(local, "SraRunTable (41).csv.zip"),
+    file.path(local, "SraRunTable (42).csv.zip")
   )
   motus_zip                   <- c(
-    file.path(local, "PRJEB46098_motus_merged.tsv.zip")  
+    file.path(local, "PRJEB46098_motus_merged.tsv.zip"),
+    file.path(local, "PRJEB37249_motus_merged.tsv.zip"),
+    file.path(local, "PRJEB41311_motus_merged.tsv.zip"),
+    file.path(local, "PRJEB38742_motus_merged.tsv.zip")
   )
 
   metaphlan4_zip              <- c(
-    file.path(local, "PRJEB46098_MetaPhlAn_merged.tsv.zip")
+    file.path(local, "PRJEB46098_MetaPhlAn_merged.tsv.zip"),
+    file.path(local, "PRJEB37249_MetaPhlAn_merged.tsv.zip"),
+    file.path(local, "PRJEB41311_MetaPhlAn_merged.tsv.zip"),
+    file.path(local, "PRJEB38742_MetaPhlAn_merged.tsv.zip")
   )
 
   if (file.exists(metadata_zip)) {
@@ -115,43 +124,15 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
         }
       }
 
-      combined_sra_df <- bind_rows(sra_list) %>% rename(Accession = Run, Sample = Submitter_Id)
+      combined_sra_df <- bind_rows(sra_list) %>% rename(Accession = Run, Sample = Submitter_Id) %>% as.data.frame()
 
-      metadata <- full_join(
-        combined_sra_df,
-        metadata_df,
-        by = "Sample" 
-      )
+      # metadata <- full_join(
+      #   combined_sra_df,
+      #   metadata_df,
+      #   by = "Sample",
+      #   relationship = "many-to-many"
+      # )
 
-      # Now, after metadata is constructed, align and create proportions
-      metadata_list <- list()
-      proportions_list <- list()
-      tax_list <- list()
-      for (df_name in names(raw_data_list)) {
-        df <- raw_data_list[[df_name]]
-        if (!raw) {
-          aligned = rename_and_align(counts_original = df, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
-          df = aligned$counts_original
-          original_names <- colnames(df)
-          df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
-        }
-        metadata_list[[df_name]] <- df
-        # Proportions
-        row_sums <- rowSums(df, na.rm = TRUE)
-        df_prop <- sweep(df, 1, row_sums, "/")
-        df_prop <- cbind(Sample = rownames(df), df_prop)
-        proportions_list[[df_name]] <- df_prop
-        # Taxonomy
-        feature_names <- colnames(df)
-        tax_df <- data.frame(
-          Feature = feature_names,
-          Description = feature_names,
-          Type = df_name,
-          stringsAsFactors = FALSE
-        )
-        rownames(tax_df) <- feature_names
-        tax_list[[df_name]] <- tax_df
-      }
     } else {
       warning("No .xlsx file found in ", metadata_zip)
     }
@@ -162,9 +143,9 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
   }
 
   # --- scale ----
-  scale$MicrobialLoad <- as.numeric(scale$MicrobialLoad)
-  scale = scale %>% mutate(log2_FC = ifelse(MicrobialLoad >0, log2(MicrobialLoad), NA)) %>% 
-                    mutate(log10_FC = ifelse(MicrobialLoad > 0, log10(MicrobialLoad), NA))
+  # scale$MicrobialLoad <- as.numeric(scale$MicrobialLoad)
+  # scale = scale %>% mutate(log2_FC_count = ifelse(MicrobialLoad >0, log2(MicrobialLoad), NA)) %>% 
+  #                   mutate(log10_FC_count = ifelse(MicrobialLoad > 0, log10(MicrobialLoad), NA)) 
 
   # --- nishijima2024_mOTU25 ----
   csv_file <- unzip(file.path(local, "MetaCardis_shotgunmetagenomics.csv.zip"), list = TRUE)$Name[1]
@@ -174,6 +155,50 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
     stringsAsFactors = FALSE, 
     row.names = 1
   )
+  csv_file <- unzip(file.path(local, "MetaCardis_scale.csv.zip"), list = TRUE)$Name[1]
+  nishijima2024_mOTU25_scale <- read.csv(
+    unz(file.path(local, "MetaCardis_scale.csv.zip"), csv_file),
+    check.names = FALSE,
+    stringsAsFactors = FALSE, 
+    row.names = 1
+  ) %>% rename(log10_FC_count = count) %>% mutate(log2_FC_count = ifelse(10^log10_FC_count > 0, log2(10^log10_FC_count), NA))
+  scale = nishijima2024_mOTU25_scale %>% rownames_to_column(var = "Sample")
+  rownames(scale) <- scale$Sample
+  # ---- metadata merge in ----
+  sra <- full_join(combined_sra_df, scale %>% select(Sample, cohort), by = "Sample")
+  metadata <- full_join(metadata_df, scale %>% select(Sample, cohort), by = "Sample")
+  
+  scale = scale %>% select(-cohort)
+
+  # Now, after metadata is constructed, align and create proportions
+  metadata_list <- list()
+  proportions_list <- list()
+  tax_list <- list()
+  for (df_name in names(raw_data_list)) {
+    df <- raw_data_list[[df_name]]
+    if (!raw) {
+      aligned = rename_and_align(counts_original = df, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+      df = aligned$counts_original
+      original_names <- colnames(df)
+      df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
+    }
+    metadata_list[[df_name]] <- df
+    # Proportions
+    row_sums <- rowSums(df, na.rm = TRUE)
+    df_prop <- sweep(df, 1, row_sums, "/")
+    proportions_list[[df_name]] <- df_prop
+    # Taxonomy
+    feature_names <- colnames(df)
+    tax_df <- data.frame(
+      Feature = feature_names,
+      Description = feature_names,
+      Type = df_name,
+      stringsAsFactors = FALSE
+    )
+    rownames(tax_df) <- feature_names
+    tax_list[[df_name]] <- tax_df
+  }
+
   if (!raw) {
     aligned = rename_and_align(proportions_original = nishijima2024_mOTU25, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
     nishijima2024_mOTU25 = aligned$proportions_original
@@ -265,9 +290,9 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
       if (!raw) {
         aligned <- rename_and_align(
           counts_reprocessed = df,
-          metadata          = metadata,
+          metadata          = sra,
           scale             = scale,
-          by_col            = "Sample",
+          by_col            = "Library Name",
           align             = align,
           study_name        = basename(local)
         )
@@ -331,9 +356,9 @@ parse_2022_fromentin_naturemedicine_metacardissubset <- function(raw = FALSE, al
       if (!raw) {
         aligned <- rename_and_align(
           counts_reprocessed = df,
-          metadata          = metadata,
+          metadata          = sra,
           scale             = scale,
-          by_col            = "Sample",
+          by_col            = "Library Name",
           align             = align,
           study_name        = basename(local)
         )
