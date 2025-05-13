@@ -149,8 +149,8 @@ microbialscalerepo <- function(
   pb <- utils::txtProgressBar(min = 0, max = n, style = 3)
   on.exit(close(pb), add = TRUE)
 
-  parsed_list <- vector("list", n)
-  names(parsed_list) <- out_names
+  microbialscalerepository <- vector("list", n)
+  names(microbialscalerepository) <- out_names
   
   # Create a list to store validation results
   validation_results <- vector("list", n)
@@ -200,7 +200,7 @@ microbialscalerepo <- function(
     }
 
     # Store the original parsed result
-    parsed_list[[i]] <- standardize_output_order(res)
+    microbialscalerepository[[i]] <- standardize_output_order(res)
     
     # Collect validation result separately
     validation_results[[i]] <- validate_output_structure(res, study_name = parser)
@@ -214,7 +214,7 @@ microbialscalerepo <- function(
   # --- optional save ---------------------------------------------------------
   if (!is.null(save_to)) {
     dir.create(dirname(save_to), showWarnings = FALSE, recursive = TRUE)
-    save(parsed_list, file = save_to)
+    save(microbialscalerepository, file = save_to)
     cat(sprintf("File saved to: %s\n", save_to))
     
     # Save validation results to a separate file
@@ -248,7 +248,7 @@ microbialscalerepo <- function(
     }
   }
 
-  parsed_list
+  microbialscalerepository
 }
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -45,7 +45,8 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE, align = FALSE) {
     metadata2 <- metadata2 %>% rename(SampleID = Sample) %>% mutate(Sample = paste(SampleID, Pool, sep = "_"))
     metadata = full_join(metadata1, metadata2, by="Sample")
     scale <- read_zipped_table(scalereadin, row.names=NULL, sep="\t") %>%
-             rename(Sample = SampleID)
+             rename(Sample = SampleID) 
+
     metadata = left_join(metadata, scale %>% select(c("Sample", "gender", "saliva_weight_g", 
                 "saliva_volume_mL_collected_in_5_min", "saliva_flow_rate_mL_per_min", "FC_avg_cells_per_ul", "FC_avg_cells_5_min")), by=c("SampleID" = "Sample"))
     scale = metadata %>% select(ID, Sample, FC_avg_cells_per_ul, FC_avg_cells_5_min)  %>% 
