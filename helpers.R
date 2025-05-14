@@ -110,11 +110,11 @@ rename_and_align <- function(counts_reprocessed = NULL,
         message("\n", study_name, " | proportions_original: dropped ", before_n - after_n, " unaligned samples")
     }
 
-    # Update metadata to only include samples that are in target_samples
-    if (!is.null(counts_reprocessed)) {
-      metadata$combined_col <- make.unique(acc_to_name[metadata$Accession])
-      metadata <- metadata[metadata$combined_col %in% target_samples, , drop = FALSE]
-    }
+    # # Update metadata to only include samples that are in target_samples
+    # if (!is.null(counts_reprocessed)) {
+    #   metadata$combined_col <- make.unique(acc_to_name[metadata$Accession])
+    #   metadata <- metadata[metadata$combined_col %in% target_samples, , drop = FALSE]
+    # }
   }
 
   list(

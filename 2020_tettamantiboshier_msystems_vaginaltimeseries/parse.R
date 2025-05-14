@@ -67,7 +67,7 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE,
       counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
     }
 
-    proportions_original    <- sweep(as.matrix(counts_original), 1, rowSums(counts_original), FUN = "/")
+    proportions_original <- sweep(counts_original, 1, rowSums(counts_original), FUN = "/")
 
   } else {
     counts_original      <- NA

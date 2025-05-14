@@ -53,12 +53,8 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   make_proportions <- function(count_df) {
     if (is.null(count_df) || nrow(count_df) == 0) return(NULL)
 
-    count_df_num <- count_df %>%
-      mutate(across(everything(), as.numeric))
-
-    row_sums <- rowSums(count_df_num, na.rm = TRUE)
-    prop_df <- sweep(count_df_num, 1, row_sums, "/")
-    prop_df[is.na(prop_df)] <- 0
+    row_sums <- rowSums(count_df, na.rm = TRUE)
+    prop_df <- sweep(count_df, 1, row_sums, "/")
     return(prop_df)
   }
     # ---- Taxonomy table constructor ----
@@ -288,7 +284,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
     originaltax_mockfungi    <- mock_fungi_result$tax
     scale_mockbacteria <- mock_bacteria_result$scale
     scale_mockfungi    <- mock_fungi_result$scale
-
+    scale_mockfecal    <- NA
   }
   
   # Read existing metadata files
@@ -522,7 +518,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
       # Align mock fecal counts
       aligned_mock_fecal = rename_and_align(counts_original = mock_otu_tables$originalcounts_mockfecal,
                                           metadata = mock_metadata,
-                                          scale = scale_mockfungi,
+                                          scale = scale_mockfecal,
                                           by_col = "Sample_name",
                                           align = align,
                                           study_name = basename(local))
@@ -652,10 +648,10 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
           fungi = originalproportions_fungi_phase2
         ),
         mock = list(
-          bacteria = mock_otu_tables$originalproportions_mockbacteria,
+          bacteria = ifelse(is.null(mock_otu_tables$originalproportions_mockbacteria), NA, mock_otu_tables$originalproportions_mockbacteria),
           archaea = NA,
-          fungi = mock_otu_tables$originalproportions_mockfungi,
-          fecal = mock_otu_tables$originalproportions_mockfecal
+          fungi = ifelse(is.null(mock_otu_tables$originalproportions_mockfungi), NA, mock_otu_tables$originalproportions_mockfungi),
+          fecal = ifelse(is.null(mock_otu_tables$originalproportions_mockfecal), NA, mock_otu_tables$originalproportions_mockfecal)
         )
       ),
       reprocessed = list(
@@ -690,7 +686,10 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
           tax = tax_reprocessed
       )
     ),
-    scale = scale_matched_only,
+    scale = list(combinedphases = scale_matched_only,
+                  mockfecal = scale_mockfecal,
+                  mockfungi = scale_mockfungi,
+                  mockbacteria = scale_mockbacteria),
     metadata = metadata
   ))
 }

@@ -250,11 +250,11 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
     ),
     tax=list(
       original=tax,
-      reprocessed=combined_props
+      reprocessed=combined_taxa 
     ),
     proportions=list(
       original=proportions,
-      reprocessed=combined_taxa
+      reprocessed=combined_props
     )
   ))
 }

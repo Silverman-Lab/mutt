@@ -91,8 +91,15 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE, align = FALSE
     #     proportions <- as.data.frame(lapply(proportions, as.numeric), row.names = rownames(proportions), col.names = original_names, check.names = FALSE)
     # }
 
-  mockproportions = read_zipped_table(mock_prop_zip, row.names=NULL) %>% as.data.frame()
+  mockproportions = read_zipped_table(mock_prop_zip, row.names=1) %>% as.data.frame()
   mocktax <- tibble(taxonomy = colnames(mockproportions))
+  if (!raw) {
+    aligned <- rename_and_align(proportions_original = mockproportions, metadata = metadata, scale = mockscale, by_col = "Sample", align = align, study_name = basename(local))
+    mockproportions = aligned$proportions_original
+    original_names <- colnames(mockproportions)
+    mockproportions <- as.data.frame(lapply(mockproportions, as.numeric), row.names = rownames(mockproportions), col.names = original_names, check.names = FALSE)
+  }
+
 
   # ----- Initialize everything as NA -----
   mOTU3_counts <- NA

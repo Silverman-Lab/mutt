@@ -143,18 +143,16 @@ parse_2021_forslund_nature_metacardis <- function(raw = FALSE, align = FALSE) {
 
   # ----- scale --------
   if (file.exists(scale_file)) {
-    scale_df <- read.table(unz(scale_file, "MetaCardis_load.tsv"), 
-                            header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
-    scale <- as.matrix(scale_df)
+    scale <- read.table(unz(scale_file, "MetaCardis_load.tsv"), 
+                            header = TRUE, sep = "\t", row.names = 1, check.names = FALSE) %>% as.data.frame()
   } else {
   warning("Scale file not found: ", scale_file)
   }
 
     # ----- original counts ---------
   if (file.exists(counts_zip)) {
-    counts_df <- read.table(unz(counts_zip, "MetaCardis_mOTUs_v25.tsv"), 
-                            header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
-    counts <- as.matrix(counts_df)
+    counts <- read.table(unz(counts_zip, "MetaCardis_mOTUs_v25.tsv"), 
+                            header = TRUE, sep = "\t", row.names = 1, check.names = FALSE) %>% as.data.frame()
     if (!raw) {
       aligned <- rename_and_align(counts_original = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
       counts <- aligned$counts_original

@@ -79,7 +79,7 @@ parse_2017_props_isme_longitudinal <- function(raw = FALSE, align = FALSE) {
     aligned <- rename_and_align(counts_original = original_counts, metadata = metadata, scale = scale, by_col = "Sample_name", align = align, study_name = basename(local))
     original_counts = aligned$counts_original
   }
-  otu_matrix <- original_counts %>% select(-Sample_name) %>% as.matrix()
+  otu_matrix <- original_counts %>% select(-Sample_name)
   otu_prop <- sweep(otu_matrix, 1, rowSums(otu_matrix), FUN = "/")
 
   original_proportions = bind_cols(Sample = original_counts$Sample_name, as_tibble(otu_prop))

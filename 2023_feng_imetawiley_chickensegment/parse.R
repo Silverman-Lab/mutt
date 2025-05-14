@@ -161,21 +161,21 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
     return(list(
         counts = list(
             original = list(
-                sixteenS = counts_16s,
+                `16S` = counts_16s,
                 ITS = counts_ITS
             ),
             reprocessed = counts_reprocessed
         ),
         proportions = list(
             original = list(
-                sixteenS = proportions_16s,
+                `16S` = proportions_16s,
                 ITS = proportions_ITS
             ),
             reprocessed = proportions_reprocessed
         ),
         tax = list(
             original = list(
-                sixteenS = tax_16s,
+                `16S` = tax_16s,
                 ITS = tax_ITS
             ),
             reprocessed = tax_reprocessed
