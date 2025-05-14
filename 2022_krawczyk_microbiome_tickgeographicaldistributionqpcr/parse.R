@@ -47,7 +47,7 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
     columns_to_drop <- c("Name","Taxonomy", "Combined Abundance",	"Min",	"Max",	"Mean",	"Median",	"Std")
 
     # Taxa
-    if (!file.exists(file.path("taxawsilvaandrdp.csv.zip"))) {
+    if (!file.exists(file.path(local,"taxawsilvaandrdp.csv.zip"))) {
       taxonomy_cols <- c("Sequence","Taxonomy")
       tax <- counts_original[, names(counts_original) %in% taxonomy_cols]
       tax <- tax %>%
