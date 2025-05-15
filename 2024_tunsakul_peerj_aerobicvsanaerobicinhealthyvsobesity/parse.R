@@ -13,7 +13,7 @@ parse_2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity <- function(raw =
   }
 
   library(tidyverse)
-
+  
   # ----- Local base directory -----
   local <- file.path("2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity")
 
@@ -33,9 +33,11 @@ parse_2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity <- function(raw =
                   rename(Sample = `Sample Name`, Accession = Run) %>%
                   mutate(Sample = as.character(Sample))
   scale        <- read_zipped_table(scale_zip, row.names=NULL) %>% as.data.frame()
-  meta_part    <- scale %>% select(c("Sample", "Condition"))
-  metadata     =  metadata %>% left_join(meta_part, by = "Sample")
-
+  meta_part    <- scale %>% select(c("Sample", "Condition", "Approximate Mean Load"))
+  metadata <- metadata %>%
+  left_join(meta_part, by = "Sample") %>%
+  mutate(log2_qPCR_copies = ifelse(`Approximate Mean Load` > 0, log2(`Approximate Mean Load`), NA)) %>%
+  mutate(log10_qPCR_copies = ifelse(`Approximate Mean Load` > 0, log10(`Approximate Mean Load`), NA))
   # ----- Reprocessed counts from RDS ZIP -----
   if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
     temp_dir <- tempfile("repro")
