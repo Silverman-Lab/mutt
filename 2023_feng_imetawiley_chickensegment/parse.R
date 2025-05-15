@@ -33,22 +33,44 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
         mutate(`Sample Name` = gsub("_", "E", `Sample Name`, fixed = TRUE)) %>%
         separate(`Sample Name`, into = c("Sample", "Amplicontype"), sep = "E(?=[^E]*$)")
     scale = read_zipped_table(scalereadin, row.names=NULL)
-    metadata = left_join(sra, scale %>% select(c("Segment","Date", "Number", "Sample")), by = "Sample")
-    scale = scale %>% select(-c("Segment","Date", "Number")) %>% 
+    
+    # Split scale data into 16S and ITS rows
+    scale_16s <- scale %>% 
+        select(c("Segment", "Date", "Number", "Sample", "qPCR_log10_16S")) %>%
+        mutate(Amplicontype = "16S",
+               qPCR_log10_ITS = NA) 
+    
+    scale_its <- scale %>% 
+        select(c("Segment", "Date", "Number", "Sample", "qPCR_log10_ITS")) %>%
+        mutate(Amplicontype = "ITS",
+               qPCR_log10_16S = NA) 
+    
+    scale <- bind_rows(scale_16s, scale_its)
+    
+    metadata = left_join(sra, scale %>% select(c("Segment", "Date", "Number", "Sample", "Amplicontype")), 
+                        by = c("Sample", "Amplicontype")) %>%
+                        mutate(Sample = paste0(Sample, "_", Amplicontype))
+    
+    scale = scale %>% 
+        select(-c("Segment", "Date", "Number")) %>% 
         mutate(log2_qPCR_16S = ifelse(10^qPCR_log10_16S > 0, log2(10^qPCR_log10_16S), NA)) %>%
-        mutate(log2_qPCR_ITS= ifelse(10^qPCR_log10_ITS > 0, log2(10^qPCR_log10_ITS), NA)) %>% 
-        rename(log10_qPCR_16S = qPCR_log10_16S, log10_qPCR_ITS = qPCR_log10_ITS)
+        mutate(log2_qPCR_ITS = ifelse(10^qPCR_log10_ITS > 0, log2(10^qPCR_log10_ITS), NA)) %>%
+        rename(log10_qPCR_16S = qPCR_log10_16S, log10_qPCR_ITS = qPCR_log10_ITS) %>%
+        mutate(Sample = paste0(Sample, "_", Amplicontype)) %>% 
+        select(-Amplicontype)
 
     # ----- counts, tax, proportions -----
     counts_16s = read_zipped_table(counts_16s_zip, row.names=NULL) %>%
                     select(-c("Group1","Group2")) %>% rename(Sample = index) %>% 
-                    as.data.frame()
+                    as.data.frame() %>%
+                    mutate(Sample = paste0(Sample, "_16S"))
     rownames(counts_16s) = counts_16s$Sample
     counts_16s$Sample = NULL
 
     counts_ITS = read_zipped_table(counts_ITS_zip, row.names=NULL) %>%
                     select(-c("Group1","Group2")) %>% rename(Sample = index) %>% 
-                    as.data.frame()
+                    as.data.frame() %>%
+                    mutate(Sample = paste0(Sample, "_ITS"))
     rownames(counts_ITS) = counts_ITS$Sample
     counts_ITS$Sample = NULL
 
