@@ -38,12 +38,12 @@ parse_2023_fu_imeta_wasterwater_pathogens <- function(raw = FALSE, align = FALSE
   mockscale = read_zipped_table(mock_scale_zip, row.names=NULL) %>% as.data.frame() %>% 
                       mutate(log2_FC_mean = ifelse(Flow_mean > 0, log2(Flow_mean), NA)) %>%
                       mutate(log2_FC_SD = ifelse(Flow_SD > 0, log2(Flow_SD), NA)) %>%
-                      mutate(log2_FC_qPCR_mean = ifelse(qPCR_mean > 0, log2(qPCR_mean), NA)) %>%
-                      mutate(log2_FC_qPCR_SD = ifelse(qPCR_SD > 0, log2(qPCR_SD), NA)) %>% 
+                      mutate(log2_qPCR_mean = ifelse(qPCR_mean > 0, log2(qPCR_mean), NA)) %>%
+                      mutate(log2_qPCR_SD = ifelse(qPCR_SD > 0, log2(qPCR_SD), NA)) %>% 
                       mutate(log10_FC_mean = ifelse(Flow_mean > 0, log10(Flow_mean), NA)) %>%
                       mutate(log10_FC_SD = ifelse(Flow_SD > 0, log10(Flow_SD), NA)) %>%
-                      mutate(log10_FC_qPCR_mean = ifelse(qPCR_mean > 0, log10(qPCR_mean), NA)) %>%
-                      mutate(log10_FC_qPCR_SD = ifelse(qPCR_SD > 0, log10(qPCR_SD), NA))
+                      mutate(log10_qPCR_mean = ifelse(qPCR_mean > 0, log10(qPCR_mean), NA)) %>%
+                      mutate(log10_qPCR_SD = ifelse(qPCR_SD > 0, log10(qPCR_SD), NA))
 
 
   # metadata

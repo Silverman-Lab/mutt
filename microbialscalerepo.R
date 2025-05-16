@@ -116,11 +116,23 @@ microbialscalerepo <- function(
     studies <- unlist(studies, use.names = TRUE)
   }
 
-  # ---------------------------- Check
+  ## ---------- helper: recursively drop all‑NA columns -----------------------
+  remove_all_na <- function(x) {
+    if (is.data.frame(x)) {
+      keep <- vapply(x, function(col) !all(is.na(col)), logical(1))
+      x[, keep, drop = FALSE]
+    } else if (is.list(x)) {
+      lapply(x, remove_all_na)
+    } else {
+      x
+    }
+  }
+
+  # ---------------------------- Check ----------------------------------------
   stopifnot(is.logical(rawdata), length(rawdata) == 1)
   stopifnot(is.logical(align_samples), length(align_samples) == 1)
 
-  # --- locate parser sub‑folders --------------------------------------------
+  # --- locate parser sub‑folders ---------------------------------------------
   setwd(base_directory)
   all_dirs    <- list.dirs(base_directory, full.names = FALSE, recursive = FALSE)
   parser_dirs <- all_dirs[file.exists(file.path(base_directory, all_dirs, "parse.R"))]
@@ -142,17 +154,12 @@ microbialscalerepo <- function(
     selected  <- unname(studies)
     out_names <- names(studies)
   }
-
   n <- length(selected)
   if (n == 0) return(invisible(list()))
-
   pb <- utils::txtProgressBar(min = 0, max = n, style = 3)
   on.exit(close(pb), add = TRUE)
-
   microbialscalerepository <- vector("list", n)
   names(microbialscalerepository) <- out_names
-  
-  # Create a list to store validation results
   validation_results <- vector("list", n)
   names(validation_results) <- out_names
 
@@ -174,10 +181,9 @@ microbialscalerepo <- function(
       utils::setTxtProgressBar(pb, i); next
     }
 
-
     if (verbose) {
       cat(sprintf("\r[%d/%d] %s", i, n, parser))
-      flush.console()  # make sure it shows immediately
+      flush.console()  
     }
     
     res <- tryCatch(
@@ -199,10 +205,8 @@ microbialscalerepo <- function(
       }
     }
 
-    # Store the original parsed result
+    res <- remove_all_na(res)
     microbialscalerepository[[i]] <- standardize_output_order(res)
-    
-    # Collect validation result separately
     validation_results[[i]] <- validate_output_structure(res, study_name = parser)
     
     utils::setTxtProgressBar(pb, i)
@@ -216,16 +220,10 @@ microbialscalerepo <- function(
     dir.create(dirname(save_to), showWarnings = FALSE, recursive = TRUE)
     save(microbialscalerepository, file = save_to)
     cat(sprintf("File saved to: %s\n", save_to))
-    
-    # Save validation results to a separate file
     validation_file <- sub("\\.RData$", "_validation.RData", save_to)
     save(validation_results, file = validation_file)
-    
     if (verbose) {
-      # Generate and save validation summary
       summary_file <- sub("\\.RData$", "_validation_summary.txt", save_to)
-      
-      # Print to both console and file
       summary_text <- capture.output({
         cat("Validation Summary\n")
         cat("=================\n\n")
@@ -241,8 +239,6 @@ microbialscalerepo <- function(
           }
         }
       })
-      
-      # Write summary to file and print to console
       writeLines(summary_text, summary_file)
       cat(summary_text, sep="\n")
     }
@@ -251,9 +247,7 @@ microbialscalerepo <- function(
   microbialscalerepository
 }
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Command‑line interface when run via Rscript:
-# ─────────────────────────────────────────────────────────────────────────────
+# ------------ Command‑line interface when run via Rscript: -------------------
 if (!interactive()) {
   suppressPackageStartupMessages(library(optparse))
   option_list <- list(

@@ -136,8 +136,9 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
     unzipped = unzip(counts_zip, exdir = dirname(temp_rds), overwrite = TRUE)
     counts_file <- unzipped[grep("2019_morton_songbird_oral_counts\\.RDS$", unzipped, ignore.case = TRUE)][1]
     if (is.na(counts_file)) stop("No 2019_morton_songbird_oral_counts.rds file found after unzip")
-    counts <- as.data.frame(readRDS(counts_file)) %>% t() %>% as.data.frame()
-    
+    counts <- as.data.frame(readRDS(counts_file)) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "Sample") 
+    counts$Sample <- primarystudymetadata$SampleID[match(counts$Sample, primarystudymetadata$Sample)]
+    counts <- counts %>% column_to_rownames(var = "Sample")
     ## Taxonomy Information
     raw_tax <- read_zipped_table(tax_zip, sep="\t", row.names = NULL)
     tax <- raw_tax %>%
@@ -158,7 +159,9 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
                      ~gsub("_+", "_", .))) %>% 
         mutate(across(c(Kingdom, Phylum, Class, Order, Family, Genus, Species), 
                      ~ifelse(. == "" | . == "__" | is.na(.), "unclassified", .)))
+    tax = tax %>% rename(species = Species)
     tax = make_taxa_label(tax)
+    tax = tax %>% rename(Species = species)
     tax <- tax[,c("Feature ID", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Taxa", "ogtaxonomy")]
     row.names(tax) <- tax$`Feature ID`
 
