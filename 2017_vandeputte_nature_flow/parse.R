@@ -73,7 +73,9 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
         mutate(log10_FC_cell_g_frozen = ifelse(`Average cell count (per gram of frozen feces)`>0, log10(`Average cell count (per gram of frozen feces)`), NA))  %>% 
         mutate(log2_FC_cell_g_fresh = ifelse(`Average cell count (per gram of fresh feces)`>0, log2(`Average cell count (per gram of fresh feces)`), NA)) %>%
         mutate(log10_FC_cell_g_fresh = ifelse(`Average cell count (per gram of fresh feces)`>0, log10(`Average cell count (per gram of fresh feces)`), NA)) %>%
-        as.data.frame()  
+        as.data.frame()  %>%
+        select(-Day) %>%
+        mutate(cohort = SampleID %>% str_extract("^[A-Z]+"))
 
     # ----- Original counts from CSV.zip -----
     if (file.exists(orig_counts_zip)) {
@@ -81,16 +83,33 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
         orig_con <- unz(orig_counts_zip, orig_csv)
         orig_mat <- read.csv(orig_con, row.names = 1, check.names = FALSE)
 
-        # Read original taxonomy
-        orig_tax_rdp_zip <- file.path(local, "otu_taxonomy_rdp.csv.zip")
-        orig_tax_rdp_csv <- unzip(orig_tax_rdp_zip, list = TRUE)$Name[1]
-        orig_tax_rdp_con <- unz(orig_tax_rdp_zip, orig_tax_rdp_csv)
-        orig_tax_rdp <- read.csv(orig_tax_rdp_con, row.names = 1, check.names = FALSE)
+        if (!file.exists(file.path(local,"otu_taxonomy_rdp.csv.zip"))) {
+            asv_seqs <- colnames(orig_mat)
+            names(asv_seqs) <- asv_seqs
+            taxa <- assignTaxonomy(asv_seqs,"helperdata/rdp_19_toGenus_trainset.fa.gz",multithread = TRUE)
+            orig_tax_rdp <- as.data.frame(taxa, stringsAsFactors=FALSE)
+            orig_tax_rdp$ASV <- rownames(orig_tax_rdp)
+            write.csv(orig_tax_rdp, "otu_taxonomy_rdp.csv", row.names=FALSE)
+        } else {
+            orig_tax_rdp_zip <- file.path(local, "otu_taxonomy_rdp.csv.zip")
+            orig_tax_rdp_csv <- unzip(orig_tax_rdp_zip, list = TRUE)$Name[1]
+            orig_tax_rdp_con <- unz(orig_tax_rdp_zip, orig_tax_rdp_csv)
+            orig_tax_rdp <- read.csv(orig_tax_rdp_con, row.names = 1, check.names = FALSE)
+        }
 
-        orig_tax_silva_zip <- file.path(local, "otu_taxonomy_silva.csv.zip")
-        orig_tax_silva_csv <- unzip(orig_tax_silva_zip, list = TRUE)$Name[1]
-        orig_tax_silva_con <- unz(orig_tax_silva_zip, orig_tax_silva_csv)
-        orig_tax_silva <- read.csv(orig_tax_silva_con, row.names = 1, check.names = FALSE)
+        if (!file.exists(file.path(local,"otu_taxonomy_silva.csv.zip"))) {
+            asv_seqs <- colnames(orig_mat)
+            names(asv_seqs) <- asv_seqs
+            taxa <- assignTaxonomy(asv_seqs,"helperdata/silva_nr_v138_train_set.fa.gz",multithread = TRUE)
+            orig_tax_silva <- as.data.frame(taxa, stringsAsFactors=FALSE)
+            orig_tax_silva$ASV <- rownames(orig_tax_silva)
+            write.csv(orig_tax_silva, "otu_taxonomy_silva.csv", row.names=FALSE)
+        } else {
+            orig_tax_silva_zip <- file.path(local, "otu_taxonomy_silva.csv.zip")
+            orig_tax_silva_csv <- unzip(orig_tax_silva_zip, list = TRUE)$Name[1]
+            orig_tax_silva_con <- unz(orig_tax_silva_zip, orig_tax_silva_csv)
+            orig_tax_silva <- read.csv(orig_tax_silva_con, row.names = 1, check.names = FALSE)
+        }
 
         # Combine taxonomy
         orig_tax <- data.frame(
