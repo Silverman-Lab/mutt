@@ -32,7 +32,7 @@ parse_2021_vandeputte_naturecommunications_flow_timeseries <- function(raw = FAL
   # ----- scale, metadata -----
   scale    <- read_zipped_table(scale_zip, sep = "\t", row.names = NULL) %>% 
                 mutate(log2_FC_g_mean = ifelse(Cell_count_per_gram > 0, log2(Cell_count_per_gram), NA)) %>%
-                rename(log10_FC_g_mean = ifelse(Cell_count_per_gram > 0, log10(Cell_count_per_gram), NA)) %>%
+                mutate(log10_FC_g_mean = ifelse(Cell_count_per_gram > 0, log10(Cell_count_per_gram), NA)) %>%
                 select(-Subject_ID)
   metadata <- read_zipped_table(metadata_zip, row.names = NULL)
 

@@ -69,10 +69,10 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
             `Average cell count (per gram of frozen feces)` = `Average cell count (per gram of frozen feces).y`,
             `STDEV cell count (per gram of frozen feces)` = `STDEV cell count (per gram of frozen feces).y`
         ) %>% 
-        mutate(log2_FC_cell_g = ifelse(`Average cell count (per gram of frozen feces)`>0, log2(`Average cell count (per gram of frozen feces)`), NA)) %>%
-        mutate(log10_FC_cell_g = ifelse(`Average cell count (per gram of frozen feces)`>0, log10(`Average cell count (per gram of frozen feces)`), NA))  %>% 
-        mutate(log2_FC_cell_g = ifelse(`Average cell count (per gram of fresh feces)`>0, log2(`Average cell count (per gram of fresh feces)`), NA)) %>%
-        mutate(log10_FC_cell_g = ifelse(`Average cell count (per gram of fresh feces)`>0, log10(`Average cell count (per gram of fresh feces)`), NA)) %>%
+        mutate(log2_FC_cell_g_frozen = ifelse(`Average cell count (per gram of frozen feces)`>0, log2(`Average cell count (per gram of frozen feces)`), NA)) %>%
+        mutate(log10_FC_cell_g_frozen = ifelse(`Average cell count (per gram of frozen feces)`>0, log10(`Average cell count (per gram of frozen feces)`), NA))  %>% 
+        mutate(log2_FC_cell_g_fresh = ifelse(`Average cell count (per gram of fresh feces)`>0, log2(`Average cell count (per gram of fresh feces)`), NA)) %>%
+        mutate(log10_FC_cell_g_fresh = ifelse(`Average cell count (per gram of fresh feces)`>0, log10(`Average cell count (per gram of fresh feces)`), NA)) %>%
         as.data.frame()  
 
     # ----- Original counts from CSV.zip -----
