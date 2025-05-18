@@ -168,44 +168,75 @@ read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1,
 #' @return The input dataframe with an added `Taxa` column
 #' @export
 make_taxa_label <- function(df) {
+  # define taxonomic ranks and their single-letter prefixes
   tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
-  prefixes  <- c("k", "p", "c", "o", "f", "g")
-
-  if (!all(tax_ranks %in% colnames(df))) {
-    stop("Dataframe must contain columns: ", paste(tax_ranks, collapse = ", "))
-  }
-
-  if ("Species" %in% colnames(df)) {
+  prefixes  <- c("k",        "p",      "c",     "o",     "f",       "g")
+  
+  # detect Species column
+  has_sp <- "Species" %in% colnames(df)
+  if (has_sp) {
     tax_ranks <- c(tax_ranks, "Species")
-    prefixes  <- c(prefixes, "s")
+    prefixes  <- c(prefixes,  "s")
   }
-
-  # Remove existing prefixes if they exist
+  
+  # sanity check
+  if (!all(tax_ranks %in% colnames(df))) {
+    stop("Data frame must contain columns: ", paste(tax_ranks, collapse = ", "))
+  }
+  
+  # list of roman numerals to capitalize
+  romans <- c("i","ii","iii","iv","v","vi","vii","viii","ix",
+              "x","xi","xii","xiii","xiv","xv","xvi","xvii","xviii","xix","xx")
+  
+  # 1) Clean each taxonomic column:
   df[tax_ranks] <- lapply(df[tax_ranks], function(x) {
-    # Remove any existing prefixes (e.g., "k__", "p_", etc.)
+    x <- as.character(x)
+    # strip existing prefixes like "k__", "p_", etc.
     x <- gsub("^[a-z]_{1,2}", "", x)
-    # Handle empty or NA values
+    # fill blanks/NA
     x[is.na(x) | trimws(x) == ""] <- "unclassified"
+    
+    # uppercase any standalone roman numerals
+    for (rn in romans) {
+      x <- gsub(paste0("(?i)\\b", rn, "\\b"),
+                toupper(rn),
+                x, perl = TRUE)
+    }
+    # replace spaces or punctuation with single underscore
+    x <- gsub("[[:space:][:punct:]]+", "_", x)
+    # collapse multiple underscores, trim leading/trailing
+    x <- gsub("_+", "_", x)
+    x <- gsub("^_|_$", "", x)
+    
     x
   })
-
-  df$Taxa <- apply(df[, tax_ranks], 1, function(tax_row) {
-    if ("Species" %in% names(tax_row) && tax_row["Species"] != "unclassified") {
-      return(paste0("s_", tax_row["Species"]))
+  
+  # 2) Build the RDP‐style Taxa label
+  df$Taxa <- apply(df[, tax_ranks], 1, function(tr) {
+    # species (most specific)
+    if (has_sp && tr["Species"] != "unclassified") {
+      return(paste0("s_", tr["Species"]))
     }
-    if (tax_row["Genus"] != "unclassified") {
-      return(paste0("g_", tax_row["Genus"]))
+    # genus
+    if (tr["Genus"] != "unclassified") {
+      return(paste0("g_", tr["Genus"]))
     }
-    for (i in (length(tax_ranks) - 2):1) {  # skip Genus and Species
-      if (tax_row[i] != "unclassified") {
-        return(paste0("uc_", prefixes[i], "_", tax_row[i]))
+    # fallback: Family → Kingdom
+    fallback_start <- length(prefixes) - ifelse(has_sp, 2, 1)
+    for (i in seq(fallback_start, 1)) {
+      val <- tr[tax_ranks[i]]
+      if (val != "unclassified") {
+        return(paste0("uc_", prefixes[i], "_", val))
       }
     }
-    return("unclassified")
+    # if nothing else
+    "unclassified"
   })
-
-  return(df)
+  
+  df
 }
+
+
 
 #' Replace NA with 0 in numeric elements of data structures
 #'

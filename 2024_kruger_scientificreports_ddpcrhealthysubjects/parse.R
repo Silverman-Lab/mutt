@@ -113,30 +113,77 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
     metabolites = colnames(counts_metabolomics)[!(colnames(counts_metabolomics) %in% c(metadata_cols, scale_cols))]
   )
 
+  parse_taxonomy_column <- function(name) {
+    # helper: capitalize first letter
+    cap1 <- function(x) {
+      if (is.na(x) || x == "") return(NA_character_)
+      paste0(toupper(substr(x,1,1)), tolower(substr(x,2,nchar(x))))
+    }
+
+    # prepare output
+    ranks <- c("Kingdom","Phylum","Class","Order","Family","Genus","ogtaxonomy")
+    out   <- setNames(as.list(rep(NA_character_, length(ranks))), ranks)
+    out$ogtaxonomy <- name
+
+    if (grepl("^k__", name)) {
+      parts <- strsplit(name, "__", fixed = TRUE)[[1]]
+      # parts[1] is like "k", parts[2] like "Bacteria_p", parts[3] like "Actinobacteriota_c", …
+      for (i in seq(2, length(parts))) {
+        # prefix code is last char of parts[i-1], e.g. "k", "p", "c", …
+        prefix <- sub(".*_", "", parts[i-1])
+        # value is parts[i] with any trailing "_<code>" removed
+        value  <- gsub("_[kpcofg]$", "", parts[i])
+        value  <- gsub("_", " ", value)   # optional: turn underscores to spaces
+        value  <- cap1(value)
+        switch(prefix,
+          k = out$Kingdom  <- value,
+          p = out$Phylum   <- value,
+          c = out$Class    <- value,
+          o = out$Order    <- value,
+          f = out$Family   <- value,
+          g = out$Genus    <- value,
+          NULL
+        )
+      }
+    } else if (grepl("^g_{1,2}", name)) {
+      # short genus label
+      genus <- sub("^g_{1,2}", "", name)
+      genus <- gsub("_", " ", genus)
+      out$Genus <- cap1(genus)
+    }
+
+    out
+  }
+
+  # Apply to your counts_original columns:
+  taxonomy_df <- do.call(
+    rbind,
+    lapply(colnames(counts_original), parse_taxonomy_column)
+  )
+  rownames(taxonomy_df) <- NULL
+  taxonomy_df <- as.data.frame(taxonomy_df, stringsAsFactors = FALSE)
+  taxonomy_df = make_taxa_label(taxonomy_df)
+  rownames(taxonomy_df) <- taxonomy_df$ogtaxonomy
+
+  if (!raw) {
+    aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="subject_timepoint_replicate", align = align, study_name=basename(local))
+    counts_original = aligned$counts_original
+    matched_taxa <- taxonomy_df$Taxa[match(colnames(counts_original), rownames(taxonomy_df))]
+    colnames(counts_original) <- matched_taxa
+    counts_original <- collapse_duplicate_columns_exact(counts_original)
+    original_names <- colnames(counts_original)
+    counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
+    counts_original = fill_na_zero_numeric(counts_original)
+
+    aligned = rename_and_align(counts_original = counts_metabolomics, metadata=metadata, scale=scale, by_col="subject_timepoint_replicate", align = align, study_name=basename(local))
+    counts_metabolomics = aligned$counts_original
+    original_names <- colnames(counts_metabolomics)
+    counts_metabolomics <- as.data.frame(lapply(counts_metabolomics, as.numeric), row.names = rownames(counts_metabolomics), col.names = original_names, check.names = FALSE)
+  }
+
   # ---- proportions ----
   proportions <- sweep(counts_original, 1, rowSums(counts_original), '/')
   proportions_metabolomics <- sweep(counts_metabolomics, 1, rowSums(counts_metabolomics), '/')
-
-  if (!raw) {
-    aligned = rename_and_align(counts_original = counts_original, 
-                              proportions_original = proportions, metadata=metadata, scale=scale, 
-                              by_col="subject_timepoint_replicate", align = align, study_name=basename(local))
-    counts_original = aligned$counts_original
-    proportions = aligned$proportions_original
-    original_names <- colnames(counts_original)
-    counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
-    original_names <- colnames(proportions)
-    proportions <- as.data.frame(lapply(proportions, as.numeric), row.names = rownames(proportions), col.names = original_names, check.names = FALSE)
-    aligned = rename_and_align(counts_original = counts_metabolomics, 
-                              proportions_original = proportions_metabolomics, metadata=metadata, scale=scale, 
-                              by_col="subject_timepoint_replicate", align = align, study_name=basename(local))
-    counts_metabolomics = aligned$counts_original
-    proportions_metabolomics = aligned$proportions_original
-    original_names <- colnames(counts_metabolomics)
-    counts_metabolomics <- as.data.frame(lapply(counts_metabolomics, as.numeric), row.names = rownames(counts_metabolomics), col.names = original_names, check.names = FALSE)
-    original_names <- colnames(proportions_metabolomics)
-    proportions_metabolomics <- as.data.frame(lapply(proportions_metabolomics, as.numeric), row.names = rownames(proportions_metabolomics), col.names = original_names, check.names = FALSE)
-  }
 
   # ----- Reprocessed counts from RDS ZIP -----
   if (all(file.exists(c(repro_counts_rds_zip, repro_tax_zip)))) {
