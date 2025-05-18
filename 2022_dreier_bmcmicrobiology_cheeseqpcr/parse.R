@@ -146,7 +146,11 @@ parse_2022_dreier_bmcmicrobiology_cheeseqpcr <- function(raw = FALSE, align = FA
         # Taxa
         taxonomy_cols <- c("ASV", "Sequence", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Haplotype")
         tax_original = counts_original[, names(counts_original) %in% taxonomy_cols]
+        tax_original$species = tax_original$species
+        tax_original$Species = NULL
         tax_original = make_taxa_label(tax_original)
+        tax_original$Species = tax_original$species
+        tax_original$species = NULL
         
         # Counts
         drop <- c("ASV", "Sequence", "Kingdom", "Phylum", "Class", 

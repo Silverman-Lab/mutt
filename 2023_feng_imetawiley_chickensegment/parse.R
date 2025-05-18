@@ -53,8 +53,8 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
     
     scale = scale %>% 
         select(-c("Segment", "Date", "Number")) %>% 
-        mutate(log2_qPCR_16S = ifelse(10^qPCR_log10_16S > 0, log2(10^qPCR_log10_16S), NA)) %>%
-        mutate(log2_qPCR_ITS = ifelse(10^qPCR_log10_ITS > 0, log2(10^qPCR_log10_ITS), NA)) %>%
+        mutate(log2_qPCR_16S = qPCR_log10_16S * log2(10)) %>%
+        mutate(log2_qPCR_ITS = qPCR_log10_ITS * log2(10)) %>%
         rename(log10_qPCR_16S = qPCR_log10_16S, log10_qPCR_ITS = qPCR_log10_ITS) %>%
         mutate(Sample = paste0(Sample, "_", Amplicontype)) %>% 
         select(-Amplicontype)

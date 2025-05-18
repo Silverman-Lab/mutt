@@ -28,6 +28,7 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
     repro_counts_rds_zip <- file.path(local, "PRJEB21504_dada2_counts.rds.zip")
     repro_tax_zip        <- file.path(local, "PRJEB21504_dada2_taxa.rds.zip")
     sra_zip              <- file.path(local, "SraRunTable (39).csv.zip")
+    nishijima2024counts  <- file.path(local, "Vandeputte_2017_16S.zip")
 
     # ----- Metadata and Scale -----
     # Read scale
@@ -99,9 +100,7 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
             write.csv(orig_tax_rdp, file.path(local,"otu_taxonomy_rdp.csv"), row.names=FALSE)
         } else {
             orig_tax_rdp_zip <- file.path(local, "otu_taxonomy_rdp.csv.zip")
-            orig_tax_rdp_csv <- unzip(orig_tax_rdp_zip, list = TRUE)$Name[1]
-            orig_tax_rdp_con <- unz(orig_tax_rdp_zip, orig_tax_rdp_csv)
-            orig_tax_rdp <- read.csv(orig_tax_rdp_con, row.names = 1, check.names = FALSE)
+            orig_tax_rdp <- read_zipped_table(orig_tax_rdp_zip, row.names=NULL,check.names = FALSE)
         }
 
         if (!file.exists(file.path(local,"otu_taxonomy_silva.csv.zip"))) {
@@ -113,32 +112,35 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
             }
             asv_seqs <- colnames(orig_mat)
             names(asv_seqs) <- asv_seqs
-            taxa <- dada2::assignTaxonomy(asv_seqs,"helperdata/silva_nr_v138_train_set.fa.gz",multithread = TRUE)
+            if (file.exists("helperdata/silva_nr99_v138.1_train_set.fa.gz")) {
+                taxa <- dada2::assignTaxonomy(asv_seqs,"helperdata/silva_nr99_v138.1_train_set.fa.gz",multithread = TRUE)
+            } else {
+                 stop("Silva classifier file not detected: helperdata/silva_nr99_v138.1_train_set.fa.gz, Please download silva_nr99_v138.1_train_set.fa.gz before running this function.")
+            }
             orig_tax_silva <- as.data.frame(taxa, stringsAsFactors=FALSE)
             orig_tax_silva$ASV <- rownames(orig_tax_silva)
             write.csv(orig_tax_silva, file.path(local,"otu_taxonomy_silva.csv"), row.names=FALSE)
         } else {
             orig_tax_silva_zip <- file.path(local, "otu_taxonomy_silva.csv.zip")
-            orig_tax_silva_csv <- unzip(orig_tax_silva_zip, list = TRUE)$Name[1]
-            orig_tax_silva_con <- unz(orig_tax_silva_zip, orig_tax_silva_csv)
-            orig_tax_silva <- read.csv(orig_tax_silva_con, row.names = 1, check.names = FALSE)
+            orig_tax_silva <- read_zipped_table(orig_tax_silva_zip, row.names=1,check.names = FALSE) %>% rownames_to_column("ASV")
         }
 
-        # Combine taxonomy
+
+        original_tax_classified <- as.data.frame(merge(orig_tax_rdp, orig_tax_silva, by="ASV", all=TRUE, suffixes = c("_rdp", "_silva")))
         orig_tax <- data.frame(
-            Sequence = colnames(orig_mat),
-            Kingdom= orig_tax_rdp$Kingdom,
-            Phylum = orig_tax_rdp$Phylum,
-            Class = orig_tax_rdp$Class,
-            Order = orig_tax_rdp$Order,
-            Family = orig_tax_rdp$Family,
-            Genus = orig_tax_rdp$Genus,
-            Kingdom_silva = orig_tax_silva$Kingdom,
-            Phylum_silva = orig_tax_silva$Phylum,
-            Class_silva = orig_tax_silva$Class,
-            Order_silva = orig_tax_silva$Order,
-            Family_silva = orig_tax_silva$Family,
-            Genus_silva = orig_tax_silva$Genus
+            Sequence = original_tax_classified$ASV,
+            Kingdom  = original_tax_classified$Kingdom_rdp,
+            Phylum   = original_tax_classified$Phylum_rdp,
+            Class    = original_tax_classified$Class_rdp,
+            Order    = original_tax_classified$Order_rdp,
+            Family   = original_tax_classified$Family_rdp,
+            Genus    = original_tax_classified$Genus_rdp,
+            Kingdom_silva = original_tax_classified$Kingdom_silva,
+            Phylum_silva  = original_tax_classified$Phylum_silva,
+            Class_silva   = original_tax_classified$Class_silva,
+            Order_silva   = original_tax_classified$Order_silva,
+            Family_silva  = original_tax_classified$Family_silva,
+            Genus_silva   = original_tax_classified$Genus_silva
         )
 
         tax_original <- make_taxa_label(orig_tax)
@@ -174,6 +176,18 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
     } else {
         counts_original <- NA
         proportions_original <- NA
+    }
+
+    # ----- Nishijima 2024 counts from CSV ZIP -----
+    if (file.exists(nishijima2024counts)) {
+        nishijima2024counts <- read_zipped_table(nishijima2024counts, sep="\t", row.names = 1, check.names = FALSE)
+        if (!raw) {
+            aligned <- rename_and_align(counts_reprocessed = nishijima2024counts, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
+            nishijima2024counts <- aligned$reprocessed
+            nishijima2024counts <- as.data.frame(lapply(nishijima2024counts, as.numeric), row.names = rownames(nishijima2024counts), col.names = colnames(nishijima2024counts), check.names = FALSE)
+        }
+        proportions_nishijima2024 <- sweep(nishijima2024counts, 1, rowSums(nishijima2024counts), '/')
+        tax_nishijima2024 <- data.frame(Taxa = colnames(nishijima2024counts), stringsAsFactors = FALSE)
     }
 
     # ----- Reprocessed counts from RDS ZIP -----
@@ -249,14 +263,17 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
     return(list(
       counts      = list(
         original    = counts_original,
+        nishijima2024 = nishijima2024counts,
         reprocessed = counts_reprocessed
       ),
       proportions = list(
         original    = proportions_original,
+        nishijima2024 = proportions_nishijima2024,
         reprocessed = proportions_reprocessed
       ),
       tax         = list(
         original = tax_original,
+        nishijima2024 = tax_nishijima2024,
         reprocessed = tax_reprocessed
       ),
       scale       = scale,

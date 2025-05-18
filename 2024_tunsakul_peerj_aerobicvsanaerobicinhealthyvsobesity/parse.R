@@ -21,7 +21,7 @@ parse_2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity <- function(raw =
   repro_counts_rds_zip <- file.path(local, "PRJNA1020208_dada2_counts.rds.zip")
   repro_tax_zip        <- file.path(local, "PRJNA1020208_dada2_taxa.rds.zip")
   metadata_zip         <- file.path(local, "SraRunTable (38).csv.zip")
-  scale_zip            <- file.path(local, "scale.csv.zip") #MANAN TO FINISH
+  scale_zip            <- file.path(local, "scale.csv.zip") 
 
   # --- original counts, proportions, tax ---
   counts <- NA
@@ -31,13 +31,66 @@ parse_2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity <- function(raw =
   # --- metadata and scale ----
   metadata     <- read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame() %>% 
                   rename(Sample = `Sample Name`, Accession = Run) %>%
-                  mutate(Sample = as.character(Sample))
-  scale        <- read_zipped_table(scale_zip, row.names=NULL) %>% as.data.frame()
-  meta_part    <- scale %>% select(c("Sample", "Condition", "Approximate Mean Load"))
+                  mutate(Sample = as.character(Sample)) %>%
+                  mutate(Sample = paste0(Sample, ifelse(sample_collect_device == "aerobic collection", "a", "an"))) %>%
+                  rename(environment = sample_collect_device)
+
+  suppdoc      <- tribble(
+    ~Sample, ~Type, ~Raw_Reads, ~Quality_Reads,
+    "ID1a",   "a", 118505,  94439,
+    "ID2a",   "a", 80082,   60357,
+    "ID3a",   "a", 71065,   48416,
+    "ID4a",   "a", 104163,  78155,
+    "ID5a",   "a", 81255,   58685,
+    "ID6a",   "a", 97153,   67858,
+    "ID7a",   "a", 89970,   59716,
+    "ID8a",   "a", 79423,   60230,
+    "ID9a",   "a", 84451,   54372,
+    "ID10a",  "a", 91965,   65186,
+    "ID11a",  "a", 84075,   51981,
+    "ID12a",  "a", 108682,  71907,
+    "ID13a",  "a", 88285,   64335,
+    "ID14a",  "a", 26181,   16724,
+    "ID15a",  "a", 20825,   14460,
+    "ID16a",  "a", 120845,  87511,
+    "ID17a",  "a", 84156,   54143,
+    "ID18a",  "a", 22177,   13904,
+    "ID19a",  "a", 36802,   23328,
+    "ID20a",  "a", 27583,   16628,
+    "ID1an",  "an", 22743,  16527,
+    "ID2an",  "an", 25254,  15573,
+    "ID3an",  "an", 11463,   7137,
+    "ID4an",  "an", 32891,  21548,
+    "ID5an",  "an", 34344,  24527,
+    "ID6an",  "an", 50952,  33129,
+    "ID7an",  "an", 119967, 78021,
+    "ID8an",  "an", 60443,  42347,
+    "ID9an",  "an", 67837,  40939,
+    "ID10an", "an", 43606,  30408,
+    "ID11an", "an", 48478,  31043,
+    "ID12an", "an", 48462,  29440,
+    "ID13an", "an", 21089,  12679,
+    "ID14an", "an", 21849,  12940,
+    "ID15an", "an", 29929,  18629,
+    "ID16an", "an", 38978,  29505,
+    "ID17an", "an", 64451,  46372,
+    "ID18an", "an", 63622,  44519,
+    "ID19an", "an", 22446,  13066,
+    "ID20an", "an", 19512,  12833
+  )      
+
+  suppdoc <- suppdoc %>% select(-Type)
+
   metadata <- metadata %>%
-  left_join(meta_part, by = "Sample") %>%
-  mutate(log2_qPCR_copies = ifelse(`Approximate Mean Load` > 0, log2(`Approximate Mean Load`), NA)) %>%
-  mutate(log10_qPCR_copies = ifelse(`Approximate Mean Load` > 0, log10(`Approximate Mean Load`), NA))
+    left_join(suppdoc, by = "Sample")
+
+  scale        <- read_zipped_table(scale_zip, row.names=NULL) %>% as.data.frame() %>% 
+                  rename(`qPCR (copies/g)` = `Approximate Mean Load`) %>%
+                  mutate(log2_qPCR = ifelse(`qPCR (copies/g)` > 0,log2(`qPCR (copies/g)`), NA)) %>%
+                  mutate(log10_qPCR = ifelse(`qPCR (copies/g)` > 0, log10(`qPCR (copies/g)`), NA)) %>%
+                  mutate(Sample = paste0("ID",Sample)) %>%
+                  select(-Condition)
+
   # ----- Reprocessed counts from RDS ZIP -----
   if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
     temp_dir <- tempfile("repro")

@@ -57,9 +57,7 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE, align = FALSE)
     
     scale = scale %>%
       left_join(metadata %>% select(SampleID, Accession), by = "SampleID") %>%
-      mutate(log2_qPCR_copies = ifelse(!is.na(copies) & copies != "" & 10^copies > 0, 
-                                      log2(10^copies), 
-                                      NA)) %>%
+      mutate(log2_qPCR_copies = ifelse(!is.na(copies) & copies != "" & copies != 0, copies * log2(10), NA)) %>%
       rename(log10_qPCR_copies = copies)
 
     # ------ original counts ------

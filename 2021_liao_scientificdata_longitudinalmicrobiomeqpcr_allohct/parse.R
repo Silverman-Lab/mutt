@@ -40,7 +40,11 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
     counts_zip   <- file.path(local, "Liao_2021_16S.csv.zip")
 
     # ---- scale and metadata -----
-    scale     <- read_zipped_table(scale_zip, row.names = NULL) %>% mutate(log2_qPCR = ifelse(10^qPCR16S > 0, log2(10^qPCR16S), NA)) %>% rename(log10_qPCR = qPCR16S)
+    scale <- read_zipped_table(scale_zip, row.names = NULL) %>%
+            mutate(
+                log2_qPCR = qPCR16S * log2(10) 
+            ) %>%
+            rename(log10_qPCR = qPCR16S)
     metadata  <- read_zipped_table(metadata_zip, row.names = NULL)
 
     # ------ original counts ------
