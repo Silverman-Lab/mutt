@@ -47,13 +47,36 @@ parse_2025_wagner_frontiersinmiccrobiology_flowpiglets <- function(raw = FALSE, 
     # ---- proportions ----
     proportions_original <- sweep(counts_original, MARGIN = 1,STATS  = rowSums(counts_original), FUN = "/")
 
+    convert_scientific <- function(x) {
+    # Extract base and exponent from format like "9.37 × 107"
+    matches <- regexec("([0-9.]+)\\s*×\\s*10([0-9]+)", x)
+    parts <- regmatches(x, matches)
+    
+    sapply(parts, function(p) {
+        if (length(p) == 3) {
+        base <- as.numeric(p[2])
+        exp  <- as.numeric(p[3])
+        base * 10^exp
+        } else {
+        NA_real_
+        }
+    })
+    }
+
     # ---- scale ----
     scale <- read_zipped_table(scale_zip, row.names = NULL) %>%
-                as.data.frame() %>%
-                mutate(Sample = paste0("swine", `Swine no.`, "_d", day)) %>%
-                relocate(Sample, .before = 1) %>%
-                select(-`Swine no.`, -day) %>% 
-                mutate(across(where(is.numeric), ~ ifelse(. > 0, log2(.), NA), .names = "log2_{.col}"))
+    as.data.frame() %>%
+    mutate(Sample = paste0("swine", `Swine no.`, "_d", day)) %>%
+    relocate(Sample, .before = 1) %>%
+    select(-`Swine no.`, -day) %>%
+    mutate(
+        cells_per_gram_feces_mean = convert_scientific(cells_per_gram_feces_mean),
+        cells_per_gram_feces_sd   = convert_scientific(cells_per_gram_feces_sd)
+    ) %>% 
+    mutate(log2_FC_cells_g_mean  = ifelse(cells_per_gram_feces_mean > 0, log2(cells_per_gram_feces_mean), NA),
+            log10_FC_cells_g_mean = ifelse(cells_per_gram_feces_mean > 0, log10(cells_per_gram_feces_mean), NA),
+            log2_FC_cells_g_sd    = ifelse(cells_per_gram_feces_sd   > 0, log2(cells_per_gram_feces_sd), NA),
+            log10_FC_cells_g_sd   = ifelse(cells_per_gram_feces_sd   > 0, log10(cells_per_gram_feces_sd), NA))
 
 
     # ---- metadata ----
