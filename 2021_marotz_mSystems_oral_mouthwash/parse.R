@@ -83,15 +83,6 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
     ))
   counts_original <- counts_original %>% column_to_rownames("SampleID")
 
-  if (!raw) {
-    aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-    counts_original = aligned$counts_original
-    original_names <- colnames(counts_original)
-    counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
-  }
-  proportions_original <- sweep(counts_original, 1, rowSums(counts_original), "/")
-
-
   raw_tax <- data.frame(Taxa = colnames(counts_original))
   tax_original <- raw_tax %>%
     mutate(taxa = str_trim(Taxa)) %>%
@@ -102,8 +93,24 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
       extra = "drop",
       fill = "right"
     )
-
+  tax_original$species = tax_original$Species
+  tax_original$Species = NULL
   tax_original = make_taxa_label(tax_original)
+  tax_original$Species = tax_original$species
+  tax_original$species = NULL
+  rownames(tax_original) <- tax_original$taxa
+
+  if (!raw) {
+    aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+    counts_original = aligned$counts_original
+    matched_taxa <- tax_original$Taxa[match(colnames(counts_original), rownames(tax_original))]
+    colnames(counts_original) <- matched_taxa
+    counts_original = collapse_duplicate_columns_exact(counts_original)
+    original_names <- colnames(counts_original)
+    counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
+  }
+  proportions_original <- sweep(counts_original, 1, rowSums(counts_original), "/")
+
 
   counts_reprocessed <- NA
   proportions_reprocessed <- NA
@@ -179,7 +186,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
     ))
   counts_reprocessed <- counts_reprocessed %>% column_to_rownames("SampleID")
   if (!raw) {
-    aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+    aligned = rename_and_align(counts_original = counts_reprocessed, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
     counts_reprocessed = aligned$counts_original
     original_names <- colnames(counts_reprocessed)
     counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
