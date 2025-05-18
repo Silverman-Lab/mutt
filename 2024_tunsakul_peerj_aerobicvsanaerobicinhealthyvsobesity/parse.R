@@ -32,8 +32,8 @@ parse_2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity <- function(raw =
   metadata     <- read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame() %>% 
                   rename(Sample = `Sample Name`, Accession = Run) %>%
                   mutate(Sample = as.character(Sample)) %>%
-                  mutate(Sample = paste0(Sample, ifelse(sample_collect_device == "aerobic collection", "a", "an"))) %>%
-                  rename(environment = sample_collect_device)
+                  mutate(Sample = paste0(Sample, if_else(samp_collect_device == "aerobic collection", "a", "an"))) %>%
+                  rename(environment = samp_collect_device)
 
   suppdoc      <- tribble(
     ~Sample, ~Type, ~Raw_Reads, ~Quality_Reads,
