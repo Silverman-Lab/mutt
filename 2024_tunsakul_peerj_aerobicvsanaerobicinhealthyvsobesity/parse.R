@@ -29,11 +29,24 @@ parse_2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity <- function(raw =
   tax <- NA
   
   # --- metadata and scale ----
-  metadata     <- read_zipped_table(metadata_zip, row.names=NULL) %>% as.data.frame() %>% 
-                  rename(Sample = `Sample Name`, Accession = Run) %>%
-                  mutate(Sample = as.character(Sample)) %>%
-                  mutate(Sample = paste0(Sample, if_else(samp_collect_device == "aerobic collection", "a", "an"))) %>%
-                  rename(environment = samp_collect_device)
+  metadata <- read_zipped_table(metadata_zip, row.names = NULL) %>%
+    as.data.frame() %>%
+    rename(Sample = `Sample Name`, Accession = Run) %>%
+    mutate(
+      Sample = as.character(Sample),
+      
+      # Remove any existing 'a', 'aa', or 'anan' suffix
+      Sample = gsub("(a|aa|anan|an)$", "", Sample),
+      
+      # Add ID prefix if it's numeric
+      Sample = ifelse(grepl("^\\d+$", Sample), paste0("ID", Sample), Sample),
+      
+      # Append new suffix based on collection method
+      Sample = paste0(Sample, if_else(samp_collect_device == "aerobic collection", "a", "an"))
+    ) %>%
+    rename(environment = samp_collect_device)
+
+
 
   suppdoc      <- tribble(
     ~Sample, ~Type, ~Raw_Reads, ~Quality_Reads,
