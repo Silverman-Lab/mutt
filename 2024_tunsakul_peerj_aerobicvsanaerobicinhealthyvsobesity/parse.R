@@ -111,9 +111,7 @@ parse_2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity <- function(raw =
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
     if (!raw) {
-      aligned = rename_and_align(counts_reprocessed = counts_reprocessed, counts_original = counts_original, 
-                                              proportions_original = proportions_original, metadata=metadata, scale=scale, by_col="Sample", 
-                                              align = align)
+      aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name = basename(local))
       counts_reprocessed = aligned$reprocessed
       matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
       colnames(counts_reprocessed) <- matched_taxa
