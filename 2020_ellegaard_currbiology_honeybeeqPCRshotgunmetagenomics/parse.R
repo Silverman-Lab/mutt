@@ -26,9 +26,11 @@ parse_2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics <- function(raw
     metadata_meta_zip    <- file.path(local, "")
 
     # ----- Initialize everything as NA -----
-    counts_reprocessed <- NA
-    proportions_reprocessed <- NA
-    tax_reprocessed <- NA
+    counts <- NA
+    proportions <- NA
+    tax_original <- NA
+    scale <- NA
+    metadata <- NA
     mOTU3_counts <- NA
     mOTU3_proportions <- NA
     mOTU3_tax <- NA

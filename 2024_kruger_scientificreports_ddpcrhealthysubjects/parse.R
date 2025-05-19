@@ -1,14 +1,9 @@
-<<<<<<< Updated upstream
 parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE, align = FALSE) {
-=======
-parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function() {
->>>>>>> Stashed changes
   required_pkgs <- c("tibble", "tidyverse")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
   if (length(missing_pkgs) > 0) {
     stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
          ". Please install them before running this function.")
-<<<<<<< Updated upstream
   }
   if (!is.logical(raw) || length(raw) != 1) {
   stop("`raw` must be a single logical value (TRUE or FALSE)")
@@ -190,6 +185,13 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function() {
   proportions <- sweep(counts_original, 1, rowSums(counts_original), '/')
   proportions_metabolomics <- sweep(counts_metabolomics, 1, rowSums(counts_metabolomics), '/')
 
+  counts_reprocessed <- NA
+  proportions_reprocessed <- NA
+  tax_reprocessed <- NA 
+  tax_reprocessed2 <- NA
+  counts_reprocessed2 <- NA
+  proportions_reprocessed2 <- NA
+
   # ----- Reprocessed counts from RDS ZIP -----
   if (all(file.exists(c(repro_counts_rds_zip, repro_tax_zip)))) {
     temp_dir <- tempfile("repro")
@@ -198,6 +200,27 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function() {
     counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
     if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
     counts_reprocessed <- as.data.frame(readRDS(counts_file))
+
+    # ----- rdp16 -----
+    if (!file.exists(file.path(local,"rdp16classified.csv.zip"))) {
+      if (file.exists(file.path("helperdata/rdp_train_set_16.fa.gz"))) {
+          required_pkgs <- c("dada2", "Biostrings")
+          missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
+          if (length(missing_pkgs) > 0) {
+            stop("RDP classifier detected. Missing required packages: ", paste(missing_pkgs, collapse = ", "),
+                ". Please install them before running this function.")
+          }
+          seqs <- Biostrings::DNAStringSet(colnames(counts_reprocessed))
+          rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
+          tax_reprocessed2 = make_taxa_label(rdpclassified) 
+          write.csv(tax_reprocessed2, file = file.path(local, "rdp16classified.csv"), row.names = TRUE)
+        } else {
+          stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
+      }
+       
+      } else {
+        tax_reprocessed2 <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
+    }
 
     # ----- Taxonomy reprocessed -----
     unzipped = unzip(repro_tax_zip, exdir = temp_dir, overwrite = TRUE)
@@ -212,11 +235,18 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function() {
     if (!raw) {
         aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=sra, scale=scale, by_col="Sample", align = align, study_name=basename(local))
         counts_reprocessed = aligned$reprocessed
+        counts_reprocessed2 = aligned$reprocessed
         matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+        matched_taxa2 <- tax_reprocessed2$Taxa[match(colnames(counts_reprocessed2), rownames(tax_reprocessed2))]
         colnames(counts_reprocessed) <- matched_taxa
+        colnames(counts_reprocessed2) <- matched_taxa2
         counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+        counts_reprocessed2 <- collapse_duplicate_columns_exact(counts_reprocessed2)
         original_names <- colnames(counts_reprocessed)
+        original_names2 <- colnames(counts_reprocessed2)
         counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
+        counts_reprocessed2 <- as.data.frame(lapply(counts_reprocessed2, as.numeric), row.names = rownames(counts_reprocessed2), col.names = original_names2, check.names = FALSE)
+        proportions_reprocessed2 <- sweep(counts_reprocessed2, 1, rowSums(counts_reprocessed2), '/')
     }
 
     # proportions reprocessed
@@ -228,110 +258,18 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function() {
       counts_original = fill_na_zero_numeric(counts_original)
       counts_metabolomics = fill_na_zero_numeric(counts_metabolomics)
       counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+      counts_reprocessed2 = fill_na_zero_numeric(counts_reprocessed2)
       proportions = fill_na_zero_numeric(proportions)
       proportions_metabolomics = fill_na_zero_numeric(proportions_metabolomics)
       proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+      proportions_reprocessed2 = fill_na_zero_numeric(proportions_reprocessed2)
   }
 
   return(list(
-    counts      = list(original = list(metabolomics = counts_metabolomics, amplicon = counts_original), reprocessed = list(metabolomics = NA, amplicon = counts_reprocessed)),
-    proportions = list(original = list(metabolomics = proportions_metabolomics, amplicon = proportions), reprocessed = list(metabolomics = NA, amplicon = proportions_reprocessed)),
-    tax         = list(original = list(metabolomics = tax_metabolomics, amplicon = tax), reprocessed = list(metabolomics = NA, amplicon = tax_reprocessed)),
+    counts      = list(original = list(metabolomics = counts_metabolomics, amplicon = counts_original), reprocessed = list(metabolomics = NA, amplicon = list(rdp19 = counts_reprocessed, rdp16 = counts_reprocessed2))),
+    proportions = list(original = list(metabolomics = proportions_metabolomics, amplicon = proportions), reprocessed = list(metabolomics = NA, amplicon = list(rdp19 = proportions_reprocessed, rdp16 = proportions_reprocessed2))),
+    tax         = list(original = list(metabolomics = tax_metabolomics, amplicon = tax), reprocessed = list(metabolomics = NA, amplicon = list(rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2))),
     scale       = scale,
     metadata    = list(replicates = merged_metadata, dataset = metadata, sra = sra)
-=======
-  }
-  library(tibble)
-  library(tidyverse)
-
-  local               <- "2024_kruger_scientificreports_ddpcrhealthysubjects/"
-  counts_zip          <- paste0(local, "41598_2024_75477_MOESM2_ESM.csv.zip")
-  metadata_zip        <- paste0(local, "SraRunTable (30).csv.zip")
-  metadata_zip_1      <- paste0(local, "41598_2024_75477_MOESM3_ESM.csv.zip")
-  metadata_zip_2      <- paste0(local, "41598_2024_75477_MOESM4_ESM.csv.zip")
-  repro_counts_rds_zip<- paste0(local, "PRJNA1162476_dada2_merged_nochim.rds.zip")
-  repro_tax_zip       <- paste0(local, "PRJNA1162476_dada2_taxonomy_merged.rds.zip")
-
-  if (!file.exists(counts_zip)) stop("Counts file not found: ", counts_zip)
-
-  dataset <- read.table(unz(counts_zip, "41598_2024_75477_MOESM5_ESM.csv"),
-                        header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
-
-  metadata_cols <- c("Subject", "Timepoint", "Milling", "Frequency", "StoolsperDay",
-                     "BristolStoolScale_highest", "WaterContent_perc", "pH",
-                     "Calprotectin_ugperg", "MPO_ngperml")
-
-  scale_cols <- c("Subject", "Timepoint",
-                  "Mean.Fungi.copies_per.mg.total.weight", 
-                  "Mean.Fungi.copies_per.mg.dry.weight", 
-                  "Mean.bacteria.copies_per.mg.total.weight", 
-                  "Mean.bacteria.copies_per.mg.dry.weight")
-
-  metadata <- dataset[, metadata_cols]
-  scale    <- dataset[, scale_cols]
-  counts_original <- dataset[, !(colnames(dataset) %in% c(metadata_cols, scale_cols))]
-
-  taxon_names <- paste0("Taxon_", seq_len(ncol(counts_original)))
-  colnames(counts_original) <- taxon_names
-
-  tax <- tibble(
-    Taxon = taxon_names,
-    OriginalName = colnames(dataset)[!(colnames(dataset) %in% c(metadata_cols, scale_cols))]
-  )
-
-  counts <- bind_cols(dataset[, c("Subject", "Timepoint")], counts_original)
-
-  row_sums <- rowSums(counts_original)
-  prop_mat <- sweep(as.matrix(counts_original), 1, row_sums, FUN = "/")
-  prop_mat[is.nan(prop_mat)] <- 0
-  proportions <- bind_cols(dataset[, c("Subject", "Timepoint")], as_tibble(prop_mat))
-
-  if (!file.exists(metadata_zip_1) || !file.exists(metadata_zip_2)) stop("Metadata zips not found")
-  metadata1 <- read.table(unz(metadata_zip_1, "41598_2024_75477_MOESM3_ESM.csv"),
-                          header = TRUE, sep = "\t", row.names = 1, check.names = FALSE) %>%
-    mutate(Replicate = gsub("Replicate ", "Replicate_", ID)) %>% select(-ID)
-  metadata2 <- read.table(unz(metadata_zip_2, "41598_2024_75477_MOESM4_ESM.csv"),
-                          header = TRUE, sep = "\t", row.names = 1, check.names = FALSE) %>%
-    pivot_longer(cols = starts_with("Replicate"), names_to = "Replicate", values_to = "Value") %>%
-    pivot_wider(names_from = ID, values_from = Value)
-
-  merged_metadata <- metadata1 %>%
-    inner_join(metadata2, by = "Replicate") %>%
-    inner_join(metadata, by = c("Subject", "Timepoint"))
-
-  # ----- Reprocessed counts from RDS ZIP -----
-  temp_rds            <- tempfile(fileext = ".rds")
-  unzip(repro_counts_rds_zip, exdir = dirname(temp_rds), overwrite = TRUE)
-  rds_file            <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-  seqtab_nochim       <- readRDS(rds_file)
-  rpt_mat             <- t(seqtab_nochim)
-  counts_reprocessed  <- as.data.frame(rpt_mat)
-  counts_reprocessed$Sequence <- rownames(counts_reprocessed)
-  counts_reprocessed = counts_reprocessed[, c("Sequence", setdiff(names(counts_reprocessed), "Sequence"))]
-  rownames(counts_reprocessed) <- paste0("Taxon_", seq_len(nrow(counts_reprocessed)))
-
-  # proportions reprocessed
-  proportions_reprocessed = counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-    counts_reprocessed[-1],
-    function(col) col / sum(col)
-  )
-
-  # ----- Taxonomy reprocessed -----
-  temp_tax <- tempfile(fileext = ".rds")
-  unzip(repro_tax_zip, exdir = dirname(temp_tax), overwrite = TRUE)
-  tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
-  taxonomy_matrix <- readRDS(tax_file)
-  rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
-  tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
-  tax_reprocessed = tax_table
-
-  return(list(
-    counts      = list(original = counts, reprocessed = counts_reprocessed),
-    proportions = list(original = proportions, reprocessed = proportions_reprocessed),
-    tax         = list(original = tax, reprocessed = tax_reprocessed),
-    scale       = scale,
-    metadata    = merged_metadata
->>>>>>> Stashed changes
   ))
 }

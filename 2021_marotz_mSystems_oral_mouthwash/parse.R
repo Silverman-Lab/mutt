@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE) {
   required_pkgs <- c("tidyverse")
   missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
@@ -87,41 +86,6 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
   raw_tax <- data.frame(Taxa = colnames(counts_original))
   tax_original <- raw_tax %>%
     mutate(taxa = str_trim(Taxa)) %>%
-=======
-parse_2021_marotz_mSystems_oral_mouthwash <- function() {
-  required_pkgs <- c("tidyverse")
-  missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
-
-  if (length(missing_pkgs) > 0) {
-    stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
-         ". Please install them before running this function.")
-  }
-
-  library(tidyverse)
-
-  local <- "2021_marotz_mSystems_oral_mouthwash/"
-  counts_zip <- paste0(local, "2021_marotz_mSystems_oral_mouthwash.RDS.zip")
-  metadata_zip <- paste0(local, "T3_SRS_metadata_ms.txt.zip")
-  repro_counts_zips <- c(
-    paste0(local, "ERP111447_dada2_merged_nochim.rds.zip"),
-    paste0(local, "ERP117149_dada2_merged_nochim.rds.zip")
-  )
-  repro_tax_zips <- c(
-    paste0(local, "ERP111447_dada2_taxonomy_merged.rds.zip"),
-    paste0(local, "ERP117149_dada2_taxonomy_merged.rds.zip")
-  )
-
-  # ----- Original Counts and Taxonomy -----
-  orig_rds_file <- unzip(counts_zip, list = TRUE)$Name[1]
-  counts_original <- readRDS(unz(counts_zip, orig_rds_file))
-  raw_tax <- rownames(counts_original)
-  rownames(counts_original) <- paste0("Taxon_", seq_len(nrow(counts_original)))
-  proportions_original <- apply(counts_original, 2, function(col) col / sum(col))
-
-  raw_tax <- data.frame(taxa = raw_tax)
-  tax_original <- raw_tax %>%
-    mutate(taxa = str_trim(taxa)) %>%
->>>>>>> Stashed changes
     separate(
       Taxa,
       into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
@@ -129,7 +93,6 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function() {
       extra = "drop",
       fill = "right"
     )
-<<<<<<< Updated upstream
   tax_original$species = tax_original$Species
   tax_original$Species = NULL
   tax_original = make_taxa_label(tax_original)
@@ -152,6 +115,9 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function() {
   counts_reprocessed <- NA
   proportions_reprocessed <- NA
   tax_reprocessed <- NA
+  counts_reprocessed2 <- NA
+  proportions_reprocessed2 <- NA
+  tax_reprocessed2 <- NA
 
   if (all(file.exists(repro_counts_zips), file.exists(repro_tax_zips))) {
     # # Process multiple zipped RDS files
@@ -167,6 +133,26 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function() {
         counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
         if (is.na(counts_file)) stop(paste("No *_counts.rds file found for index", i))
         counts <- as.data.frame(readRDS(counts_file))
+
+        # ----- rdp16 -----
+        if (!file.exists(file.path(local,"rdp16classified.csv.zip"))) {
+          if (file.exists(file.path("helperdata/rdp_train_set_16.fa.gz"))) {
+              required_pkgs <- c("dada2", "Biostrings")
+              missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
+              if (length(missing_pkgs) > 0) {
+                stop("RDP classifier detected. Missing required packages: ", paste(missing_pkgs, collapse = ", "),
+                    ". Please install them before running this function.")
+              }
+              seqs <- Biostrings::DNAStringSet(colnames(counts))
+              rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
+              tax_reprocessed2 = make_taxa_label(rdpclassified) 
+            } else {
+              stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
+          }
+          
+          } else {
+            tax_reprocessed2 <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
+        }
 
         # Unzip and read taxonomy
         unzipped = unzip(repro_tax_zips[i], exdir = temp_rds, overwrite = TRUE)
@@ -185,21 +171,35 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function() {
             original_names <- colnames(counts)
             counts <- as.data.frame(lapply(counts, as.numeric), row.names = rownames(counts), col.names = original_names, check.names = FALSE)
           }
+          counts2 = aligned$reprocessed
+          if (nrow(counts2) > 0) {
+            matched_taxa <- tax_reprocessed2$Taxa[match(colnames(counts2), rownames(tax_reprocessed2))]
+            colnames(counts2) <- matched_taxa
+            counts2 = collapse_duplicate_columns_exact(counts2)
+            original_names <- colnames(counts2)
+            counts2 <- as.data.frame(lapply(counts2, as.numeric), row.names = rownames(counts2), col.names = original_names, check.names = FALSE)
+          }
         }
 
         if (nrow(counts) > 0) {
           # proportions
           proportions <- sweep(counts, 1, rowSums(counts), '/')
-
+          proportions2 <- sweep(counts2, 1, rowSums(counts2), '/')
           # Label with study name based on zip filename prefix
           study_id <- sub("_.*$", "", basename(tools::file_path_sans_ext(repro_counts_zips[i])))
           counts$Study <- study_id
           proportions$Study <- study_id
           tax$Study <- study_id
+          counts2$Study <- study_id
+          proportions2$Study <- study_id
+          tax2$Study <- study_id
 
           counts_reprocessed_list[[i]] <- counts
           proportions_reprocessed_list[[i]] <- proportions
           tax_reprocessed_list[[i]] <- tax
+          counts_reprocessed2_list[[i]] <- counts2
+          proportions_reprocessed2_list[[i]] <- proportions2
+          tax_reprocessed2_list[[i]] <- tax2
         }
 
         cleanup_tempfiles(temp_rds)
@@ -209,6 +209,17 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function() {
     counts_reprocessed <- bind_rows(counts_reprocessed_list)
     proportions_reprocessed <- bind_rows(proportions_reprocessed_list)
     tax_reprocessed <- bind_rows(tax_reprocessed_list)
+
+    if (!file.exists(file.path(local, "rdp16classified.csv"))) {
+      tax_reprocessed2 <- bind_rows(tax_reprocessed2_list)
+      counts_reprocessed2 <- bind_rows(counts_reprocessed2_list)
+      proportions_reprocessed2 <- bind_rows(proportions_reprocessed2_list)
+      write.csv(tax_reprocessed2, file = file.path(local, "rdp16classified.csv"), row.names = TRUE)
+    } else {
+      counts_reprocessed2 <- bind_rows(counts_reprocessed2_list)
+      proportions_reprocessed2 <- bind_rows(proportions_reprocessed2_list)
+      tax_reprocessed2 <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
+    }
 
   } else {
   # DELETE LATER WHEN REPROCESS HAS FINALIZED:
@@ -235,70 +246,26 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function() {
 
   if (!raw) {
       counts_original = fill_na_zero_numeric(counts_original)
-      proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
       proportions_original = fill_na_zero_numeric(proportions_original)
       proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+      counts_reprocessed2 = fill_na_zero_numeric(counts_reprocessed2)
+      proportions_reprocessed2 = fill_na_zero_numeric(proportions_reprocessed2)
   }
-=======
-  rownames(tax_original) <- rownames(counts_original)
-
-  # ----- Metadata and Scale -----
-  metadata_txt <- unzip(metadata_zip, list = TRUE)$Name[1]
-  metadata <- read.csv(unz(metadata_zip, metadata_txt), sep = "\t", row.names = 1)
-  metadata <- metadata[colnames(counts_original), ]
-  scale <- metadata$FC_avg_cells_per_ul
-  names(scale) <- rownames(metadata)
-
-  # ----- Reprocessed Counts and Taxonomy -----
-  counts_reprocessed_list <- list()
-  tax_reprocessed_list <- list()
-
-  for (i in seq_along(repro_counts_zips)) {
-    # Counts
-    temp_rds <- tempfile(fileext = ".rds")
-    unzip(repro_counts_zips[i], exdir = dirname(temp_rds), overwrite = TRUE)
-    rds_file <- list.files(dirname(temp_rds), pattern = "\\.rds$", full.names = TRUE)[1]
-    seqtab_nochim <- readRDS(rds_file)
-    rpt_mat <- t(seqtab_nochim)
-    counts <- as.data.frame(rpt_mat)
-    counts$Sequence <- rownames(counts)
-    counts <- counts[, c("Sequence", setdiff(names(counts), "Sequence"))]
-    rownames(counts) <- paste0("Taxon_", seq_len(nrow(counts)))
-    counts_reprocessed_list[[i]] <- counts
-
-    # Taxonomy
-    temp_tax <- tempfile(fileext = ".rds")
-    unzip(repro_tax_zips[i], exdir = dirname(temp_tax), overwrite = TRUE)
-    tax_file <- list.files(dirname(temp_tax), pattern = "\\.rds$", full.names = TRUE)[1]
-    taxonomy_matrix <- readRDS(tax_file)
-    rownames(taxonomy_matrix) <- paste0("Taxon_", seq_len(nrow(taxonomy_matrix)))
-    tax_table <- as_tibble(taxonomy_matrix, rownames = "Taxon")
-    tax_reprocessed_list[[i]] <- tax_table
-  }
-
-  # Combine reprocessed
-  counts_reprocessed <- bind_rows(counts_reprocessed_list)
-  proportions_reprocessed <- counts_reprocessed
-  proportions_reprocessed[-1] <- lapply(
-    counts_reprocessed[-1],
-    function(col) col / sum(col)
-  )
-  tax_reprocessed <- bind_rows(tax_reprocessed_list)
->>>>>>> Stashed changes
 
   # ----- Return structured list -----
   return(list(
     counts = list(
       original = counts_original,
-      reprocessed = counts_reprocessed
+      reprocessed = list(rdp19 = counts_reprocessed, rdp16 = counts_reprocessed2)
     ),
     proportions = list(
       original = proportions_original,
-      reprocessed = proportions_reprocessed
+      reprocessed = list(rdp19 = proportions_reprocessed, rdp16 = proportions_reprocessed2)
     ),
     tax = list(
       original = tax_original,
-      reprocessed = tax_reprocessed
+      reprocessed = list(rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2)
     ),
     scale = scale,
     metadata = metadata

@@ -75,6 +75,9 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
     all_counts <- list()
     all_props  <- list()
     all_taxa   <- list()
+    all_counts2 <- list()
+    all_props2  <- list()
+    all_taxa2   <- list()       
 
     if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
 
@@ -93,6 +96,28 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
             if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
             counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
+            # ----- rdp16 -----
+            if (!file.exists(file.path(local,"rdp16classified.csv.zip"))) {
+            if (file.exists(file.path("helperdata/rdp_train_set_16.fa.gz"))) {
+                required_pkgs <- c("dada2", "Biostrings")
+                missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
+                if (length(missing_pkgs) > 0) {
+                    stop("RDP classifier detected. Missing required packages: ", paste(missing_pkgs, collapse = ", "),
+                        ". Please install them before running this function.")
+                }
+                seqs <- Biostrings::DNAStringSet(colnames(counts_reprocessed))
+                rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
+                tax_reprocessed2 = make_taxa_label(rdpclassified) 
+                tax_reprocessed2$BioProject <- study_prefix
+                tax_reprocessed2$Sequence <- rownames(tax_reprocessed2)
+                } else {
+                stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
+            }
+            
+            } else {
+                tax_reprocessed2 <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
+            }
+
             # ----- Unzip and read taxonomy -----
             unzipped = unzip(tax_zip, exdir = temp_dir, overwrite = TRUE)
             tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
@@ -107,11 +132,18 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
             if (!raw) {
                 aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
                 counts_reprocessed = aligned$reprocessed
-                matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), tax_reprocessed$Sequence)]
+                counts_reprocessed2 = aligned$reprocessed
+                matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+                matched_taxa2 <- tax_reprocessed2$Taxa[match(colnames(counts_reprocessed2), rownames(tax_reprocessed2))]
                 colnames(counts_reprocessed) <- matched_taxa
+                colnames(counts_reprocessed2) <- matched_taxa2
                 counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+                counts_reprocessed2 <- collapse_duplicate_columns_exact(counts_reprocessed2)
                 original_names <- colnames(counts_reprocessed)
+                original_names2 <- colnames(counts_reprocessed2)
                 counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
+                counts_reprocessed2 <- as.data.frame(lapply(counts_reprocessed2, as.numeric), row.names = rownames(counts_reprocessed2), col.names = original_names2, check.names = FALSE)
+                proportions_reprocessed2 <- sweep(counts_reprocessed2, 1, rowSums(counts_reprocessed2), '/')
             }
 
             # ----- Proportions -----
@@ -122,20 +154,38 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
             all_props[[i]]  <- proportions_reprocessed
             all_taxa[[i]]   <- tax_reprocessed
 
+            all_counts2[[i]] <- counts_reprocessed2
+            all_props2[[i]]  <- proportions_reprocessed2
+            if (!file.exists(file.path(local, "rdp16classified.csv.zip"))) {
+                all_taxa2[[i]]   <- tax_reprocessed2
+            }   
+
             cleanup_tempfiles(temp_dir)
         }
     }
 
     # ----- Merge all dataframes -----
-    combined_counts <- do.call(rbind, all_counts)
-    combined_props  <- do.call(rbind, all_props)
+    combined_counts <- bind_rows(all_counts)
+    combined_props  <- bind_rows(all_props)
     combined_taxa   <- bind_rows(all_taxa)
+
+    if (!file.exists(file.path(local, "rdp16classified.csv.zip"))) {
+        combined_counts2 <- bind_rows(all_counts2)
+        combined_props2  <- bind_rows(all_props2)
+        combined_taxa2   <- bind_rows(all_taxa2)
+    } else {
+        combined_counts2 <- NA
+        combined_props2  <- NA
+        combined_taxa2   <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
+    }
 
     if (!raw) {
         counts = fill_na_zero_numeric(counts)
         proportions = fill_na_zero_numeric(proportions)
         combined_counts = fill_na_zero_numeric(combined_counts)
         combined_props = fill_na_zero_numeric(combined_props)
+        combined_counts2 = fill_na_zero_numeric(combined_counts2)
+        combined_props2 = fill_na_zero_numeric(combined_props2)
     }
 
     return(list(
@@ -143,15 +193,15 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
         metadata=metadata, 
         counts=list(
             original=counts, 
-            reprocessed=combined_counts
+            reprocessed=list(rdp19 = combined_counts, rdp16 = combined_counts2)
         ),
         tax=list(
             original=tax,
-            reprocessed=combined_taxa
+            reprocessed=list(rdp19 = combined_taxa, rdp16 = combined_taxa2)
         ),
         proportions=list(
             original=proportions,
-            reprocessed=combined_props
+            reprocessed=list(rdp19 = combined_props, rdp16 = combined_props2)
         )
     ))
 }

@@ -221,6 +221,27 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencing <- function(raw
         if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
         counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
+        # ----- rdp16 -----
+        if (!file.exists(file.path(local,"rdp16classified.csv.zip"))) {
+        if (file.exists(file.path("helperdata/rdp_train_set_16.fa.gz"))) {
+            required_pkgs <- c("dada2", "Biostrings")
+            missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
+            if (length(missing_pkgs) > 0) {
+                stop("RDP classifier detected. Missing required packages: ", paste(missing_pkgs, collapse = ", "),
+                    ". Please install them before running this function.")
+            }
+            seqs <- Biostrings::DNAStringSet(colnames(counts_reprocessed))
+            rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
+            tax_reprocessed2 = make_taxa_label(rdpclassified) 
+            write.csv(tax_reprocessed2, file = file.path(local, "rdp16classified.csv"), row.names = TRUE)
+            } else {
+            stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
+        }
+        
+        } else {
+            tax_reprocessed2 <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
+        }
+
         # ----- Taxonomy reprocessed -----
         unzipped = unzip(repro_tax_zip, exdir = temp_dir, overwrite = TRUE)
         tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
@@ -235,11 +256,18 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencing <- function(raw
         if (!raw) {
             aligned <- rename_and_align(counts_reprocessed=counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
             counts_reprocessed <- aligned$reprocessed
+            counts_reprocessed2 = aligned$reprocessed
             matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+            matched_taxa2 <- tax_reprocessed2$Taxa[match(colnames(counts_reprocessed2), rownames(tax_reprocessed2))]
             colnames(counts_reprocessed) <- matched_taxa
-            counts_reprocessed = collapse_duplicate_columns_exact(counts_reprocessed)
+            colnames(counts_reprocessed2) <- matched_taxa2
+            counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+            counts_reprocessed2 <- collapse_duplicate_columns_exact(counts_reprocessed2)
             original_names <- colnames(counts_reprocessed)
+            original_names2 <- colnames(counts_reprocessed2)
             counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
+            counts_reprocessed2 <- as.data.frame(lapply(counts_reprocessed2, as.numeric), row.names = rownames(counts_reprocessed2), col.names = original_names2, check.names = FALSE)
+            proportions_reprocessed2 <- sweep(counts_reprocessed2, 1, rowSums(counts_reprocessed2), '/')
         }
 
         # proportions reprocessed
@@ -257,13 +285,17 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencing <- function(raw
         MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
         counts_ITS_reprocessed = fill_na_zero_numeric(counts_ITS_reprocessed)
         proportions_ITS_reprocessed = fill_na_zero_numeric(proportions_ITS_reprocessed)
+        counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+        proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+        counts_reprocessed2 = fill_na_zero_numeric(counts_reprocessed2)
+        proportions_reprocessed2 = fill_na_zero_numeric(proportions_reprocessed2)
     }
 
     return(list(
         counts = list(
                     original = counts,
                     reprocessed = list(
-                        amplicon = counts_reprocessed,
+                        amplicon = list(rdp19 = counts_reprocessed, rdp16 = counts_reprocessed2),
                         shotgun = list(
                             mOTU3 = mOTU3_counts,
                             MetaPhlan4 = MetaPhlAn4_counts
@@ -275,7 +307,7 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencing <- function(raw
         proportions = list(
                     original = proportions,
                     reprocessed = list(
-                        amplicon = proportions_reprocessed,
+                        amplicon = list(rdp19 = proportions_reprocessed, rdp16 = proportions_reprocessed2),
                         shotgun = list(
                             mOTU3 = mOTU3_proportions,
                             MetaPhlan4 = MetaPhlAn4_proportions
@@ -286,7 +318,7 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencing <- function(raw
         tax = list(
                     original = tax,
                     reprocessed = list(
-                        amplicon = tax_reprocessed,
+                        amplicon = list(rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2),
                         shotgun = list(
                             mOTU3 = mOTU3_tax,
                             MetaPhlan4 = MetaPhlAn4_tax

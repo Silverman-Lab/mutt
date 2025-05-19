@@ -187,6 +187,27 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
       counts_reprocessed <- counts_reprocessed %>%
         tibble::column_to_rownames("Sample")
 
+      # ----- rdp16 -----
+      if (!file.exists(file.path(local,"rdp16classified.csv.zip"))) {
+        if (file.exists(file.path("helperdata/rdp_train_set_16.fa.gz"))) {
+            required_pkgs <- c("dada2", "Biostrings")
+            missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
+            if (length(missing_pkgs) > 0) {
+              stop("RDP classifier detected. Missing required packages: ", paste(missing_pkgs, collapse = ", "),
+                  ". Please install them before running this function.")
+            }
+            seqs <- Biostrings::DNAStringSet(colnames(counts_reprocessed))
+            rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
+            tax_reprocessed2 = make_taxa_label(rdpclassified) 
+            tax_reprocessed2$BioProject <- study_prefix
+          } else {
+            stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
+        }
+        
+        } else {
+          tax_reprocessed2 <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
+      }
+
 
       # ----- Unzip and read taxonomy -----
       unzipped = unzip(tax_zip, exdir = temp_dir, overwrite = TRUE)
@@ -211,6 +232,22 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
             original_names <- colnames(counts_reprocessed)
             counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
         }
+
+        counts_reprocessed2 = aligned$reprocessed
+        
+        # Skip processing if no rows in counts_reprocessed
+        if (nrow(counts_reprocessed2) > 0) {
+            matched_taxa <- tax_reprocessed2$Taxa[match(colnames(counts_reprocessed2), tax_reprocessed2$Sequence)]
+            colnames(counts_reprocessed2) <- matched_taxa
+            counts_reprocessed2 <- collapse_duplicate_columns_exact(counts_reprocessed2)
+            original_names2 <- colnames(counts_reprocessed2)
+            counts_reprocessed2 <- as.data.frame(lapply(counts_reprocessed2, as.numeric), row.names = rownames(counts_reprocessed2), col.names = original_names2, check.names = FALSE)
+            proportions_reprocessed2 <- sweep(counts_reprocessed2, 1, rowSums(counts_reprocessed2), '/')
+            all_counts2[[i]] <- counts_reprocessed2
+            all_props2[[i]]  <- proportions_reprocessed2
+            all_taxa2[[i]]   <- tax_reprocessed2
+
+        }
       }
 
       if (nrow(counts_reprocessed) > 0) {
@@ -234,11 +271,24 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   combined_props  <- bind_rows(all_props)
   combined_taxa   <- bind_rows(all_taxa)
 
+  if (!file.exists(file.path(local, "rdp16classified.csv.zip"))) {
+      combined_counts2 = bind_rows(all_counts2)
+      combined_props2 = bind_rows(all_props2)
+      combined_taxa2 = bind_rows(all_taxa2)
+      write.csv(combined_taxa2, file = file.path(local, "rdp16classified.csv"), row.names = TRUE)
+  } else {
+      combined_counts2 = bind_rows(all_counts2)
+      combined_props2 = bind_rows(all_props2)
+      combined_taxa2 = read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
+  }
+
   if (!raw) {
       counts = fill_na_zero_numeric(counts)
       proportions = fill_na_zero_numeric(proportions)
       combined_counts = fill_na_zero_numeric(combined_counts)
       combined_props = fill_na_zero_numeric(combined_props)
+      combined_counts2 = fill_na_zero_numeric(combined_counts2)
+      combined_props2 = fill_na_zero_numeric(combined_props2)
   }
 
   return(list(
@@ -246,15 +296,15 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
     metadata=metadata, 
     counts=list(
       original=counts, 
-      reprocessed=combined_counts
+      reprocessed=list(rdp19 = combined_counts, rdp16 = combined_counts2)
     ),
     tax=list(
       original=tax,
-      reprocessed=combined_taxa 
+      reprocessed=list(rdp19 = combined_taxa, rdp16 = combined_taxa2)
     ),
     proportions=list(
       original=proportions,
-      reprocessed=combined_props
+      reprocessed=list(rdp19 = combined_props, rdp16 = combined_props2)
     )
   ))
 }

@@ -32,7 +32,10 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     tax_original <- NA
     counts_reprocessed <- NA
     proportions_reprocessed <- NA
+    counts_reprocessed2 <- NA
+    proportions_reprocessed2 <- NA
     tax_reprocessed <- NA
+    tax_reprocessed2 <- NA
     scale <- NA
     metadata <- NA
     sra <- NA
@@ -102,76 +105,81 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     })
 
     # ----- Reprocessed counts from RDS ZIP -----
-    tryCatch({
-        temp_rds <- tempfile("repro")
-        dir.create(temp_rds)
-        unzipped = unzip(repro_counts_rds_zip, exdir = temp_rds, overwrite = TRUE)
+    if (file.exists(repro_counts_rds_zip)) {
+        temp_dir <- tempfile("repro")
+        dir.create(temp_dir)
+        unzipped <- unzip(repro_counts_rds_zip, exdir = temp_dir, overwrite = TRUE)
         counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
         if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
         counts_reprocessed <- as.data.frame(readRDS(counts_file))
 
+        # ----- rdp16 -----
+        if (!file.exists(file.path(local,"rdp16classified.csv.zip"))) {
+        if (file.exists(file.path("helperdata/rdp_train_set_16.fa.gz"))) {
+            required_pkgs <- c("dada2", "Biostrings")
+            missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
+            if (length(missing_pkgs) > 0) {
+                stop("RDP classifier detected. Missing required packages: ", paste(missing_pkgs, collapse = ", "),
+                    ". Please install them before running this function.")
+            }
+            seqs <- Biostrings::DNAStringSet(colnames(counts_reprocessed))
+            rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
+            tax_reprocessed2 = make_taxa_label(rdpclassified) 
+            write.csv(tax_reprocessed2, file = file.path(local, "rdp16classified.csv"), row.names = TRUE)
+            } else {
+            stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
+        }
+        
+        } else {
+            tax_reprocessed2 <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
+        }
+
         # ----- Taxonomy reprocessed -----
-        unzipped = unzip(repro_tax_zip, exdir = temp_rds, overwrite = TRUE)
+        unzipped <- unzip(repro_tax_zip, exdir = temp_dir, overwrite = TRUE)
         tax_file <- unzipped[grep("_taxa\\.rds$", unzipped, ignore.case = TRUE)][1]
         if (is.na(tax_file)) stop("No *_taxa.rds file found after unzip")
         tax_reprocessed <- as.data.frame(readRDS(tax_file))
-        
-        # ----- Convert sequences to lowest rank taxonomy found and update key -----
         tax_reprocessed = make_taxa_label(tax_reprocessed)
-    }, error = function(e) {
-        warning("Error processing reprocessed taxonomy: ", e$message)
-    })
+        
+        # ----- Convert accessions to sample IDs / Sequences to Taxa -----
+        if (!raw) {
+        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+        counts_reprocessed = aligned$reprocessed
+        counts_reprocessed2 = aligned$reprocessed
+        matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
+        matched_taxa2 <- tax_reprocessed2$Taxa[match(colnames(counts_reprocessed2), rownames(tax_reprocessed2))]
+        colnames(counts_reprocessed) <- matched_taxa
+        colnames(counts_reprocessed2) <- matched_taxa2
+        counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
+        counts_reprocessed2 <- collapse_duplicate_columns_exact(counts_reprocessed2)
+        original_names <- colnames(counts_reprocessed)
+        original_names2 <- colnames(counts_reprocessed2)
+        counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
+        counts_reprocessed2 <- as.data.frame(lapply(counts_reprocessed2, as.numeric), row.names = rownames(counts_reprocessed2), col.names = original_names2, check.names = FALSE)
+        proportions_reprocessed2 <- sweep(counts_reprocessed2, 1, rowSums(counts_reprocessed2), '/')
+        }
 
-    # ----- Convert accessions to sample IDs / Sequences to Taxa -----
-    if (!raw && !is.na(counts_reprocessed)[1]) {
-        tryCatch({
-            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, 
-                                    metadata = metadata, 
-                                    scale = scale, 
-                                    by_col = "Sample_name", 
-                                    align = align, 
-                                    study_name = basename(local))
-            counts_reprocessed = aligned$reprocessed
-            asv_seqs <- trimws(colnames(counts_reprocessed))
-            tax_seqs <- trimws(rownames(tax_reprocessed))
-            seq_to_taxa <- setNames(tax_reprocessed$Taxa, tax_seqs)
-            matched_taxa <- seq_to_taxa[asv_seqs]
-            matched_taxa[is.na(matched_taxa)] <- "unclassified"
-            colnames(counts_reprocessed) <- matched_taxa
-            counts_reprocessed <- collapse_duplicate_columns_exact(counts_reprocessed)
-            original_names <- colnames(counts_reprocessed)
-            counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
-        }, error = function(e) {
-            warning("Error aligning reprocessed data: ", e$message)
-        })
-    }
+        # proportions reprocessed
+        proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
 
-    # proportions reprocessed
-    if (!is.na(counts_reprocessed)[1]) {
-        tryCatch({
-            proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
-        }, error = function(e) {
-            warning("Error calculating reprocessed proportions: ", e$message)
-        })
+        if (!raw) {
+            counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+            proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+            counts_reprocessed2 = fill_na_zero_numeric(counts_reprocessed2)
+            proportions_reprocessed2 = fill_na_zero_numeric(proportions_reprocessed2)
+        }
+    } else {
+        counts_reprocessed = NA
+        proportions_reprocessed = NA
+        tax_reprocessed = NA
+        counts_reprocessed2 = NA
+        proportions_reprocessed2 = NA
+        tax_reprocessed2 = NA
     }
 
     if (!raw) {
-        tryCatch({
-            if (!is.na(counts_original)[1]) {
-                counts_original = fill_na_zero_numeric(counts_original)
-            }
-            if (!is.na(proportions_original)[1]) {
-                proportions_original = fill_na_zero_numeric(proportions_original)
-            }
-            if (!is.na(counts_reprocessed)[1]) {
-                counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
-            }
-            if (!is.na(proportions_reprocessed)[1]) {
-                proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
-            }
-        }, error = function(e) {
-            warning("Error filling NA values: ", e$message)
-        })
+        counts_original = fill_na_zero_numeric(counts_original)
+        proportions_original = fill_na_zero_numeric(proportions_original)
     }
 
     cleanup_tempfiles(temp_rds)
@@ -180,15 +188,15 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
     return(list(
         counts = list(
             original = counts_original,
-            reprocessed = counts_reprocessed
+            reprocessed = list(rdp19 = counts_reprocessed, rdp16 = counts_reprocessed2)
         ),
         proportions = list(
             original = proportions_original,
-            reprocessed = proportions_reprocessed
+            reprocessed = list(rdp19 = proportions_reprocessed, rdp16 = proportions_reprocessed2)
         ),
         tax = list(
             original = tax_original,
-            reprocessed = tax_reprocessed
+            reprocessed = list(rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2)
         ),
         scale = scale,
         metadata = metadata
