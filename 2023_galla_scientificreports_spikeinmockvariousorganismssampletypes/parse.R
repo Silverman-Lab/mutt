@@ -32,12 +32,6 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
     metadata_SRA2_zip    <- file.path(local, "SraRunTable (39).csv.zip")
     metadata_zip         <- file.path(local, "41598_2023_30916_MOESM3_ESM.xlsx.zip")
     metadata1_zip        <- file.path(local, "table1.csv.zip")
-
-    # ----- counts, tax, proportions -----
-    counts = NA
-    tax = NA
-    proportions = NA
-
     # ----- scale and metadata -----
     metadata = read_zipped_table(metadata_SRA1_zip, row.names = NULL) %>% rename(Accession = Run)
     metadata2 = read_zipped_table(metadata_SRA2_zip, row.names = NULL) %>% rename(Accession = Run)
@@ -70,6 +64,11 @@ parse_2023_galla_scientificreports_spikeinmockvariousorganismssampletypes <- fun
         mutate(log10_ddPCR = ifelse(`16S rRNA gene copies  / DNA ng (ddPCR)` > 0, log10(`16S rRNA gene copies  / DNA ng (ddPCR)`), NA))
 
     cleanup_tempfiles(temp_dir)
+
+    # ----- counts, tax, proportions -----
+    counts = NA
+    tax = NA
+    proportions = NA
 
     # ---- Reprocessed data -----
     all_counts <- list()

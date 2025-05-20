@@ -257,25 +257,22 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
 
     # CAN DELETE LATER WHEN REPROCESSING FINISHES -- MY OLD REPROCESSING:
     counts_reprocessed    <- read_zipped_table(counts_16s_zip) 
-    counts_reprocessed2   <- read_zipped_table(counts_16s_zip) 
-    MetaPhlAn4_counts   <- read_zipped_table(counts_meta_zip) 
+    MetaPhlAn4_counts     <- read_zipped_table(counts_meta_zip) 
+    MetaPhlAn4_tax        <- data.frame(Taxa = colnames(MetaPhlAn4_counts))
+    tax_reprocessed       <- data.frame(Taxa = colnames(counts_reprocessed))
     if (!raw) {
         aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata_16s_df, scale=scale_16s_df, by_col="Sample Name", align = align, study_name=basename(local))
         counts_reprocessed = aligned$reprocessed
         original_names <- colnames(counts_reprocessed)
         counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
-        aligned = rename_and_align(counts_reprocessed = counts_reprocessed2, metadata=metadata_16s_df, scale=scale_16s_df, by_col="Sample Name", align = align, study_name=basename(local))
-        counts_reprocessed2 = aligned$reprocessed
-        original_names2 <- colnames(counts_reprocessed2)
-        counts_reprocessed2 <- as.data.frame(lapply(counts_reprocessed2, as.numeric), row.names = rownames(counts_reprocessed2), col.names = original_names2, check.names = FALSE)
         aligned = rename_and_align(counts_reprocessed = MetaPhlAn4_counts, metadata=metadata_meta_df, scale=scale_meta_df, by_col="Sample Name", align = align, study_name=basename(local))
         MetaPhlAn4_counts = aligned$reprocessed
         original_names <- colnames(MetaPhlAn4_counts)
         MetaPhlAn4_counts <- as.data.frame(lapply(MetaPhlAn4_counts, as.numeric), row.names = rownames(MetaPhlAn4_counts), col.names = original_names, check.names = FALSE)
     }
-    proportions_reprocessed2 <- sweep(counts_reprocessed2, 1, rowSums(counts_reprocessed2), '/')
     proportions_reprocessed <- sweep(counts_reprocessed, MARGIN = 1,STATS  = rowSums(counts_reprocessed), FUN = "/")
     MetaPhlAn4_proportions <- sweep(MetaPhlAn4_counts, MARGIN = 1,STATS  = rowSums(MetaPhlAn4_counts), FUN = "/")
+
 
     if (!raw) {
         counts_original_16s = fill_na_zero_numeric(counts_original_16s)

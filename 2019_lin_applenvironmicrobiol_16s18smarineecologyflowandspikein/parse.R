@@ -57,7 +57,10 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
   counts_reprocessed_list      <- list()
   proportions_reprocessed_list <- list()
   tax_reprocessed_list         <- list()
-
+  counts_reprocessed2_list      <- list()
+  proportions_reprocessed2_list <- list()
+  tax_reprocessed2_list         <- list()
+  
   if (all(file.exists(repro_counts_zips))) {
     for (i in seq_along(repro_counts_zips)) {
       # ----- Reprocessed counts from RDS ZIP -----
@@ -143,15 +146,15 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
   return(list(
     counts = list(
       original = NA,
-      reprocessed = counts_reprocessed_list
+      reprocessed = list(rdp19 = counts_reprocessed_list, rdp16 = counts_reprocessed2_list)
     ),
     proportions = list(
       original = NA,
-      reprocessed = proportions_reprocessed_list
+      reprocessed = list(rdp19 = proportions_reprocessed_list, rdp16 = proportions_reprocessed2_list)
     ),
     tax = list(
       original = NA,
-      reprocessed = tax_reprocessed_list
+      reprocessed = list(rdp19 = tax_reprocessed_list, rdp16 = tax_reprocessed2_list)
     ),
     scale = scale,
     metadata = metadata

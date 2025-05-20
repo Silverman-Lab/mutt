@@ -154,9 +154,18 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   proportions <- sweep(counts, MARGIN = 1,STATS  = rowSums(counts), FUN = "/")
   
   # Initialize storage lists
+  all_counts = NA
+  all_props = NA
+  all_taxa = NA
+  all_counts2 = NA
+  all_props2 = NA
+  all_taxa2 = NA
   all_counts <- list()
   all_props  <- list()
   all_taxa   <- list()
+  all_counts2 <- list()
+  all_props2 <- list()
+  all_taxa2 <- list()
 
   if (all(file.exists(repro_counts_zips)) && all(file.exists(repro_tax_zips))) {
     for (i in seq_along(repro_counts_zips)) {
@@ -200,6 +209,7 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
             rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
             tax_reprocessed2 = make_taxa_label(rdpclassified) 
             tax_reprocessed2$BioProject <- study_prefix
+            tax_reprocessed$Sequence <- rownames(tax_reprocessed)
           } else {
             stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
         }
@@ -267,18 +277,42 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
   }
 
   # ----- Merge all dataframes -----
-  combined_counts <- bind_rows(all_counts)
-  combined_props  <- bind_rows(all_props)
-  combined_taxa   <- bind_rows(all_taxa)
+  combined_counts <- all_counts %>%
+      imap(~ as.data.frame(.x) %>% rownames_to_column("Sample")) %>%
+      reduce(full_join, by = "Sample") %>%
+      column_to_rownames("Sample") %>%
+      replace(is.na(.), 0)
+  combined_props  <- all_props %>%
+      imap(~ as.data.frame(.x) %>% rownames_to_column("Sample")) %>%
+      reduce(full_join, by = "Sample") %>%
+      column_to_rownames("Sample") %>%
+      replace(is.na(.), 0)
+  combined_taxa = bind_rows(all_taxa) 
 
   if (!file.exists(file.path(local, "rdp16classified.csv.zip"))) {
-      combined_counts2 = bind_rows(all_counts2)
-      combined_props2 = bind_rows(all_props2)
+      combined_counts2 = all_counts2 %>%
+      imap(~ as.data.frame(.x) %>% rownames_to_column("Sample")) %>%
+      reduce(full_join, by = "Sample") %>%
+      column_to_rownames("Sample") %>%
+      replace(is.na(.), 0)
+      combined_props2 = all_props2 %>%
+      imap(~ as.data.frame(.x) %>% rownames_to_column("Sample")) %>%
+      reduce(full_join, by = "Sample") %>%
+      column_to_rownames("Sample") %>%
+      replace(is.na(.), 0)
       combined_taxa2 = bind_rows(all_taxa2)
       write.csv(combined_taxa2, file = file.path(local, "rdp16classified.csv"), row.names = TRUE)
   } else {
-      combined_counts2 = bind_rows(all_counts2)
-      combined_props2 = bind_rows(all_props2)
+      combined_counts2 = all_counts2 %>%
+      imap(~ as.data.frame(.x) %>% rownames_to_column("Sample")) %>%
+      reduce(full_join, by = "Sample") %>%
+      column_to_rownames("Sample") %>%
+      replace(is.na(.), 0)
+      combined_props2 = all_props2 %>%
+      imap(~ as.data.frame(.x) %>% rownames_to_column("Sample")) %>%
+      reduce(full_join, by = "Sample") %>%
+      column_to_rownames("Sample") %>%
+      replace(is.na(.), 0)
       combined_taxa2 = read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
   }
 

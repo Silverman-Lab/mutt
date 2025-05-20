@@ -182,7 +182,7 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
         proportions_original = fill_na_zero_numeric(proportions_original)
     }
 
-    cleanup_tempfiles(temp_rds)
+    cleanup_tempfiles(temp_dir)
 
     # ----- Return structured list -----
     return(list(

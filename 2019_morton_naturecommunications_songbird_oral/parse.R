@@ -386,37 +386,37 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
             original = counts,
             reprocessed = list(amplicon = list(
               rdp19 = counts_reprocessed, 
-              rdp16 = counts_reprocessed2,
+              rdp16 = counts_reprocessed2
             ),
             shotgun = list(
               mOTU3 = mOTU3_counts,
               MetaPhlAn4 = MetaPhlAn4_counts
             )
-                              )
+            )
         ),
         proportions = list(
             original = proportions,
             reprocessed = list(amplicon = list(
               rdp19 = proportions_reprocessed, 
-              rdp16 = proportions_reprocessed2,
+              rdp16 = proportions_reprocessed2
             ),
             shotgun = list(
               mOTU3 = mOTU3_proportions,
               MetaPhlAn4 = MetaPhlAn4_proportions
             )
-                              )
+            )
         ),
         tax = list(
             original = tax,
             reprocessed = list(amplicon = list(
               rdp19 = tax_reprocessed, 
-              rdp16 = tax_reprocessed2,
+              rdp16 = tax_reprocessed2
             ),
             shotgun = list(
               mOTU3 = mOTU3_tax,
               MetaPhlAn4 = MetaPhlAn4_tax
             )
-                              )
+            )
         ),
         scale = list(original = primarystudyscale, 
                     reprocessed = srascale

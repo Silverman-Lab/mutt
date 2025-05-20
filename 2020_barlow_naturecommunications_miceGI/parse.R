@@ -156,6 +156,7 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
         if (!raw) {
             aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample", align = align, study_name = basename(local))
             counts_reprocessed = aligned$reprocessed
+            counts_reprocessed2 = aligned$reprocessed
             matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
             matched_taxa2 <- tax_reprocessed2$Taxa[match(colnames(counts_reprocessed2), rownames(tax_reprocessed2))]
             colnames(counts_reprocessed) <- matched_taxa

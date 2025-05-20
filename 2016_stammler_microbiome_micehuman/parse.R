@@ -36,6 +36,9 @@ parse_2016_stammler_microbiome_micehuman <- function(raw = FALSE, align = FALSE)
     counts_reprocessed <- NA
     proportions_reprocessed <- NA
     tax_reprocessed <- NA
+    counts_reprocessed2 <- NA
+    proportions_reprocessed2 <- NA
+    tax_reprocessed2 <- NA
 
     
     # ---- scale and metadata -----

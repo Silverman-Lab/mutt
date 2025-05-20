@@ -97,7 +97,10 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
     tax_original <- NA
     counts_reprocessed <- NA
     proportions_reprocessed <- NA
+    counts_reprocessed2 <- NA
+    proportions_reprocessed2 <- NA
     tax_reprocessed <- NA
+    tax_reprocessed2 <- NA
     scale <- NA
     metadata <- NA
 

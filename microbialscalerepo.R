@@ -185,7 +185,7 @@ microbialscalerepo <- function(
       cat(sprintf("\r[%d/%d] %s", i, n, parser))
       flush.console()  
     }
-    
+
     res <- tryCatch(
       suppressWarnings(suppressMessages(get(fun_name, envir = env)(raw = rawdata, align = align_samples))), 
       error = function(e) {

@@ -178,15 +178,15 @@ parse_2025_wagner_frontiersinmiccrobiology_flowpiglets <- function(raw = FALSE, 
     return(list(
         counts = list(
             original = counts_original,
-            reprocessed = list(counts = counts_reprocessed, proportions = proportions_reprocessed)
+            reprocessed = list(rdp19 = counts_reprocessed, rdp16 = counts_reprocessed2)
         ),
         tax = list(
             original = tax_original,
-            reprocessed = list(tax = tax_reprocessed, proportions = proportions_reprocessed2)
+            reprocessed = list(rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2)
         ),
         proportions = list(
             original = proportions_original,
-            reprocessed = list(proportions = proportions_reprocessed, proportions2 = proportions_reprocessed2)
+            reprocessed = list(rdp19 = proportions_reprocessed, rdp16 = proportions_reprocessed2)
         ),
         metadata = metadata,
         scale = scale

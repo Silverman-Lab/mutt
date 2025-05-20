@@ -128,7 +128,7 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE,
     if (!raw) {
         aligned_data = rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "Sample_ID", align = align, study_name = basename(local))
         counts_reprocessed = aligned_data$reprocessed
-        counts_reprocessed2 = aligned_data$reprocessed2 
+        counts_reprocessed2 = aligned_data$reprocessed
         matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
         matched_taxa2 <- tax_reprocessed2$Taxa[match(colnames(counts_reprocessed2), rownames(tax_reprocessed2))]
         colnames(counts_reprocessed) <- matched_taxa
@@ -146,10 +146,7 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE,
     proportions_reprocessed <- as.data.frame(proportions_reprocessed, check.names = FALSE)
     cleanup_tempfiles(temp_dir)
   }
-    tax <- tibble(
-      Taxon = taxon_names,
-      OriginalName = colnames(countsdata)[!(colnames(countsdata) %in% columns_to_drop)]
-    )
+
   if (!raw) {
     counts_original = fill_na_zero_numeric(counts_original)
     counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
