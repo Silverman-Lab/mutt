@@ -142,11 +142,10 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
                 stop("RDP classifier file not detected: helperdata/rdp_train_set_16.fa.gz, Please download rdp_train_set_16.fa.gz before running this function.")
             }
         } else {
-            orig_tax_rdp16 <- read_zipped_table(file.path(local, "otu_taxonomy_rdp16.csv.zip"), row.names = 1)
+            orig_tax_rdp16 <- read_zipped_table(file.path(local, "otu_taxonomy_rdp16.csv.zip"), row.names = "ASV")
         }
 
         tax_original_rdp16 = make_taxa_label(orig_tax_rdp16)
-        rownames(tax_original_rdp16) <- tax_original_rdp16$ASV
 
 
         original_tax_classified <- as.data.frame(merge(orig_tax_rdp, orig_tax_silva, by="ASV", all=TRUE, suffixes = c("_rdp", "_silva")))
