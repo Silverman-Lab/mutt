@@ -138,11 +138,11 @@ parse_2017_props_isme_longitudinal <- function(raw = FALSE, align = FALSE) {
       original_names2 <- colnames(counts_reprocessed2)
       counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
       counts_reprocessed2 <- as.data.frame(lapply(counts_reprocessed2, as.numeric), row.names = rownames(counts_reprocessed2), col.names = original_names2, check.names = FALSE)  
+      proportions_reprocessed2 <- sweep(counts_reprocessed2, 1, rowSums(counts_reprocessed2), '/')
     }
 
     # proportions reprocessed
     proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
-    proportions_reprocessed2 <- sweep(counts_reprocessed2, 1, rowSums(counts_reprocessed2), '/')
     cleanup_tempfiles(temp_rds)
   }
   
