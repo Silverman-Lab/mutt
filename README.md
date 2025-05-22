@@ -118,7 +118,7 @@ study_parsers <- c(
     Tettamanti_Boshier2020 = "2020_tettamantiboshier_msystems_vaginaltimeseries",
     Kruger2024 = "2024_kruger_scientificreports_ddpcrhealthysubjects",
     Liu2017 = "2017_liu_mbio_penilehivqPCR",
-    #Fu2023 = "2023_fu_imeta_wasterwater_pathogens",
+    Fu2023 = "2023_fu_imeta_wasterwater_pathogens",
     Jin2022 = "2022_jin_natureComm_technicalReplicates",
     Zaramela2022 = "2022_zaramela_msystems_synDNA",
     Feng2023 = "2023_feng_imetawiley_chickensegment",
