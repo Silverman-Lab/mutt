@@ -303,7 +303,7 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
                     ),
                     shotgun = list(
                         mOTU3 = mOTU3_counts,
-                        MetaPhlan4 = MetaPhlAn4_counts
+                        MetaPhlAn4 = MetaPhlAn4_counts
                     )
                 )
 
@@ -320,7 +320,7 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
                     ),
                     shotgun = list(
                         mOTU3 = mOTU3_proportions,
-                        MetaPhlan4 = MetaPhlAn4_proportions
+                        MetaPhlAn4 = MetaPhlAn4_proportions
                     )
                 )
     ),
@@ -336,7 +336,7 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
                     ),
                     shotgun = list(
                         mOTU3 = mOTU3_tax,
-                        MetaPhlan4 = MetaPhlAn4_tax
+                        MetaPhlAn4 = MetaPhlAn4_tax
                     )
                 )
     ),

@@ -169,9 +169,10 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
     file <- supplemental_excel[1]
 
     # Read Scale sheets
-    scale_ <- readxl::read_excel(file, sheet = "sTable4")
-    scale_ITS <- readxl::read_excel(file, sheet = "sTable6")
-    scale <- bind_rows(Filter(Negate(is.null), list(scale_, scale_ITS))) %>% select(-c(`Sample description`)) %>%
+    scale_16S <- readxl::read_excel(file, sheet = "sTable4") 
+    scale_ITS <- readxl::read_excel(file, sheet = "sTable6") 
+    scale <- full_join(scale_16S, scale_ITS, by = "Sample_name") %>%
+      mutate(across(-Sample_name, as.numeric))  %>% select(-c(`Sample description`)) %>%
       rename(
         MK_spike_univ16S = `MK-SpikeSeq-univ16S`,
         MK_spike_arch16S = `MK-SpikeSeq-arch16S`, 
@@ -193,7 +194,6 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
         ITS1_spikein_reads = `ITS1-spikein-reads`,
         ITS1_total_abundance = `ITS1-total-abundance`
       ) %>%
-      mutate(across(-Sample_name, as.numeric)) %>%
       mutate(
         log2_MK_spike_univ16S = ifelse(MK_spike_univ16S > 0, log2(MK_spike_univ16S), NA),
         log10_MK_spike_univ16S = ifelse(MK_spike_univ16S > 0, log10(MK_spike_univ16S), NA),
@@ -661,7 +661,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
         )
       ),
       reprocessed = list(
-          counts = list(rdp19 = counts_reprocessed, rdp16 = counts_reprocessed2)
+          rdp19 = counts_reprocessed, rdp16 = counts_reprocessed2
       )
     ),
     proportions = list(
@@ -689,7 +689,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
         )
       ),
       reprocessed = list(
-          proportions = list(rdp19 = proportions_reprocessed, rdp16 = proportions_reprocessed2)
+          rdp19 = proportions_reprocessed, rdp16 = proportions_reprocessed2
       )
     ),
     tax = list(
@@ -717,7 +717,7 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
         )
       ),
       reprocessed = list(
-          tax = list(rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2)
+          rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2
       )
     ),
     scale = list(combinedphases = scale_matched_only,

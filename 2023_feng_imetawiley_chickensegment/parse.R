@@ -59,6 +59,9 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
         mutate(Sample = paste0(Sample, "_", Amplicontype)) %>% 
         select(-Amplicontype)
 
+    scale = left_join(scale, metadata %>% select(c("Sample", "Accession")), by = c("Sample"))
+    
+
     # ----- counts, tax, proportions -----
     counts_16s = read_zipped_table(counts_16s_zip, row.names=NULL) %>%
                     select(-c("Group1","Group2")) %>% rename(Sample = index) %>% 
@@ -177,7 +180,7 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
     
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
     if (!raw) {
-      aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_name", align = align, study_name=basename(local))
+      aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
       counts_reprocessed = aligned$reprocessed
       counts_reprocessed2 = aligned$reprocessed
       matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
@@ -205,6 +208,8 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
         proportions_ITS = fill_na_zero_numeric(proportions_ITS)
         counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
         proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+        counts_reprocessed2 = fill_na_zero_numeric(counts_reprocessed2)
+        proportions_reprocessed2 = fill_na_zero_numeric(proportions_reprocessed2)
     }
 
     # ----- Return structured list -----

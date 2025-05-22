@@ -93,7 +93,7 @@ parse_2021_rolling_naturemicrobiology_allohct_ITS_16s <- function(raw = FALSE, a
     culture_cfu <- read_zipped_table(culture_cfu_zip, row.names=NULL)
 
     # ---- metadata ----
-    metadata <- read_zipped_table(metadata_zip, row.names=NULL)
+    metadata <- read_zipped_table(metadata_zip, row.names=NULL) %>% rename(Sample_ID = `patient.id`)
 
     # ---- sra ----
     sra_tables <- lapply(sra_zips, function(zip) {
@@ -105,7 +105,18 @@ parse_2021_rolling_naturemicrobiology_allohct_ITS_16s <- function(raw = FALSE, a
     })
     
     # Combine all tables keeping all columns
-    sra <- bind_rows(sra_tables[!sapply(sra_tables, is.null)])
+    tables <- sra_tables[sapply(sra_tables, is.data.frame)]
+
+    tables2 <- lapply(tables, function(df) {
+    if ("Patient_ID" %in% names(df)) {
+        df$Patient_ID <- as.character(df$Patient_ID)
+        df$Pool <- as.character(df$Pool)
+    }
+    df
+    })
+
+    # (2) Bind them all together:
+    sra_combined <- bind_rows(tables2, .id = "source")
 
 
     # ---- counts, proportions, tax ----   
