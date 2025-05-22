@@ -124,6 +124,9 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
     counts_reprocessed_list <- list()
     proportions_reprocessed_list <- list()
     tax_reprocessed_list <- list()
+    counts_reprocessed2_list <- list()
+    proportions_reprocessed2_list <- list()
+    tax_reprocessed2_list <- list()
 
     for (i in seq_along(repro_counts_zips)) {
         # Unzip and read counts
