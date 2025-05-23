@@ -1,5 +1,5 @@
 parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
-    required_pkgs <- c("tidyverse", "readxl", "stringr")
+    required_pkgs <- c("tidyverse", "readxl", "stringr", "Biostrings", "dada2")
     missing_pkgs <- required_pkgs[!sapply(required_pkgs, requireNamespace, quietly = TRUE)]
     if (length(missing_pkgs) > 0) {
         stop("Missing required packages: ", paste(missing_pkgs, collapse = ", "),
@@ -14,6 +14,8 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
     
     library(stringr)
     library(tidyverse)
+    library(Biostrings)
+    library(dada2)
 
     # ---------- MANAN PROCESSED BELOW ----------
 
@@ -84,17 +86,26 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
     local <- file.path("2023_pereira_nature_nervous")
 
     # ----- File paths -----
-    repro_counts_rds_zip <- file.path(local, "PRJNA1033532_dada2_counts.rds.zip")
-    repro_tax_zip        <- file.path(local, "PRJNA1033532_dada2_taxa.rds.zip")
-    scale_16s_zip        <- file.path(local, "Pereira2023_scale.csv.zip")
-    counts_16s_zip       <- file.path(local, "Pereira_2023_16S.csv.zip")
-    metadata_16s_zip     <- file.path(local, "Pereira_2023_metadata.csv.zip")
-    sra_zip              <- file.path(local, "SraRunTable (38).csv.zip")
+    repro_counts_rds_zip                  <- file.path(local, "PRJNA1033532_dada2_counts.rds.zip")
+    repro_tax_zip                         <- file.path(local, "PRJNA1033532_dada2_taxa.rds.zip")
+    scale_16s_zip                         <- file.path(local, "Pereira2023_scale.csv.zip")
+    metadata_16s_zip                      <- file.path(local, "Pereira_2023_metadata.csv.zip")
+    DADA2_counts_as_matrix_Drugs_zip      <- file.path(local, "DADA2_counts_as_matrix_Drugs.txt.zip")
+    DADA2_counts_as_matrix_FeRecovery_zip <- file.path(local, "DADA2_counts_as_matrix_FeRecovery.txt.zip")
+    cleaned_DADA2_ASVs_Drugs_zip          <- file.path(local, "cleaned_DADA2_ASVs_Drugs.fna.zip")
+    cleaned_DADA2_ASVs_FeRecovery_zip     <- file.path(local, "cleaned_DADA2_ASVs_Drugs_FeRecovery.fna.zip")
+    sra_zip                               <- file.path(local, "SraRunTable (38).csv.zip")
 
     # ----- Initialize everything as NA -----
     counts_original <- NA
     proportions_original <- NA
     tax_original <- NA
+    counts_original_16 <- NA
+    counts_original_19 <- NA
+    proportions_original_16 <- NA
+    proportions_original_19 <- NA
+    tax_original16 <- NA
+    tax_original19 <- NA
     counts_reprocessed <- NA
     proportions_reprocessed <- NA
     counts_reprocessed2 <- NA
@@ -108,12 +119,9 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
     scale         <- read_zipped_table(scale_16s_zip, row.names = NULL) %>% rename(Sample = `Sequencing sample ID`) 
     metadata      <- read_zipped_table(metadata_16s_zip, row.names = NULL) %>% rename(Sample = `Sequencing sample ID`)
     sra          <- read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run, Sample = `Library Name`) %>% mutate(Sample = gsub("-", "_", Sample))
-    
-    # Merge metadata components
+
     metadata      <- full_join(scale, metadata, by = "Sample")
     metadata      <- full_join(sra, metadata, by = "Sample")
-    
-    # Update scale with log transformations
     scale         <- scale %>% 
                     dplyr::select(c("Sample", "Cells/mL")) %>% 
                     mutate(`Cells/mL` = as.numeric(`Cells/mL`)) %>%
@@ -121,34 +129,91 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
                     rename(log10_FC_cells_ml = `Cells/mL`)
 
     # ------ original counts ------
-    counts_original <- read_zipped_table(counts_16s_zip)
+    counts_original1 <- read_zipped_table(DADA2_counts_as_matrix_Drugs_zip, sep = "\t")
+    counts_original2 <- read_zipped_table(DADA2_counts_as_matrix_FeRecovery_zip, sep = "\t")
 
-    if (!is.na(counts_original)[1]) {
-        original_taxa <- colnames(counts_original)
+    df1 <- as.data.frame(counts_original1)
+    df1$Feature <- rownames(df1)
+    df2 <- as.data.frame(counts_original2)
+    df2$Feature <- rownames(df2)
+    all <- merge(df1, df2, by="Feature", all=TRUE)
+    all[is.na(all)] <- 0
+    counts_original <- aggregate(. ~ Feature, data=all, FUN=sum)
+    rownames(counts_original) <- counts_original$Feature
+    counts_original$Feature <- NULL
+    counts_original <- as.data.frame(t(counts_original))
 
-        # Create taxa mapping data frame
-        tax_original <- data.frame(
-            Taxa = original_taxa,
-            stringsAsFactors = FALSE
-        )
+    # ------ original tax ------
+    fna_file <- unzip(cleaned_DADA2_ASVs_Drugs_zip, list=TRUE)$Name
+    tmp <- tempdir()
+    unzip(cleaned_DADA2_ASVs_Drugs_zip, files=fna_file, exdir=tmp)
+    seqs <- readDNAStringSet(file.path(tmp, fna_file), format="fasta")
+
+    fna_file <- unzip(cleaned_DADA2_ASVs_FeRecovery_zip, list=TRUE)$Name
+    tmp <- tempdir()
+    unzip(cleaned_DADA2_ASVs_FeRecovery_zip, files=fna_file, exdir=tmp)
+    seqs2 <- readDNAStringSet(file.path(tmp, fna_file), format="fasta")
+
+    all_seqs <- c(seqs, seqs2)
+    unique_seqs <- unique(all_seqs)
+
+    if (!is.na(counts_original) && !is.na(unique_seqs)) {
+
+        # ----- rdp16 -----    
+        if (!file.exists(file.path(local,"rdp16classified_ORIGINAL.csv.zip"))) {
+            if (file.exists(file.path("helperdata/rdp_train_set_16.fa.gz"))) {
+                rdp16classified <- dada2::assignTaxonomy(unique_seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
+                tax_original16 = make_taxa_label(rdp16classified) 
+                rownames(tax_original16) <- unique_seqs$names
+                write.csv(tax_original16, file = file.path(local, "rdp16classified_ORIGINAL.csv"), row.names = TRUE)
+            } else {
+                stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
+            }
+            if (file.exists(file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"))) {
+                rdp19classified <- dada2::assignTaxonomy(unique_seqs, file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"), multithread=TRUE) %>% as.data.frame()
+                tax_original19 = make_taxa_label(rdp19classified) 
+                rownames(tax_original19) <- unique_seqs$names
+                write.csv(tax_original19, file = file.path(local, "rdp19classified_ORIGINAL.csv"), row.names = TRUE)
+            } else {
+                stop("RDP 19 file not detected. please install the helperdata/rdp_19_toGenus_trainset.fa.gz file")
+            }
+        } else {
+            tax_original16 <- read_zipped_table(file.path(local, "rdp16classified_ORIGINAL.csv.zip"), row.names = 1)
+            tax_original19 <- read_zipped_table(file.path(local, "rdp19classified_ORIGINAL.csv.zip"), row.names = 1)
+        }
 
         if (!raw) {
             aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
-            counts_original = aligned$counts_original
-            original_names <- colnames(counts_original)
-            counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
+            counts_original_16 = aligned$counts_original
+            counts_original_19 = aligned$counts_original
+            matched_taxa_16 <- tax_original16$Taxa[match(colnames(counts_original_16), rownames(tax_original16))]
+            matched_taxa_19 <- tax_original19$Taxa[match(colnames(counts_original_19), rownames(tax_original19))]
+            colnames(counts_original_16) <- matched_taxa_16
+            colnames(counts_original_19) <- matched_taxa_19
+            counts_original_16 <- collapse_duplicate_columns_exact(counts_original_16)
+            counts_original_19 <- collapse_duplicate_columns_exact(counts_original_19)
+            original_names_16 <- colnames(counts_original_16)
+            original_names_19 <- colnames(counts_original_19)
+            counts_original_16 <- as.data.frame(lapply(counts_original_16, as.numeric), row.names = rownames(counts_original_16), col.names = original_names_16, check.names = FALSE)
+            counts_original_19 <- as.data.frame(lapply(counts_original_19, as.numeric), row.names = rownames(counts_original_19), col.names = original_names_19, check.names = FALSE)
+            proportions_original_16 <- sweep(counts_original_16, 1, rowSums(counts_original_16), '/')
+            proportions_original_19 <- sweep(counts_original_19, 1, rowSums(counts_original_19), '/')
         }
-
-        # ------ proportions from counts ------
-        proportions_original <- sweep(counts_original, MARGIN = 1, STATS = rowSums(counts_original), FUN = "/")
-
+        proportions_original <- sweep(counts_original, 1, rowSums(counts_original), '/')
     } else {
         proportions_original <- NA
         tax_original <- NA
+        counts_original_16 <- NA
+        counts_original_19 <- NA
+        proportions_original_16 <- NA
+        proportions_original_19 <- NA
+        tax_original16 <- NA
+        tax_original19 <- NA
     }
 
+    # ----- Reprocessed counts from RDS ZIP -----
     if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
-        # # ----- Reprocessed counts from RDS ZIP -----
+
         temp_dir <- tempfile("repro")
         dir.create(temp_dir)
         unzipped = unzip(repro_counts_rds_zip, exdir = temp_dir, overwrite = TRUE)
@@ -218,19 +283,24 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
         proportions_reprocessed2 = fill_na_zero_numeric(proportions_reprocessed2)
     }
 
+    if (raw) {
+        counts_original_19 <- counts_original
+        tax_original19 <- tax_original
+        proportions_original_19 <- proportions_original
+    }
 
     # ----- Return structured list -----
     return(list(
         counts = list(
-            original = counts_original,
+            original = list(rdp19 = counts_original_19, rdp16 = counts_original_16),
             reprocessed = list(rdp19 = counts_reprocessed, rdp16 = counts_reprocessed2)
         ),
         proportions = list(
-            original = proportions_original,
+            original = list(rdp19 = proportions_original_19, rdp16 = proportions_original_16),
             reprocessed = list(rdp19 = proportions_reprocessed, rdp16 = proportions_reprocessed2)
         ),
         tax = list(
-            original = tax_original,
+            original = list(rdp19 = tax_original19, rdp16 = tax_original16),
             reprocessed = list(rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2)
         ),
         scale = scale,
