@@ -14,8 +14,6 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
     
     library(stringr)
     library(tidyverse)
-    library(Biostrings)
-    library(dada2)
 
     # ---------- MANAN PROCESSED BELOW ----------
 
@@ -147,69 +145,75 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
     fna_file <- unzip(cleaned_DADA2_ASVs_Drugs_zip, list=TRUE)$Name
     tmp <- tempdir()
     unzip(cleaned_DADA2_ASVs_Drugs_zip, files=fna_file, exdir=tmp)
-    seqs <- readDNAStringSet(file.path(tmp, fna_file), format="fasta")
+    seqs <- Biostrings::readDNAStringSet(file.path(tmp, fna_file), format="fasta")
 
     fna_file <- unzip(cleaned_DADA2_ASVs_FeRecovery_zip, list=TRUE)$Name
     tmp <- tempdir()
     unzip(cleaned_DADA2_ASVs_FeRecovery_zip, files=fna_file, exdir=tmp)
-    seqs2 <- readDNAStringSet(file.path(tmp, fna_file), format="fasta")
+    seqs2 <- Biostrings::readDNAStringSet(file.path(tmp, fna_file), format="fasta")
 
     all_seqs <- c(seqs, seqs2)
     unique_seqs <- unique(all_seqs)
 
-    if (!is.na(counts_original) && !is.na(unique_seqs)) {
+    seqs_df <- data.frame(
+        ASV      = names(unique_seqs),
+        Sequence = as.character(unique_seqs),
+        stringsAsFactors = FALSE
+        )
 
-        # ----- rdp16 -----    
-        if (!file.exists(file.path(local,"rdp16classified_ORIGINAL.csv.zip"))) {
-            if (file.exists(file.path("helperdata/rdp_train_set_16.fa.gz"))) {
-                rdp16classified <- dada2::assignTaxonomy(unique_seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
-                tax_original16 = make_taxa_label(rdp16classified) 
-                rownames(tax_original16) <- unique_seqs$names
-                write.csv(tax_original16, file = file.path(local, "rdp16classified_ORIGINAL.csv"), row.names = TRUE)
-            } else {
-                stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
-            }
-            if (file.exists(file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"))) {
-                rdp19classified <- dada2::assignTaxonomy(unique_seqs, file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"), multithread=TRUE) %>% as.data.frame()
-                tax_original19 = make_taxa_label(rdp19classified) 
-                rownames(tax_original19) <- unique_seqs$names
-                write.csv(tax_original19, file = file.path(local, "rdp19classified_ORIGINAL.csv"), row.names = TRUE)
-            } else {
-                stop("RDP 19 file not detected. please install the helperdata/rdp_19_toGenus_trainset.fa.gz file")
-            }
+    rownames(seqs_df) <- seqs_df$Sequence
+
+    # ----- rdp16 -----    
+    if (!file.exists(file.path(local,"rdp16classified_ORIGINAL.csv.zip"))) {
+        if (file.exists(file.path("helperdata/rdp_train_set_16.fa.gz"))) {
+            rdp16classified <- dada2::assignTaxonomy(unique_seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
+            tax_original16 = make_taxa_label(rdp16classified) 
+            tax_original16 = tax_original16 %>% rownames_to_column("Sequence")
+            tax_original16 <- merge(seqs_df, tax_original16,
+                        by="Sequence",
+                        all.x   = TRUE,  
+                        sort    = FALSE)
+            rownames(tax_original16) <- tax_original16$ASV
+            write.csv(tax_original16, file = file.path(local, "rdp16classified_ORIGINAL.csv"), row.names = TRUE)
         } else {
-            tax_original16 <- read_zipped_table(file.path(local, "rdp16classified_ORIGINAL.csv.zip"), row.names = 1)
-            tax_original19 <- read_zipped_table(file.path(local, "rdp19classified_ORIGINAL.csv.zip"), row.names = 1)
+            stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
         }
-
-        if (!raw) {
-            aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
-            counts_original_16 = aligned$counts_original
-            counts_original_19 = aligned$counts_original
-            matched_taxa_16 <- tax_original16$Taxa[match(colnames(counts_original_16), rownames(tax_original16))]
-            matched_taxa_19 <- tax_original19$Taxa[match(colnames(counts_original_19), rownames(tax_original19))]
-            colnames(counts_original_16) <- matched_taxa_16
-            colnames(counts_original_19) <- matched_taxa_19
-            counts_original_16 <- collapse_duplicate_columns_exact(counts_original_16)
-            counts_original_19 <- collapse_duplicate_columns_exact(counts_original_19)
-            original_names_16 <- colnames(counts_original_16)
-            original_names_19 <- colnames(counts_original_19)
-            counts_original_16 <- as.data.frame(lapply(counts_original_16, as.numeric), row.names = rownames(counts_original_16), col.names = original_names_16, check.names = FALSE)
-            counts_original_19 <- as.data.frame(lapply(counts_original_19, as.numeric), row.names = rownames(counts_original_19), col.names = original_names_19, check.names = FALSE)
-            proportions_original_16 <- sweep(counts_original_16, 1, rowSums(counts_original_16), '/')
-            proportions_original_19 <- sweep(counts_original_19, 1, rowSums(counts_original_19), '/')
+        if (file.exists(file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"))) {
+            rdp19classified <- dada2::assignTaxonomy(unique_seqs, file.path("helperdata/rdp_19_toGenus_trainset.fa.gz"), multithread=TRUE) %>% as.data.frame()
+            tax_original19 = make_taxa_label(rdp19classified) 
+            tax_original19 = tax_original19 %>% rownames_to_column("Sequence")
+            tax_original19 <- merge(seqs_df, tax_original19,
+                        by="Sequence",
+                        all.x   = TRUE,  
+                        sort    = FALSE)
+            rownames(tax_original19) <- tax_original19$ASV
+            write.csv(tax_original19, file = file.path(local, "rdp19classified_ORIGINAL.csv"), row.names = TRUE)
+        } else {
+            stop("RDP 19 file not detected. please install the helperdata/rdp_19_toGenus_trainset.fa.gz file")
         }
-        proportions_original <- sweep(counts_original, 1, rowSums(counts_original), '/')
     } else {
-        proportions_original <- NA
-        tax_original <- NA
-        counts_original_16 <- NA
-        counts_original_19 <- NA
-        proportions_original_16 <- NA
-        proportions_original_19 <- NA
-        tax_original16 <- NA
-        tax_original19 <- NA
+        tax_original16 <- read_zipped_table(file.path(local, "rdp16classified_ORIGINAL.csv.zip"), row.names = 1)
+        tax_original19 <- read_zipped_table(file.path(local, "rdp19classified_ORIGINAL.csv.zip"), row.names = 1)
     }
+
+    if (!raw) {
+        aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+        counts_original_16 = aligned$counts_original
+        counts_original_19 = aligned$counts_original
+        matched_taxa_16 <- tax_original16$Taxa[match(colnames(counts_original_16), rownames(tax_original16))]
+        matched_taxa_19 <- tax_original19$Taxa[match(colnames(counts_original_19), rownames(tax_original19))]
+        colnames(counts_original_16) <- matched_taxa_16
+        colnames(counts_original_19) <- matched_taxa_19
+        counts_original_16 <- collapse_duplicate_columns_exact(counts_original_16)
+        counts_original_19 <- collapse_duplicate_columns_exact(counts_original_19)
+        original_names_16 <- colnames(counts_original_16)
+        original_names_19 <- colnames(counts_original_19)
+        counts_original_16 <- as.data.frame(lapply(counts_original_16, as.numeric), row.names = rownames(counts_original_16), col.names = original_names_16, check.names = FALSE)
+        counts_original_19 <- as.data.frame(lapply(counts_original_19, as.numeric), row.names = rownames(counts_original_19), col.names = original_names_19, check.names = FALSE)
+        proportions_original_16 <- sweep(counts_original_16, 1, rowSums(counts_original_16), '/')
+        proportions_original_19 <- sweep(counts_original_19, 1, rowSums(counts_original_19), '/')
+    }
+    proportions_original <- sweep(counts_original, 1, rowSums(counts_original), '/')
 
     # ----- Reprocessed counts from RDS ZIP -----
     if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {

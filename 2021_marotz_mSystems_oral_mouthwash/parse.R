@@ -22,6 +22,9 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
   counts_zip    <- file.path(local, "2021_marotz_mSystems_oral_mouthwash.RDS.zip")
   metadata_zip  <- file.path(local, "T3_SRS_metadata_ms.txt.zip")
   sra_zip       <- file.path(local, "SraRunTable (40).csv.zip")
+  sra_zip2       <- file.path(local, "SraRunTable (47).csv.zip")
+
+
 
   repro_counts_zips <- c(
     file.path(local, "ERP111447_dada2_counts.rds.zip"),
@@ -33,30 +36,151 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
     file.path(local, "ERP117149_dada2_taxa.rds.zip")
   )
 
-  # ----- Metadata and Scale -----
-  metadata_txt <- unzip(metadata_zip, list = TRUE)$Name[1]
-  metadata <- read.csv(unz(metadata_zip, metadata_txt), sep = ",")
-  sra <- read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run, saliva_sample_ID = saliva_sample_id) 
-  sra$SampleID <- paste0(sra$saliva_sample_ID, ".", sra$timepoint, ".", sra$processing)
-  metadata$Sample <- paste0(metadata$saliva_sample_ID, ".", metadata$processing)
-  metadata <- full_join(sra, metadata, by = "SampleID")
-  
-  # Add replicate column based on run_date within SampleID groups
-  metadata <- metadata %>%
-    arrange(Sample, `run_date (exp)`) %>%
-    group_by(Sample) %>%
-    mutate(replicate = row_number()) %>%
-    ungroup()
+  read_zipped_tabled <- function(zip_path, sep = ",", header = TRUE,
+                                row.names = 1, check.names = FALSE,
+                                skip = 0) {
+    inner_file <- unzip(zip_path, list = TRUE)$Name[1]
+    con        <- unz(zip_path, inner_file)
+    read.table(con,
+              sep          = sep,
+              header       = header,
+              row.names    = row.names,
+              check.names  = check.names,
+              stringsAsFactors = FALSE,
+              skip         = skip,
+              fill         = TRUE,
+              comment.char = "",
+              quote        = "\"")
+  }
 
-  metadata$SampleID <- ifelse(metadata$replicate == 1,metadata$Sample, paste0(metadata$Sample, ".", metadata$replicate))
-    
+
+  # ----- Metadata and Scale -----
+  metadata <- read_zipped_table(metadata_zip, sep=",", row.names = NULL)
+  sra1 = read_zipped_table(sra_zip, row.names = NULL)
+  sra1 <- sra1 %>% rename(Accession = Run, saliva_sample_ID = saliva_sample_id, 
+         FC_avg_cells_5_min = fc_avg_cells_5_min, FC_avg_cells_per_ul = fc_avg_cells_per_ul,
+         FC_cells_per_ul_r1 = fc_cells_per_ul_r1, FC_cells_per_ul_r2 = fc_cells_per_ul_r2) 
+  sra1$SampleID <- paste0(sra1$saliva_sample_ID, ".", sra1$timepoint, ".", sra1$processing)
+  bad_values <- c(".NA.", paste0(".", 1:9, "."))
+  sra1$SampleID[sra1$SampleID %in% bad_values] <- NA
+  sra1 <- sra1 %>%
+    mutate(
+      SampleID = if_else(
+        `Assay Type` == "WGS" & is.na(SampleID),
+        {
+          wd_clean <- str_remove(`well_description (exp)`, "\\.$")
+          parts     <- str_match(wd_clean, "^(.*?)\\.ly(.*)$")
+          prefix    <- parts[,2]
+          suffix    <- parts[,3]
+          paste0(prefix, ".", timepoint, ".", suffix)
+        },
+        SampleID
+      )
+    ) %>%
+  mutate(
+    SampleID = if_else(
+      is.na(SampleID),
+      str_replace(`anonymized_name`, "\\.ly", "."),
+      SampleID
+    )
+  ) %>%
+    mutate(
+      SampleID = if_else(
+        SampleID %in% c("NA.NA.NA", "") | is.na(SampleID),
+        anonymized_name,
+        SampleID
+      )
+    ) %>% mutate(SampleID = if_else(
+                          SampleID %in% c("") | is.na(SampleID),
+                          host_subject_id, SampleID)) %>%
+  mutate(
+    SampleID = if_else(
+      str_length(SampleID) == 1,
+      {
+        parts <- str_match(`orig_name (exp)`, "^(.*?)\\.(.*)$")
+        prefix <- parts[,2]
+        suffix <- parts[,3]
+        paste0(prefix, ".", timepoint, ".", suffix)
+      },
+      SampleID
+    )
+  ) %>%
+    mutate(
+      SampleID = if_else(
+        str_detect(SampleID, "BLANK") &
+          !is.na(`orig_name (exp)`) &
+          `orig_name (exp)` != "",
+        `orig_name (exp)`,
+        SampleID
+      )
+    ) 
+  sra2 = read_zipped_tabled(sra_zip2, row.names = NULL) %>% 
+  rename(Accession = Run, saliva_sample_ID = saliva_sample_id, 
+         FC_avg_cells_5_min = fc_avg_cells_5_min, FC_avg_cells_per_ul = fc_avg_cells_per_ul,
+         FC_cells_per_ul_r1 = fc_cells_per_ul_r1, FC_cells_per_ul_r2 = fc_cells_per_ul_r2) %>%
+  mutate(
+    SampleID = paste0(saliva_sample_ID, ".", processing),
+    SampleID = if_else(
+      SampleID == ".",
+      anonymized_name,
+      SampleID
+    )
+  )
+
+  common_cols <- intersect(names(sra1), names(sra2))
+  types1 <- sapply(sra1[common_cols], function(x) class(x)[1])
+  types2 <- sapply(sra2[common_cols], function(x) class(x)[1])
+  mismatch <- common_cols[types1 != types2]
+  sra1 <- sra1 %>% mutate(across(all_of(mismatch), as.character))
+  sra2 <- sra2 %>% mutate(across(all_of(mismatch), as.character))
+
+  merge_same_cols <- function(df) {
+    cols_x <- grep("\\.x$", names(df), value = TRUE)
+    for (col_x in cols_x) {
+      base   <- sub("\\.x$", "", col_x)
+      col_y  <- paste0(base, ".y")
+      if (col_y %in% names(df)) {
+        x_vals <- df[[col_x]]
+        y_vals <- df[[col_y]]
+        conflict <- !is.na(x_vals) & !is.na(y_vals) & x_vals != y_vals
+        if (any(conflict)) {
+          warning(sprintf(
+            "Column '%s': %d conflicting rows (first at row %d). Keeping the .x version there.",
+            base, sum(conflict), which(conflict)[1]
+          ))
+        }
+        df[[base]] <- coalesce(x_vals, y_vals)
+        df[[col_x]] <- NULL
+        df[[col_y]] <- NULL
+      }
+    }
+    df
+  }
+
+  sra <- full_join(sra1,sra2,by      = "Accession",suffix  = c(".x", ".y")) %>% merge_same_cols()
+  sra$SampleID <- ifelse(
+    sra$`Assay Type` == "WGS",
+    paste0(sra$SampleID, ".", sra$`Assay Type`),
+    sra$SampleID
+  )
+  sra <- type.convert(sra, as.is = TRUE)
+  sra = remove_empty_columns(sra)
+  sra$SampleID <- paste0(sra$SampleID, ".", sra$`run_date (exp)`)
+
+  metadata <- metadata %>% rename(Sample = SampleID, Participant_ID = participant_id)
+  metadata$SampleID <- paste0(metadata$saliva_sample_ID, ".", metadata$processing)
+  metadata <- type.convert(metadata, as.is = TRUE)
+  #metadata <- full_join(sra, metadata, by = c("Participant_ID", "saliva_weight_g", "FC_cells_per_ul_r1", "FC_cells_per_ul_r2", "FC_avg_cells_per_ul", "FC_avg_cells_5_min"))
   metadata = remove_empty_columns(metadata)
 
-  scale <- metadata %>% select(SampleID, FC_cells_per_ul_r1, FC_cells_per_ul_r2, FC_avg_cells_per_ul, 
-                              FC_avg_cells_5_min, qpcr_median_16s_copies_per_2ul_dna) %>% 
+  scale_sra <- sra %>% select(SampleID, FC_cells_per_ul_r1, FC_cells_per_ul_r2, FC_avg_cells_per_ul, 
+                              FC_avg_cells_5_min, qpcr_median_16s_copies_per_2ul_dna, all_flow_cells_5min_avg,
+                              all_flow_cellsperul_avg, all_qpcr_cells_5min_avg, all_qpcr_cellsperul_avg,
+                              live_flow_cells_5min_avg, live_flow_cellsperul_avg, live_qpcr_cells_5min_avg,
+                              live_qpcr_cellsperul_avg) %>% 
            mutate(FC_sd_cells_per_ul = sqrt((FC_cells_per_ul_r1 - FC_avg_cells_per_ul)^2 + (FC_cells_per_ul_r2 - FC_avg_cells_per_ul)^2) / 2)
 
-  scale = scale %>% 
+  scale_sra = scale_sra %>% 
     mutate(log2_FC_avg_cells_per_ul = ifelse(FC_avg_cells_per_ul > 0, log2(FC_avg_cells_per_ul), NA)) %>%
     mutate(log10_FC_avg_cells_per_ul = ifelse(FC_avg_cells_per_ul > 0, log10(FC_avg_cells_per_ul), NA)) %>%
     mutate(log2_FC_avg_cells_5_min = ifelse(FC_avg_cells_5_min > 0, log2(FC_avg_cells_5_min), NA)) %>%
@@ -64,7 +188,31 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
     mutate(log2_FC_sd_cells_per_ul = ifelse(FC_sd_cells_per_ul > 0, log2(FC_sd_cells_per_ul), NA)) %>%
     mutate(log10_FC_sd_cells_per_ul = ifelse(FC_sd_cells_per_ul > 0, log10(FC_sd_cells_per_ul), NA)) %>%
     mutate(log2_qpcr_median_16s_copies_per_2ul_dna = ifelse(qpcr_median_16s_copies_per_2ul_dna > 0, log2(qpcr_median_16s_copies_per_2ul_dna), NA)) %>%
-    mutate(log10_qpcr_median_16s_copies_per_2ul_dna = ifelse(qpcr_median_16s_copies_per_2ul_dna > 0, log10(qpcr_median_16s_copies_per_2ul_dna), NA))
+    mutate(log10_qpcr_median_16s_copies_per_2ul_dna = ifelse(qpcr_median_16s_copies_per_2ul_dna > 0, log10(qpcr_median_16s_copies_per_2ul_dna), NA)) %>%
+    mutate(log2_all_flow_cells_5min_avg = ifelse(all_flow_cells_5min_avg > 0, log2(all_flow_cells_5min_avg), NA)) %>%
+    mutate(log10_all_flow_cells_5min_avg = ifelse(all_flow_cells_5min_avg > 0, log10(all_flow_cells_5min_avg), NA)) %>%
+    mutate(log2_all_flow_cellsperul_avg = ifelse(all_flow_cellsperul_avg > 0, log2(all_flow_cellsperul_avg), NA)) %>%
+    mutate(log10_all_flow_cellsperul_avg = ifelse(all_flow_cellsperul_avg > 0, log10(all_flow_cellsperul_avg), NA)) %>%
+    mutate(log2_all_qpcr_cells_5min_avg = ifelse(all_qpcr_cells_5min_avg > 0, log2(all_qpcr_cells_5min_avg), NA)) %>%
+    mutate(log10_all_qpcr_cells_5min_avg = ifelse(all_qpcr_cells_5min_avg > 0, log10(all_qpcr_cells_5min_avg), NA)) %>%
+    mutate(log2_all_qpcr_cellsperul_avg = ifelse(all_qpcr_cellsperul_avg > 0, log2(all_qpcr_cellsperul_avg), NA)) %>%
+    mutate(log10_all_qpcr_cellsperul_avg = ifelse(all_qpcr_cellsperul_avg > 0, log10(all_qpcr_cellsperul_avg), NA)) %>%
+    mutate(log2_live_flow_cells_5min_avg = ifelse(live_flow_cells_5min_avg > 0, log2(live_flow_cells_5min_avg), NA)) %>%
+    mutate(log10_live_flow_cells_5min_avg = ifelse(live_flow_cells_5min_avg > 0, log10(live_flow_cells_5min_avg), NA)) %>%
+    mutate(log2_live_flow_cellsperul_avg = ifelse(live_flow_cellsperul_avg > 0, log2(live_flow_cellsperul_avg), NA)) %>%
+    mutate(log10_live_flow_cellsperul_avg = ifelse(live_flow_cellsperul_avg > 0, log10(live_flow_cellsperul_avg), NA)) 
+
+  scale_metadata <- metadata %>% select(SampleID, FC_cells_per_ul_r1, FC_cells_per_ul_r2, FC_avg_cells_per_ul, 
+                              FC_avg_cells_5_min) %>% 
+           mutate(FC_sd_cells_per_ul = sqrt((FC_cells_per_ul_r1 - FC_avg_cells_per_ul)^2 + (FC_cells_per_ul_r2 - FC_avg_cells_per_ul)^2) / 2)
+
+  scale_metadata = scale_metadata %>% 
+    mutate(log2_FC_avg_cells_per_ul = ifelse(FC_avg_cells_per_ul > 0, log2(FC_avg_cells_per_ul), NA)) %>%
+    mutate(log10_FC_avg_cells_per_ul = ifelse(FC_avg_cells_per_ul > 0, log10(FC_avg_cells_per_ul), NA)) %>%
+    mutate(log2_FC_avg_cells_5_min = ifelse(FC_avg_cells_5_min > 0, log2(FC_avg_cells_5_min), NA)) %>%
+    mutate(log10_FC_avg_cells_5_min = ifelse(FC_avg_cells_5_min > 0, log10(FC_avg_cells_5_min), NA)) %>%
+    mutate(log2_FC_sd_cells_per_ul = ifelse(FC_sd_cells_per_ul > 0, log2(FC_sd_cells_per_ul), NA)) %>%
+    mutate(log10_FC_sd_cells_per_ul = ifelse(FC_sd_cells_per_ul > 0, log10(FC_sd_cells_per_ul), NA))
 
   # ----- Original Counts and Taxonomy -----
   orig_rds_file <- unzip(counts_zip, list = TRUE)$Name[1]
@@ -101,7 +249,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
   rownames(tax_original) <- tax_original$taxa
 
   if (!raw) {
-    aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+    aligned = rename_and_align(counts_original = counts_original, metadata = metadata, scale = scale_metadata, by_col = "SampleID", align = align, study_name = basename(local))
     counts_original = aligned$counts_original
     matched_taxa <- tax_original$Taxa[match(colnames(counts_original), rownames(tax_original))]
     colnames(counts_original) <- matched_taxa
@@ -120,7 +268,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
   tax_reprocessed2 <- NA
 
   if (all(file.exists(repro_counts_zips), file.exists(repro_tax_zips))) {
-    # # Process multiple zipped RDS files
+    # Process multiple zipped RDS files
     counts_reprocessed_list <- list()
     proportions_reprocessed_list <- list()
     tax_reprocessed_list <- list()
@@ -165,7 +313,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
         tax <- make_taxa_label(tax)
 
         if (!raw) {
-          aligned = rename_and_align(counts_reprocessed = counts, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+          aligned = rename_and_align(counts_reprocessed = counts, metadata = sra, scale = scale_sra, by_col = "SampleID", align = align, study_name = basename(local))
           counts = aligned$reprocessed
           if (nrow(counts) > 0) {
             matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
@@ -270,7 +418,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
       original = tax_original,
       reprocessed = list(rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2)
     ),
-    scale = scale,
-    metadata = metadata
+    scale = list(original = scale_metadata, reprocessed = scale_sra),
+    metadata = list(original = metadata, reprocessed = sra)
   ))
 }

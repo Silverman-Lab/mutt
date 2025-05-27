@@ -20,19 +20,15 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
 
     # ----- File paths -----
     repro_counts_zips <- c(
-    file.path(local, "PRJNA394877_dada2_counts.rds.zip"),
     file.path(local, "PRJNA548153_dada2_counts.rds.zip"),
     file.path(local, "PRJNA606262_dada2_counts.rds.zip"),
-    file.path(local, "PRJNA607574_dada2_counts.rds.zip"),
-    file.path(local, "PRJNA545312_dada2_counts.rds.zip")
+    file.path(local, "PRJNA607574_dada2_counts.rds.zip")
     )
 
     repro_tax_zips <- c(
-    file.path(local, "PRJNA394877_dada2_taxa.rds.zip"),
     file.path(local, "PRJNA548153_dada2_taxa.rds.zip"),
     file.path(local, "PRJNA606262_dada2_taxa.rds.zip"),
-    file.path(local, "PRJNA607574_dada2_taxa.rds.zip"),
-    file.path(local, "PRJNA545312_dada2_taxa.rds.zip")
+    file.path(local, "PRJNA607574_dada2_taxa.rds.zip")
     )
 
     sra_zip      <- c(
@@ -42,7 +38,6 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
         file.path(local, "SraRunTable (56).csv.zip"),
         file.path(local, "SraRunTable (57).csv.zip")
     )
-
 
     scale_zip    <- file.path(local, "Liao2021_scale.csv.zip")
     metadata_zip <- file.path(local, "Liao_2021_metadata.csv.zip")
@@ -63,11 +58,26 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
 
     # ---- scale and metadata -----
     scale <- read_zipped_table(scale_zip, row.names = NULL) %>%
-            mutate(
-                log2_qPCR = qPCR16S * log2(10) 
-            ) %>%
-            dplyr::rename(log10_qPCR = qPCR16S)
+    # 1) rename your original qPCR16S → log10_qPCR
+    rename(log10_qPCR = qPCR16S) %>%
+    # 2) compute the base-2 version
+    mutate(log2_qPCR = log10_qPCR * log2(10)) %>%
+    # 3) drop any rows where either measure is 0, ±Inf or NA
+    filter(
+        if_all(
+        c(log10_qPCR, log2_qPCR),
+        ~ !is.na(.) & is.finite(.) & . != 0
+        )
+    )
     metadata  <- read_zipped_table(metadata_zip, row.names = NULL)
+
+    meta_and_scale <- metadata %>%
+        full_join(scale, by = "SampleID")
+
+    metadata2 <- sracombined %>%
+        left_join(meta_and_scale, by = "Accession")
+
+    has_qPCR <- metadata2 %>% filter(!is.na(log10_qPCR))
 
     # ------ original counts ------
     counts_original <- read_zipped_table(counts_zip)
@@ -109,14 +119,7 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
     proportions_reprocessed2 <- NA
     counts_reprocessed2 <- NA
 
-    if (file.exists(file.path(local, "countsreprocessed.csv.zip")) && file.exists(file.path(local, "proportionsreprocessed.csv.zip")) && file.exists(file.path(local, "rdp19classified.csv.zip")) && file.exists(file.path(local, "rdp16classified.csv.zip")) && file.exists(file.path(local, "countsreprocessed2.csv.zip")) && file.exists(file.path(local, "proportionsreprocessed2.csv.zip"))) {
-        counts_reprocessed <- read_zipped_table(file.path(local, "countsreprocessed.csv.zip"), row.names = 1)
-        proportions_reprocessed <- read_zipped_table(file.path(local, "proportionsreprocessed.csv.zip"), row.names = 1)
-        tax_reprocessed <- read_zipped_table(file.path(local, "rdp19classified.csv.zip"), row.names = 1)
-        tax_reprocessed2 <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
-        counts_reprocessed2 <- read_zipped_table(file.path(local, "countsreprocessed2.csv.zip"), row.names = 1)
-        proportions_reprocessed2 <- read_zipped_table(file.path(local, "proportionsreprocessed2.csv.zip"), row.names = 1)
-    } else if (all(file.exists(repro_counts_zips))) {
+    if (all(file.exists(repro_counts_zips))) {
         for (i in seq_along(repro_counts_zips)) {
             temp_rds <- tempfile("repro")
             dir.create(temp_rds)
@@ -137,6 +140,7 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
                 seqs <- Biostrings::DNAStringSet(colnames(counts_reprocessed))
                 rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
                 tax_reprocessed2 = make_taxa_label(rdpclassified) 
+                tax_reprocessed2_list[[i]] <- tax_reprocessed2
                 } else {
                 stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
             }
@@ -153,7 +157,7 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
             tax_reprocessed <- make_taxa_label(tax_reprocessed)
 
             if (!raw) {
-                aligned <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+                aligned <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = has_qPCR, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
                 counts_reprocessed <- aligned$reprocessed
                 counts_reprocessed2 = aligned$reprocessed
                 matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
@@ -183,27 +187,32 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
             counts_reprocessed_list[[i]] <- counts_reprocessed
             proportions_reprocessed_list[[i]] <- proportions_reprocessed
             tax_reprocessed_list[[i]] <- tax_reprocessed
-            tax_reprocessed2_list[[i]] <- tax_reprocessed2
+
             counts_reprocessed2_list[[i]] <- counts_reprocessed2
             proportions_reprocessed2_list[[i]] <- proportions_reprocessed2
 
             cleanup_tempfiles(temp_rds)
         }
-
+    
 
         # Combine all
         counts_reprocessed <- bind_rows(counts_reprocessed_list)
         proportions_reprocessed <- bind_rows(proportions_reprocessed_list)
         tax_reprocessed <- bind_rows(tax_reprocessed_list)
-        write.csv(tax_reprocessed, file = file.path(local, "rdp19classified.csv"), row.names = TRUE)
 
         if (!file.exists(file.path(local, "rdp16classified.csv.zip"))) {
-            tax_reprocessed2 <- bind_rows(tax_reprocessed2_list)
+            tax_reprocessed2 <- tax_reprocessed2_list %>%
+                map(~ rownames_to_column(.x, "Sequence")) %>%
+                bind_rows() %>%
+                distinct(Sequence, .keep_all = TRUE) %>%
+                column_to_rownames("Sequence")
             proportions_reprocessed2 <- bind_rows(proportions_reprocessed2_list)
             counts_reprocessed2 <- bind_rows(counts_reprocessed2_list)
             write.csv(tax_reprocessed2, file = file.path(local, "rdp16classified.csv"), row.names = TRUE)
         } else {
             tax_reprocessed2 <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
+            proportions_reprocessed2 <- bind_rows(proportions_reprocessed2_list) %>% as.data.frame()
+            counts_reprocessed2 <- bind_rows(counts_reprocessed2_list) %>% as.data.frame()
         }
     }
 
