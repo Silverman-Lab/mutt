@@ -19,14 +19,14 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
     local <- file.path("2019_morton_naturecommunications_songbird_oral")
 
     # ----- File paths -----
-    repro_counts_rds_zip <- file.path(local, "PRJEB29169_dada2_counts.rds.zip")
-    repro_tax_zip        <- file.path(local, "PRJEB29169_dada2_taxa.rds.zip")
+    repro_counts_rds_zip <- file.path(local, "ERP111447_dada2_counts.rds.zip")
+    repro_tax_zip        <- file.path(local, "ERP111447_dada2_taxa.rds.zip")
     metadata_zip         <- file.path(local, "oral_trimmed_metadata.csv.zip")
     counts_zip           <- file.path(local, "2019_morton_songbird_oral_counts.RDS.zip")
     sra_zip              <- file.path(local, "SraRunTable (40).csv.zip")
     tax_zip              <- file.path(local, "taxonomy.tsv.zip")
-    motus_zip            <- file.path(local, "PRJEB29169_motus_merged.tsv.zip")
-    metaphlan4_zip       <- file.path(local, "PRJEB29169_MetaPhlAn_merged.tsv.zip")
+    motus_zip            <- file.path(local, "ERP111447_motus_merged.tsv.zip")
+    metaphlan4_zip       <- file.path(local, "ERP111447_MetaPhlAn_merged.tsv.zip")
 
     # ----- Initialize -----
     counts = NULL
@@ -169,7 +169,7 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
     row.names(tax) <- tax$`Feature ID`
 
     if (!raw) {
-        aligned = rename_and_align(counts_original = counts, metadata=primarystudymetadata, scale=primarystudyscale, by_col = "Sample", align = align, study_name = basename(local))
+        aligned = rename_and_align(counts_original = counts, metadata=primarystudymetadata, scale=primarystudyscale, by_col = "SampleID", align = align, study_name = basename(local))
         counts <- aligned$counts_original
         matched_taxa <- tax$Taxa[match(colnames(counts), rownames(tax))]
         colnames(counts) <- matched_taxa
@@ -210,7 +210,7 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
         if (!raw) {
           aligned <- rename_and_align(
             counts_reprocessed = df,
-            metadata          = srametadata,
+            metadata          = sra,
             scale             = srascale,
             by_col            = "Accession",
             align             = align,
@@ -276,7 +276,7 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
         if (!raw) {
           aligned <- rename_and_align(
             counts_reprocessed = df,
-            metadata          = srametadata,
+            metadata          = sra,
             scale             = srascale,
             by_col            = "Accession",
             align             = align,
@@ -349,7 +349,7 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
 
         # ----- Convert accessions to sample IDs / Sequences to Taxa -----
         if (!raw) {
-            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=srametadata, scale=srascale, by_col = "Accession", align = align, study_name = basename(local))
+            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=sra, scale=srascale, by_col = "Accession", align = align, study_name = basename(local))
             counts_reprocessed <- aligned$reprocessed
             counts_reprocessed2 = aligned$reprocessed
             matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]

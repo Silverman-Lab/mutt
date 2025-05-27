@@ -20,12 +20,14 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
 
     # ----- File paths -----
     repro_counts_zips <- c(
+    file.path(local, "PRJNA545312_dada2_counts.rds.zip"),
     file.path(local, "PRJNA548153_dada2_counts.rds.zip"),
     file.path(local, "PRJNA606262_dada2_counts.rds.zip"),
     file.path(local, "PRJNA607574_dada2_counts.rds.zip")
     )
 
     repro_tax_zips <- c(
+    file.path(local, "PRJNA545312_dada2_taxa.rds.zip"),
     file.path(local, "PRJNA548153_dada2_taxa.rds.zip"),
     file.path(local, "PRJNA606262_dada2_taxa.rds.zip"),
     file.path(local, "PRJNA607574_dada2_taxa.rds.zip")
@@ -156,6 +158,7 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
             tax_reprocessed <- as.data.frame(readRDS(tax_file))
             tax_reprocessed <- make_taxa_label(tax_reprocessed)
 
+
             if (!raw) {
                 aligned <- rename_and_align(counts_reprocessed = counts_reprocessed, metadata = has_qPCR, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
                 counts_reprocessed <- aligned$reprocessed
@@ -215,6 +218,8 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
             counts_reprocessed2 <- bind_rows(counts_reprocessed2_list) %>% as.data.frame()
         }
     }
+
+    
 
     if (!raw) {
       counts_original = fill_na_zero_numeric(counts_original)
