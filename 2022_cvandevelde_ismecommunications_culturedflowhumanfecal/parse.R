@@ -184,6 +184,18 @@ parse_2022_cvandevelde_ismecommunications_culturedflowhumanfecal <- function(raw
 
     cleanup_tempfiles(temp_dir)
 
+    metadata <- metadata %>%
+      # Convert empty strings to NA
+      mutate(across(everything(), ~ifelse(. == "" | . == " ", NA, .))) %>%
+      # Convert specific columns to factors
+      mutate(across(c("Prefix", "Well"), factor)) %>%
+      # Clean up timepoint values and convert to numeric
+      mutate(Timepoint = str_replace_all(Timepoint, "h", ""),
+             Timepoint = as.numeric(Timepoint)) %>%
+      # Convert numeric columns
+      mutate(across(where(is.character), ~ifelse(grepl("^[0-9.]+$", .), as.numeric(.), .)))
+
+
     # ----- Return structured list -----
     return(list(
         counts = list(

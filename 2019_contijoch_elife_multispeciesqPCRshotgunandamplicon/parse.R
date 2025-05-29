@@ -63,6 +63,36 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
     metadata_16s_df  <- read_zipped_table(metadata_16s_zip, row.names=NULL) %>% rename(Accession = Run)
     metadata_meta_df <- read_zipped_table(metadata_meta_zip, row.names=NULL) %>% rename(Accession = Run)
 
+    metadata_16s_df <- metadata_16s_df %>% mutate(
+        across(c(`Assay Type`, `condition_at_sampling`, Consent, 
+            `DATASTORE filetype`, `DATASTORE provider`, `DATASTORE region`,
+            LibraryLayout, LibrarySelection, LibrarySource, Platform,
+            experimental_group, geo_loc_name_country, geo_loc_name_country_continent,
+            Instrument, isolation_source, Organism, BioSampleModel),
+            ~ factor(na_if(., ""))),
+        ReleaseDate = as.POSIXct(ReleaseDate, format = "%Y-%m-%dT%H:%M:%SZ"),
+        create_date = as.POSIXct(create_date, format = "%Y-%m-%dT%H:%M:%SZ"),
+        across(c(Accession, Experiment, BioSample, `Library Name`, ID), ~ factor(.)),
+        experimental_timepoint = ordered(experimental_timepoint),
+        across(c(microbial_density, sample_mass), as.numeric)
+    ) %>%
+    dplyr::select(-where(~ all(is.na(.))))
+
+    metadata_meta_df <- metadata_meta_df %>% mutate(
+        across(c(`Assay Type`, `condition_at_sampling`, Consent, 
+            `DATASTORE filetype`, `DATASTORE provider`, `DATASTORE region`,
+            LibraryLayout, LibrarySelection, LibrarySource, Platform,
+            experimental_group, geo_loc_name_country, geo_loc_name_country_continent,
+            Instrument, isolation_source, Organism, BioSampleModel),
+            ~ factor(na_if(., ""))),
+        ReleaseDate = as.POSIXct(ReleaseDate, format = "%Y-%m-%dT%H:%M:%SZ"),
+        create_date = as.POSIXct(create_date, format = "%Y-%m-%dT%H:%M:%SZ"),
+        across(c(Accession, Experiment, BioSample, `Library Name`, ID), ~ factor(.)),
+        experimental_timepoint = ordered(experimental_timepoint),
+        across(c(microbial_density, sample_mass), as.numeric)
+    ) %>%
+    dplyr::select(-where(~ all(is.na(.))))
+
     # ----- mOTU3 Reprocessed -----
     if (file.exists(motus_zip)) {
     # 1. create a private scratch folder

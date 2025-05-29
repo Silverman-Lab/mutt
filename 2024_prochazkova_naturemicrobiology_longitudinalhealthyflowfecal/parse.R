@@ -42,7 +42,9 @@ parse_2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal <- functi
                   mutate(log2_Microbial_load_Mean = ifelse(Microbial_load_Mean > 0, log2(Microbial_load_Mean),NA),
                          log2_Microbial_load_SD = ifelse(Microbial_load_SD > 0, log2(Microbial_load_SD),NA)) %>% 
                   mutate(log10_Microbial_load_Mean = ifelse(Microbial_load_Mean > 0, log10(Microbial_load_Mean),NA),
-                         log10_Microbial_load_SD = ifelse(Microbial_load_SD > 0, log10(Microbial_load_SD),NA))
+                         log10_Microbial_load_SD = ifelse(Microbial_load_SD > 0, log10(Microbial_load_SD),NA)) %>%
+                  filter(!is.na(Microbial_load_Mean))
+
                         		
   metadata     = metadata %>% left_join(meta_part, by = "ID")
 

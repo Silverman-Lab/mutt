@@ -66,6 +66,11 @@ parse_2024_nishijima_cell_galaxy <- function(raw = FALSE, align = FALSE, bind_al
   metadata <- data.frame(ID = dat$ID, cohort = dat$cohort)
   rownames(metadata) <- dat$ID
 
+  metadata <- metadata %>%
+    mutate(
+        cohort = factor(na_if(cohort, ""))
+    )
+
   scale <- scale %>% mutate(log2_FC = ifelse(count >0, log2(count), NA)) %>% mutate(log10_FC = ifelse(count> 0, log10(count), NA))
 
   if (any(file.exists(sra_files))) {
@@ -163,6 +168,8 @@ parse_2024_nishijima_cell_galaxy <- function(raw = FALSE, align = FALSE, bind_al
   #     cleanup_tempfiles(dirname(temp_dir))    
   #   }
   # }
+
+
   # ----- Return Based on `bind_all` Option -----
   return(list(
     counts = list(

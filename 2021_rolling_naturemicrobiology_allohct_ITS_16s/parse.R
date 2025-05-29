@@ -36,30 +36,30 @@ parse_2021_rolling_naturemicrobiology_allohct_ITS_16s <- function(raw = FALSE, a
     culture_cfu_zip <- file.path(local, "culture_cfu.csv.zip")
     repro_counts_zips <- c(file.path(local, "PRJNA746305_dada2_counts.rds.zip"),
                            file.path(local, "PRJNA545312_dada2_counts.rds.zip"),
-                           file.path(local, "PRJNA545313_dada2_counts.rds.zip"),
+                           #file.path(local, "PRJNA545313_dada2_counts.rds.zip"),
                            file.path(local, "PRJNA545314_dada2_counts.rds.zip"),
-                           file.path(local, "PRJNA545315_dada2_counts.rds.zip"),
-                           file.path(local, "PRJNA545316_dada2_counts.rds.zip"),
-                           file.path(local, "PRJNA545317_dada2_counts.rds.zip"),
-                           file.path(local, "PRJNA545318_dada2_counts.rds.zip"),
+                           #file.path(local, "PRJNA545315_dada2_counts.rds.zip"),
+                           #file.path(local, "PRJNA545316_dada2_counts.rds.zip"),
+                           #file.path(local, "PRJNA545317_dada2_counts.rds.zip"),
+                           #file.path(local, "PRJNA545318_dada2_counts.rds.zip"),
                            file.path(local, "PRJNA545319_dada2_counts.rds.zip"),
-                           file.path(local, "PRJNA545320_dada2_counts.rds.zip"),
-                           file.path(local, "PRJNA579121_dada2_counts.rds.zip"),
+                           #file.path(local, "PRJNA545320_dada2_counts.rds.zip"),
+                           #file.path(local, "PRJNA579121_dada2_counts.rds.zip"),
                            file.path(local, "PRJNA548153_dada2_counts.rds.zip"),
                            file.path(local, "PRJNA607574_dada2_counts.rds.zip")
     )
 
     repro_tax_zips <- c(file.path(local, "PRJNA746305_dada2_taxa.rds.zip"),
                         file.path(local, "PRJNA545312_dada2_taxa.rds.zip"),
-                        file.path(local, "PRJNA545313_dada2_taxa.rds.zip"),
+                        #file.path(local, "PRJNA545313_dada2_taxa.rds.zip"),
                         file.path(local, "PRJNA545314_dada2_taxa.rds.zip"),
-                        file.path(local, "PRJNA545315_dada2_taxa.rds.zip"),
-                        file.path(local, "PRJNA545316_dada2_taxa.rds.zip"),
-                        file.path(local, "PRJNA545317_dada2_taxa.rds.zip"),
-                        file.path(local, "PRJNA545318_dada2_taxa.rds.zip"),
+                        #file.path(local, "PRJNA545315_dada2_taxa.rds.zip"),
+                        #file.path(local, "PRJNA545316_dada2_taxa.rds.zip"),
+                        #file.path(local, "PRJNA545317_dada2_taxa.rds.zip"),
+                        #file.path(local, "PRJNA545318_dada2_taxa.rds.zip"),
                         file.path(local, "PRJNA545319_dada2_taxa.rds.zip"),
-                        file.path(local, "PRJNA545320_dada2_taxa.rds.zip"),
-                        file.path(local, "PRJNA579121_dada2_taxa.rds.zip"),
+                        #file.path(local, "PRJNA545320_dada2_taxa.rds.zip"),
+                        #file.path(local, "PRJNA579121_dada2_taxa.rds.zip"),
                         file.path(local, "PRJNA548153_dada2_taxa.rds.zip"),
                         file.path(local, "PRJNA607574_dada2_taxa.rds.zip")
     )
@@ -116,7 +116,9 @@ parse_2021_rolling_naturemicrobiology_allohct_ITS_16s <- function(raw = FALSE, a
     })
 
     # (2) Bind them all together:
-    sra_combined <- bind_rows(tables2, .id = "source")
+    sra_combined <- bind_rows(tables2, .id = "source") %>% rename(Sample_ID = `Sample Name`)
+
+    metadata = full_join(sra_combined, metadata, by = "Sample_ID")
 
 
     # ---- counts, proportions, tax ----   
@@ -199,7 +201,7 @@ parse_2021_rolling_naturemicrobiology_allohct_ITS_16s <- function(raw = FALSE, a
         tax_reprocessed$Sequence <- rownames(tax_reprocessed)
 
         if (!raw) {
-            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+            aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="Sample_ID", align = align, study_name=basename(local))
             counts_reprocessed = aligned$reprocessed
             
             # Skip processing if no rows in counts_reprocessed

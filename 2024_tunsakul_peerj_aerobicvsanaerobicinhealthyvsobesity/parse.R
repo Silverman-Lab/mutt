@@ -44,7 +44,9 @@ parse_2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity <- function(raw =
       # Append new suffix based on collection method
       Sample = paste0(Sample, if_else(samp_collect_device == "aerobic collection", "a", "an"))
     ) %>%
-    rename(environment = samp_collect_device)
+    rename(environment = samp_collect_device) %>%
+    mutate(environment = factor(environment),
+           replicate = factor(replicate))
 
   suppdoc      <- tribble(
     ~Sample, ~Type, ~Raw_Reads, ~Quality_Reads,

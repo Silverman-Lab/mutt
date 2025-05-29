@@ -25,41 +25,103 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
   metadata_zip_2       <- file.path(local, "41598_2024_75477_MOESM4_ESM.csv.zip")
   repro_counts_rds_zip <- file.path(local, "PRJNA1162476_dada2_counts.rds.zip")
   repro_tax_zip        <- file.path(local, "PRJNA1162476_dada2_taxa.rds.zip")
+  dnaconcentrations_zip <- file.path(local, "dnaconcentrations.csv.zip")
 
+  subjects <- tribble(
+    ~SRA_subject_ID, ~Volunteer,     ~Manuscript_subject_ID,
+                7,  "Volunteer7",                     1,
+                18,  "Volunteer18",                    2,
+                19,  "Volunteer19",                    3,
+                22,  "Volunteer22",                    4,
+                36,  "Volunteer36",                    5,
+                52,  "Volunteer52",                    6,
+                67,  "Volunteer67",                    7,
+                68,  "Volunteer68",                    8,
+                88,  "Volunteer88",                    9,
+                99,  "Volunteer99",                   10
+  )
+
+  # the 3 milling types
+  tp_milling <- tribble(
+    ~Timepoint, ~Milling,
+            1,  "min",
+            2,  "min",
+            3,  "min",
+            1,  "plus",
+            2,  "plus",
+            3,  "plus",
+            1,  "PCRv2"
+  )
+
+  # 1) Generate every real sample (no IKA suffix here)
+  base_map <- subjects %>%
+    crossing(tp_milling) %>%
+    mutate(
+      SRA_Sample_ID = sprintf("S%s.%d.%s",
+                              SRA_subject_ID, Timepoint, Milling),
+      New_sample_ID = sprintf("S%s.%d.%s",
+                              Manuscript_subject_ID, Timepoint, Milling)
+    )
+
+  ika_map <- base_map %>%
+    filter(Timepoint == 1, Milling == "min") %>%
+    mutate(
+      SRA_Sample_ID = str_replace(SRA_Sample_ID, "\\.min$", ".IKA.min"),
+      New_sample_ID = str_replace(New_sample_ID, "\\.min$", ".IKA.min")
+    )
+
+  # 3) Combine them
+  tidy_map <- bind_rows(base_map, ika_map) %>%
+    arrange(SRA_subject_ID, Milling, Timepoint)
+
+  
+  sra = read_zipped_table(metadata_zip, row.names=NULL) %>% 
+      rename(Accession = Run, SRA_Sample_ID = `Sample Name`) %>%
+      mutate(
+        Subject = paste0(gsub(".*Volunteer(\\d+).*", "\\1", `description:_replicate`)),
+        Timepoint = gsub("^S\\d+\\.(\\d+).*", "\\1", SRA_Sample_ID),
+        Replicate = ifelse(grepl("Replicate", `description:_replicate`), Timepoint, 0),
+        Processing = case_when(
+          grepl("mill homogenized", `description:_sample_information`) ~ "mill_homogenized",
+          grepl("only hammered not milled", `description:_sample_information`) ~ "hammered only",
+          TRUE ~ NA_character_
+        )
+      )
+
+  sra <- sra %>% 
+    mutate(
+      SRA_Sample_ID = case_when(
+
+        !str_detect(SRA_Sample_ID, "min|plus|PCRv2") ~ 
+          str_c(SRA_Sample_ID, ".plus"),
+        # 3) otherwise leave as‐is (min and existing IKA.min / IKA.plus)
+        TRUE ~ SRA_Sample_ID
+      ),
+      # then pull out your Milling factor in one go
+      Milling = str_extract(SRA_Sample_ID, "(min|plus|PCRv2)$") %>%
+                  factor(levels = c("min","plus","PCRv2"))
+    )
+
+  sra = sra %>% left_join(tidy_map, by = "SRA_Sample_ID") %>% select(-Milling.y, Timepoint.y) %>% rename(Milling = Milling.x, Timepoint = Timepoint.x, SampleID = New_sample_ID)
 
   # ---- counts ----
   if (!file.exists(counts_zip)) stop("Counts file not found: ", counts_zip)
   dataset <- read_zipped_table(counts_zip, row.names = NULL) %>% 
     mutate(Frequency = gsub("Day ", "", Frequency)) %>%
-    mutate(subject_timepoint_replicate = ifelse(is.na(Frequency) | Frequency == "", 
-                                              paste(Subject, Timepoint, sep = "_"),
-                                              paste(Subject, Timepoint, Frequency, sep = "_")))
+    mutate(Milling = ifelse(Milling == "Min", "PCRv2", tolower(Milling))) %>%
+    mutate(SampleID = sprintf("S%s.%d.%s", Subject, Timepoint, Milling))
   colnames(dataset) <- ifelse(
-    grepl("^[kpcofg]__[^_]*$", colnames(dataset)),  
-    gsub("([kpcofg])__", "\\1_", colnames(dataset)),  
-    colnames(dataset)  
+    grepl("^[kpcofg]__(?!.*__).*", colnames(dataset), perl = TRUE),
+    gsub("([kpcofg])__", "\\1_", colnames(dataset)),
+    colnames(dataset)
   )
 
   # ---- metadata ----
-  metadata_cols <- c("subject_timepoint_replicate", "Subject", "Timepoint", "Milling", "Frequency", "StoolsperDay",
+  metadata_cols <- c("SampleID", "Subject", "Timepoint", "Milling", "Frequency", "StoolsperDay",
                      "BristolStoolScale_highest", "WaterContent_perc", "pH",
                      "Calprotectin_ugperg", "MPO_ngperml", "PhylogeneticDiversity", "Chao1", "inverse_simpson", "gini_simpson", "shannon", "fisher")
   metadata <- dataset[, metadata_cols] 
-  sra = read_zipped_table(metadata_zip, row.names=NULL) %>% 
-    rename(Accession = Run, Sample = `Sample Name`) %>%
-    mutate(
-      Subject = paste0(gsub(".*Volunteer(\\d+).*", "\\1", `description:_replicate`)),
-      Timepoint = gsub("^S\\d+\\.(\\d+).*", "\\1", Sample),
-      Replicate = ifelse(grepl("Replicate", `description:_replicate`), Timepoint, NA),
-      Processing = case_when(
-        grepl("mill homogenized", `description:_sample_information`) ~ "mill_homogenized",
-        grepl("hammered not milled", `description:_sample_information`) ~ "hammered",
-        TRUE ~ NA_character_
-      ),
-      subject_timepoint_replicate = ifelse(is.na(Replicate) | Replicate == "", 
-                                              paste(Subject, Timepoint, sep = "_"),
-                                              paste(Subject, Timepoint, Replicate, sep = "_"))
-    )
+  
   metadata1 <- read_zipped_table(metadata_zip_1, row.names = NULL) %>%
     mutate(Replicate = gsub("Replicate ", "Replicate_", ID))
   metadata2 <- read_zipped_table(metadata_zip_2, row.names = NULL) %>%
@@ -69,8 +131,42 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
   merged_metadata <- metadata1 %>%
     full_join(metadata2, by = "Replicate") 
 
+  metadata <- metadata %>%
+  mutate(
+    SampleID = factor(SampleID),
+    Subject                     = factor(Subject),
+    Timepoint                   = factor(Timepoint)
+  ) %>%
+  
+  mutate(
+    Frequency     = as.integer(Frequency),
+    StoolsperDay  = as.integer(StoolsperDay)
+  ) %>%
+  
+  mutate(
+    Milling = factor(Milling)
+  ) %>%
+  
+  mutate(
+    BristolStoolScale_highest = as.integer(BristolStoolScale_highest),
+    Chao1                     = as.integer(Chao1),
+    across(
+      c(WaterContent_perc, pH,
+        Calprotectin_ugperg, MPO_ngperml,
+        PhylogeneticDiversity,
+        inverse_simpson, gini_simpson,
+        shannon, fisher),
+      as.numeric
+    )
+  )
+
+  metadata = full_join(metadata, sra, by = "SampleID")
+
+  dnaconcentrations = read_zipped_table(dnaconcentrations_zip, row.names = NULL) 
+  metadata = full_join(metadata, dnaconcentrations, by = "SRA_Sample_ID") %>% rename(Milling = Milling.y, Subject = Subject.y, Timepoint = Timepoint.y.y) %>% select(-c(Milling.x, Subject.x, Timepoint.x))
+    
   # ---- scale ----
-  scale_cols <- c("subject_timepoint_replicate",
+  scale_cols <- c("SampleID",
                   "Mean Fungi copies_per mg total weight", 
                   "Mean Fungi copies_per mg dry weight", 
                   "Mean bacteria copies_per mg total weight", 
@@ -85,9 +181,10 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
                          log10_Mean_bacteria_copies_per_mg_total_weight = ifelse(`Mean bacteria copies_per mg total weight` > 0, log10(`Mean bacteria copies_per mg total weight`),NA),
                          log10_Mean_bacteria_copies_per_mg_dry_weight = ifelse(`Mean bacteria copies_per mg dry weight` > 0, log10(`Mean bacteria copies_per mg dry weight`),NA)) 
 
-  scale = scale %>% left_join(sra %>% select(Sample, subject_timepoint_replicate), by = "subject_timepoint_replicate")
+  scale <- scale %>% left_join(sra %>% select(SampleID), by = "SampleID") %>%
+  filter(!if_all(.cols = -SampleID, .fns = is.na))
   
-  scale_cols <- c("subject_timepoint_replicate", "TotalSCFAs_umolpermg", "TotalBCFAs_umolpermg" )
+  scale_cols <- c("SampleID", "TotalSCFAs_umolpermg", "TotalBCFAs_umolpermg" )
   metabolomicsscale <- dataset %>% 
     select(scale_cols) %>%
     mutate(log2_TotalSCFAs_umolpermg = ifelse(`TotalSCFAs_umolpermg` > 0, log2(`TotalSCFAs_umolpermg`),NA),
@@ -97,12 +194,12 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
 
   counts_original <- dataset %>% 
     select(-c(3:31)) %>%
-    column_to_rownames("subject_timepoint_replicate") %>%
+    column_to_rownames("SampleID") %>%
     select(-c("Subject", "Timepoint"))
     
   counts_metabolomics <- dataset %>% 
-    select(subject_timepoint_replicate, c(13:23)) %>%
-    column_to_rownames("subject_timepoint_replicate")
+    select(SampleID, c(13:23)) %>%
+    column_to_rownames("SampleID")
 
   # ---- tax ----
   tax <- tibble(
@@ -166,7 +263,7 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
   rownames(taxonomy_df) <- taxonomy_df$ogtaxonomy
 
   if (!raw) {
-    aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="subject_timepoint_replicate", align = align, study_name=basename(local))
+    aligned = rename_and_align(counts_original = counts_original, metadata=metadata, scale=scale, by_col="SampleID", align = align, study_name=basename(local))
     counts_original = aligned$counts_original
     matched_taxa <- taxonomy_df$Taxa[match(colnames(counts_original), rownames(taxonomy_df))]
     colnames(counts_original) <- matched_taxa
@@ -175,7 +272,7 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
     counts_original <- as.data.frame(lapply(counts_original, as.numeric), row.names = rownames(counts_original), col.names = original_names, check.names = FALSE)
     counts_original = fill_na_zero_numeric(counts_original)
 
-    aligned = rename_and_align(counts_original = counts_metabolomics, metadata=metadata, scale=scale, by_col="subject_timepoint_replicate", align = align, study_name=basename(local))
+    aligned = rename_and_align(counts_original = counts_metabolomics, metadata=metadata, scale=scale, by_col="SampleID", align = align, study_name=basename(local))
     counts_metabolomics = aligned$counts_original
     original_names <- colnames(counts_metabolomics)
     counts_metabolomics <- as.data.frame(lapply(counts_metabolomics, as.numeric), row.names = rownames(counts_metabolomics), col.names = original_names, check.names = FALSE)
@@ -233,7 +330,7 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
 
     # ----- Convert accessions to sample IDs / Sequences to Taxa -----
     if (!raw) {
-        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=sra, scale=scale, by_col="Sample", align = align, study_name=basename(local))
+        aligned = rename_and_align(counts_reprocessed = counts_reprocessed, metadata=metadata, scale=scale, by_col="SampleID", align = align, study_name=basename(local))
         counts_reprocessed = aligned$reprocessed
         counts_reprocessed2 = aligned$reprocessed
         matched_taxa <- tax_reprocessed$Taxa[match(colnames(counts_reprocessed), rownames(tax_reprocessed))]
@@ -270,6 +367,6 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
     proportions = list(original = list(metabolomics = proportions_metabolomics, amplicon = proportions), reprocessed = list(metabolomics = NA, amplicon = list(rdp19 = proportions_reprocessed, rdp16 = proportions_reprocessed2))),
     tax         = list(original = list(metabolomics = tax_metabolomics, amplicon = tax), reprocessed = list(metabolomics = NA, amplicon = list(rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2))),
     scale       = scale,
-    metadata    = list(replicates = merged_metadata, dataset = metadata, sra = sra)
+    metadata    = list(replicates = merged_metadata, metadata = metadata)
   ))
 }

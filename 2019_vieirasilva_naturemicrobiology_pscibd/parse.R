@@ -279,6 +279,16 @@ parse_2019_vieirasilva_naturemicrobiology_pscibd <- function(raw = FALSE, align 
     cleanup_tempfiles(temp_dir)
   }
 
+  metadata <- metadata %>% mutate(
+    across(c(Diagnosis, Gender, `DMM Enterotype`), 
+           ~ factor(na_if(., ""))),
+    Gender = factor(Gender, 
+                   levels = c("F", "M"),
+                   labels = c("Female", "Male")),
+    BMI = as.numeric(BMI),
+    across(where(is.numeric), as.numeric)
+  )
+
   if (!raw) {
     counts_original = fill_na_zero_numeric(counts_original)
     counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)

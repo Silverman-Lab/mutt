@@ -20,13 +20,16 @@ parse_2021_barlow_microbiome_reimaginestudypatientsddpcr <- function(raw = FALSE
     library(readr)
     
     # ------- local path -----------------
-    localPath <- file.path("2021_barlow_microbiome_reimaginestudypatientsddpcr")
+    local <- file.path("2021_barlow_microbiome_reimaginestudypatientsddpcr")
 
     # ------- file path -----------------
-    repro_counts_rds_zip<- file.path(localPath, "PRJNA674353_dada2_counts.rds.zip")
-    repro_tax_zip       <- file.path(localPath, "PRJNA674353_dada2_taxa.rds.zip")
+    repro_counts_rds_zip<- file.path(local, "PRJNA674353_dada2_counts.rds.zip")
+    repro_tax_zip       <- file.path(local, "PRJNA674353_dada2_taxa.rds.zip")
     metadata_sra_zip    <- file.path(local, "SraRunTable (33).csv.zip")
-    scale_zip           <- file.path(local, "")
+    scale_zip           <- file.path(local, "total_load_duodenum.csv.zip")
+    orig_counts_zip     <- file.path(local, "species_counts_duodenum_45386.csv.zip")
+    metadata_zip        <- file.path(local, "metadata_all.csv.zip")
+
 
     # ----- Initialize everything as NA -----
     counts_original <- NA

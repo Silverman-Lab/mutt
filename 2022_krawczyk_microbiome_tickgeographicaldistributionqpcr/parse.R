@@ -242,6 +242,10 @@ parse_2022_krawczyk_microbiome_tickgeographicaldistributionqpcr <- function(raw 
     tax_reprocessed2 = NA
   }
 
+  metadata <- metadata %>%
+    mutate(across(everything(), ~ifelse(. == "" | . == " ", NA, .))) %>%
+    {if("Coordinates" %in% names(.)) mutate(., across(c("Coordinates"), as.character)) else .}
+
   # ----- Return all -----
   return(list(
     counts      = list(

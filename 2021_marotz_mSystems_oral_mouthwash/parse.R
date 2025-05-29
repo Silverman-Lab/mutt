@@ -214,6 +214,96 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
     mutate(log2_FC_sd_cells_per_ul = ifelse(FC_sd_cells_per_ul > 0, log2(FC_sd_cells_per_ul), NA)) %>%
     mutate(log10_FC_sd_cells_per_ul = ifelse(FC_sd_cells_per_ul > 0, log10(FC_sd_cells_per_ul), NA))
 
+
+  metadata <- metadata %>%
+    mutate(
+      study_acronym = factor(study_acronym),
+      experiment_name = factor(experiment_name),
+      Participant_ID = factor(Participant_ID),
+      processing = factor(processing),
+      collection_time_stamp = as.POSIXct(collection_time_stamp, format = "%m/%d/%y %I:%M %p"),
+      gender = factor(gender),
+      mouthwash_regularly = factor(`mouthwash_regularly?`),
+      Treatment_code = factor(Treatment_code),
+      Treatment_description = factor(Treatment_description),
+      Bite_nails = factor(`Bite_nails?`),
+      Antibiotics_in_the_past_6_mo = factor(`Antibiotics_in_the_past_6_mo?`),
+      On_any_medications = factor(`On_any_medications?`),
+      Primary_water_source = factor(Primary_water_source),
+      
+      # Convert and order time-related factors
+      collection_description = ordered(collection_description, 
+                                    levels = c("before", "15min-later", "2hrs-later")),
+      
+      self_reported_min_brushing = ordered(self_reported_min_brushing,
+                                        levels = c("30 seconds", "30sec", "30sec - 2 mins",
+                                                    "1 min", "1.5 mins", "2 mins", 
+                                                    "2-3 mins", "3 mins", "4 mins", "5 mins"),
+                                        labels = c("30s", "30s", "30s-2m", "1m", "1.5m",
+                                                    "2m", "2-3m", "3m", "4m", "5m")),
+      How_often_brush_teeth = ordered(`How_often_brush_teeth?`,
+                                    levels = c("1x day", "1x day, 6-8x week", "1-2x day",
+                                                "2x day", "2x day ", "2-3x day", "3x day"),
+                                    labels = c("1x", "1x", "1-2x", "2x", "2x", "2-3x", "3x")),
+      
+      How_often_drink_soda = ordered(`How_often_drink_soda?`,
+                                    levels = c("never", "seldom", "almost never",
+                                              "less than once a month", "10 times a year",
+                                              "1x  month", "1x month", "2x month",
+                                              "1x week", "2x week", "3-5x week", "4x week")),
+      across(c(`How_often_use_mouthwash?`, `What_kind_of_mouthwash?`, 
+            `Mouthwash_contains_alcohol?`, `floss_regularly?`),
+          ~ factor(na_if(., ""))),
+      Chew_gum_how_often_what_kind = as.character(`Chew_gum,_how_often,_what_kind?`),
+      Any_other_details = as.character(`Any_other_details?`),
+      across(where(is.numeric), ~ ifelse(. < 0, NA, .))
+    )
+
+  sra <- sra %>%
+    mutate(
+      Participant_ID = factor(Participant_ID),
+      processing = factor(processing),
+      collection_timestamp = as.POSIXct(collection_timestamp, format = "%m/%d/%y %I:%M %p"),
+      toothbrush_type = factor(toothbrush_type),
+      gender = factor(gender),
+      mouthwash_regularly = factor(`mouthwash_regularly`),
+      food = factor(food),
+      floss_regularly = factor(`floss_regularly`),
+      Treatment_code = factor(treatment_code),
+      Treatment_description = factor(treatment_description),
+      Bite_nails = factor(`bite_nails`),
+      Antibiotics_in_the_past_6_mo = factor(`antibiotics_in_the_past_6_mo`),
+      On_any_medications = factor(`on_any_medications`),
+      Primary_water_source = factor(primary_water_source),
+      
+      # Convert and order time-related factors
+      collection_description = ordered(collection_description, 
+                                    levels = c("before", "15min-later", "2hrs-later")),
+      
+      self_reported_min_brushing = ordered(self_reported_min_brushing,
+                                        levels = c("30 seconds", "30sec", "30sec - 2 mins",
+                                                    "1 min", "1.5 mins", "2 mins", 
+                                                    "2-3 mins", "3 mins", "4 mins", "5 mins"),
+                                        labels = c("30s", "30s", "30s-2m", "1m", "1.5m",
+                                                    "2m", "2-3m", "3m", "4m", "5m")),
+      How_often_brush_teeth = ordered(`how_often_brush_teeth`,
+                                    levels = c("1x day", "1x day, 6-8x week", "1-2x day",
+                                                "2x day", "2x day ", "2-3x day", "3x day"),
+                                    labels = c("1x", "1x", "1-2x", "2x", "2x", "2-3x", "3x")),
+      
+      How_often_drink_soda = ordered(`how_often_drink_soda`,
+                                    levels = c("never", "seldom", "almost never",
+                                              "less than once a month", "10 times a year",
+                                              "1x  month", "1x month", "2x month",
+                                              "1x week", "2x week", "3-5x week", "4x week")),
+      across(c(`how_often_use_mouthwash`, `what_kind_of_mouthwash`, 
+            `mouthwash_contains_alcohol`, `floss_regularly`),
+          ~ factor(na_if(., ""))),
+      Chew_gum_how_often_what_kind = as.character(`chew_gum_how_often_what_kind`),
+      Any_other_details = as.character(`any_other_details`),
+      across(where(is.numeric), ~ ifelse(. < 0, NA, .))
+    )
+
   # ----- Original Counts and Taxonomy -----
   orig_rds_file <- unzip(counts_zip, list = TRUE)$Name[1]
   temp_dir <- tempfile("repro")
@@ -338,11 +428,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
           proportions2 <- sweep(counts2, 1, rowSums(counts2), '/')
           # Label with study name based on zip filename prefix
           study_id <- sub("_.*$", "", basename(tools::file_path_sans_ext(repro_counts_zips[i])))
-          counts$Study <- study_id
-          proportions$Study <- study_id
           tax$Study <- study_id
-          counts2$Study <- study_id
-          proportions2$Study <- study_id
           tax_reprocessed2$Study <- study_id
 
           counts_reprocessed_list[[i]] <- counts
@@ -361,7 +447,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
     proportions_reprocessed <- bind_rows(proportions_reprocessed_list)
     tax_reprocessed <- bind_rows(tax_reprocessed_list)
 
-    if (!file.exists(file.path(local, "rdp16classified.csv"))) {
+    if (!file.exists(file.path(local, "rdp16classified.csv.zip"))) {
       tax_reprocessed2 <- bind_rows(tax_reprocessed2_list)
       counts_reprocessed2 <- bind_rows(counts_reprocessed2_list)
       proportions_reprocessed2 <- bind_rows(proportions_reprocessed2_list)

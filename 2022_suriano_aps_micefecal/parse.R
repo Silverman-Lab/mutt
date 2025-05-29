@@ -31,6 +31,11 @@ parse_2022_suriano_aps_micefecal <- function(raw = FALSE, align = FALSE) {
     metadata <- read.csv(metadata_path, stringsAsFactors = FALSE)
     metadata$Sample_name <- gsub("^(.*?_D)(\\d{2})\\.(\\d+)$", "D\\2-\\3", metadata$Sample_name)
     metadata = metadata %>% rename(Accession = Run)
+    metadata <- metadata %>%
+        mutate(
+            Day = str_extract(Sample_name, "(?<=D)\\d+(?=\\.)") %>% 
+                as.integer()
+        )
     
     # ----- scale ------------------------------
     scale_xlsx <- unzip(scale_zip, list = TRUE)$Name[1]
@@ -42,6 +47,15 @@ parse_2022_suriano_aps_micefecal <- function(raw = FALSE, align = FALSE) {
         rename(Sample_name = Sample) %>%
         mutate(log2_FC_cells_per_g = ifelse(`Cells.g.of.fecal.sample` > 0, log2(`Cells.g.of.fecal.sample`), NA)) %>%
         mutate(log10_FC_cells_per_g = ifelse(`Cells.g.of.fecal.sample` > 0, log10(`Cells.g.of.fecal.sample`), NA))
+
+    # ----- proportions -------------------------
+    proportions <- read_excel(scale_path, sheet = "Full microbiota profiles") %>% column_to_rownames("Genus") %>% t() %>% as.data.frame() 
+    rownames(proportions) <- gsub("\\.", "-", rownames(proportions))
+    proportions_original <- sweep(proportions, 1, rowSums(proportions), '/')
+
+
+    # ----- tax ---------------------------------
+    tax_original <- read_excel(scale_path, sheet = "Taxonomic table")
     
     # ----- Reprocessed counts from RDS ZIP -----
     if (file.exists(repro_counts_rds_zip)) {
@@ -116,11 +130,11 @@ parse_2022_suriano_aps_micefecal <- function(raw = FALSE, align = FALSE) {
             reprocessed = list(rdp19 = counts_reprocessed, rdp16 = counts_reprocessed2)
         ),
         proportions = list(
-            original = NA,
+            original = proportions_original,
             reprocessed = list(rdp19 = proportions_reprocessed, rdp16 = proportions_reprocessed2)
         ),
         tax = list(
-            original = NA,
+            original = tax_original,
             reprocessed = list(rdp19 = tax_reprocessed, rdp16 = tax_reprocessed2)
         ),
         scale = scale,

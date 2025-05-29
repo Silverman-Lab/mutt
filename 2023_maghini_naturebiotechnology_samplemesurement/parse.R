@@ -75,6 +75,30 @@ parse_2023_maghini_naturebiotechnology_samplemesurement <- function(raw = FALSE,
     by = "ID"
   )
 
+  metadata <- metadata %>% mutate(
+    across(c(`Assay Type`, BioProject, BioSampleModel, Consent,
+             `DATASTORE filetype`, `DATASTORE provider`, `DATASTORE region`,
+             geo_loc_name_country, geo_loc_name_country_continent,
+             Instrument, isolation_source, LibraryLayout, LibrarySelection,
+             LibrarySource, Organism, Platform),
+           ~ factor(na_if(., ""))),
+    
+    Donor = factor(Donor.x),
+    Condition = factor(Condition),
+    Replicate = factor(Replicate),
+    ReleaseDate = as.POSIXct(ReleaseDate, format = "%Y-%m-%dT%H:%M:%SZ"),
+    create_date = as.POSIXct(create_date, format = "%Y-%m-%dT%H:%M:%SZ"),
+    Collection_Date = as.Date(paste0(Collection_Date, "-01-01")),
+    across(c(Accession, BioSample, Experiment, `Sample Name`), factor),
+    across(c(AvgSpotLen, Bases, Bytes), as.numeric),
+    samp_collect_device = factor(replace_na(na_if(samp_collect_device, ""), "No preservative")),
+    samp_mat_process = ordered(case_when(
+      grepl("-80", samp_mat_process) ~ "-80C",
+      grepl("23", samp_mat_process) ~ "23C",
+      grepl("40", samp_mat_process) ~ "40C",
+      TRUE ~ NA_character_
+    ), levels = c("-80C", "23C", "40C"))
+  ) %>% select(-Donor.y, -Donor.x) 
 
   ## vvvvvvvvv UNCOMMENT WHEN FIXED vvvvvvvvv
 
@@ -305,6 +329,7 @@ parse_2023_maghini_naturebiotechnology_samplemesurement <- function(raw = FALSE,
       mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
       MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
   }
+
   # ----- Return -----
   return(list(
     counts = list(

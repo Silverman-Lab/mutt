@@ -133,6 +133,38 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
       mutate(log2_live_qpcr_cellsperul_avg = ifelse(live_qpcr_cellsperul_avg > 0, log2(live_qpcr_cellsperul_avg), NA)) %>%
       mutate(log10_live_qpcr_cellsperul_avg = ifelse(live_qpcr_cellsperul_avg > 0, log10(live_qpcr_cellsperul_avg), NA))
 
+    primarystudymetadata <- primarystudymetadata %>%
+      mutate(
+        brushing_event = factor(brushing_event),
+        `mouthwash since last timepoint`  = factor(`mouthwash since last timepoint`),
+        `floss since last timepoint` = factor(`floss since last timepoint`),
+        Timepoint = factor(Timepoint),
+        food = factor(food),
+        alcohol = factor(alcohol),
+        Treatment_code = factor(treatment)
+      )
+
+      sra <- sra %>%
+      mutate(
+        Participant_ID = factor(Participant_ID),
+        processing = factor(processing),
+        collection_timestamp = as.POSIXct(collection_timestamp, format = "%m/%d/%y %I:%M %p"),
+        toothbrush_type = factor(toothbrush_type),
+        sex = factor(sex),
+        mouthwash_regularly = factor(`mouthwash_regularly`),
+        food = factor(food),
+        timepoint = factor(timepoint),
+        floss_regularly = factor(`floss_regularly`),
+        
+        self_reported_min_brushing = ordered(self_reported_min_brushing,
+                                          levels = c("30 seconds", "30sec", "30sec - 2 mins",
+                                                      "1 min", "1.5 mins", "2 mins", 
+                                                      "2-3 mins", "3 mins", "4 mins", "5 mins"),
+                                          labels = c("30s", "30s", "30s-2m", "1m", "1.5m",
+                                                      "2m", "2-3m", "3m", "4m", "5m")),
+        across(where(is.numeric), ~ ifelse(. < 0, NA, .))
+      )
+      
     ## Read Counts
     temp_rds <- tempfile("repro")
     dir.create(temp_rds)
@@ -379,6 +411,7 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
     }   
 
     cleanup_tempfiles(temp_rds)
+
 
     # ----- Return structured list -----
     return(list(

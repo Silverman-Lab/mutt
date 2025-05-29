@@ -43,7 +43,7 @@ parse_2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum <- function(r
   scale_raw <- read_xlsx(scale_path, sheet = 1) %>%
     separate(col = 1, into = c("population", "Sample"), sep = "_", remove = TRUE) %>% mutate(Sample = as.character(Sample))
   metadata <- metadata %>%
-    left_join(scale_raw %>% select(Sample, population), by = "Sample") 
+    left_join(scale_raw %>% select(Sample, population), by = "Sample")  %>% mutate(population = factor(population))
   scale <- scale_raw %>%
     select(-population) %>% 
                   mutate(log2_Microbial_load = ifelse(`Microbial_load (no. cells/g)` > 0, log2(`Microbial_load (no. cells/g)`),NA)) %>% 

@@ -180,12 +180,8 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
 
             # Label with study name based on zip filename prefix
             study_id <- sub("_.*$", "", basename(tools::file_path_sans_ext(repro_counts_zips[i])))
-            counts_reprocessed$Study <- study_id
-            proportions_reprocessed$Study <- study_id
             tax_reprocessed$Study <- study_id
             tax_reprocessed2$Study <- study_id
-            counts_reprocessed2$Study <- study_id
-            proportions_reprocessed2$Study <- study_id
 
             counts_reprocessed_list[[i]] <- counts_reprocessed
             proportions_reprocessed_list[[i]] <- proportions_reprocessed
@@ -218,18 +214,32 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
             counts_reprocessed2 <- bind_rows(counts_reprocessed2_list) %>% as.data.frame()
         }
     }
-
     
 
     if (!raw) {
-      counts_original = fill_na_zero_numeric(counts_original)
-      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
-      proportions_original = fill_na_zero_numeric(proportions_original)
-      proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
-      proportions_reprocessed2 = fill_na_zero_numeric(proportions_reprocessed2)
-      counts_reprocessed2 = fill_na_zero_numeric(counts_reprocessed2)
+        counts_original = fill_na_zero_numeric(counts_original)
+        counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+        proportions_original = fill_na_zero_numeric(proportions_original)
+        proportions_reprocessed = fill_na_zero_numeric(proportions_reprocessed)
+        proportions_reprocessed2 = fill_na_zero_numeric(proportions_reprocessed2)
+        counts_reprocessed2 = fill_na_zero_numeric(counts_reprocessed2)
     }
 
+    if (!raw) {
+        metadata <- metadata %>%
+            mutate(across(everything(), ~ifelse(. == "" | . == " ", NA, .))) %>%
+            mutate(
+                PatientID = factor(PatientID),
+                Consistency = factor(replace_na(Consistency, "missing")),
+                Pool = as.numeric(Pool),
+                VanA = factor(replace_na(as.character(VanA), "missing"), levels = c("0", "1", "missing")),
+                Accession = as.character(Accession),
+                BioProject = as.character(BioProject),
+                Timepoint = as.integer(Timepoint),
+                DayRelativeToNearestHCT = as.integer(DayRelativeToNearestHCT)
+            )
+    }
+    
     # ----- Return structured list -----
     return(list(
         counts = list(

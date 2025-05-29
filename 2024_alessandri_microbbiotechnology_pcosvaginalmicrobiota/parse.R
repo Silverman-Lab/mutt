@@ -48,6 +48,27 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
   scale <- read_zipped_table(scale_zip, row.names=1) %>% 
             mutate(log2_FC_Bacterial_load = ifelse(10^`Bacterial total count` > 0, log2(10^`Bacterial total count`),NA)) %>% 
             rename(log10_FC_Bacterial_load = `Bacterial total count`)
+
+  metadata <- metadata %>% mutate(
+      Assay.Type = factor(Assay.Type),
+      BioProject = factor(BioProject),
+      BioSampleModel = factor(BioSampleModel),
+      env_broad_scale = factor(env_broad_scale, 
+                              levels = c("Fecal", "Vaginal swab")),
+      across(c(env_local_scale, env_medium, lat_lon),
+            ~ na_if(., "missing") %>% factor()),
+      treatmentfromlibraryname = ordered(treatmentfromlibraryname,
+                                        levels = c("control", "alpha-LA", "T0", "T1"),
+                                        labels = c("Control", "Alpha-LA", "Baseline", "Post-Treatment")),
+      
+      # Convert date columns
+      ReleaseDate = as.POSIXct(ReleaseDate, format = "%Y-%m-%dT%H:%M:%SZ"),
+      create_date = as.POSIXct(create_date, format = "%Y-%m-%dT%H:%M:%SZ"),
+      Collection_Date = as.Date(paste0(Collection_Date, "-01")),
+      across(c(Accession, BioSample, Experiment, Library.Name), factor),
+      across(c(AvgSpotLen, Bases, Bytes, `Sequenced reads`, FASTQ_Reads),
+            as.numeric),
+    )
             
 
   # ----- mOTU3 Reprocessed -----

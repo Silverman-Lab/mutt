@@ -48,16 +48,22 @@ parse_2017_vandeputte_nature_flow <- function(raw = FALSE, align = FALSE) {
     # Create metadata
     metadata <- df %>%
         select(
-            Accession = sampleID,
             Sample,
-            Cohort = Cohort.x,
+            Cohort = Cohort.y,
             Day,
-            `Health status` = Health,
-            Enterotype = Enterotype.x
+            Status = `Health status`,
+            Enterotype = Enterotype.y
         ) %>%
         as.data.frame()  
 
-    metadata <- full_join(metadata, sra, by = "Accession") %>% rename(Sample = Sample.x)
+    metadata <- full_join(metadata, sra, by = "Sample") 
+
+    metadata = metadata %>% mutate(
+        Sample = factor(Sample),
+        Cohort = factor(Cohort),
+        Enterotype = factor(Enterotype),
+        Status = factor(Status, levels = c("Healthy", "CD"))
+    )
 
     # Create scale
     scale <- df %>%

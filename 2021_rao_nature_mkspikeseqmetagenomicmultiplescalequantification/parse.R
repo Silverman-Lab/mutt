@@ -323,29 +323,55 @@ parse_2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification <- functi
   #   metadata <- as.data.frame(metadata)
   # }
 
-  metadata = sra_metadata %>%
-      as.data.frame() %>%
-      rename(Accession = Run) %>%
-  mutate(
-    sequencer_type = case_when(
-      str_detect(Instrument, regex("miseq", ignore_case = TRUE)) ~ "Miseq",
-      str_detect(Instrument, regex("nextseq", ignore_case = TRUE)) ~ "Nextseq",
-      TRUE ~ "Other"
+  metadata <- sra_metadata %>%
+    as.data.frame() %>%
+    rename(Accession = Run) %>%
+    
+    # 1) call out your sequencer
+    mutate(
+      sequencer_type = case_when(
+        str_detect(Instrument, regex("miseq",    ignore_case = TRUE)) ~ "Miseq",
+        str_detect(Instrument, regex("nextseq",  ignore_case = TRUE)) ~ "Nextseq",
+        TRUE                                                          ~ "Other"
+      )
+    ) %>%
+    
+    # 2) initial pass at sample_type, prefix, and combined name
+    mutate(
+      sample_type = case_when(
+        str_detect(Sample_name, "_bac16SV3V4")    ~ "bac16SV3V4",
+        str_detect(Sample_name, "_ITS1")          ~ "ITS1",
+        str_detect(Sample_name, "_arch16S")       ~ "arch16S",
+        TRUE                                      ~ NA_character_
+      ),
+      sample_prefix = str_remove(
+        Sample_name,
+        "_bac16SV3V4.*|_ITS1.*|_arch16S.*"
+      ),
+      combinedphasesamplename = case_when(
+        sequencer_type %in% c("Miseq", "Nextseq") ~ 
+          paste(sequencer_type, sample_prefix, sep = "_"),
+        TRUE                                      ~ NA_character_
+      )
+    ) %>%
+    
+    # 3) fill in any missing sample_type from the combined name
+    mutate(
+      sample_type = case_when(
+        !is.na(sample_type)                                                       ~ sample_type,
+        str_detect(combinedphasesamplename, regex("bac16SV3V4", ignore_case = TRUE)) ~ "bac16SV3V4",
+        TRUE                                                                      ~ NA_character_
+      )
+    ) %>%
+    
+    # 4) finally turn it into a factor
+    mutate(
+      sample_type = factor(
+        sample_type,
+        levels = c("bac16SV3V4", "ITS1", "arch16S")
+      )
     )
-  ) %>%
-  mutate(
-    sample_type = case_when(
-      str_detect(Sample_name, "_bac16SV3V4") ~ "bac16SV3V4",
-      str_detect(Sample_name, "_ITS1") ~ "ITS1",
-      str_detect(Sample_name, "_arch16S") ~ "arch16S",
-      TRUE ~ NA_character_
-    ),
-    sample_prefix = str_remove(Sample_name, "_bac16SV3V4.*|_ITS1.*|_arch16S.*"),
-    combinedphasesamplename = case_when(
-      sequencer_type %in% c("Miseq", "Nextseq") ~ paste(sequencer_type, sample_prefix, sep = "_"),
-      TRUE ~ NA_character_
-    )
-  )
+
 
   # Merge SRA metadata with scale data using sample_name
   if (!is.null(metadata) && !is.null(scale)) {

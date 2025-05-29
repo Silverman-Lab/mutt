@@ -48,6 +48,44 @@ parse_2024_sternes_frontmicrobiol_IBDppiqPCR <- function(raw = FALSE, align = FA
   "NC_total_score", "NC_binned", "BMI",	"BMI_binned", "SAGIS_binned", "SAGIS_binned2", "PPI")) 
   metadata     = metadata %>% left_join(meta_part, by = "Sample_name")
 
+  metadata = metadata %>%
+  mutate(
+    across(
+      c(age_binned, NC_binned, BMI_binned, SAGIS_binned, SAGIS_binned2, Sex, PPI),
+      ~ na_if(.x, "")
+    )
+  ) %>%
+  
+  mutate(
+    NC_binned    = recode(NC_binned, `1000-2000` = "1000+"),
+    SAGIS_binned = recode(SAGIS_binned, `10/19/25` = "10-19"),
+    BMI_binned   = recode(BMI_binned, Severely_Obese = "Severely Obese"),
+    DX_Groups    = recode(DX_Groups,
+                          KIT18CONT = "CONTROL",
+                          KIT19CONT = "CONTROL")
+  ) %>%
+  
+  mutate(
+    age_binned   = factor(age_binned,
+                          levels = c("17-29","30-39","40-49","50-59","60-69","70-79"),
+                          ordered = TRUE),
+    NC_binned    = factor(NC_binned,
+                          levels = c("0-499","500-999","1000+"),
+                          ordered = TRUE),
+    BMI_binned   = factor(BMI_binned,
+                          levels = c("Underweight","Normal","Overweight","Obese","Severely Obese"),
+                          ordered = TRUE),
+    SAGIS_binned = factor(SAGIS_binned,
+                          levels = c("0-9","10-19","20-29","30-80"),
+                          ordered = TRUE),
+    SAGIS_binned2= factor(SAGIS_binned2,
+                          levels = c("Low","High"),
+                          ordered = TRUE),
+    Sex          = factor(Sex, levels = c("M","F")),
+    PPI          = factor(PPI, levels = c("No PPI","PPI")),
+    DX_Groups    = factor(DX_Groups)
+  )
+
   counts_reprocessed <- NA
   proportions_reprocessed <- NA
   tax_reprocessed <- NA 

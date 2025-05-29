@@ -118,13 +118,45 @@ parse_2023_pereira_nature_nervous <- function(raw = FALSE, align = FALSE) {
     metadata      <- read_zipped_table(metadata_16s_zip, row.names = NULL) %>% rename(Sample = `Sequencing sample ID`)
     sra          <- read_zipped_table(sra_zip, row.names = NULL) %>% rename(Accession = Run, Sample = `Library Name`) %>% mutate(Sample = gsub("-", "_", Sample))
 
-    metadata      <- full_join(scale, metadata, by = "Sample")
-    metadata      <- full_join(sra, metadata, by = "Sample")
+    scale <- scale %>%
+        mutate(
+            `Cells/mL` = as.numeric(ifelse(`Cells/mL` > 0, 10^`Cells/mL`, NA))       
+        ) 
+
+    scale = scale %>% mutate(log10_FC_cells_ml = ifelse(`Cells/mL` > 0, log10(`Cells/mL`), NA),
+                             log2_FC_cells_ml  = ifelse(`Cells/mL` > 0, log2(`Cells/mL`),NA)
+    )
+
+    # metadata <- metadata %>%
+    #   mutate(across(everything(), ~ifelse(. == "" | . == " ", NA, .))) %>%
+    #   mutate(
+    #     replicate = as.numeric(replicate),
+    #     condition = factor(condition),
+    #     medium = factor(medium),
+    #     time_hours = factor(`time (hours)`),
+    #     `Read number` = as.numeric(`Read number`),
+    #     `Sample Coverage` = as.numeric(`Sample Coverage`),
+    #     `Cells/mL` = as.numeric(`Cells/mL`)
+    #   )
+
+    scale <- scale %>%
+      mutate(across(everything(), ~ifelse(. == "" | . == " ", NA, .))) %>%
+      mutate(
+        replicate = as.numeric(replicate),
+        condition = factor(condition),
+        medium = factor(medium),
+        time_hours = factor(`time (hours)`),
+        `Read number` = as.numeric(`Read number`),
+        `Sample Coverage` = as.numeric(`Sample Coverage`),
+        `bead counts` = as.numeric(`bead counts`),
+        `dilution (times)` = factor(`dilution (times)`),
+        `Syto9+ counts` = as.numeric(`Syto9+ counts`)
+      )
+
+    #metadata      <- full_join(scale, metadata, by = "Sample")
+    metadata      <- full_join(sra, scale, by = "Sample") 
     scale         <- scale %>% 
-                    dplyr::select(c("Sample", "Cells/mL")) %>% 
-                    mutate(`Cells/mL` = as.numeric(`Cells/mL`)) %>%
-                    mutate(log2_FC_cells_ml = ifelse(10^`Cells/mL` > 0, log2(10^`Cells/mL`),NA)) %>% 
-                    rename(log10_FC_cells_ml = `Cells/mL`)
+                    dplyr::select(c("Sample", "Cells/mL", "log2_FC_cells_ml", "log10_FC_cells_ml")) 
 
     # ------ original counts ------
     counts_original1 <- read_zipped_table(DADA2_counts_as_matrix_Drugs_zip, sep = "\t")
