@@ -161,17 +161,17 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
 
     # ----- MetaPhlAn4 Reprocessed -----
     if (file.exists(metaphlan4_zip)) {
-    # 1. private scratch folder
-    temp_dir <- tempfile("mp4_")
-    dir.create(temp_dir)
+        # 1. private scratch folder
+        temp_dir <- tempfile("mp4_")
+        dir.create(temp_dir)
 
-    # 2. locate the .tsv in the ZIP
-    mp4_files    <- unzip(metaphlan4_zip, list = TRUE)
-    mp4_filename <- mp4_files$Name[
-                        grepl("\\.tsv$", mp4_files$Name, ignore.case = TRUE)
-                    ][1]
+        # 2. locate the .tsv in the ZIP
+        mp4_files    <- unzip(metaphlan4_zip, list = TRUE)
+        mp4_filename <- mp4_files$Name[
+                            grepl("\\.tsv$", mp4_files$Name, ignore.case = TRUE)
+                        ][1]
 
-    if (!is.na(mp4_filename)) {
+        if (!is.na(mp4_filename)) {
         # 3. extract and capture full path
         unzipped  <- unzip(
                     metaphlan4_zip,
@@ -182,9 +182,7 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
         path      <- unzipped[1]
 
         # 4. read + set rownames
-        df <- readr::read_tsv(path, show_col_types = FALSE)
-        rownames(df) <- df[[1]]
-        df[[1]]      <- NULL
+        df <- readr::read_tsv(path, show_col_types = FALSE) %>% as.data.frame() %>% column_to_rownames("clade") %>% t() %>% as.data.frame()
 
         # 5. optional alignment
         if (!raw) {
@@ -204,15 +202,20 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
         proportions <- sweep(df, 1, rowSums(df), "/")
 
         # 7. taxonomy table
-        tax_df <- tibble::tibble(taxa = rownames(df)) |>
-        dplyr::mutate(taxa = stringr::str_trim(taxa)) |>
-        tidyr::separate(
+        tax_df <- data.frame(taxa = colnames(df)) %>%
+        mutate(taxa = str_trim(taxa)) %>%
+        separate(
             taxa,
             into  = c("Kingdom","Phylum","Class","Order",
                     "Family","Genus","Species","Strain"),
-            sep   = "\\s*;\\s*", extra = "drop", fill = "right"
-        )
-        rownames(tax_df) <- rownames(df)
+            sep   = "\\|",
+            extra = "drop",
+            fill  = "right"
+        ) %>%
+        # remove the leading letter__ (e.g. "k__", "p__") from every column
+        mutate(across(Kingdom:Strain, ~ str_remove(.x, "^[a-z]__")))
+        rownames(tax_df) <- colnames(df)
+        tax_df = make_taxa_label(tax_df)
 
         # 8. assign out
         MetaPhlAn4_counts      <- df
