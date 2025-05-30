@@ -21,7 +21,7 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
   # ----- File paths -----
   metadata_zip            <- file.path(local, "SraRunTable (1).csv.zip")
   motus_zip               <- file.path(local, "PRJNA1075117_motus_merged.tsv.zip")
-  metaphlan4_zip          <- file.path(local, "PRJNA1075117_MetaPhlAn_merged.tsv.zip")
+  metaphlan4_zip          <- file.path(local, "PRJNA1075117_MetaPhlAn_merged_counts.tsv.zip")
   scale_zip               <- file.path(local, "Alessandri2024_scale.csv.zip")
   metadataprocessed_zip   <- file.path(local, "Alessandri_2024_metadata.csv.zip")
   oldprocessed_zip        <- file.path(local, "Alessandri_2024_shotgunmetagenomics.csv.zip")
@@ -106,36 +106,70 @@ parse_2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota <- function(raw 
 
   # ----- MetaPhlAn4 Reprocessed -----
   if (file.exists(metaphlan4_zip)) {
-    temp_dir <- tempfile("repro_")   
+    # 1. private scratch folder
+    temp_dir <- tempfile("mp4_")
     dir.create(temp_dir)
-    metaphlan4_files <- unzip(metaphlan4_zip, list = TRUE)
-    metaphlan4_filename <- metaphlan4_files$Name[grepl("\\.tsv$", metaphlan4_files$Name)][1]
-    if (!is.na(metaphlan4_filename)) {
-        unzip(metaphlan4_zip, files = metaphlan4_filename, exdir = temp_dir, overwrite = TRUE)
-        path <- file.path(temp_dir, metaphlan4_filename)
-        df <- read_tsv(path)
-        rownames(df) <- df[[1]]
-        df[[1]] <- NULL
-        if (!raw) {
-          aligned = rename_and_align(counts_reprocessed = df, metadata=metadata, scale=scale, 
-                            by_col="Sample", align = align, study_name=basename(local))
-          df = aligned$reprocessed
-          original_names <- colnames(df)
-          df <- as.data.frame(lapply(df, as.numeric), row.names = rownames(df), col.names = original_names, check.names = FALSE)
-        }
-        proportions <- sweep(df, 1, rowSums(df), FUN = "/")
-        tax_df <- data.frame(taxa = rownames(df)) %>%
-        mutate(taxa = str_trim(taxa)) %>%
-        separate(taxa,
-                into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain"),
-                sep = "\\s*;\\s*", extra = "drop", fill = "right")
-        rownames(tax_df) <- rownames(df)
 
-        MetaPhlAn4_counts <- df
-        MetaPhlAn4_proportions <- proportions
-        MetaPhlAn4_tax <- tax_df
-    }
-    cleanup_tempfiles(temp_dir)
+    # 2. locate the .tsv in the ZIP
+    mp4_files    <- unzip(metaphlan4_zip, list = TRUE)
+    mp4_filename <- mp4_files$Name[
+                        grepl("\\.tsv$", mp4_files$Name, ignore.case = TRUE)
+                    ][1]
+
+    if (!is.na(mp4_filename)) {
+      # 3. extract and capture full path
+      unzipped  <- unzip(
+                  metaphlan4_zip,
+                  files     = mp4_filename,
+                  exdir     = temp_dir,
+                  overwrite = TRUE
+                  )
+      path      <- unzipped[1]
+
+      # 4. read + set rownames
+      df <- readr::read_tsv(path, show_col_types = FALSE) %>% as.data.frame() %>% column_to_rownames("clade") %>% t() %>% as.data.frame()
+
+      # 5. optional alignment
+      if (!raw) {
+      aligned <- rename_and_align(
+          counts_reprocessed = df,
+          metadata          = metadata,
+          scale             = scale,
+          by_col            = "Sample",
+          align             = align,
+          study_name        = basename(local)
+      )
+      df <- aligned$reprocessed
+      }
+
+      # 6. numeric + proportions
+      df[]        <- lapply(df, as.numeric)
+      proportions <- sweep(df, 1, rowSums(df), "/")
+
+      # 7. taxonomy table
+      tax_df <- data.frame(taxa = colnames(df)) %>%
+      mutate(taxa = str_trim(taxa)) %>%
+      separate(
+          taxa,
+          into  = c("Kingdom","Phylum","Class","Order",
+                  "Family","Genus","Species","Strain"),
+          sep   = "\\|",
+          extra = "drop",
+          fill  = "right"
+      ) %>%
+      # remove the leading letter__ (e.g. "k__", "p__") from every column
+      mutate(across(Kingdom:Strain, ~ str_remove(.x, "^[a-z]__")))
+      rownames(tax_df) <- colnames(df)
+      tax_df = make_taxa_label(tax_df)
+
+      # 8. assign out
+      MetaPhlAn4_counts      <- df
+      MetaPhlAn4_proportions <- proportions
+      MetaPhlAn4_tax         <- tax_df
+  }
+
+  # 9. tidy up
+  cleanup_tempfiles(temp_dir)
   }
 
   # ---- old processed, delete later ----
