@@ -29,7 +29,7 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE, align = 
     metadata_two_zip            <- file.path(local, "40168_2025_2063_MOESM3_ESM.csv.zip")
     metadata_zip                <- file.path(local, "SraRunTable (38).csv.zip")
     motus_zip                   <- file.path(local, "PRJNA1118035_motus_merged.tsv.zip")
-    metaphlan4_zip              <- file.path(local, "PRJNA1118035_MetaPhlAn_merged.tsv.zip")
+    metaphlan4_zip              <- file.path(local, "PRJNA1118035_MetaPhlAn_merged_counts.tsv.zip")
     tax_zip                     <- file.path(local, "SMGC_60perc_covered_genomes.txt.zip")
 
     # ----- Initialize everything as NA -----

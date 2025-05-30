@@ -31,7 +31,7 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE, align = FALSE) {
 
     # ----- File paths -----
     motus_zip            <- file.path(local, "PRJNA940499_motus_merged.tsv.zip")
-    metaphlan4_zip       <- file.path(local, "PRJNA940499_MetaPhlAn_merged.tsv.zip")
+    metaphlan4_zip       <- file.path(local, "PRJNA940499_MetaPhlAn_merged_counts.tsv.zip")
     metadata_SRA_zip     <- file.path(local, "SraRunTable (34).csv.zip")
     metadatareadin       <- file.path(local, "synDNA_metadata_updated.tsv.zip")
     countsreadin         <- file.path(local, "HMP_frequency_table.tsv.zip")
