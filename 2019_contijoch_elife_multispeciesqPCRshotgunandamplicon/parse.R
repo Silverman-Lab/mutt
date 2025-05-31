@@ -32,12 +32,6 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
     metadata_meta_zip    <- file.path(local, "Contijoch_metadata.csv.zip")
 
     # ----- Initialize everything as NA -----
-    counts_original_16s <- NA
-    proportions_original_16s <- NA
-    tax_original_16s <- NA
-    counts_original_meta <- NA
-    proportions_original_meta <- NA
-    tax_original_meta <- NA
     counts_reprocessed <- NA
     proportions_reprocessed <- NA
     tax_reprocessed <- NA
@@ -52,6 +46,12 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
     MetaPhlAn4_tax <- NA
 
     # ------ original counts ------
+    counts_original_16s <- NA
+    proportions_original_16s <- NA
+    tax_original_16s <- NA
+    counts_original_meta <- NA
+    proportions_original_meta <- NA
+    tax_original_meta <- NA
 
     # ---- scale and metadata -----
     scale_16s_df     <- read_zipped_table(scale_16s_zip) %>% mutate(log2_Sample_microbial_density_ug_per_mg = ifelse(!is.na(Sample_microbial_density_ug_per_mg),
@@ -65,9 +65,8 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
     tmp_dir <- tempdir()
     utils::unzip(metadata_16s_zip, exdir = tmp_dir)
     csv_files <- list.files(tmp_dir, pattern = "\\.csv$", full.names = TRUE)
-    csv_path <- csv_files[[2]]
-
-    # 3e) Now read into a data.frame:
+    matched <- csv_files[grep("Contijoch_2019_metadata", basename(csv_files), ignore.case = TRUE)]
+    csv_path <- matched
     metadata_16s_df <- read.csv(
     csv_path,
     sep = ",",
