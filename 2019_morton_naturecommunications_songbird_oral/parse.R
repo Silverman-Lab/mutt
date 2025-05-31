@@ -25,8 +25,8 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
     counts_zip           <- file.path(local, "2019_morton_songbird_oral_counts.RDS.zip")
     sra_zip              <- file.path(local, "SraRunTable (40).csv.zip")
     tax_zip              <- file.path(local, "taxonomy.tsv.zip")
-    motus_zip            <- file.path(local, "ERP111447_motus_merged.tsv.zip")
-    metaphlan4_zip       <- file.path(local, "ERP111447_MetaPhlAn_merged.tsv.zip")
+    motus_zip            <- file.path(local, "PRJEB29169_motus_merged.tsv.zip")
+    metaphlan4_zip       <- file.path(local, "PRJEB29169_MetaPhlAn_merged_counts.tsv.zip")
 
     # ----- Initialize -----
     counts = NULL
@@ -286,35 +286,33 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
       # 2. locate the .tsv in the ZIP
       mp4_files    <- unzip(metaphlan4_zip, list = TRUE)
       mp4_filename <- mp4_files$Name[
-                        grepl("\\.tsv$", mp4_files$Name, ignore.case = TRUE)
+                          grepl("\\.tsv$", mp4_files$Name, ignore.case = TRUE)
                       ][1]
 
       if (!is.na(mp4_filename)) {
         # 3. extract and capture full path
         unzipped  <- unzip(
-                      metaphlan4_zip,
-                      files     = mp4_filename,
-                      exdir     = temp_dir,
-                      overwrite = TRUE
+                    metaphlan4_zip,
+                    files     = mp4_filename,
+                    exdir     = temp_dir,
+                    overwrite = TRUE
                     )
         path      <- unzipped[1]
 
         # 4. read + set rownames
-        df <- readr::read_tsv(path, show_col_types = FALSE)
-        rownames(df) <- df[[1]]
-        df[[1]]      <- NULL
+        df <- readr::read_tsv(path, show_col_types = FALSE) %>% as.data.frame() %>% column_to_rownames("clade") %>% t() %>% as.data.frame()
 
         # 5. optional alignment
         if (!raw) {
-          aligned <- rename_and_align(
+        aligned <- rename_and_align(
             counts_reprocessed = df,
             metadata          = sra,
             scale             = srascale,
             by_col            = "Accession",
             align             = align,
             study_name        = basename(local)
-          )
-          df <- aligned$reprocessed
+        )
+        df <- aligned$reprocessed
         }
 
         # 6. numeric + proportions
@@ -322,25 +320,31 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
         proportions <- sweep(df, 1, rowSums(df), "/")
 
         # 7. taxonomy table
-        tax_df <- tibble::tibble(taxa = rownames(df)) |>
-          dplyr::mutate(taxa = stringr::str_trim(taxa)) |>
-          tidyr::separate(
+        tax_df <- data.frame(taxa = colnames(df)) %>%
+        mutate(taxa = str_trim(taxa)) %>%
+        separate(
             taxa,
             into  = c("Kingdom","Phylum","Class","Order",
-                      "Family","Genus","Species","Strain"),
-            sep   = "\\s*;\\s*", extra = "drop", fill = "right"
-          )
-        rownames(tax_df) <- rownames(df)
+                    "Family","Genus","Species","Strain"),
+            sep   = "\\|",
+            extra = "drop",
+            fill  = "right"
+        ) %>%
+        # remove the leading letter__ (e.g. "k__", "p__") from every column
+        mutate(across(Kingdom:Strain, ~ str_remove(.x, "^[a-z]__")))
+        rownames(tax_df) <- colnames(df)
+        tax_df = make_taxa_label(tax_df)
 
         # 8. assign out
         MetaPhlAn4_counts      <- df
         MetaPhlAn4_proportions <- proportions
         MetaPhlAn4_tax         <- tax_df
-      }
-
-      # 9. tidy up
-      cleanup_tempfiles(temp_dir)
     }
+
+    # 9. tidy up
+    cleanup_tempfiles(temp_dir)
+    }
+
     
     # ----- Reprocessed counts from RDS ZIP -----
     if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
