@@ -23,7 +23,7 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
     repro_counts_rds_zip <- file.path(local, "PRJNA413199_dada2_counts.rds.zip")
     repro_tax_zip        <- file.path(local, "PRJNA413199_dada2_taxa.rds.zip")
     motus_zip            <- file.path(local, "PRJNA413199_motus_merged.tsv.zip")
-    metaphlan4_zip       <- file.path(local, "PRJNA413199_MetaPhlAn_merged.tsv.zip")
+    metaphlan4_zip       <- file.path(local, "PRJNA413199_MetaPhlAn_merged_counts.tsv.zip")
     scale_16s_zip        <- file.path(local, "Contijoch2019 16S_scale.csv.zip")
     scale_meta_zip       <- file.path(local, "Contijoch2019_scale.csv.zip")
     counts_16s_zip       <- file.path(local, "Contijoch_2019_16S.csv.zip")
@@ -60,8 +60,21 @@ parse_2019_contijoch_elife_multispeciesqPCRshotgunandamplicon <- function(raw = 
     scale_meta_df    <- read_zipped_table(scale_meta_zip) %>% mutate(log2_microbial_density = ifelse(!is.na(microbial_density),
                                             microbial_density * log2(10),
                                             NA)) %>% rename(log10_microbial_density = microbial_density)
-    metadata_16s_df  <- read_zipped_table(metadata_16s_zip, row.names=NULL) %>% rename(Accession = Run)
     metadata_meta_df <- read_zipped_table(metadata_meta_zip, row.names=NULL) %>% rename(Accession = Run)
+
+    tmp_dir <- tempdir()
+    utils::unzip(metadata_16s_zip, exdir = tmp_dir)
+    csv_files <- list.files(tmp_dir, pattern = "\\.csv$", full.names = TRUE)
+    csv_path <- csv_files[[2]]
+
+    # 3e) Now read into a data.frame:
+    metadata_16s_df <- read.csv(
+    csv_path,
+    sep = ",",
+    header = TRUE,
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+    ) %>% rename(Accession = Run)
 
     metadata_16s_df <- metadata_16s_df %>% mutate(
         across(c(`Assay Type`, `condition_at_sampling`, Consent, 
