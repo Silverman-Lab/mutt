@@ -108,6 +108,8 @@ parse_2020_tettamantiboshier_msystems_vaginaltimeseries <- function(raw = FALSE,
           seqs <- Biostrings::DNAStringSet(colnames(counts_reprocessed))
           rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
           tax_reprocessed2 = make_taxa_label(rdpclassified) 
+          tax_reprocessed2$Sequence <- sub("\\.\\.\\.[0-9]+$", "", rownames(tax_reprocessed2))
+          rownames(tax_reprocessed2) <- tax_reprocessed2$Sequence
           write.csv(tax_reprocessed2, file = file.path(local, "rdp16classified.csv"), row.names = TRUE)
         } else {
           stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")

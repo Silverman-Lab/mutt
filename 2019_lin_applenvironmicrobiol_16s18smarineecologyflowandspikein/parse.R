@@ -45,7 +45,9 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
   # ----- Scale -----
   scale = read_zipped_table(scale_zip, row.names = NULL)
   mergedwmetadata = scale %>% select(SampleID, Line, Station, `Filtered Seawater Vol [L]`, `SurfChl [mg m-3]`) 
-  scale = scale %>% select(SampleID, `FCM [cells/ml]`) %>% 
+  scale = scale %>% select(SampleID, `FCM [cells/ml]`) %>% filter(!is.na(`FCM [cells/ml]`)) %>%
+                        mutate(SampleID = as.character(SampleID)) %>%
+                        mutate(`FCM [cells/ml]` = as.numeric(`FCM [cells/ml]`)) %>%
                         mutate(log2_fc_cells_ml = ifelse(`FCM [cells/ml]` > 0, log2(`FCM [cells/ml]`), NA)) %>%
                         mutate(log10_fc_cells_ml = ifelse(`FCM [cells/ml]` > 0, log10(`FCM [cells/ml]`), NA))  
 
@@ -116,11 +118,11 @@ parse_2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein <- functio
         proportions_reprocessed2 <- sweep(counts_reprocessed2, 1, rowSums(counts_reprocessed2), '/')
       }
 
-      counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
-      
-      counts_reprocessed2 = fill_na_zero_numeric(counts_reprocessed2)
-      proportions_reprocessed2 <- fill_na_zero_numeric(proportions_reprocessed2)
-
+      if (!raw) {
+        counts_reprocessed = fill_na_zero_numeric(counts_reprocessed)
+        counts_reprocessed2 = fill_na_zero_numeric(counts_reprocessed2)
+        proportions_reprocessed2 <- fill_na_zero_numeric(proportions_reprocessed2)
+      }
       # ----- Proportions -----
       proportions_reprocessed <- sweep(counts_reprocessed, 1, rowSums(counts_reprocessed), '/')
 

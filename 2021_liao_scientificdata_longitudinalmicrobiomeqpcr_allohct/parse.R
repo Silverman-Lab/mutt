@@ -142,6 +142,8 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
                 seqs <- Biostrings::DNAStringSet(colnames(counts_reprocessed))
                 rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
                 tax_reprocessed2 = make_taxa_label(rdpclassified) 
+                tax_reprocessed2$Sequence <- sub("\\.\\.\\.[0-9]+$", "", rownames(tax_reprocessed2))
+                rownames(tax_reprocessed2) <- tax_reprocessed2$Sequence
                 tax_reprocessed2_list[[i]] <- tax_reprocessed2
                 } else {
                 stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
@@ -201,10 +203,8 @@ parse_2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct <- function(ra
 
         if (!file.exists(file.path(local, "rdp16classified.csv.zip"))) {
             tax_reprocessed2 <- tax_reprocessed2_list %>%
-                map(~ rownames_to_column(.x, "Sequence")) %>%
                 bind_rows() %>%
-                distinct(Sequence, .keep_all = TRUE) %>%
-                column_to_rownames("Sequence")
+                distinct(Sequence, .keep_all = TRUE)
             proportions_reprocessed2 <- bind_rows(proportions_reprocessed2_list)
             counts_reprocessed2 <- bind_rows(counts_reprocessed2_list)
             write.csv(tax_reprocessed2, file = file.path(local, "rdp16classified.csv"), row.names = TRUE)

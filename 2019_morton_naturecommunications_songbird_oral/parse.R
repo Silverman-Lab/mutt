@@ -279,70 +279,81 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
 
     # ----- MetaPhlAn4 Reprocessed -----
     if (file.exists(metaphlan4_zip)) {
-      # 1. private scratch folder
-      temp_dir <- tempfile("mp4_")
-      dir.create(temp_dir)
+        # 1. private scratch folder
+        temp_dir <- tempfile("mp4_")
+        dir.create(temp_dir)
 
-      # 2. locate the .tsv in the ZIP
-      mp4_files    <- unzip(metaphlan4_zip, list = TRUE)
-      mp4_filename <- mp4_files$Name[
-                          grepl("\\.tsv$", mp4_files$Name, ignore.case = TRUE)
-                      ][1]
+        # 2. locate the .tsv in the ZIP
+        mp4_files    <- unzip(metaphlan4_zip, list = TRUE)
+        mp4_filename <- mp4_files$Name[
+            grepl("\\.tsv$", mp4_files$Name, ignore.case = TRUE)
+        ][1]
 
-      if (!is.na(mp4_filename)) {
-        # 3. extract and capture full path
-        unzipped  <- unzip(
-                    metaphlan4_zip,
-                    files     = mp4_filename,
-                    exdir     = temp_dir,
-                    overwrite = TRUE
-                    )
-        path      <- unzipped[1]
+        if (!is.na(mp4_filename)) {
+            # 3. extract and capture full path
+            unzipped <- unzip(
+                metaphlan4_zip,
+                files     = mp4_filename,
+                exdir     = temp_dir,
+                overwrite = TRUE
+            )
+            path <- unzipped[1]
 
-        # 4. read + set rownames
-        df <- readr::read_tsv(path, show_col_types = FALSE) %>% as.data.frame() %>% column_to_rownames("clade") %>% t() %>% as.data.frame()
+            # 4. read + set rownames
+            df <- readr::read_tsv(path, show_col_types = FALSE) %>%
+                as.data.frame() %>%
+                column_to_rownames("clade") %>%
+                t() %>%
+                as.data.frame()
 
-        # 5. optional alignment
-        if (!raw) {
-        aligned <- rename_and_align(
-            counts_reprocessed = df,
-            metadata          = sra,
-            scale             = srascale,
-            by_col            = "Accession",
-            align             = align,
-            study_name        = basename(local)
-        )
-        df <- aligned$reprocessed
+            # 5. optional alignment
+            if (!raw) {
+                aligned <- rename_and_align(
+                    counts_reprocessed = df,
+                    metadata           = sra,
+                    scale              = srascale,
+                    by_col             = "Accession",
+                    align              = align,
+                    study_name         = basename(local)
+                )
+                df <- aligned$reprocessed
+            }
+
+            # 6. numeric conversion
+            df[] <- lapply(df, as.numeric)
+
+
+            tax_df <- data.frame(taxa = colnames(df)) %>%
+                mutate(taxa = str_trim(taxa)) %>%
+                separate(
+                    taxa,
+                    into  = c("Kingdom", "Phylum", "Class", "Order",
+                            "Family", "Genus", "Species", "Strain"),
+                    sep   = "\\|",
+                    extra = "drop",
+                    fill  = "right"
+                ) %>%
+                # remove the leading “letter__” prefix (e.g. “k__”, “p__”…)
+                mutate(across(Kingdom:Strain, ~ str_remove(.x, "^[a-z]__")))
+
+            rownames(tax_df) <- colnames(df)
+            tax_df <- make_taxa_label(tax_df)
+
+            # 7. keep only columns that contain "s__" but do NOT contain "t__"
+            df <- df[, grepl("s__", colnames(df)) & !grepl("t__", colnames(df)), drop = FALSE]
+
+
+            # 8. compute proportions
+            proportions <- sweep(df, 1, rowSums(df), "/")
+
+            # 10. assign outputs
+            MetaPhlAn4_counts      <- df
+            MetaPhlAn4_proportions <- proportions
+            MetaPhlAn4_tax         <- tax_df
         }
 
-        # 6. numeric + proportions
-        df[]        <- lapply(df, as.numeric)
-        proportions <- sweep(df, 1, rowSums(df), "/")
-
-        # 7. taxonomy table
-        tax_df <- data.frame(taxa = colnames(df)) %>%
-        mutate(taxa = str_trim(taxa)) %>%
-        separate(
-            taxa,
-            into  = c("Kingdom","Phylum","Class","Order",
-                    "Family","Genus","Species","Strain"),
-            sep   = "\\|",
-            extra = "drop",
-            fill  = "right"
-        ) %>%
-        # remove the leading letter__ (e.g. "k__", "p__") from every column
-        mutate(across(Kingdom:Strain, ~ str_remove(.x, "^[a-z]__")))
-        rownames(tax_df) <- colnames(df)
-        tax_df = make_taxa_label(tax_df)
-
-        # 8. assign out
-        MetaPhlAn4_counts      <- df
-        MetaPhlAn4_proportions <- proportions
-        MetaPhlAn4_tax         <- tax_df
-    }
-
-    # 9. tidy up
-    cleanup_tempfiles(temp_dir)
+        # 11. tidy up
+        cleanup_tempfiles(temp_dir)
     }
 
     
