@@ -423,6 +423,10 @@ parse_2019_morton_naturecommunications_songbird_oral <- function(raw = FALSE, al
         proportions = fill_na_zero_numeric(proportions)
         counts_reprocessed2 = fill_na_zero_numeric(counts_reprocessed2)
         proportions_reprocessed2 = fill_na_zero_numeric(proportions_reprocessed2)
+        MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+        MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
+        mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
+        mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
     }   
 
     cleanup_tempfiles(temp_rds)

@@ -238,10 +238,10 @@ parse_2025_thiruppathy_microbiome_relicDNAflow <- function(raw = FALSE, align = 
 
     if (!raw) {
         counts_original = fill_na_zero_numeric(counts_original)
-        mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
         proportions_original = fill_na_zero_numeric(proportions_original)
-        MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
+        mOTU3_counts = fill_na_zero_numeric(mOTU3_counts)
         mOTU3_proportions = fill_na_zero_numeric(mOTU3_proportions)
+        MetaPhlAn4_counts = fill_na_zero_numeric(MetaPhlAn4_counts)
         MetaPhlAn4_proportions = fill_na_zero_numeric(MetaPhlAn4_proportions)
     }
 
