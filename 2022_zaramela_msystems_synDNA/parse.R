@@ -58,6 +58,8 @@ parse_2022_zaramela_msystems_synDNA <- function(raw = FALSE, align = FALSE) {
     scale = scale %>% filter(!is.na(FC_avg_cells_per_ul)) %>% select(-Sample)
     metadata = metadata %>% select(-c("FC_avg_cells_per_ul", "FC_avg_cells_5_min"))
 
+    metadata <- metadata %>%
+        mutate(across(c(gender, Pool, Strand), factor))
 
     # ----- counts and proportions and taxa -----
     counts <- read_zipped_table(countsreadin, row.names=NULL, sep="\t") %>%

@@ -148,7 +148,14 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
   ) %>%
   
   mutate(
-    BristolStoolScale_highest = as.integer(BristolStoolScale_highest),
+    BristolStoolScale_highest = factor(
+      as.integer(BristolStoolScale_highest),
+      levels   = 1:6,
+      ordered  = TRUE
+    ),
+
+    ## 4. pH ─ numeric
+    pH = as.numeric(pH),
     Chao1                     = as.integer(Chao1),
     across(
       c(WaterContent_perc, pH,
@@ -158,7 +165,10 @@ parse_2024_kruger_scientificreports_ddpcrhealthysubjects <- function(raw = FALSE
         shannon, fisher),
       as.numeric
     )
-  )
+  ) %>% 
+  mutate(Timepoint = factor(Timepoint,
+                            levels   = sort(unique(Timepoint)),
+                            ordered  = TRUE)) 
 
   metadata = full_join(metadata, sra, by = "SampleID")
 

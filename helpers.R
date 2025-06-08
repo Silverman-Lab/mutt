@@ -732,7 +732,6 @@ remove_empty_columns <- function(df) {
     stop("Input must be a data frame")
   }
   
-  # Function to check if a column is empty
   is_empty_column <- function(x) {
     if (is.numeric(x)) {
       all(is.na(x))
@@ -741,7 +740,62 @@ remove_empty_columns <- function(df) {
     }
   }
   
-  # Remove empty columns
   df[, !sapply(df, is_empty_column), drop = FALSE]
+}
+
+#' Add Sequence Column to Data Frame or List
+#'
+#' This function adds a new column called 'Sequence' to a data frame or list of data frames.
+#' The sequence is extracted from row names that match a DNA sequence pattern (containing only A, T, C, G).
+#'
+#' @param x A data frame or list of data frames. For data frames, the function checks row names
+#'          for DNA sequences (containing only A, T, C, G characters).
+#'
+#' @return The input object with an additional 'Sequence' column. For data frames, the new column
+#'         contains the DNA sequence from row names if they match the pattern, otherwise NA.
+#'         For lists, each element is processed recursively.
+#'
+#' @examples
+#' # Example with a data frame
+#' df <- data.frame(value = 1:3)
+#' rownames(df) <- c("ATCG", "GCTA", "invalid")
+#' result <- add_sequence_column(df)
+#'
+#' # Example with a list of data frames
+#' list_df <- list(
+#'   df1 = data.frame(value = 1:2, row.names = c("ATCG", "GCTA")),
+#'   df2 = data.frame(value = 3:4, row.names = c("TAGC", "invalid"))
+#' )
+#' result_list <- add_sequence_column(list_df)
+#'
+add_sequence_column <- function(x) {
+  if (is.data.frame(x)) {
+    seq_pattern <- "^[ACGTN]+$"
+    seq_rows    <- grepl(seq_pattern, rownames(x), ignore.case = TRUE)
+
+    if ("sequence" %in% names(x)) {
+      x$Sequence <- as.character(x$sequence)
+      x$sequence <- NULL
+    }
+
+    if (!"Sequence" %in% names(x)) {
+      x$Sequence <- rep(NA_character_, nrow(x))
+    } else {
+      x$Sequence <- as.character(x$Sequence)
+    }
+
+    to_fill <- seq_rows & (is.na(x$Sequence) |
+                           !grepl(seq_pattern, x$Sequence, ignore.case = TRUE))
+    x$Sequence[to_fill] <- rownames(x)[to_fill]
+    x$Sequence[!seq_rows] <- NA_character_
+
+    return(x)
+  }
+
+  if (is.list(x)) {
+    return(lapply(x, add_sequence_column))
+  }
+
+  x
 }
 

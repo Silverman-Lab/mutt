@@ -50,6 +50,13 @@ parse_2023_feng_imetawiley_chickensegment <- function(raw = FALSE, align = FALSE
     metadata = left_join(sra, scale %>% select(c("Segment", "Date", "Number", "Sample", "Amplicontype")), 
                         by = c("Sample", "Amplicontype")) %>%
                         mutate(Sample = paste0(Sample, "_", Amplicontype))
+
+    metadata <-  metadata %>%
+    mutate(
+        Amplicontype = factor(Amplicontype),
+        Segment      = factor(Segment),
+        Date         = factor(Date)
+    )
     
     scale = scale %>% 
         select(-c("Segment", "Date", "Number")) %>% 

@@ -56,8 +56,8 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
 
   # ----- Metadata and Scale -----
   metadata <- read_zipped_table(metadata_zip, sep=",", row.names = NULL)
-  sra1 = read_zipped_table(sra_zip, row.names = NULL)
-  sra1 <- sra1 %>% rename(Accession = Run, saliva_sample_ID = saliva_sample_id, 
+  sra1 = read_zipped_table(sra_zip, row.names = NULL) %>% dplyr::rename(Accession = Run)
+  sra1 <- sra1 %>% dplyr::rename(saliva_sample_ID = saliva_sample_id, 
          FC_avg_cells_5_min = fc_avg_cells_5_min, FC_avg_cells_per_ul = fc_avg_cells_per_ul,
          FC_cells_per_ul_r1 = fc_cells_per_ul_r1, FC_cells_per_ul_r2 = fc_cells_per_ul_r2) 
   sra1$SampleID <- paste0(sra1$saliva_sample_ID, ".", sra1$timepoint, ".", sra1$processing)
@@ -115,7 +115,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
       )
     ) 
   sra2 = read_zipped_tabled(sra_zip2, row.names = NULL) %>% 
-  rename(Accession = Run, saliva_sample_ID = saliva_sample_id, 
+  dplyr::rename(Accession = Run, saliva_sample_ID = saliva_sample_id, 
          FC_avg_cells_5_min = fc_avg_cells_5_min, FC_avg_cells_per_ul = fc_avg_cells_per_ul,
          FC_cells_per_ul_r1 = fc_cells_per_ul_r1, FC_cells_per_ul_r2 = fc_cells_per_ul_r2) %>%
   mutate(
@@ -167,7 +167,7 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
   sra = remove_empty_columns(sra)
   sra$SampleID <- paste0(sra$SampleID, ".", sra$`run_date (exp)`)
 
-  metadata <- metadata %>% rename(Sample = SampleID, Participant_ID = participant_id)
+  metadata <- metadata %>% dplyr::rename(Sample = SampleID, Participant_ID = participant_id)
   metadata$SampleID <- paste0(metadata$saliva_sample_ID, ".", metadata$processing)
   metadata <- type.convert(metadata, as.is = TRUE)
   #metadata <- full_join(sra, metadata, by = c("Participant_ID", "saliva_weight_g", "FC_cells_per_ul_r1", "FC_cells_per_ul_r2", "FC_avg_cells_per_ul", "FC_avg_cells_5_min"))
@@ -266,10 +266,17 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
       collection_timestamp = as.POSIXct(collection_timestamp, format = "%m/%d/%y %I:%M %p"),
       toothbrush_type = factor(toothbrush_type),
       gender = factor(gender),
+      sex = factor(sex),
+      host_age = as.numeric(host_age),
       mouthwash_regularly = factor(`mouthwash_regularly`),
       food = factor(food),
       floss_regularly = factor(`floss_regularly`),
-      Treatment_code = factor(treatment_code),
+      Treatment_code = if_else(
+        is.na(treatment_code),
+        str_extract(SampleID, "^[^0-9]+"), 
+        treatment_code
+      ),
+      Treatment_code = factor(Treatment_code),
       Treatment_description = factor(treatment_description),
       Bite_nails = factor(`bite_nails`),
       Antibiotics_in_the_past_6_mo = factor(`antibiotics_in_the_past_6_mo`),
@@ -387,8 +394,9 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
               seqs <- Biostrings::DNAStringSet(colnames(counts))
               rdpclassified <- dada2::assignTaxonomy(seqs, file.path("helperdata/rdp_train_set_16.fa.gz"), multithread=TRUE) %>% as.data.frame()
               tax_reprocessed2 = make_taxa_label(rdpclassified) 
-              tax_reprocessed2$Sequence <- sub("\\.\\.\\.[0-9]+$", "", rownames(tax_reprocessed2))
+              tax_reprocessed2 <- tax_reprocessed2 %>% rownames_to_column("Sequence")
               rownames(tax_reprocessed2) <- tax_reprocessed2$Sequence
+              tax_reprocessed2_list[[i]] <- tax_reprocessed2
             } else {
               stop("RDP 16 file not detected. please install the helperdata/rdp_train_set_16.fa.gz file")
           }
@@ -438,7 +446,6 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
           tax_reprocessed_list[[i]] <- tax
           counts_reprocessed2_list[[i]] <- counts2
           proportions_reprocessed2_list[[i]] <- proportions2
-          tax_reprocessed2_list[[i]] <- tax_reprocessed2
         }
 
         cleanup_tempfiles(temp_rds)
@@ -459,29 +466,30 @@ parse_2021_marotz_mSystems_oral_mouthwash <- function(raw = FALSE, align = FALSE
       proportions_reprocessed2 <- bind_rows(proportions_reprocessed2_list)
       tax_reprocessed2 <- read_zipped_table(file.path(local, "rdp16classified.csv.zip"), row.names = 1)
     }
+  }
 
-  } else {
-  # DELETE LATER WHEN REPROCESS HAS FINALIZED:
-  counts_zip = file.path(local, "Marotz_2021_16S.csv.zip")
-  counts_reprocessed = read_zipped_table(counts_zip) %>% as.data.frame()
-  counts_reprocessed <- counts_reprocessed %>%
-    rownames_to_column("SampleID") %>%
-    mutate(SampleID = if_else(
-      str_detect(SampleID, "raw"),
-      SampleID,
-      paste0(SampleID, ".PMA")
-    ))
-  counts_reprocessed <- counts_reprocessed %>% column_to_rownames("SampleID")
-  if (!raw) {
-    aligned = rename_and_align(counts_original = counts_reprocessed, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
-    counts_reprocessed = aligned$counts_original
-    original_names <- colnames(counts_reprocessed)
-    counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
-  }
-  proportions_reprocessed <- sweep(counts_reprocessed, MARGIN = 1,STATS  = rowSums(counts_reprocessed), FUN = "/")
-  tax_reprocessed <- data.frame(Taxa = colnames(counts_reprocessed), stringsAsFactors = FALSE)
-  ############################################
-  }
+  # } else {
+  # # DELETE LATER WHEN REPROCESS HAS FINALIZED:
+  # counts_zip = file.path(local, "Marotz_2021_16S.csv.zip")
+  # counts_reprocessed = read_zipped_table(counts_zip) %>% as.data.frame()
+  # counts_reprocessed <- counts_reprocessed %>%
+  #   rownames_to_column("SampleID") %>%
+  #   mutate(SampleID = if_else(
+  #     str_detect(SampleID, "raw"),
+  #     SampleID,
+  #     paste0(SampleID, ".PMA")
+  #   ))
+  # counts_reprocessed <- counts_reprocessed %>% column_to_rownames("SampleID")
+  # if (!raw) {
+  #   aligned = rename_and_align(counts_original = counts_reprocessed, metadata = metadata, scale = scale, by_col = "SampleID", align = align, study_name = basename(local))
+  #   counts_reprocessed = aligned$counts_original
+  #   original_names <- colnames(counts_reprocessed)
+  #   counts_reprocessed <- as.data.frame(lapply(counts_reprocessed, as.numeric), row.names = rownames(counts_reprocessed), col.names = original_names, check.names = FALSE)
+  # }
+  # proportions_reprocessed <- sweep(counts_reprocessed, MARGIN = 1,STATS  = rowSums(counts_reprocessed), FUN = "/")
+  # tax_reprocessed <- data.frame(Taxa = colnames(counts_reprocessed), stringsAsFactors = FALSE)
+  # ############################################
+  # }
 
   if (!raw) {
       counts_original = fill_na_zero_numeric(counts_original)

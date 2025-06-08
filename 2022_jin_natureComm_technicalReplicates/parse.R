@@ -127,6 +127,12 @@ parse_2022_jin_natureComm_technicalReplicates <- function(raw = FALSE, align = F
 
   metadata <- full_join(metadata, sra, by = "Sample")
 
+  cols_to_factor <- c("diet", "location", "sample_type", "subject", "sequencing_run")
+
+  metadata <- metadata %>%
+  dplyr::rename(location = location.x) %>%
+  mutate(across(all_of(cols_to_factor), factor))
+
   # ---- counts and tax and proportions ----
   dat <- read_xlsx_zip(zipfile = supp8_zip,sheet = "Sequencing-determined counts",skip = 1)
   counts <- dat[,2:56]

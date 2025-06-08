@@ -75,6 +75,7 @@ parse_2023_maghini_naturebiotechnology_samplemesurement <- function(raw = FALSE,
     by = "ID"
   )
 
+
   metadata <- metadata %>% mutate(
     across(c(`Assay Type`, BioProject, BioSampleModel, Consent,
              `DATASTORE filetype`, `DATASTORE provider`, `DATASTORE region`,
@@ -99,6 +100,24 @@ parse_2023_maghini_naturebiotechnology_samplemesurement <- function(raw = FALSE,
       TRUE ~ NA_character_
     ), levels = c("-80C", "23C", "40C"))
   ) %>% select(-Donor.y, -Donor.x) 
+
+  metadata <- metadata %>%
+  separate(ID, into = c("Donor_parsed", "Condition_parsed", "Replicate_parsed"),
+           sep = "_", remove = FALSE, fill = "right") %>%
+  mutate(
+    Donor     = coalesce(Donor,     Donor_parsed),
+    Condition = coalesce(Condition, Condition_parsed),
+    Replicate = coalesce(Replicate, Replicate_parsed)
+  ) %>%
+  select(-Donor_parsed, -Condition_parsed, -Replicate_parsed)
+
+  metadata <- metadata %>%
+  mutate(
+    Donor     = factor(Donor),
+    Condition = factor(Condition),
+    Replicate = factor(Replicate)
+  )
+
 
   ## vvvvvvvvv UNCOMMENT WHEN FIXED vvvvvvvvv
 

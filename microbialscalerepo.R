@@ -243,7 +243,12 @@ microbialscalerepo <- function(
       cat(summary_text, sep="\n")
     }
   }
-
+  microbialscalerepository <-lapply(microbialscalerepository, function(study) {
+    if (!is.null(study$tax)) {
+      study$tax <- add_sequence_column(study$tax)
+    }
+    study
+  })
   microbialscalerepository
 }
 
