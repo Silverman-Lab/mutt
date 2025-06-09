@@ -199,9 +199,4 @@ annotate_studies <-             function(repo,
 <!-- badges: start -->
   [![R-CMD-check](https://github.com/Silverman-Lab/totallia/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Silverman-Lab/totallia/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
-<!-- badges: start -->
-  [![R-CMD-check](https://github.com/Silverman-Lab/totallia/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Silverman-Lab/totallia/actions/workflows/R-CMD-check.yaml)
-<!-- badges: end -->
-<!-- badges: start -->
-  [![check-standard](https://github.com/Silverman-Lab/totallia/actions/workflows/check-standard.yaml/badge.svg)](https://github.com/Silverman-Lab/totallia/actions/workflows/check-standard.yaml)
-  <!-- badges: end -->
+
