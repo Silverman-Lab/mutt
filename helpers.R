@@ -799,11 +799,11 @@ add_sequence_column <- function(x) {
   x
 }
 
-#' Annotate Studies with PubMed Information
+#' Annotate Studies Information
 #'
-#' This function takes a repository of studies and annotates them with publication information
-#' retrieved from PubMed using PMIDs. It uses a Python script to fetch the data and adds
-#' the results to each study's metadata.
+#' This function takes a repository of studies and annotates them using a callable modular script
+#' One such use case is to obtain publication information retrieved from PubMed using PMIDs.
+#' In this case it uses a Python script to fetch the data and adds the results to each study's metadata.
 #'
 #' @param repo A list containing study information, where each study should have a
 #'   studydemographics field with a PMID
@@ -825,7 +825,7 @@ add_sequence_column <- function(x) {
 #'
 #' # Annotate the repository with publication information
 #' script_path <- "data_repository/obtainpublicationinfo_pmid.py"
-#' annotated_repo <- annotate_studies_with_pubmed(
+#' annotated_repo <- annotate_studies(
 #'   repo = repo,
 #'   script_path = script_path,
 #'   email = "your.email@example.com"
@@ -835,28 +835,22 @@ add_sequence_column <- function(x) {
 #' print(annotated_repo$study1$studyinfo)
 #'
 #' @export
-annotate_studies_with_pubmed <- function(repo,
+annotate_studies <- function(repo,
                                          script_path,
-                                         email       = NA_character_,
-                                         api_key     = NA_character_,
-                                         overwrite   = TRUE) {
-  # ────────────────────────────────────────────────────────────────
-  # Preconditions
-  # ────────────────────────────────────────────────────────────────
-  stopifnot(file.exists(script_path), is.list(repo))
+                                         email         = NA_character_,
+                                         api_key       = NA_character_,
+                                         overwrite     = TRUE,
+                                         csv_copy_to   = "publication_data.csv") {
 
-  # Ensure {reticulate} is available
+  stopifnot(file.exists(script_path), is.list(repo))
   if (!requireNamespace("reticulate", quietly = TRUE))
     stop("The 'reticulate' package is required. Install it and retry.")
 
-  # ────────────────────────────────────────────────────────────────
-  # 1. Build (PMID, Study) table (supports multiple PMIDs per study)
-  # ────────────────────────────────────────────────────────────────
+  ## 1. Build (PMID, Study) table ------------------------------------------------
   pmid_tbl <- purrr::imap_dfr(repo, function(study, study_nm) {
     pmids <- tryCatch(study$studydemographics$PMID, error = function(e) NULL)
-    if (is.null(pmids)) return(NULL)
     valid <- as.character(pmids[!is.na(pmids) & nzchar(pmids)])
-    if (length(valid)) tibble::tibble(PMID = valid, Study = study_nm) else NULL
+    if (length(valid)) tibble::tibble(PMID = valid, Study = study_nm)
   })
   if (nrow(pmid_tbl) == 0)
     stop("No valid PMIDs found in repo$* $studydemographics$PMID")
@@ -865,17 +859,12 @@ annotate_studies_with_pubmed <- function(repo,
   tmp_csv  <- tempfile(fileext = ".csv")
   readr::write_csv(pmid_tbl, tmp_csv, col_names = FALSE)
 
-  # ────────────────────────────────────────────────────────────────
-  # 2. Reticulate environment diagnostics (help the user see where we are)
-  # ────────────────────────────────────────────────────────────────
-  cfg <- reticulate::py_config()           # prints by default—capture invisibly
-  message("\n[reticulate] Using Python: ", cfg$python)
-  if (!is.null(cfg$conda))   message("[reticulate] Conda env : ", basename(cfg$conda))
+  ## 2. Reticulate diagnostics ----------------------------------------------------
+  cfg <- reticulate::py_config()
+  if (!is.null(cfg$conda))     message("[reticulate] Conda env : ", basename(cfg$conda))
   if (!is.null(cfg$virtualenv)) message("[reticulate] Virtualenv: ", cfg$virtualenv)
 
-  # ────────────────────────────────────────────────────────────────
-  # 3. Verify Biopython is importable in this interpreter
-  # ────────────────────────────────────────────────────────────────
+  ## 3. Ensure Biopython ----------------------------------------------------------
   has_bio <- reticulate::py_available(initialize = TRUE) &&
              reticulate::py_module_available("Bio")
   if (!has_bio) {
@@ -884,61 +873,100 @@ annotate_studies_with_pubmed <- function(repo,
     has_bio <- reticulate::py_module_available("Bio")
   }
   if (!has_bio)
-    stop("Biopython (module 'Bio') not found in the active Python environment.",
-         "\nCurrent interpreter: ", cfg$python,
-         "\nActivate the correct conda/virtualenv and install via one of:\n",
-         "  pip install biopython\n  conda install -c conda-forge biopython", call. = FALSE)
-  }
-  bio_path <- reticulate::import("Bio")$`__file__`
-  message("[reticulate] Biopython path: ", bio_path)
+    stop("Biopython (module 'Bio') not available; install it in the active env.")
 
-  # ────────────────────────────────────────────────────────────────
-  # 4. Run the publication‑fetching Python script *within* reticulate
-  #    We emulate command‑line args via sys.argv then run the file.
-  # ────────────────────────────────────────────────────────────────
+  ## 4. Run Python script in a temp directory -------------------------------------
+  caller_wd <- getwd()   # remember original directory
+
   withr::with_tempdir({
-    # Build argv list
+
     py_args <- list(script_path, "--pmid_study", tmp_csv)
     if (!is.na(email))   py_args <- c(py_args, "--email",   email)
     if (!is.na(api_key)) py_args <- c(py_args, "--api_key", api_key)
 
-    # Set sys.argv and run the script
     reticulate::py_run_string(sprintf(
       "import sys, json; sys.argv = json.loads('%s')",
       jsonlite::toJSON(py_args, auto_unbox = TRUE)
     ))
-
-    # Execute script as __main__
-    runpy <- reticulate::import("runpy")
-    runpy$run_path(script_path, run_name = "__main__")
+    reticulate::import("runpy")$run_path(script_path, run_name = "__main__")
 
     if (!file.exists("publication_data.csv"))
-      stop("Python script finished but publication_data.csv is missing. Check Python output above.")
+      stop("Python script finished but publication_data.csv is missing.")
 
     pub_raw <- readr::read_csv("publication_data.csv", show_col_types = FALSE)
+
+    ## copy the raw CSV to a persistent location
+    if (!is.null(csv_copy_to)) {
+      dest <- if (fs::is_absolute_path(csv_copy_to))
+                csv_copy_to
+              else
+                file.path(caller_wd, csv_copy_to)
+      file.copy("publication_data.csv", dest, overwrite = TRUE)
+      message("[annotate] copied raw CSV to: ", dest)
+    }
   })
 
-  # ────────────────────────────────────────────────────────────────
-  # 5. Surface parsing issues, merge back into repo
-  # ────────────────────────────────────────────────────────────────
+  ## 5. Merge back into repo ------------------------------------------------------
   parse_problems <- readr::problems(pub_raw)
-  if (nrow(parse_problems) > 0) {
+  if (nrow(parse_problems) > 0)
     warning(sprintf("%d parsing issue(s) detected in publication_data.csv. Use problems(pub_raw) for details.",
                     nrow(parse_problems)))
-  }
-  pub_df <- pub_raw
 
   for (nm in names(repo)) {
-    md <- dplyr::filter(pub_df, `Study Identifier` == nm)
-    if (nrow(md)) {
-      repo[[nm]]$studyinfo <- as.data.frame(md)
-    } else if (overwrite) {
-      repo[[nm]]$studyinfo <- NULL
-    }
+    md <- dplyr::filter(pub_raw, `Study Identifier` == nm)
+    if (nrow(md))      repo[[nm]]$studyinfo <- as.data.frame(md)
+    else if (overwrite) repo[[nm]]$studyinfo <- NULL
   }
 
   invisible(repo)
 }
+
+
+#' Convert a microbial scale repository to a Python pickle file
+#'
+#' Cleans a nested list of study objects by stripping out any `Date` elements,
+#' applies `add_sequence_column()` to each study's `tax` slot (if present),
+#' converts the result to a Python object via **reticulate**, and saves it
+#' to the specified `.pkl` file path.
+#'
+#' @param microbialscalerepository A named list of study objects, each of which
+#'   may contain a `tax` data.frame.
+#' @param filepath Character. Path (including filename) where the `.pkl` file
+#'   should be written.
+#'
+#' @return Invisibly returns the value of `filepath` after writing.
+#' @examples
+#' \dontrun{
+#' convert_repo_to_pkl(microbialscalerepository, "output/microbiome.pkl")
+#' }
+#' @import reticulate
+#' @export
+convert_repo_to_pkl <- function(microbialscalerepository, filepath) {
+  if (!requireNamespace("reticulate", quietly = TRUE)) {
+    stop("Package 'reticulate' is required. Please install it first.", call. = FALSE)
+  }
+  library(reticulate)
+  clean_list <- rapply(
+    microbialscalerepository,
+    f = function(x) {
+      if (inherits(x, "Date")) NULL else x
+    },
+    how = "replace"
+  )
+  py_obj <- r_to_py(clean_list)
+  pickle   <- import("pickle")
+  builtins <- import_builtins()
+  dir.create(dirname(filepath), recursive = TRUE, showWarnings = FALSE)
+  f <- builtins$open(filepath, "wb")
+  on.exit(f$close(), add = TRUE)
+  pickle$dump(py_obj, f)
+  f$close()
+
+  message("Pickle saved to: ", filepath)
+  invisible(filepath)
+}
+
+
 
 
 
