@@ -2,7 +2,7 @@
 <br>
 
 <div style="display: flex; align-items: center;">
-  <img src="man/figures/totallia-logo.png" height="300" style="margin-right: 5px;"/>
+  <img src="man/figures/totallia-logo.png" height="150" style="margin-right: 5px;"/>
   <div>
     <strong>Authors:</strong> Maxwell Konnaris, Justin Silverman MD PhD <br>
     <strong>Contributors:</strong> Manan Saxena <br>
