@@ -8,7 +8,7 @@ on:
 
 jobs:
   R-CMD-check:
-    name: R-CMD-check (${{ matrix.os }} | R ${{ matrix.r }})
+    name: ${{ matrix.os }} | R ${{ matrix.r }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -16,7 +16,7 @@ jobs:
         r: [release, devel]
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Setup R
@@ -24,16 +24,13 @@ jobs:
         with:
           r-version: ${{ matrix.r }}
 
-      - name: Install package dependencies
+      - name: Install dependencies
         run: |
-          install.packages('remotes', repos = 'https://cloud.r-project.org')
-          remotes::install_deps(dependencies = TRUE, upgrade = 'never')
+          install.packages("remotes", repos="https://cloud.r-project.org")
+          remotes::install_deps(dependencies = TRUE, upgrade = "never")
 
       - name: Run R CMD check
         run: |
           R CMD check --no-manual --as-cran .
 
-      - name: Upload check results
-        if: always()
-        uses: r-lib/actions/upload-check-results@v2
 
