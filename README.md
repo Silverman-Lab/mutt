@@ -128,7 +128,6 @@ study_parsers <- c(
     Feng2023 = "2023_feng_imetawiley_chickensegment",
     Reese2022 = "2021_reese_cell_chimpanzee",
     Barlow2020 = "2020_barlow_naturecommunications_miceGI",
-    #Barlow2021 = "2021_barlow_microbiome_reimaginestudypatientsddpcr",
     Morton2019 = "2019_morton_naturecommunications_songbird_oral",
     Prochazkova2024 = "2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal",
     Zemb2020 = "2020_zemb_microOpen_spike",
@@ -138,7 +137,6 @@ study_parsers <- c(
     Suriano2022 = "2022_suriano_aps_micefecal",
     Thiruppathy2025 = "2025_thiruppathy_microbiome_relicDNAflow",
     Wagner2025 = "2025_wagner_frontiersinmiccrobiology_flowpiglets",
-    #Rolling2021 = "2021_rolling_naturemicrobiology_allohct_ITS_16s",
     Kallastu2023 = "2023_kallastu_research_foodscience_food"
 )
 
