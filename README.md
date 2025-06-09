@@ -1,15 +1,18 @@
 # Silverman Lab's Microbial Scale Data Repository
 <br>
 
-<div style="display: flex;">
-  <img src="man/figures/totallia-logo.png" height="300" style="margin-right: 5px;"/>
-  <div>
-    <strong>Authors:</strong> Maxwell Konnaris, Justin Silverman MD PhD <br>
-    <strong>Contributors:</strong> Manan Saxena <br>
-    <strong>Maintainers:</strong> Maxwell Konnaris, Justin Silverman MD PhD <br>
-    <strong>Affiliation:</strong> Pennsylvania State University
-  </div>
-</div>
+<table>
+  <tr>
+    <td><img src="man/figures/totallia-logo.png" height="300"></td>
+    <td>
+      <strong>Authors:</strong> Maxwell Konnaris, Justin Silverman MD PhD<br>
+      <strong>Contributors:</strong> Manan Saxena<br>
+      <strong>Maintainers:</strong> Maxwell Konnaris, Justin Silverman MD PhD<br>
+      <strong>Affiliation:</strong> Pennsylvania State University
+    </td>
+  </tr>
+</table>
+
 
 
 
