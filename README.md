@@ -1,4 +1,4 @@
-# Microbial Scale Data Repository for the Silverman lab
+# Microbial Scale Data Repository from the Silverman lab at Pennsylvania State University
 <br>
 Authors: Maxwell Konnaris, Justin Silverman MD PhD <br>
 Contributors: Manan Saxena <br>
