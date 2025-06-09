@@ -139,7 +139,7 @@ study_parsers <- c(
 )
 
 # Run repo function
-studies <- microbialscalerepo(
+repo <- microbialscalerepo(
   studies = study_parsers, # If not supplied, defaults to all
   base_directory = "data_repository/", # This is default, but you should change to wherever your local download is, for now.
   rawdata = FALSE, # Dont change this because its the un-reformatted original data non cleaned. If TRUE, returns unformatted original data
@@ -163,5 +163,26 @@ Structure:
   scale: DATAFRAME(321 x 11)
   metadata: DATAFRAME(321 x 56)
   studydemographics: LIST={sequencingtype = VECTOR(length=1), loadtype = VECTOR(length=1), organismtype = VECTOR(length=1), sampletype = VECTOR(length=1), covariates = VECTOR(length=1), ID = VECTOR(length=1), PMID = VECTOR(length=1)}
+```
+
+Additionally, there are many callable helper functions to scrape additional data about each study in the returned .RData object:
+
+```r
+# WORK IN PROGRESS - Works for obtainpublicationinfo_pmid.py
+
+# library(reticulate) is required for python packages
+annotate_studies_with_pubmed <- function(repo,
+                                         script_path, # Supply any script (R or Python) that works off the structure of the repo such as obtainpublicationinfo_pmid.py
+                                         email         = NA_character_,
+                                         api_key       = NA_character_,
+                                         overwrite     = TRUE,
+                                         csv_copy_to   = "publication_data.csv") {
+```
+
+`annotate_studies_with_pubmed()` will append data to the repo for each study as a list
+The data appended is determined by the returned object from the script. The intention is modularity for users outside of provided scripts in the repo readily available. The example, `obtainpublicationinfo_pmid.py` will scrape information about the published journal article from NCBI and append to $studyinfo. See below:
+
+```r
+
 ```
 
