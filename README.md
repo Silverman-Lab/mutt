@@ -8,6 +8,10 @@ Affiliation: Pennsylvania State University
 
 Before download, **make sure gitlfs is installed**. 
 
+```r
+devtools::install_github("Silverman-Lab/totallia")
+```
+
 ## Notes
 - A growing list of studies and relevant metadata is being maintained here: https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing
     - Contributors: Maxwell Konnaris, Manan Saxena, Won Gu, Tinghua Chen
