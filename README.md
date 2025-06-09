@@ -1,20 +1,21 @@
 # data_repository
-data respository for the Silverman lab
+Data repository for the Silverman lab 
+Authors: Maxwell Konnaris, Justin Silverman MD PhD
+Affiliation: Pennsylvania State University
 
 Before download, **make sure gitlfs is installed**. 
 
 Use Git LFS for large files: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage
 
-According to Maxwell, metagenomic data is huge. So lets keep this to count tables for the moment (already processed data). 
+According to Maxwell, metagenomic data is huge. So lets keep this to processed data tables for the moment. 
 
 # Notes
 - A growing list of studies and relevant metadata is being maintained here: https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing
-- An extra column in a count table that contains non-meaningful information (e.g., all values are -1) and is not present in the taxa table indicates that the corresponding taxa are unassigned.
 
 # Format to Maintain
 - Each dataset gets its own directory with an informative name (all lower-case), "year_name_journal_keyword". Try to be concise, but not too vague (don't use date ranges e.g., 2020-2024 but just choose a single date for the study). 
 
-- Datasets should be compressed (and again, stored using Git LFS: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage). This can be done by running ./zip-push-gitlfs.sh from the terminal within the data repository main folder.
+- Datasets should be compressed before uploading (and again, stored using Git LFS: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage). This can be done by running ./zip-push-gitlfs.sh from the terminal within the data repository main folder while pushing.
 
 ## Parsed Data Structure for `parse.R` scripts. 
 parse.R should have a single function named `parse_[name of directory]` (all lowercase) which returns a list object with the following elements. That function should not require arguments but they can be optional. Ideally, parse scripts use nothing other than base R or tidyverse functions to minimize dependencies and errors if certain libraries are not installed. 
@@ -23,7 +24,7 @@ parse.R should have a single function named `parse_[name of directory]` (all low
 - `proportions` real-valued valued count matrix (not data.frame) that is (N x D) and has row and column names which are sampleIDs and sequenceIDs (e.g., taxaIDs) respectively. Should contain a column key with sampleIDs linking to counts, scale, and metadata. 
 - `scale` positive-valued matrix likely of dimension N x 1 but other formats may need to be allowed due to mean and sd or multiple techniques measuring total scale. Should contain a column key with sampleIDs linking to counts, proportions, and metadata. 
 - `metadata` (optional but often required) N x Q data.frame. Should contain a column key with sampleIDs linking to counts and proportions. 
-- `tax` (optional) D x ?, character-valued data.frame with sequenceIDs as rownames and each column labeled in a meaningful way. For microbiome data these labels should be limited to c("Kingdom", "Phylum", "Class", "Order", "Genus", "Species", "Strain"). "Taxa" is the lowest identified taxonomy classified specified by prefix and then the classified taxa, if unclassified by lowest taxonomy resolution then prefixed with uc_ and then taxonomic level prefix ex. for phylum: uc_p_[taxa classification name] "Sequence" column links sequenceIDs (ASV, OTUs, classified taxa) to the actual raw sequence (e.g., the 16S sequence of a particular taxon).
+- `tax` (optional) D x ?, character-valued data.frame with sequenceIDs as rownames and each column labeled in a meaningful way. For microbiome data these labels should be limited to c("Kingdom", "Phylum", "Class", "Order", "Genus", "Species", "Strain"). "Taxa" is the lowest identified taxonomy classified specified by prefix and then the classified taxa, if unclassified by lowest taxonomy resolution then prefixed with uc_ and then taxonomic level prefix ex. for phylum: uc_p_[taxa classification name] "Sequence" column should additionally be the tax rownames and links sequenceIDs (ASV, OTUs, classified taxa) to the actual raw sequence (e.g., the 16S sequence of a particular taxon).
 - `phylo` (optional) phylogenetic tree stored in reasonable format (let me know if any repos have phylogenetic trees in them and I will figure out a good standard format)
 
 ```r
@@ -77,14 +78,15 @@ return(list(
 ### Note on file paths
 `parse.R` scripts should specify file paths relative to the root `data_repository` directory. 
 
-### Helper Functions:
+### Helper Scripts:
 `repoparser.py` a parser check function to check the structure and execution of each individual parser. (Needs work)
 `obtainpublicationinfo_pmid.py` using a list of PMIDs, this functionality can be integrated into each parser to obtain the manuscript information from NCBI (Script works, but python and each parse script is in R.)
 `zip-push-gitlfs.sh` run from terminal in the repository directory when you are ready to push and it will compress your files with .zip and upload with gitlfs
+`downloadrepoaspkl.py` convert the repo to a .pkl object
+`loadRDataintopython.ipynb` example using rpy2 to load the RData object returned from `microbialscalerepo.R` into python
 
 ### Wrapper functions for MicrobialScaleRepository package:
 `microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
-`microbialscalerepo.py` function to call parse scripts (with selection of individual studies) and optionally store in .pkl object
 
 ## For now, functionality:
 
