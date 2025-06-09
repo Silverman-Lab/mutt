@@ -1,18 +1,17 @@
 # Microbial Scale Data Repository for the Silverman lab
-<br><br>
+<br>
 Authors: Maxwell Konnaris, Justin Silverman MD PhD <br>
 Affiliation: Pennsylvania State University
+<br>
 
 Before download, **make sure gitlfs is installed**. 
 
-Use Git LFS for large files: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage
-
-According to Maxwell, metagenomic data is huge. So lets keep this to processed data tables for the moment. 
-
-# Notes
+## Notes
 - A growing list of studies and relevant metadata is being maintained here: https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing
+- Use Git LFS for large files: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage
+- Shotgun metagenomic data is huge, therefore, this is limited to processed data tables for the moment. 
 
-# Format to Maintain
+## Format to Maintain
 - Each dataset gets its own directory with an informative name (all lower-case), "year_name_journal_keyword". Try to be concise, but not too vague (don't use date ranges e.g., 2020-2024 but just choose a single date for the study). 
 
 - Datasets should be compressed before uploading (and again, stored using Git LFS: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage). This can be done by running ./zip-push-gitlfs.sh from the terminal within the data repository main folder while pushing.
@@ -75,19 +74,19 @@ return(list(
     phylo = NA
 ))
 ```
-### Note on file paths
+## Note on file paths
 `parse.R` scripts should specify file paths relative to the root `data_repository` directory. 
 
-### Helper Scripts:
+## Helper Scripts:
 - `obtainpublicationinfo_pmid.py` using a list of PMIDs, this functionality can be integrated into each parser to obtain the manuscript information from NCBI (Script works, but python and each parse script is in R.)
 - `zip-push-gitlfs.sh` run from terminal in the repository directory when you are ready to push and it will compress your files with .zip and upload with gitlfs
 - `downloadrepoaspkl.py` convert the repo to a .pkl object
 - `loadRDataintopython.ipynb` example using rpy2 to load the RData object returned from `microbialscalerepo.R` into python
 
-### Wrapper functions for MicrobialScaleRepository package:
+## Wrapper functions for MicrobialScaleRepository package:
 - `microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
 
-## For now, functionality:
+# For now, functionality:
 
 ```r
 
