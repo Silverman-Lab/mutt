@@ -5,7 +5,7 @@
 <table>
 <tr>
 <td style="vertical-align: top; padding-right: 20px;">
-  <img src="man/figures/totallia-logo.png" height="400">
+  <img src="man/figures/totallia-logo.png" height="600">
 </td>
 <td style="vertical-align: top;">
   <p><strong>Authors:</strong> Maxwell Konnaris, Justin Silverman MD PhD</p>
