@@ -142,7 +142,7 @@ study_parsers <- c(
 )
 
 # Run repo function
-repo <- microbialscalerepo(
+repo <- totallia(
   studies = study_parsers, # If not supplied, defaults to all
   base_directory = "data_repository/", # This is default, but you should change to wherever your local download is, for now.
   rawdata = FALSE, # Dont change this because its the un-reformatted original data non cleaned. If TRUE, returns unformatted original data
