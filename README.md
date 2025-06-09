@@ -79,14 +79,13 @@ return(list(
 `parse.R` scripts should specify file paths relative to the root `data_repository` directory. 
 
 ### Helper Scripts:
-`repoparser.py` a parser check function to check the structure and execution of each individual parser. (Needs work)
-`obtainpublicationinfo_pmid.py` using a list of PMIDs, this functionality can be integrated into each parser to obtain the manuscript information from NCBI (Script works, but python and each parse script is in R.)
-`zip-push-gitlfs.sh` run from terminal in the repository directory when you are ready to push and it will compress your files with .zip and upload with gitlfs
-`downloadrepoaspkl.py` convert the repo to a .pkl object
-`loadRDataintopython.ipynb` example using rpy2 to load the RData object returned from `microbialscalerepo.R` into python
+- `obtainpublicationinfo_pmid.py` using a list of PMIDs, this functionality can be integrated into each parser to obtain the manuscript information from NCBI (Script works, but python and each parse script is in R.)
+- `zip-push-gitlfs.sh` run from terminal in the repository directory when you are ready to push and it will compress your files with .zip and upload with gitlfs
+- `downloadrepoaspkl.py` convert the repo to a .pkl object
+- `loadRDataintopython.ipynb` example using rpy2 to load the RData object returned from `microbialscalerepo.R` into python
 
 ### Wrapper functions for MicrobialScaleRepository package:
-`microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
+- `microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
 
 ## For now, functionality:
 
