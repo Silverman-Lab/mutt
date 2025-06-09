@@ -176,7 +176,7 @@ annotate_studies_with_pubmed <- function(repo,
                                          email         = NA_character_,
                                          api_key       = NA_character_,
                                          overwrite     = TRUE,
-                                         csv_copy_to   = "publication_data.csv") {
+                                         csv_copy_to   = "publication_data.csv") 
 ```
 
 `annotate_studies_with_pubmed()` will append data to the repo for each study as a list
