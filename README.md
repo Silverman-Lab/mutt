@@ -149,3 +149,19 @@ studies <- microbialscalerepo(
 )
 ```
 
+This will supply you with the three saved objects:
+- *.RData object containing all of the parsed data formatted from each study
+- *_validation.RData containing the validated structure of the parsed data from each study contained in the .RData object
+- *_validation_summary.txt containing the skeleton summarized structure of what is within the .RData object and if verbose = TRUE, this is printed to console. See example below:
+
+```r
+Study: Vandeputte2017
+Structure:
+  counts: LIST={original = LIST={rdp19 = DATAFRAME(135 x 193), rdp16 = DATAFRAME(135 x 140)}, nishijima2024 = DATAFRAME(95 x 166), reprocessed = LIST={rdp19 = DATAFRAME(135 x 334), rdp16 = DATAFRAME(135 x 222)}}
+  proportions: LIST={original = LIST={rdp19 = DATAFRAME(135 x 193), rdp16 = DATAFRAME(135 x 140)}, nishijima2024 = DATAFRAME(95 x 166), reprocessed = LIST={rdp19 = DATAFRAME(135 x 334), rdp16 = DATAFRAME(135 x 222)}}
+  tax: LIST={original = LIST={rdp19 = DATAFRAME(2041 x 14), rdp16 = DATAFRAME(2041 x 7)}, nishijima2024 = DATAFRAME(166 x 1), reprocessed = LIST={rdp19 = DATAFRAME(5173 x 7), rdp16 = DATAFRAME(5173 x 7)}}
+  scale: DATAFRAME(321 x 11)
+  metadata: DATAFRAME(321 x 56)
+  studydemographics: LIST={sequencingtype = VECTOR(length=1), loadtype = VECTOR(length=1), organismtype = VECTOR(length=1), sampletype = VECTOR(length=1), covariates = VECTOR(length=1), ID = VECTOR(length=1), PMID = VECTOR(length=1)}
+```
+
