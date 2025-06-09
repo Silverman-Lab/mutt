@@ -1,6 +1,7 @@
 # Silverman Lab's Microbial Scale Data Repository
 <br>
 
+<div align="center">
 <table>
 <tr>
 <td style="vertical-align: top; padding-right: 20px;">
@@ -14,7 +15,7 @@
 </td>
 </tr>
 </table>
-
+</div>
 
 
 
