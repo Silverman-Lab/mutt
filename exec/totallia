@@ -1,0 +1,87 @@
+#!/usr/bin/env Rscript
+
+#’ @title     Command-line interface for totallia
+#’ @description
+#’   Allows you to run the totallia parser directly from the shell.
+#’ @details
+#’   This script wraps the \code{totallia()} function, parsing command-line
+#’   options via optparse and printing results or saving to file.
+#’ @examples
+#’   totallia --studies A,B,C --base path/to/data --verbose
+#’ @keywords  internal
+#’ @import    optparse
+#’ @export
+suppressPackageStartupMessages({
+  library(optparse)
+  library(totallia)
+})
+
+option_list <- list(
+  make_option(c("-s", "--studies"),
+              type    = "character",
+              help    = "Comma-separated list of parsers (names or paths)"),
+  make_option(c("-n", "--names"),
+              type    = "character",
+              help    = "Comma-separated output names (optional, same length)"),
+  make_option(c("-b", "--base"),
+              type    = "character",
+              default = ".",
+              help    = "Base directory [default %default]"),
+  make_option(c("-r", "--raw"),
+              action  = "store_true",
+              default = FALSE,
+              help    = "Pass raw = TRUE to parsers"),
+  make_option(c("-a", "--align"),
+              action  = "store_true",
+              default = FALSE,
+              help    = "Align samples to scale IDs"),
+  make_option(c("-o", "--output"),
+              type    = "character",
+              default = NULL,
+              help    = "Path to save .RData output"),
+  make_option(c("-v", "--verbose"),
+              action  = "store_true",
+              default = FALSE,
+              help    = "Print verbose progress to console")
+)
+
+parser <- OptionParser(
+  option_list = option_list,
+  description = "Run totallia from the command line"
+)
+
+opts <- parse_args(parser)
+
+# Parse --studies into a named or unnamed character vector
+studs <- if (!is.null(opts$studies)) {
+  trimws(strsplit(opts$studies, ",")[[1]])
+} else {
+  NULL
+}
+
+# If --names provided, set names(studs)
+if (!is.null(opts$names)) {
+  nm <- trimws(strsplit(opts$names, ",")[[1]])
+  if (length(nm) != length(studs)) {
+    stop("--names and --studies must have the same number of entries")
+  }
+  studs <- setNames(studs, nm)
+}
+
+# Call the core function
+res <- totallia(
+  studies        = studs,
+  base_directory = opts$base,
+  rawdata        = opts$raw,
+  align_samples  = opts$align,
+  save_to        = opts$output,
+  verbose        = opts$verbose
+)
+
+# Print or save results
+if (is.null(opts$output)) {
+  cat("Parsed studies:\n",
+      paste(names(res), collapse = "\n"), "\n")
+} else {
+  cat("Saved parsed list to:", opts$output, "\n")
+}

@@ -1,0 +1,43 @@
+Package: totallia
+Title: Totallia: A Microbial Scale Repository for Paired Microbiome
+    Sequence Count Data with Total Abundance Measurements
+Version: 0.1.0
+Authors@R: 
+    c(
+      person("Maxwell", "Konnaris",
+             email = "mak6930@psu.edu",
+             role  = c("aut", "cre")),
+      person("Justin",  "Silverman",
+             email = "JustinSilverman@psu.edu",
+             role  = c("aut", "ctb"))
+    )
+Description: This R package parses and formats individual studies
+    containing sequence count data and measurements of total abundance
+    (Flow cytometry, ddPCR, qPCR, etc.) and returns a single data object
+    containing any selected studies.
+License: MIT + file LICENSE
+URL: https://github.com/Silverman-Lab/totallia
+BugReports: https://github.com/Silverman-Lab/totallia/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports:
+    reticulate (>= 1.24),
+    optparse,
+    tidyverse,
+    dplyr,
+    fs,
+    jsonlite,
+    purrr,
+    readr,
+    readxl,
+    tibble,
+    withr
+SystemRequirements:
+    Python (>= 3.6)
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr

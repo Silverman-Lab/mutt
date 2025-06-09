@@ -24,9 +24,9 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencing <- function(raw
     ITS_metadata_zip            <- file.path(local, "ITS_blackblue_metadata_v2.txt.zip")
     ITS_og_otu_zip              <- file.path(local, "AgITS1blackblue_READ1_271_all_Zotutab.txt.zip")
     ITS_og_tax_zip              <- file.path(local, "AgITS1blackblue_READ1_271_all_Zotus.tax.zip")
-    16S_og_otu_zip              <- file.path(local, "515_blackblue_all_Zotutab_20181206.txt.zip")
-    16S_og_tax_zip              <- file.path(local, "515_blackblue_all_zotus.tax.zip")
-    16S_og_metadata_zip         <- file.path(local, "515_blackblue_metadata.txt.zip")
+    S16S_og_otu_zip             <- file.path(local, "515_blackblue_all_Zotutab_20181206.txt.zip")
+    S16S_og_tax_zip             <- file.path(local, "515_blackblue_all_zotus.tax.zip")
+    S16S_og_metadata_zip        <- file.path(local, "515_blackblue_metadata.txt.zip")
     metagenomic_og_bacteria_zip <- file.path(local, "BacteriaGenusRaw.txt.zip")
     metagenomic_og_fungi_zip    <- file.path(local, "FungiGenusRaw.txt.zip")
     scale_16s_zip               <- file.path(local, "total_seq.txt.zip")
@@ -75,7 +75,7 @@ parse_2020_regalado_isme_metagenomicsbacteriaandfungalsequencing <- function(raw
     metadata_connection <- read_zipped_table(metadataconnection)
 
     # ------ original counts ------
-    counts_original_16s <- read_zipped_table(16S_og_otu_zip)
+    counts_original_16s <- read_zipped_table(S16S_og_otu_zip)
     counts_original_ITS <- read_zipped_table(ITS_og_otu_zip)
     counts_original_meta <- read_zipped_table(metagenomic_og_bacteria_zip)
     counts_original_meta <- read_zipped_table(metagenomic_og_fungi_zip)

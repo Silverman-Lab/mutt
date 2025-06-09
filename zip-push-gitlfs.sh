@@ -5,7 +5,7 @@
 ##################################
 
 # Repository Remote URL
-REMOTE_URL="git@github.com:Silverman-Lab/data_repository.git"
+REMOTE_URL="git@github.com:Silverman-Lab/totallia.git"
 
 # Ensure Git and Git LFS are installed
 if ! command -v git &> /dev/null || ! command -v git-lfs &> /dev/null; then
@@ -34,43 +34,29 @@ git remote -v
 # 2. Helper Function: Colored Progress Bar   #
 ##############################################
 
-# show_progress "Download" $PID  (or "Upload", etc.)
-# This function shows a simple progress bar while a background process ($PID) runs.
 show_progress() {
     local action="$1"
     local pid="$2"
-    local i=0
-    local -i total=50  # length of the bar
+    local -i total=50
 
     echo
     echo -ne "\033[93m$action in progress: ["
-    # Initialize the bar with spaces
     for ((j=0; j<total; j++)); do echo -n " "; done
     echo -n "] 0%"
     echo -ne "\033[0m"
 
     local pos=0
     while kill -0 $pid 2>/dev/null; do
-        ((pos++))
-        # Calculate approximate percentage
+        ((pos = pos < total ? pos + 1 : total))
         local percent=$((pos * 100 / total))
-
-        # Move cursor back to start of line (carriage return) and redraw
         echo -ne "\r\033[93m$action in progress: ["
-        for ((j=0; j<pos; j++)); do echo -n "#"; done
+        for ((j=0; j<pos; j++));   do echo -n "#"; done
         for ((j=pos; j<total; j++)); do echo -n " "; done
         echo -n "] $percent%"
         echo -ne "\033[0m"
-
         sleep 0.1
-
-        # If we reached 100% but the process is still running, we just stay at 100%
-        if [ $pos -ge $total ]; then
-            pos=$total
-        fi
     done
 
-    # Once the process completes, fill the bar
     echo -ne "\r\033[92m$action complete:    ["
     for ((j=0; j<total; j++)); do echo -n "#"; done
     echo -n "] 100%"
@@ -86,19 +72,16 @@ echo "Stashing any local changes..."
 git stash save "Backup before pull" &> /dev/null || echo "No changes to stash."
 
 echo "Fetching latest remote data..."
-# Run 'git fetch' in background to display progress bar
 git fetch origin main --progress &> /dev/null &
 fetch_pid=$!
 show_progress "Download" $fetch_pid
 wait $fetch_pid
 
 echo "=== Remote changes (to be downloaded) ==="
-# Compare HEAD..origin/main to see what changed on remote
 git diff --name-status HEAD..origin/main
 echo "========================================="
 echo
 
-# Check commits
 LOCAL=$(git rev-parse HEAD)
 REMOTE=$(git rev-parse origin/main)
 BASE=$(git merge-base HEAD origin/main)
@@ -127,26 +110,29 @@ git stash pop &> /dev/null || echo "No stash to apply."
 ###################################
 
 echo
-echo "Processing repository files (zipping)..."
+echo "Processing repository files (zipping)…"
 BASE_DIR=$(pwd)
 
-# Find all subdirectories excluding .git
-find . -type d -not -path "./.git*" | while read -r folder; do
-    # Skip directories containing .gitattributes
-    if [ -f "$folder/.gitattributes" ]; then
-        echo "Skipping folder $folder as .gitattributes is present."
-        continue
-    fi
+# Walk every directory (except .git), but skip our listed folders entirely
+find . -mindepth 1 -type d ! -path "./.git*" | while read -r folder; do
+    base=$(basename "$folder")
+    case "$base" in
+        vignettes|tests|Meta|man|inst|exec|doc)
+            echo "Skipping directory $folder"
+            continue
+            ;;
+    esac
 
     echo "Processing folder: $folder"
     cd "$folder" || continue
 
-    # Zip files excluding README variants, parse.R, *.zip, and *.gz
+    # Zip each file except our protected names/patterns
     for file in *; do
         if [ -f "$file" ]; then
             case "$file" in
-                [Rr][Ee][Aa][Dd][Mm][Ee]*|parse.R|*.zip|*.gz)
-                    # Skip these files
+                README.md|NEWS.md|NAMESPACE|DESCRIPTION|LICENSE|LICENSE.md|Code_OF_CONDUCT.md \
+                |parse.R|*.zip|*.gz)
+                    # skip these
                     ;;
                 *)
                     echo "Zipping $file in $folder"
@@ -171,7 +157,6 @@ git lfs track "*.zip"
 echo "Staging changes..."
 git add .
 
-# Check if there are new changes to commit
 if git diff-index --quiet HEAD; then
     echo "No new changes to commit."
 else
@@ -189,8 +174,6 @@ fi
 # 6. Show Local Changes, Push     #
 ###################################
 
-# Show what will be uploaded:
-# Compare origin/main..HEAD to see local changes not on remote
 echo
 echo "=== Local changes (to be uploaded) ==="
 git diff --name-status origin/main..HEAD
@@ -203,7 +186,6 @@ push_pid=$!
 show_progress "Upload" $push_pid
 wait $push_pid
 
-# If the push failed for some reason
 if [ $? -ne 0 ]; then
     echo "Push failed. Attempting to rebase and push again..."
     git pull --rebase origin main && git push origin main || {
