@@ -3,10 +3,10 @@
 
 <table width="100%">
   <tr>
-    <td width="50%" align="left" valign="top">
-      <img src="man/figures/totallia-logo.png" height="300">
+    <td width="40%" align="left" valign="top">
+      <img src="man/figures/totallia-logo.png" height="400">
     </td>
-    <td width="50%" align="left" valign="top">
+    <td width="60%" align="center" valign="top">
       <strong>Authors:</strong> Maxwell Konnaris, Justin Silverman MD PhD<br>
       <strong>Contributors:</strong> Manan Saxena<br>
       <strong>Maintainers:</strong> Maxwell Konnaris, Justin Silverman MD PhD<br>
