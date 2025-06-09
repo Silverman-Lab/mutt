@@ -1,6 +1,6 @@
 # data_repository
-Data repository for the Silverman lab 
-Authors: Maxwell Konnaris, Justin Silverman MD PhD
+Data repository for the Silverman lab <br>
+Authors: Maxwell Konnaris, Justin Silverman MD PhD <br>
 Affiliation: Pennsylvania State University
 
 Before download, **make sure gitlfs is installed**. 
