@@ -1,6 +1,7 @@
 # Microbial Scale Data Repository for the Silverman lab
 <br>
 Authors: Maxwell Konnaris, Justin Silverman MD PhD <br>
+Contributors: Manan Saxena
 Affiliation: Pennsylvania State University
 <br><br>
 
@@ -8,6 +9,7 @@ Before download, **make sure gitlfs is installed**.
 
 ## Notes
 - A growing list of studies and relevant metadata is being maintained here: https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing
+    - Contributors: Maxwell Konnaris, Manan Saxena, Won Gu, Tinghua Chen
 - Use Git LFS for large files: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage
 - Shotgun metagenomic data is huge, therefore, this is limited to processed data tables for the moment. 
 
