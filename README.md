@@ -89,6 +89,7 @@ return(list(
 
 ## Wrapper functions for MicrobialScaleRepository package:
 - `microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
+    - Default tries all parse.R scripts. Currently, not all parse.R scripts are finished so warnings() will appear. 
 
 # Functionality (for now):
 
