@@ -1,12 +1,12 @@
 # Silverman Lab's Microbial Scale Data Repository
 <br>
 
-<table width="100%">
+<table style="border: none; border-collapse: collapse;">
   <tr>
-    <td width="50%" align="left" valign="top">
-      <img src="man/figures/totallia-logo.png" height="400">
+    <td align="left" valign="top" style="border: none; padding-right: 20px;">
+      <img src="man/figures/totallia-logo.png" height="180">
     </td>
-    <td width="50%" align="center" valign="center">
+    <td align="left" valign="top" style="border: none;">
       <strong>Authors:</strong> Maxwell Konnaris, Justin Silverman MD PhD<br>
       <strong>Contributors:</strong> Manan Saxena<br>
       <strong>Maintainers:</strong> Maxwell Konnaris, Justin Silverman MD PhD<br>
@@ -14,10 +14,6 @@
     </td>
   </tr>
 </table>
-
-
-
-
 
 Before download, **make sure gitlfs is installed**. 
 
