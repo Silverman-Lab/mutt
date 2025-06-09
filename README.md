@@ -3,7 +3,7 @@
 
 <table>
   <tr>
-    <td><img src="man/figures/totallia-logo.png" height="300"></td>
+    <td><img src="man/figures/totallia-logo.png" height="500"></td>
     <td>
       <strong>Authors:</strong> Maxwell Konnaris, Justin Silverman MD PhD<br>
       <strong>Contributors:</strong> Manan Saxena<br>
