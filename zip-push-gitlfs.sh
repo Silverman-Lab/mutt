@@ -131,7 +131,7 @@ find . -mindepth 1 -type d ! -path "./.git*" | while read -r folder; do
         if [ -f "$file" ]; then
             case "$file" in
                 README.md|NEWS.md|NAMESPACE|DESCRIPTION|LICENSE|LICENSE.md|Code_OF_CONDUCT.md \
-                |parse.R|*.zip|*.gz)
+                |*.R|*.Rmd|*.py|*.sh|parse.R|*.zip|*.gz)
                     # skip these
                     ;;
                 *)
