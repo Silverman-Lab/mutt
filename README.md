@@ -6,6 +6,11 @@ Maintainers: Maxwell Konnaris, Justin Silverman MD PhD <br>
 Affiliation: Pennsylvania State University
 <br><br>
 
+<p align="center">
+  <img src="man/figures/totallia-logo.png" height="180"/>
+</p>
+
+
 Before download, **make sure gitlfs is installed**. 
 
 ```r
