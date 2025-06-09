@@ -7,7 +7,6 @@
 #' collect the results. 
 #'
 #' @author Maxwell Konnaris
-#' @author Manan Saxena
 #' @author Justin Silverman
 #' @maintainer Justin Silverman <justinsilverman@psu.edu>
 #' @maintainer Maxwell Konnaris <mak6930@psu.edu>
@@ -136,6 +135,10 @@ microbialscalerepo <- function(
   setwd(base_directory)
   all_dirs    <- list.dirs(base_directory, full.names = FALSE, recursive = FALSE)
   parser_dirs <- all_dirs[file.exists(file.path(base_directory, all_dirs, "parse.R"))]
+  if (!file.exists("demographics.R")) {
+    stop("demographics.R not found in base_directory: ", base_directory)
+  }
+  source("demographics.R") 
 
   # --- resolve selections ----------------------------------------------------
   if (is.null(studies)) {
@@ -206,7 +209,11 @@ microbialscalerepo <- function(
     }
 
     res <- remove_all_na(res)
-    microbialscalerepository[[i]] <- standardize_output_order(res)
+    res <- standardize_output_order(res)
+    if (!is.null(datasets[[parser]])) {
+        res$studydemographics <- datasets[[parser]]
+      }
+    microbialscalerepository[[i]] <- res
     validation_results[[i]] <- validate_output_structure(res, study_name = parser)
     
     utils::setTxtProgressBar(pb, i)
@@ -214,6 +221,13 @@ microbialscalerepo <- function(
   utils::setTxtProgressBar(pb, n)
   close(pb)
   if (verbose) cat("\n")
+
+  microbialscalerepository <-lapply(microbialscalerepository, function(study) {
+    if (!is.null(study$tax)) {
+      study$tax <- add_sequence_column(study$tax)
+    }
+    study
+  })
 
   # --- optional save ---------------------------------------------------------
   if (!is.null(save_to)) {
@@ -243,12 +257,6 @@ microbialscalerepo <- function(
       cat(summary_text, sep="\n")
     }
   }
-  microbialscalerepository <-lapply(microbialscalerepository, function(study) {
-    if (!is.null(study$tax)) {
-      study$tax <- add_sequence_column(study$tax)
-    }
-    study
-  })
   microbialscalerepository
 }
 

@@ -1,366 +1,207 @@
-import csv
-import time
-import argparse
-from datetime import datetime
-import sys
-import os
-import re
-from collections import OrderedDict
+#!/usr/bin/env python3
+"""
+Fetch PubMed metadata for a list of PMIDs and write a fully‑flattened CSV.
 
+Changes (2025‑06‑08):
+  • Populate DOI, PMCID, Abstract, Affiliations, Grants columns.
+  • Removed Measurement Type column.
+"""
+
+import csv, sys, os, re, time, argparse
+from datetime import datetime
+from collections import OrderedDict
 try:
     from Bio import Entrez
 except ImportError:
-    sys.exit("The Biopython package is required. Install it using `pip install biopython`.")
+    sys.exit("Biopython is required.  Install with `pip install biopython`.")
 
+# ───────────────────────── CLI & helpers ─────────────────────────
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Fetch PubMed metadata for a list of PMIDs.")
-    parser.add_argument("--pmid_study", required=True, help="Path to CSV/TSV/TXT file with PMID, Study Identifier pairs.")
-    parser.add_argument("--email", help="NCBI email (required if not set).")
-    parser.add_argument("--api_key", help="NCBI API key (optional, but recommended).")
-    return parser.parse_args()
+    p = argparse.ArgumentParser(description="Fetch PubMed metadata for a list of PMIDs.")
+    p.add_argument("--pmid_study", required=True,
+                   help="CSV/TSV/TXT file with rows: PMID, StudyIdentifier")
+    p.add_argument("--email",    help="NCBI email")
+    p.add_argument("--api_key",  help="NCBI API key")
+    return p.parse_args()
 
-def prompt_if_missing(args):
-    if not args.email:
-        args.email = input("Enter your NCBI email: ")
-    if not args.api_key:
-        args.api_key = input("Enter your NCBI API key (press Enter to skip): ")
-    return args
+def prompt_if_missing(a):
+    if not a.email:    a.email    = input("Enter your NCBI email: ")
+    if not a.api_key:  a.api_key  = input("Enter your NCBI API key (Enter to skip): ")
+    return a
 
-def detect_delimiter(filepath):
-    with open(filepath, 'r', encoding='utf-8') as f:
-        sample = f.read(2048)
-        sniffer = csv.Sniffer()
-        try:
-            dialect = sniffer.sniff(sample)
-            return dialect.delimiter
-        except csv.Error:
-            return ','
+def detect_delimiter(path):
+    with open(path, encoding="utf-8") as fh:
+        sample = fh.read(2048)
+    try:
+        return csv.Sniffer().sniff(sample).delimiter
+    except csv.Error:
+        return ","
 
-def load_pmid_study_pairs(filepath):
-    if not os.path.exists(filepath):
-        sys.exit(f"File not found: {filepath}")
-    
-    delimiter = detect_delimiter(filepath)
-    pairs = []
+def load_pairs(path):
+    if not os.path.exists(path):
+        sys.exit(f"File not found: {path}")
+    delim = detect_delimiter(path)
+    with open(path, newline="", encoding="utf-8") as fh:
+        return [(r[0].strip(), r[1].strip())
+                for r in csv.reader(fh, delimiter=delim) if len(r) >= 2]
 
-    with open(filepath, newline='', encoding='utf-8') as f:
-        reader = csv.reader(f, delimiter=delimiter)
-        for row in reader:
-            if len(row) >= 2:
-                pairs.append((row[0].strip(), row[1].strip()))
-    return pairs
-
-def fetch_pubmed_data(pmid):
+def fetch_pubmed(pmid):
     while True:
         try:
-            handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
-            records = Entrez.read(handle)
-            handle.close()
-            return records
-        except Exception as e:
+            h = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
+            rec = Entrez.read(h);  h.close();  return rec
+        except Exception:
             time.sleep(30)
 
-def detect_measurement_type(keywords, mesh_terms):
-    keywords_str = "; ".join(keywords).lower()
-    mesh_str = "; ".join(mesh_terms).lower()
-    
-    flow_terms = ["flow cytometry", "flowcytometry", "flow-cytometry", 
-                 "facs", "fluorescence-activated cell sorting"]
-    if any(re.search(r'\b' + re.escape(term) + r'\b', keywords_str + mesh_str) for term in flow_terms):
-        return "Flow Cytometry"
-    
-    pcr_terms = ["qpcr", "quantitative pcr", "real-time pcr", "rt-pcr", "rt pcr",
-                "ddpcr", "digital pcr", "droplet digital pcr",
-                "hampcr", "ham pcr"]
-    if any(re.search(r'\b' + re.escape(term) + r'\b', keywords_str + mesh_str) for term in pcr_terms):
-        for term in pcr_terms:
-            if re.search(r'\b' + re.escape(term) + r'\b', keywords_str + mesh_str):
-                if term in ["qpcr", "quantitative pcr", "real-time pcr", "rt-pcr", "rt pcr"]:
-                    return "qPCR"
-                elif term in ["ddpcr", "digital pcr", "droplet digital pcr"]:
-                    return "ddPCR"
-                elif term in ["hampcr", "ham pcr"]:
-                    return "hamPCR"
-    
-    if re.search(r'\bspike[\s-]?in\b', keywords_str + mesh_str):
-        return "spike-in"
-    
+def flatten(prefix, obj, out):
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            flatten(f"{prefix}_{k}", v, out)
+    elif isinstance(obj, list):
+        if obj and isinstance(obj[0], dict):
+            for i, v in enumerate(obj, 1):
+                flatten(f"{prefix}_{i}", v, out)
+        else:
+            out[prefix] = "; ".join(str(x) for x in obj)
+    else:
+        out[prefix] = str(obj)
+
+def detect_sequencing_type(keywords, mesh):
+    txt = "; ".join(keywords + mesh).lower()
+    if re.search(r"\b16s\b|\bamplicon\b", txt):   return "16S/amplicon"
+    if "shotgun"      in txt:                    return "shotgun"
+    if "metagenomic"  in txt:                    return "metagenomics"
     return ""
 
-def detect_sequencing_type(keywords, mesh_terms):
-    keywords_str = "; ".join(keywords).lower()
-    mesh_str = "; ".join(mesh_terms).lower()
-    
-    if (re.search(r'\b16s\b', keywords_str + mesh_str) or 
-        re.search(r'\bamplicon\b', keywords_str + mesh_str)):
-        return "16S/amplicon"
-    
-    if re.search(r'\bshotgun\b', keywords_str + mesh_str):
-        return "shotgun"
-    
-    if re.search(r'\bmetagenomic\b', keywords_str + mesh_str):
-        return "metagenomics"
-    
-    return ""
-    
-def get_processed_pmids(output_file):
-    processed = set()
-    if not os.path.exists(output_file):
-        return processed
-        
-    with open(output_file, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row and 'PMID' in row:
-                processed.add(row['PMID'])
-    return processed
-    
-def get_all_possible_fields(pmid_study_pairs, existing_columns):
-    all_fields = set(existing_columns)
-    sample_pmids = [p[0] for p in pmid_study_pairs[:3] if p[0].lower() != "na"]
-    
-    for pmid in sample_pmids:
+def write_with_retry(writer, row, outfile, header):
+    for _ in range(3):
         try:
-            records = fetch_pubmed_data(pmid)
-            article = records["PubmedArticle"][0]["MedlineCitation"]["Article"]
-            citation = records["PubmedArticle"][0]["MedlineCitation"]
-            pubmed_data = records["PubmedArticle"][0].get("PubmedData", {})
-            
-            def add_nested_fields(prefix, data):
-                for field, value in data.items():
-                    full_field = f"{prefix}_{field}"
-                    all_fields.add(full_field)
-                    if isinstance(value, dict):
-                        add_nested_fields(full_field, value)
-                    elif isinstance(value, list) and value and isinstance(value[0], dict):
-                        for item in value:
-                            add_nested_fields(full_field, item)
-            
-            add_nested_fields("Article", article)
-            add_nested_fields("Citation", citation)
-            add_nested_fields("PubmedData", pubmed_data)
-                
-        except Exception as e:
-            print(f"Error processing sample PMID {pmid}: {e}")
-            continue
-    
-    return sorted(all_fields)
-
-def write_with_retry(writer, row_data, output_file, all_columns):
-    max_retries = 3
-    retry_count = 0
-    
-    while retry_count < max_retries:
-        try:
-            # Ensure all fields are present in the row
-            for field in all_columns:
-                if field not in row_data:
-                    row_data[field] = ""
-            
-            writer.writerow(row_data)
-            return all_columns
-            
+            writer.writerow({k: row.get(k, "") for k in header})
+            return header
         except ValueError as e:
             if "dict contains fields not in fieldnames" in str(e):
-                missing_fields = eval(str(e).split(": ")[1])
-                print(f"Adding missing fields to CSV: {missing_fields}")
-                
-                # Update the columns list
-                all_columns.extend(missing_fields)
-                all_columns = sorted(set(all_columns))  # Remove duplicates
-                
-                # Close the current file
+                missing = eval(str(e).split(": ")[1])
+                header  = sorted(set(header).union(missing))
                 writer.file.close()
-                
-                # Read existing data
-                existing_data = []
-                if os.path.exists(output_file):
-                    with open(output_file, 'r', encoding='utf-8') as f:
-                        reader = csv.DictReader(f)
-                        existing_data = list(reader)
-                
-                # Rewrite the entire file with new headers
-                with open(output_file, 'w', newline='', encoding='utf-8') as f:
-                    new_writer = csv.DictWriter(f, fieldnames=all_columns)
-                    new_writer.writeheader()
-                    for row in existing_data:
-                        # Ensure all fields are present in existing rows
-                        for field in all_columns:
-                            if field not in row:
-                                row[field] = ""
-                        new_writer.writerow(row)
-                
-                # Reopen the file in append mode
-                file = open(output_file, 'a', newline='', encoding='utf-8')
-                writer = csv.DictWriter(file, fieldnames=all_columns)
-                
-                retry_count += 1
-                continue
+                with open(outfile, newline="", encoding="utf-8") as fh:
+                    rows = list(csv.DictReader(fh))
+                with open(outfile, "w", newline="", encoding="utf-8") as fh:
+                    w = csv.DictWriter(fh, fieldnames=header)
+                    w.writeheader()
+                    for r in rows:  w.writerow({k: r.get(k, "") for k in header})
+                writer = csv.DictWriter(open(outfile, "a", newline="", encoding="utf-8"),
+                                        fieldnames=header)
             else:
                 raise
-                
-    raise ValueError(f"Failed to write after {max_retries} retries")
+    raise RuntimeError("Unable to write row after retries")
 
+# ───────────────────────── main ─────────────────────────
 def main():
     args = prompt_if_missing(parse_arguments())
     Entrez.email = args.email
-    if args.api_key:
-        Entrez.api_key = args.api_key
+    if args.api_key:  Entrez.api_key = args.api_key
 
-    pmid_study_pairs = load_pmid_study_pairs(args.pmid_study)
-    output_file = "publication_data.csv"
-    
-    existing_columns = [
-        "PMID", "Study Identifier", "Title", "Authors", "Consortium", "Publication Year", "Link",
-        "Measurement Type", "Sequencing", "Abstract", "Journal", "Volume", "Issue", "Pages", "DOI", "PMCID",
-        "Publication Types", "MeSH Terms", "Keywords", "Affiliations", "Grants", "Retrieved Date"
-    ]
-    
-    all_columns = get_all_possible_fields(pmid_study_pairs, existing_columns)
-    
-    if os.path.exists(output_file):
-        with open(output_file, 'r', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            existing_headers = next(reader, None)
-            if existing_headers:
-                all_columns = sorted(set(all_columns) | set(existing_headers))
-    
-    processed_pmids = get_processed_pmids(output_file)
-    file_exists = os.path.exists(output_file)
-    
-    # Open the file in append mode
-    with open(output_file, mode='a' if file_exists else 'w', newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=all_columns)
-        if not file_exists:
-            writer.writeheader()
-            
-        new_pmids_processed = 0
-        for pmid, study_identifier in pmid_study_pairs:
-            if pmid in processed_pmids:
-                continue
-                
-            new_pmids_processed += 1
-            row_data = {col: "" for col in all_columns}
-            row_data["Study Identifier"] = study_identifier
-            row_data["Retrieved Date"] = datetime.today().strftime("%Y-%m-%d")
+    pairs      = load_pairs(args.pmid_study)
+    outfile    = "publication_data.csv"
 
-            if pmid.lower() == "na":
-                row_data["PMID"] = pmid
-                all_columns = write_with_retry(writer, row_data, output_file, all_columns)
-                continue
+    core_cols = ["PMID","Study Identifier","Title","Authors","Consortium",
+                 "Publication Year","Link","Sequencing","Abstract","Journal",
+                 "Volume","Issue","Pages","DOI","PMCID","Publication Types",
+                 "MeSH Terms","Keywords","Affiliations","Grants","Retrieved Date"]
 
-            try:
-                records = fetch_pubmed_data(pmid)
-                article = records["PubmedArticle"][0]["MedlineCitation"]["Article"]
-                citation = records["PubmedArticle"][0]["MedlineCitation"]
-                pubmed_data = records["PubmedArticle"][0].get("PubmedData", {})
+    header     = list(core_cols)
+    processed  = set()
+    if os.path.exists(outfile):
+        with open(outfile, newline="", encoding="utf-8") as fh:
+            processed = {r["PMID"] for r in csv.DictReader(fh) if "PMID" in r}
+            header    = sorted(set(header + next(csv.reader(open(outfile)), [])))
 
-                pub_date = article["Journal"]["JournalIssue"]["PubDate"]
-                pub_year = pub_date.get("Year", "Unknown")
-                title = article.get("ArticleTitle", "")
-                link = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
+    file_exists = os.path.exists(outfile)
+    fh          = open(outfile, "a" if file_exists else "w", newline="", encoding="utf-8")
+    writer      = csv.DictWriter(fh, fieldnames=header)
+    if not file_exists:  writer.writeheader()
 
-                abstract_text = article.get("Abstract", {}).get("AbstractText", "")
-                if isinstance(abstract_text, list):
-                    abstract_text = " ".join(str(a) for a in abstract_text)
+    new_cnt = 0
+    for pmid, study in pairs:
+        if pmid in processed:  continue
 
-                authors = article.get("AuthorList", [])
-                author_names = [f"{a['ForeName']} {a['LastName']}" for a in authors if "ForeName" in a and "LastName" in a]
+        row = {k: "" for k in header}
+        row.update({"PMID": pmid,
+                    "Study Identifier": study,
+                    "Retrieved Date": datetime.today().strftime("%Y-%m-%d")})
 
-                if study_identifier.upper() == "NA" and authors:
-                    first_author_lastname = authors[0].get("LastName", "Unknown")
-                    study_identifier = f"{first_author_lastname}{pub_year}"
+        if pmid.lower() == "na":
+            header = write_with_retry(writer, row, outfile, header);  new_cnt += 1;  continue
 
-                journal = article["Journal"].get("Title", "")
-                volume = article["Journal"]["JournalIssue"].get("Volume", "")
-                issue = article["Journal"]["JournalIssue"].get("Issue", "")
-                pages = article.get("Pagination", {}).get("MedlinePgn", "")
+        try:
+            rec   = fetch_pubmed(pmid)
+            art   = rec["PubmedArticle"][0]["MedlineCitation"]["Article"]
+            cit   = rec["PubmedArticle"][0]["MedlineCitation"]
+            pdata = rec["PubmedArticle"][0].get("PubmedData", {})
 
-                doi = pmcid = ""
-                for id_elem in pubmed_data.get("ArticleIdList", []):
-                    id_type = id_elem.attributes.get("IdType", "")
-                    if id_type == "doi":
-                        doi = str(id_elem)
-                    elif id_type == "pmc":
-                        pmcid = str(id_elem)
+            pub_year  = art["Journal"]["JournalIssue"]["PubDate"].get("Year","")
+            authors   = art.get("AuthorList", [])
+            names     = ["{} {}".format(a.get("ForeName",""), a.get("LastName","")).strip()
+                         for a in authors if "LastName" in a]
 
-                pub_types = [str(pt) for pt in article.get("PublicationTypeList", [])]
-                mesh_terms = [str(m["DescriptorName"]) for m in citation.get("MeshHeadingList", [])]
-                keyword_list = citation.get("KeywordList", [])
-                keywords = [str(kw) for group in keyword_list for kw in group]
+            # ----- core scalar fields ------------------------------------
+            abstract = art.get("Abstract", {}).get("AbstractText", "")
+            if isinstance(abstract, list):  abstract = " ".join(str(x) for x in abstract)
 
-                affiliations = []
-                for author in authors:
-                    for aff in author.get("AffiliationInfo", []):
-                        affiliations.append(aff.get("Affiliation", ""))
+            doi = pmcid = ""
+            for aid in pdata.get("ArticleIdList", []):
+                t = aid.attributes.get("IdType", "")
+                if t == "doi": doi = str(aid)
+                if t == "pmc": pmcid = str(aid)
 
-                grants = []
-                for grant in citation.get("GrantList", []):
-                    agency = grant.get("Agency", "")
-                    grant_id = grant.get("GrantID", "")
-                    grants.append(f"{agency} ({grant_id})" if grant_id else agency)
+            mesh = [str(m["DescriptorName"]) for m in cit.get("MeshHeadingList",[])]
+            kw   = [str(k) for grp in cit.get("KeywordList",[]) for k in grp]
 
-                consortium = ""
-                
-                measurement_type = detect_measurement_type(keywords, mesh_terms)
-                sequencing_type = detect_sequencing_type(keywords, mesh_terms)
+            affiliations = []
+            for a in authors:
+                for aff in a.get("AffiliationInfo", []):
+                    affiliations.append(aff.get("Affiliation",""))
 
-                row_data.update({
-                    "PMID": pmid,
-                    "Title": title,
-                    "Authors": ", ".join(author_names),
-                    "Consortium": consortium,
-                    "Publication Year": pub_year,
-                    "Link": link,
-                    "Measurement Type": measurement_type,
-                    "Sequencing": sequencing_type,
-                    "Abstract": abstract_text,
-                    "Journal": journal,
-                    "Volume": volume,
-                    "Issue": issue,
-                    "Pages": pages,
-                    "DOI": doi,
-                    "PMCID": pmcid,
-                    "Publication Types": "; ".join(pub_types),
-                    "MeSH Terms": "; ".join(mesh_terms),
-                    "Keywords": "; ".join(keywords),
-                    "Affiliations": "; ".join(affiliations),
-                    "Grants": "; ".join(grants)
-                })
+            grants = []
+            for g in cit.get("GrantList", []):
+                agency = g.get("Agency", ""); gid = g.get("GrantID","")
+                grants.append(f"{agency} ({gid})" if gid else agency)
 
-                # Add all article fields
-                for field in article.keys():
-                    field_name = f"Article_{field}"
-                    if field_name not in all_columns:
-                        all_columns.append(field_name)
-                    row_data[field_name] = str(article[field]) if isinstance(article[field], (dict, list)) else article[field]
-                
-                # Add all citation fields
-                for field in citation.keys():
-                    field_name = f"Citation_{field}"
-                    if field_name not in all_columns:
-                        all_columns.append(field_name)
-                    row_data[field_name] = str(citation[field]) if isinstance(citation[field], (dict, list)) else citation[field]
-                
-                # Add all pubmed_data fields
-                for field in pubmed_data.keys():
-                    field_name = f"PubmedData_{field}"
-                    if field_name not in all_columns:
-                        all_columns.append(field_name)
-                    row_data[field_name] = str(pubmed_data[field]) if isinstance(pubmed_data[field], (dict, list)) else pubmed_data[field]
+            row.update({
+                "Publication Year" : pub_year,
+                "Title"            : art.get("ArticleTitle",""),
+                "Authors"          : "; ".join(names),
+                "Link"             : f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
+                "Journal"          : art["Journal"].get("Title",""),
+                "Volume"           : art["Journal"]["JournalIssue"].get("Volume",""),
+                "Issue"            : art["Journal"]["JournalIssue"].get("Issue",""),
+                "Pages"            : art.get("Pagination",{}).get("MedlinePgn",""),
+                "Publication Types": "; ".join(map(str, art.get("PublicationTypeList",[]))),
+                "Abstract"         : abstract,
+                "DOI"              : doi,
+                "PMCID"            : pmcid,
+                "MeSH Terms"       : "; ".join(mesh),
+                "Keywords"         : "; ".join(kw),
+                "Sequencing"       : detect_sequencing_type(kw, mesh),
+                "Affiliations"     : "; ".join(affiliations),
+                "Grants"           : "; ".join(grants)
+            })
 
-                all_columns = write_with_retry(writer, row_data, output_file, all_columns)
+            # ----- flatten everything else --------------------------------
+            flatten("Article",   art,   row)
+            flatten("Citation",  cit,   row)
+            flatten("PubmedData", pdata, row)
 
-            except Exception as e:
-                print(f"Final error for PMID {pmid}: {e}")
-                row_data["PMID"] = pmid
-                row_data["Title"] = "Error retrieving data"
-                all_columns = write_with_retry(writer, row_data, output_file, all_columns)
+        except Exception as e:
+            print(f"[ERROR] {pmid}: {e}")
+            row["Title"] = "Error retrieving data"
 
-    total_pmids = len(pmid_study_pairs)
-    skipped_pmids = total_pmids - new_pmids_processed
-    print(f"Processing complete. Total PMIDs: {total_pmids}, New: {new_pmids_processed}, Skipped: {skipped_pmids}")
-    print(f"Data saved to: {output_file}")
+        header = write_with_retry(writer, row, outfile, header)
+        new_cnt += 1
+
+    fh.close()
+    print(f"Finished.  New PMIDs processed: {new_cnt}.  Output → {outfile}")
 
 if __name__ == "__main__":
     main()
+

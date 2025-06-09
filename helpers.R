@@ -799,3 +799,150 @@ add_sequence_column <- function(x) {
   x
 }
 
+#' Annotate Studies with PubMed Information
+#'
+#' This function takes a repository of studies and annotates them with publication information
+#' retrieved from PubMed using PMIDs. It uses a Python script to fetch the data and adds
+#' the results to each study's metadata.
+#'
+#' @param repo A list containing study information, where each study should have a
+#'   studydemographics field with a PMID
+#' @param script_path Path to the Python script that fetches PubMed data
+#' @param python Path to Python executable (default: "python3")
+#' @param email Email address for NCBI API (optional)
+#' @param api_key NCBI API key (optional)
+#' @param overwrite Logical indicating whether to overwrite existing studyinfo (default: TRUE)
+#'
+#' @return The input repository with added publication information
+#'
+#' @examples
+#' # Create a sample repository with a study containing a PMID
+#' repo <- list(
+#'   study1 = list(
+#'     studydemographics = list(PMID = "12345678")
+#'   )
+#' )
+#'
+#' # Annotate the repository with publication information
+#' script_path <- "data_repository/obtainpublicationinfo_pmid.py"
+#' annotated_repo <- annotate_studies_with_pubmed(
+#'   repo = repo,
+#'   script_path = script_path,
+#'   email = "your.email@example.com"
+#' )
+#'
+#' # View the added publication information
+#' print(annotated_repo$study1$studyinfo)
+#'
+#' @export
+annotate_studies_with_pubmed <- function(repo,
+                                         script_path,
+                                         email       = NA_character_,
+                                         api_key     = NA_character_,
+                                         overwrite   = TRUE) {
+  # ────────────────────────────────────────────────────────────────
+  # Preconditions
+  # ────────────────────────────────────────────────────────────────
+  stopifnot(file.exists(script_path), is.list(repo))
+
+  # Ensure {reticulate} is available
+  if (!requireNamespace("reticulate", quietly = TRUE))
+    stop("The 'reticulate' package is required. Install it and retry.")
+
+  # ────────────────────────────────────────────────────────────────
+  # 1. Build (PMID, Study) table (supports multiple PMIDs per study)
+  # ────────────────────────────────────────────────────────────────
+  pmid_tbl <- purrr::imap_dfr(repo, function(study, study_nm) {
+    pmids <- tryCatch(study$studydemographics$PMID, error = function(e) NULL)
+    if (is.null(pmids)) return(NULL)
+    valid <- as.character(pmids[!is.na(pmids) & nzchar(pmids)])
+    if (length(valid)) tibble::tibble(PMID = valid, Study = study_nm) else NULL
+  })
+  if (nrow(pmid_tbl) == 0)
+    stop("No valid PMIDs found in repo$* $studydemographics$PMID")
+
+  pmid_tbl <- dplyr::distinct(pmid_tbl)
+  tmp_csv  <- tempfile(fileext = ".csv")
+  readr::write_csv(pmid_tbl, tmp_csv, col_names = FALSE)
+
+  # ────────────────────────────────────────────────────────────────
+  # 2. Reticulate environment diagnostics (help the user see where we are)
+  # ────────────────────────────────────────────────────────────────
+  cfg <- reticulate::py_config()           # prints by default—capture invisibly
+  message("\n[reticulate] Using Python: ", cfg$python)
+  if (!is.null(cfg$conda))   message("[reticulate] Conda env : ", basename(cfg$conda))
+  if (!is.null(cfg$virtualenv)) message("[reticulate] Virtualenv: ", cfg$virtualenv)
+
+  # ────────────────────────────────────────────────────────────────
+  # 3. Verify Biopython is importable in this interpreter
+  # ────────────────────────────────────────────────────────────────
+  has_bio <- reticulate::py_available(initialize = TRUE) &&
+             reticulate::py_module_available("Bio")
+  if (!has_bio) {
+    message("[reticulate] Biopython not found – installing into active env …")
+    try(reticulate::py_install("biopython", pip = TRUE), silent = TRUE)
+    has_bio <- reticulate::py_module_available("Bio")
+  }
+  if (!has_bio)
+    stop("Biopython (module 'Bio') not found in the active Python environment.",
+         "\nCurrent interpreter: ", cfg$python,
+         "\nActivate the correct conda/virtualenv and install via one of:\n",
+         "  pip install biopython\n  conda install -c conda-forge biopython", call. = FALSE)
+  }
+  bio_path <- reticulate::import("Bio")$`__file__`
+  message("[reticulate] Biopython path: ", bio_path)
+
+  # ────────────────────────────────────────────────────────────────
+  # 4. Run the publication‑fetching Python script *within* reticulate
+  #    We emulate command‑line args via sys.argv then run the file.
+  # ────────────────────────────────────────────────────────────────
+  withr::with_tempdir({
+    # Build argv list
+    py_args <- list(script_path, "--pmid_study", tmp_csv)
+    if (!is.na(email))   py_args <- c(py_args, "--email",   email)
+    if (!is.na(api_key)) py_args <- c(py_args, "--api_key", api_key)
+
+    # Set sys.argv and run the script
+    reticulate::py_run_string(sprintf(
+      "import sys, json; sys.argv = json.loads('%s')",
+      jsonlite::toJSON(py_args, auto_unbox = TRUE)
+    ))
+
+    # Execute script as __main__
+    runpy <- reticulate::import("runpy")
+    runpy$run_path(script_path, run_name = "__main__")
+
+    if (!file.exists("publication_data.csv"))
+      stop("Python script finished but publication_data.csv is missing. Check Python output above.")
+
+    pub_raw <- readr::read_csv("publication_data.csv", show_col_types = FALSE)
+  })
+
+  # ────────────────────────────────────────────────────────────────
+  # 5. Surface parsing issues, merge back into repo
+  # ────────────────────────────────────────────────────────────────
+  parse_problems <- readr::problems(pub_raw)
+  if (nrow(parse_problems) > 0) {
+    warning(sprintf("%d parsing issue(s) detected in publication_data.csv. Use problems(pub_raw) for details.",
+                    nrow(parse_problems)))
+  }
+  pub_df <- pub_raw
+
+  for (nm in names(repo)) {
+    md <- dplyr::filter(pub_df, `Study Identifier` == nm)
+    if (nrow(md)) {
+      repo[[nm]]$studyinfo <- as.data.frame(md)
+    } else if (overwrite) {
+      repo[[nm]]$studyinfo <- NULL
+    }
+  }
+
+  invisible(repo)
+}
+
+
+
+
+
+
+
