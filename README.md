@@ -26,7 +26,7 @@ devtools::install_github("Silverman-Lab/totallia")
 - Datasets should be compressed before uploading (and again, stored using Git LFS: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage). This can be done by running ./zip-push-gitlfs.sh from the terminal within the data repository main folder while pushing.
 
 ## Note on file paths
-`parse.R` scripts should specify file paths relative to the root `data_repository` directory. 
+`parse.R` scripts should specify file paths relative to the root `totallia` directory. 
 
 ## Parsed Data Structure for `parse.R` scripts. 
 parse.R should have a single function named `parse_[name of directory]` (all lowercase) which returns a list object with the following elements. That function should not require arguments but they can be optional. Ideally, parse scripts use nothing other than base R or tidyverse functions to minimize dependencies and errors if certain libraries are not installed. 
@@ -88,12 +88,12 @@ return(list(
 ```
 
 ## Helper Scripts:
-- `obtainpublicationinfo_pmid.py` using a list of PMIDs, this functionality can be integrated into each parser to obtain the manuscript information from NCBI (Script works, but python and each parse script is in R.)
+- `inst/python/obtainpublicationinfo_pmid.py` using a list of PMIDs, this functionality can be integrated into each parser to obtain the manuscript information from NCBI (Script works, but python and each parse script is in R.)
 - `zip-push-gitlfs.sh` run from terminal in the repository directory when you are ready to push and it will compress your files with .zip and upload with gitlfs
-- `loadRDataintopython.ipynb` example using rpy2 to load the RData object (without .pkl) returned from `microbialscalerepo.R` into python
+- `inst/python/loadRDataintopython.ipynb` example using rpy2 to load the RData object (without .pkl) returned from `R/microbialscalerepo.R` into python
 
 ## Wrapper functions for MicrobialScaleRepository package:
-- `microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
+- `R/microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
     - Default tries all parse.R scripts. Currently, not all parse.R scripts are finished so warnings() will appear. 
 
 # Functionality (for now):
@@ -149,7 +149,7 @@ study_parsers <- c(
 # Run repo function
 repo <- totallia(
   studies = study_parsers, # If not supplied, defaults to all
-  base_directory = "data_repository/", # This is default, but you should change to wherever your local download is, for now.
+  base_directory = "totallia/", # This is default, but you should change to wherever your local download is, for now.
   rawdata = FALSE, # Dont change this because its the un-reformatted original data non cleaned. If TRUE, returns unformatted original data
   align_samples = FALSE, # If TRUE, this will align your matrices to the scale dataframe so all sample data is aligned (If it can be)
   save_to = "datasetsfromrepo.RData", # OPTIONAL, save RData object of all the studies you chose.
@@ -180,7 +180,7 @@ Additionally, there are many callable helper functions:
 - `annotate_studies()` modular function that appends data as a list returned from external script to the repo object such as scraped data from PMID/Pubmed
 
 ```r
-# WORK IN PROGRESS - Works for obtainpublicationinfo_pmid.py
+# WORK IN PROGRESS - Works for inst/python/obtainpublicationinfo_pmid.py
 
 # library(reticulate) is required for python packages
 annotate_studies <-             function(repo,
