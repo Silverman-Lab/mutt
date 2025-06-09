@@ -1,10 +1,12 @@
 # Silverman Lab's Microbial Scale Data Repository
 <br>
 
-<table>
+<table width="100%">
   <tr>
-    <td><img src="man/figures/totallia-logo.png" height="500"></td>
-    <td>
+    <td width="30%" align="left" valign="top">
+      <img src="man/figures/totallia-logo.png" height="300">
+    </td>
+    <td width="70%" align="left" valign="top">
       <strong>Authors:</strong> Maxwell Konnaris, Justin Silverman MD PhD<br>
       <strong>Contributors:</strong> Manan Saxena<br>
       <strong>Maintainers:</strong> Maxwell Konnaris, Justin Silverman MD PhD<br>
@@ -12,6 +14,7 @@
     </td>
   </tr>
 </table>
+
 
 
 
