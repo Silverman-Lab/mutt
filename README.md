@@ -101,8 +101,8 @@ return(list(
 ```r
 
 # Source the files from the directory -- No R package just yet
-source("data_repository/microbialscalerepo.R") 
-source("data_repository/helpers.R")
+source("totallia/R/microbialscalerepo.R") 
+source("totallia/R/helpers.R")
 
 # Choose whichever dataset you want and supply like this or as named vector, or just supply a vector of the repo directories:
 study_parsers <- c(
