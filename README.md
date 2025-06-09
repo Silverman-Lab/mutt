@@ -9,6 +9,7 @@ Affiliation: Pennsylvania State University
 Before download, **make sure gitlfs is installed**. 
 
 ```r
+install.packages("devtools")
 devtools::install_github("Silverman-Lab/totallia")
 ```
 
