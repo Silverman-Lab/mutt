@@ -13,7 +13,7 @@ Before download, **make sure gitlfs is installed**.
     - Contributors: Maxwell Konnaris, Manan Saxena, Won Gu, Tinghua Chen
     - Maintainers: Maxwell Konnaris, Justin Silverman MD PhD
 - Use Git LFS for large files: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage
-- Shotgun metagenomic data is huge, therefore, this is limited to processed data tables for the moment. 
+- Shotgun metagenomic data is huge. This repository is limited to processed data tables for the moment. 
 
 ## Format to Maintain
 - Each dataset gets its own directory with an informative name (all lower-case), "year_name_journal_keyword". Try to be concise, but not too vague (don't use date ranges e.g., 2020-2024 but just choose a single date for the study). 
