@@ -1,6 +1,8 @@
 # Silverman Lab's Microbial Scale Data Repository
 <br>
 
+Potential names: totallia, bitzer, mutt, catdog
+
 <div align="center">
 <table>
 <tr>
