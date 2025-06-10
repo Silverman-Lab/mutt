@@ -160,9 +160,9 @@ return(list(
 
 ```r
 
-# Source the files from the directory -- No R package just yet
-source("totallia/R/microbialscalerepo.R") 
-source("totallia/R/helpers.R")
+# Source the files from the directory -- if no R package just yet or have not installed and just cloned the repo:
+# source("totallia/R/microbialscalerepo.R") 
+# source("totallia/R/helpers.R")
 
 # Choose whichever dataset you want and supply like this or as named vector, or just supply a vector of the repo directories:
 study_parsers <- c(
