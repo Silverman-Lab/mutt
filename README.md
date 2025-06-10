@@ -48,7 +48,7 @@ remotes::install_git(
 )
 ```
 
-Or if you want to manually install (No access key needed), you can clone the repo using git clone and the .git link from command line/ terminal:
+Or if you want to manually install (No access key needed and works when public), you can clone the repo using git clone and the .git link from command line/ terminal:
 
 ```bash
 # HTTPS (you’ll be prompted for a username and your PAT as password)
