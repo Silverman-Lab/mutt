@@ -22,8 +22,54 @@
 Before download, **make sure gitlfs is installed**. 
 
 ```r
+# When Public Repo
 install.packages("devtools")
 devtools::install_github("Silverman-Lab/totallia")
+```
+
+For now since its still private, you will need a GITHUB personal access token which you can generate in Settings -> Developer settings -> Personal access token with at least the repo scope. Then...
+
+```r
+# In your R session directly:
+Sys.setenv(GITHUB_PAT = "ghp_ABC123…yourtoken…")
+devtools::install_github("Silverman-Lab/totallia")
+```
+Or a SSH key based install. You have to make sure your SSH key is loaded via ssh agent:
+
+```r
+# with the remotes package (devtools wraps remotes):
+remotes::install_git(
+  "git@github.com:Silverman-Lab/totallia.git",
+  auth_token = NULL
+)
+```
+
+Or if you want to manually install, you can clone the repo using git clone and the .git link and then moving into the totallia directory as your working directory in R:
+```bash
+# HTTPS (you’ll be prompted for a username and your PAT as password)
+git clone https://github.com/Silverman-Lab/totallia.git
+
+#—or via SSH (if you’ve added your SSH key to GitHub)
+git clone git@github.com:Silverman-Lab/totallia.git
+```
+
+```r
+# Check working directory:
+getwd()
+
+# cd into the cloned directory:
+setwd("path/to/totallia")
+
+# Either:
+# load the package into your session without installing:
+devtools::load_all(".")
+
+# Or, to build & install it so it behaves like any other installed package:
+devtools::install_local(".", dependencies = TRUE)
+# (or: remotes::install_local(".", dependencies = TRUE))
+```
+
+
 ```
 
 ## Notes
