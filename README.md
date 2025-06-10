@@ -22,7 +22,7 @@
 Before download, **make sure gitlfs is installed**. 
 
 ```r
-# When Public Repo
+# When it becomes a Public Repo then do this, if not skip to next:
 install.packages("devtools")
 devtools::install_github("Silverman-Lab/totallia")
 ```
