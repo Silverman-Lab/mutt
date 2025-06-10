@@ -209,9 +209,9 @@ study_parsers <- c(
 # Run repo function
 repo <- totallia(
   studies = study_parsers, # If not supplied, defaults to all
-  base_directory = "totallia/", # This is default, but you should change to wherever your local download is, for now.
+  base_directory = ".", # This is default, but you should change to wherever the totallia directory is with relative path from your getwd() or with absolute path.
   rawdata = FALSE, # Dont change this because its the un-reformatted original data non cleaned. If TRUE, returns unformatted original data
-  align_samples = FALSE, # If TRUE, this will align your matrices to the scale dataframe so all sample data is aligned (If it can be)
+  align_samples = TRUE, # If TRUE, this will align your matrices to the scale dataframe so all sample data is aligned (If it can be)
   save_to = "datasetsfromrepo.RData", # OPTIONAL, save RData object of all the studies you chose.
   verbose = TRUE # Display structure of datasets returned if TRUE
 )
