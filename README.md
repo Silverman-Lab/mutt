@@ -11,7 +11,7 @@ Potential names: totallia, bitzer, mutt, catdog
 </td>
 <td style="vertical-align: top;">
   <p><strong>Authors:</strong> Maxwell Konnaris, Justin Silverman MD PhD</p>
-  <p><strong>Contributors:</strong> Manan Saxena</p>
+  <p><strong>Contributors:</strong> Manan Saxena, (YOU)</p>
   <p><strong>Maintainers:</strong> Maxwell Konnaris, Justin Silverman MD PhD</p>
   <p><strong>Affiliation:</strong> Pennsylvania State University</p>
 </td>
