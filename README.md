@@ -44,7 +44,7 @@ remotes::install_git(
 )
 ```
 
-Or if you want to manually install, you can clone the repo using git clone and the .git link and then moving into the totallia directory as your working directory in R:
+Or if you want to manually install, you can clone the repo using git clone and the .git link from command line/ terminal:
 ```bash
 # HTTPS (you’ll be prompted for a username and your PAT as password)
 git clone https://github.com/Silverman-Lab/totallia.git
@@ -52,7 +52,7 @@ git clone https://github.com/Silverman-Lab/totallia.git
 #—or via SSH (if you’ve added your SSH key to GitHub)
 git clone git@github.com:Silverman-Lab/totallia.git
 ```
-
+and then in R:
 ```r
 # Check working directory:
 getwd()
@@ -69,8 +69,6 @@ devtools::install_local(".", dependencies = TRUE)
 # (or: remotes::install_local(".", dependencies = TRUE))
 ```
 
-
-```
 
 ## Notes
 - A growing list of studies and relevant metadata is being maintained here: https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing
