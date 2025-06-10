@@ -27,7 +27,9 @@ install.packages("devtools")
 devtools::install_github("Silverman-Lab/totallia")
 ```
 
-For now since its still private, you will need a GITHUB personal access token which you can generate in Settings -> Developer settings -> Personal access token with at least the repo scope. Then...
+For now since its still private, you will need to follow one of the below methods:
+
+Generate a GITHUB personal access token. Generate in Settings -> Developer settings -> Personal access token with at least the repo scope. Then replace the below:
 
 ```r
 # In your R session directly:
@@ -44,7 +46,8 @@ remotes::install_git(
 )
 ```
 
-Or if you want to manually install, you can clone the repo using git clone and the .git link from command line/ terminal:
+Or if you want to manually install (No access key needed), you can clone the repo using git clone and the .git link from command line/ terminal:
+
 ```bash
 # HTTPS (you’ll be prompted for a username and your PAT as password)
 git clone https://github.com/Silverman-Lab/totallia.git
