@@ -74,6 +74,7 @@ devtools::install_local(".", dependencies = TRUE)
 # (or: remotes::install_local(".", dependencies = TRUE))
 ```
 
+### Contributing to the repo:
 
 ## Notes
 - A growing list of studies and relevant metadata is being maintained here: https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing
@@ -149,16 +150,16 @@ return(list(
 ))
 ```
 
-## Helper Scripts:
+### Helper Scripts:
 - `inst/python/obtainpublicationinfo_pmid.py` using a list of PMIDs, this functionality can be integrated into each parser to obtain the manuscript information from NCBI (Script works, but python and each parse script is in R.)
 - `zip-push-gitlfs.sh` run from terminal in the repository directory when you are ready to push and it will compress your files with .zip and upload with gitlfs
 - `inst/python/loadRDataintopython.ipynb` example using rpy2 to load the RData object (without .pkl) returned from `R/microbialscalerepo.R` into python
 
-## Wrapper functions for MicrobialScaleRepository package:
+# Functionality (for now):
+
+## Wrapper functions for totallia package:
 - `R/microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
     - Default tries all parse.R scripts. Currently, not all parse.R scripts are finished so warnings() will appear. 
-
-# Functionality (for now):
 
 ```r
 
@@ -233,7 +234,7 @@ Structure:
 
 Additionally, there are many callable helper functions:
 
-## Helper functions for MicrobialScaleRepository package:
+## Helper functions for totallia package:
 - `convert_repo_to_pkl()` converts and saves the returned parsed repo object to a .pkl file
 - `annotate_studies()` modular function that appends data as a list returned from external script to the repo object such as scraped data from PMID/Pubmed
 
