@@ -157,7 +157,7 @@ return(list(
 - `zip-push-gitlfs.sh` run from terminal in the repository directory when you are ready to push and it will compress your files with .zip and upload with gitlfs
 - `inst/python/loadRDataintopython.ipynb` example using rpy2 to load the RData object (without .pkl) returned from `R/microbialscalerepo.R` into python
 
-# Functionality (for now):
+# Usage and Functionality (so far):
 
 ## Wrapper functions for totallia package:
 - `R/microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
