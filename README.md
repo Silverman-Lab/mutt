@@ -239,7 +239,7 @@ Additionally, there are many callable helper functions:
 ## Helper functions for totallia package:
 - `convert_repo_to_pkl()` converts and saves the returned parsed repo object to a .pkl file
 - `annotate_studies()` modular function that appends data as a list returned from external script to the repo object such as scraped data from PMID/Pubmed
-- `filter_studies()` filter which dataframes within each study. You can choose a branch and it will prune the paired dataframes
+- `filter_studies()` filter to dataframes of interest within each study. You can choose a branch and it will prune the paired dataframes
 
 ```r
 # WORK IN PROGRESS - Works for inst/python/obtainpublicationinfo_pmid.py
