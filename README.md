@@ -21,6 +21,8 @@ Potential names: totallia, bitzer, mutt, catdog
 
 <br>
 
+# Download and install
+
 Before download, **make sure gitlfs is installed**. 
 
 ```r
@@ -74,7 +76,7 @@ devtools::install_local(".", dependencies = TRUE)
 # (or: remotes::install_local(".", dependencies = TRUE))
 ```
 
-### Contributing to the repo:
+# Contributing to the Repository and Description of Output:
 
 ## Notes
 - A growing list of studies and relevant metadata is being maintained here: https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing
