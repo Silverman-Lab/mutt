@@ -159,7 +159,7 @@ return(list(
 
 # Usage and Functionality (so far):
 
-## Wrapper functions for totallia package:
+## Main function for totallia package:
 - `R/microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
     - Default tries all parse.R scripts. Currently, not all parse.R scripts are finished so warnings() will appear. 
 
