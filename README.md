@@ -76,7 +76,7 @@ devtools::install_local(".", dependencies = TRUE)
 # (or: remotes::install_local(".", dependencies = TRUE))
 ```
 
-# Contributing to the Repository and Description of Output:
+# Contributing to the Repository and Description of Content:
 
 ## Notes
 - A growing list of studies and relevant metadata is being maintained here: https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing
