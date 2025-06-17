@@ -2,13 +2,14 @@ Package: totallia
 Title: Totallia: A Microbial Scale Repository for Paired Microbiome
  Sequence Count Data with Total Abundance Measurements
 Version: 0.1.0
-Authors@R:
- person("Maxwell", "Konnaris",
-        email = "mak6930@psu.edu",
-        role  = c("aut", "cre")),
- person("Justin",  "Silverman",
-        email = "JustinSilverman@psu.edu",
-        role  = c("aut", "ctb"))
+Authors@R: 
+    person("Maxwell", "Konnaris",
+           email = "mak6930@psu.edu",
+           role = c("aut", "cre")),
+    person("Justin", "Silverman",
+           email = "JustinSilverman@psu.edu",
+           role = c("aut", "ctb"))
+Author: Maxwell Konnaris [aut, cre], Justin Silverman [aut, ctb]
 Maintainer: Maxwell Konnaris <mak6930@psu.edu>
 Description: This R package parses and formats individual studies
  containing sequence count data and measurements of total abundance
