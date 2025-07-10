@@ -1,5 +1,5 @@
 # Silverman Lab's Microbial Scale Data Repository
-# MUTT: Microbiome Utilizing Total Taxa
+## MUTT: Microbiome Utilizing Total Taxa
 <br>
 
 <div align="center">
