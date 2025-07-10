@@ -1,8 +1,6 @@
 # Silverman Lab's Microbial Scale Data Repository
 <br>
 
-Potential names: totallia, bitzer, mutt, catdog
-
 <div align="center">
 <table>
 <tr>
@@ -28,7 +26,7 @@ Before download, **make sure gitlfs is installed**.
 ```r
 # When it becomes a Public Repo then do this, if not skip to next:
 install.packages("devtools")
-devtools::install_github("Silverman-Lab/totallia")
+devtools::install_github("Silverman-Lab/mutt")
 ```
 
 For now since its still private, you will need to follow one of the below methods:
@@ -38,14 +36,14 @@ Generate a GITHUB personal access token. Generate in Settings -> Developer setti
 ```r
 # In your R session directly:
 Sys.setenv(GITHUB_PAT = "ghp_ABC123…yourtoken…")
-devtools::install_github("Silverman-Lab/totallia")
+devtools::install_github("Silverman-Lab/mutt")
 ```
 Or a SSH key based install. You have to make sure your SSH key is loaded via ssh agent:
 
 ```r
 # with the remotes package (devtools wraps remotes):
 remotes::install_git(
-  "git@github.com:Silverman-Lab/totallia.git",
+  "git@github.com:Silverman-Lab/mutt.git",
   auth_token = NULL
 )
 ```
@@ -54,10 +52,10 @@ Or if you want to manually install (No access key needed and works when public),
 
 ```bash
 # HTTPS (you’ll be prompted for a username and your PAT as password)
-git clone https://github.com/Silverman-Lab/totallia.git
+git clone https://github.com/Silverman-Lab/mutt.git
 
 #—or via SSH (if you’ve added your SSH key to GitHub)
-git clone git@github.com:Silverman-Lab/totallia.git
+git clone git@github.com:Silverman-Lab/mutt.git
 ```
 and then in R:
 ```r
@@ -65,7 +63,7 @@ and then in R:
 getwd()
 
 # cd into the cloned directory:
-setwd("path/to/totallia")
+setwd("path/to/mutt")
 
 # Either:
 # load the package into your session without installing:
@@ -91,7 +89,7 @@ devtools::install_local(".", dependencies = TRUE)
 - Datasets should be compressed before uploading (and again, stored using Git LFS: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage). This can be done by running ./zip-push-gitlfs.sh from the terminal within the data repository main folder while pushing.
 
 ## Note on file paths
-`parse.R` scripts should specify file paths relative to the root `totallia` directory. 
+`parse.R` scripts should specify file paths relative to the root `mutt` directory. 
 
 ## Parsed Data Structure for `parse.R` scripts. 
 parse.R should have a single function named `parse_[name of directory]` (all lowercase) which returns a list object with the following elements. That function should not require arguments but they can be optional. Ideally, parse scripts use nothing other than base R or tidyverse functions to minimize dependencies and errors if certain libraries are not installed. 
@@ -159,7 +157,7 @@ return(list(
 
 # Usage and Functionality (so far):
 
-## Main function for totallia package:
+## Main function for mutt package:
 - `R/microbialscalerepo.R` function to call parse scripts (with selection of individual studies) and optionally store in .Rdata object
     - Default tries all parse.R scripts. Currently, not all parse.R scripts are finished so warnings() will appear. 
 
@@ -208,9 +206,9 @@ study_parsers <- c(
 )
 
 # Run repo function
-repo <- totallia(
+repo <- mutt(
   studies = study_parsers, # If not supplied, defaults to all
-  base_directory = ".", # This is default, but you should change to wherever the totallia directory is with relative path from your getwd() or with absolute path.
+  base_directory = ".", # This is default, but you should change to wherever the mutt directory is with relative path from your getwd() or with absolute path.
   rawdata = FALSE, # Dont change this because its the un-reformatted original data non cleaned. If TRUE, returns unformatted original data
   align_samples = TRUE, # If TRUE, this will align your matrices to the scale dataframe so all sample data is aligned (If it can be)
   save_to = "datasetsfromrepo.RData", # OPTIONAL, save RData object of all the studies you chose.
@@ -236,7 +234,7 @@ Structure:
 
 Additionally, there are many callable helper functions:
 
-## Helper functions for totallia package:
+## Helper functions for mutt package:
 - `convert_repo_to_pkl()` converts and saves the returned parsed repo object to a .pkl file
 - `annotate_studies()` modular function that appends data as a list returned from external script to the repo object such as scraped data from PMID/Pubmed
 - `filter_studies()` filter to dataframes of interest within each study. You can choose a branch and it will prune the paired dataframes
@@ -257,9 +255,9 @@ annotate_studies <-             function(repo,
 
 ## Code of Conduct
   
-  Please note that the totallia project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
+  Please note that the mutt project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
 
 <!-- badges: start -->
-  [![R-CMD-check](https://github.com/Silverman-Lab/totallia/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Silverman-Lab/totallia/actions/workflows/R-CMD-check.yaml)
+  [![R-CMD-check](https://github.com/Silverman-Lab/mutt/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Silverman-Lab/mutt/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
