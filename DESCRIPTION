@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors@R: 
     person("Maxwell", "Konnaris",
            email = "mak6930@psu.edu",
-           role = c("aut", "cre")),
+           role = c("aut", "cre"))
     person("Justin", "Silverman",
            email = "JustinSilverman@psu.edu",
            role = c("aut", "ctb"))
