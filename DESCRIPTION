@@ -1,5 +1,5 @@
-Package: totallia
-Title: Totallia: A Microbial Scale Repository for Paired Microbiome
+Package: mutt
+Title: mutt: A Microbial Scale Repository for Paired Microbiome
  Sequence Count Data with Total Abundance Measurements
 Version: 0.1.0
 Authors@R: 
@@ -16,8 +16,8 @@ Description: This R package parses and formats individual studies
  (Flow cytometry, ddPCR, qPCR, etc.) and returns a single data object
  containing any selected studies.
 License: MIT + file LICENSE
-URL: https://github.com/Silverman-Lab/totallia
-BugReports: https://github.com/Silverman-Lab/totallia/issues
+URL: https://github.com/Silverman-Lab/mutt
+BugReports: https://github.com/Silverman-Lab/mutt/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
