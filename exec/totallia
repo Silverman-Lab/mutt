@@ -1,19 +1,19 @@
 #!/usr/bin/env Rscript
 
-#’ @title     Command-line interface for totallia
+#’ @title     Command-line interface for mutt
 #’ @description
-#’   Allows you to run the totallia parser directly from the shell.
+#’   Allows you to run the mutt parser directly from the shell.
 #’ @details
-#’   This script wraps the \code{totallia()} function, parsing command-line
+#’   This script wraps the \code{mutt()} function, parsing command-line
 #’   options via optparse and printing results or saving to file.
 #’ @examples
-#’   totallia --studies A,B,C --base path/to/data --verbose
+#’   mutt --studies A,B,C --base path/to/data --verbose
 #’ @keywords  internal
 #’ @import    optparse
 #’ @export
 suppressPackageStartupMessages({
   library(optparse)
-  library(totallia)
+  library(mutt)
 })
 
 option_list <- list(
@@ -47,7 +47,7 @@ option_list <- list(
 
 parser <- OptionParser(
   option_list = option_list,
-  description = "Run totallia from the command line"
+  description = "Run mutt from the command line"
 )
 
 opts <- parse_args(parser)
@@ -69,7 +69,7 @@ if (!is.null(opts$names)) {
 }
 
 # Call the core function
-res <- totallia(
+res <- mutt(
   studies        = studs,
   base_directory = opts$base,
   rawdata        = opts$raw,
