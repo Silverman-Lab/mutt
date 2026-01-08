@@ -95,7 +95,7 @@
 #' all_data <- totallia(base_directory = "totallia")
 #'
 #' ## Run two specific parsers and rename outputs
-#' subset <- totallia(
+#' subset <- mutt(
 #'   studies        = c(Vandeputte2021 = "2021_vandeputte_naturecommunications_flow_timeseries",
 #'                      Pereira2023   = "2023_pereira_nature_nervous"),
 #'   base_directory = "totallia",
