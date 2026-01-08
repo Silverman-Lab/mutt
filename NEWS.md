@@ -1,3 +1,3 @@
-# totallia 0.1.0
+# mutt 0.1.0
 
 * Initial CRAN submission.
