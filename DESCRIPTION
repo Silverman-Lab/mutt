@@ -1,20 +1,18 @@
 Package: mutt
-Title: mutt: A Microbial Scale Repository for Paired Microbiome
- Sequence Count Data with Total Abundance Measurements
+Title: A Microbial Scale Repository for Paired Microbiome Sequence Count Data with Total Abundance Measurements
 Version: 0.1.0
-Authors@R: 
-    person("Maxwell", "Konnaris",
-           email = "mak6930@psu.edu",
-           role = c("aut", "cre"))
-    person("Justin", "Silverman",
-           email = "JustinSilverman@psu.edu",
-           role = c("aut", "ctb"))
-Author: Maxwell Konnaris [aut, cre], Justin Silverman [aut, ctb]
-Maintainer: Maxwell Konnaris <mak6930@psu.edu>
-Description: This R package parses and formats individual studies
- containing sequence count data and measurements of total abundance
- (Flow cytometry, ddPCR, qPCR, etc.) and returns a single data object
- containing any selected studies.
+Authors@R:
+    c(
+      person("Maxwell", "Konnaris",
+             email = "mak6930@psu.edu",
+             role = c("aut", "cre")),
+      person("Justin", "Silverman",
+             email = "JustinSilverman@psu.edu",
+             role = c("aut", "ctb"))
+    )
+Description: Parses and formats individual studies containing microbiome sequence count data
+    paired with total abundance measurements (flow cytometry, ddPCR, qPCR, etc.), and returns
+    a single data object containing selected studies.
 License: MIT + file LICENSE
 URL: https://github.com/Silverman-Lab/mutt
 BugReports: https://github.com/Silverman-Lab/mutt/issues
@@ -22,22 +20,21 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports:
- reticulate (>= 1.24),
- optparse,
- tidyverse,
- dplyr,
- fs,
- jsonlite,
- purrr,
- readr,
- readxl,
- tibble,
- withr
+    reticulate (>= 1.24),
+    optparse,
+    dplyr,
+    fs,
+    jsonlite,
+    purrr,
+    readr,
+    readxl,
+    tibble,
+    withr
 SystemRequirements:
- Python (>= 3.6)
+    Python (>= 3.9)
 Suggests:
- knitr,
- rmarkdown,
- testthat (>= 3.0.0)
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
