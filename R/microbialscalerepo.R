@@ -107,7 +107,7 @@
 #' 
 #' @export
 # ─────────────────────────────────────────────────────────────────────────────
-totallia <- function(
+mutt <- function(
   studies        = NULL,
   base_directory = ".",
   rawdata        = FALSE,
