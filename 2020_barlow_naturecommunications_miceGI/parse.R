@@ -114,8 +114,8 @@ parse_2020_barlow_naturecommunications_miceGI <- function(raw = FALSE, align = F
     
     # ----- Reprocessed counts from RDS ZIP -----
     if (all(file.exists(c(repro_counts_rds_zip, repro_tax_zip)))) {
-        temp_dir <- tempdir("repro")
-        dir.create(temp_dir)
+        temp_dir <- file.path(tempdir(), "repro")
+        dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
         unzipped = unzip(repro_counts_rds_zip, exdir = temp_dir, overwrite = TRUE)
         counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
         if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
