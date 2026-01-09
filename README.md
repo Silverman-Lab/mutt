@@ -24,33 +24,6 @@
 
 Before download, **make sure gitlfs is installed**. 
 
-```r
-# When it becomes a Public Repo then do this, if not skip to next:
-install.packages("devtools")
-devtools::install_github("Silverman-Lab/mutt")
-```
-
-For now since its still private, you will need to follow one of the below methods:
-
-Generate a GITHUB personal access token. Generate in Settings -> Developer settings -> Personal access token with at least the repo scope. Then replace the below:
-
-```r
-# In your R session directly:
-Sys.setenv(GITHUB_PAT = "ghp_ABC123…yourtoken…")
-devtools::install_github("Silverman-Lab/mutt")
-```
-Or a SSH key based install. You have to make sure your SSH key is loaded via ssh agent:
-
-```r
-# with the remotes package (devtools wraps remotes):
-remotes::install_git(
-  "git@github.com:Silverman-Lab/mutt.git",
-  auth_token = NULL
-)
-```
-
-Or if you want to manually install (No access key needed and works when public), you can clone the repo using git clone and the .git link from command line/ terminal:
-
 ```bash
 # HTTPS (you’ll be prompted for a username and your PAT as password)
 git clone https://github.com/Silverman-Lab/mutt.git
