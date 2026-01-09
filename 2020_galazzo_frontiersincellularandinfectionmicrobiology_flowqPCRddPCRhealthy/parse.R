@@ -44,8 +44,8 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
   # ----- Scale ----- # SHEET 9 has mock vs sample A,B,C for ddPCR replicates vs qPCR replicates at different dilution factors. We have not done that yet.
   zip_list <- unzip(scale_zip, list = TRUE)
   scale_xlsx <- zip_list$Name[1]  
-  temp_dir <- tempdir("oro")
-  dir.create(temp_dir)
+  temp_dir <- file.path(tempdir(), "oro")
+  dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
   unzip(scale_zip, files = scale_xlsx, exdir = temp_dir, overwrite = TRUE)
   scale_path <- file.path(temp_dir, scale_xlsx)
   
@@ -145,8 +145,8 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
 
   # ----- Reprocessed counts from RDS ZIP -----
   if (all(file.exists(repro_counts_rds_zip), file.exists(repro_tax_zip))) {
-    temp_dir <- tempdir("repro")
-    dir.create(temp_dir)
+    temp_dir <- file.path(tempdir(), "repro")
+    dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
     unzipped = unzip(repro_counts_rds_zip, exdir = temp_dir, overwrite = TRUE)
     counts_file <- unzipped[grep("_counts\\.rds$", unzipped, ignore.case = TRUE)][1]
     if (is.na(counts_file)) stop("No *_counts.rds file found after unzip")
