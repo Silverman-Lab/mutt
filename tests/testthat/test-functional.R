@@ -180,7 +180,10 @@ test_that("explicit ASV discovery prefers validated orientation repair outputs",
   sources <- mutt:::.discover_picrust_sources(root)
   explicit <- sources[vapply(sources, `[[`, character(1), "type") == "explicit"]
   expect_length(explicit, 1L)
-  expect_identical(dirname(explicit[[1L]]$counts_file), repaired)
+  expect_identical(
+    normalizePath(dirname(explicit[[1L]]$counts_file), winslash = "/"),
+    normalizePath(repaired, winslash = "/")
+  )
 })
 
 test_that("explicit ASV discovery and loading support one-file ZIP archives", {

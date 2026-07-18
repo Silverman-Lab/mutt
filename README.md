@@ -129,6 +129,12 @@ PICRUSt2 requires count, sequence, and taxonomy ASV identifiers to align. MUTT c
 
 FAPROTAX receives classified taxonomic abundance tables with formatted lineages. MUTT uses counts whenever that branch has counts and falls back to its proportions only when counts are unavailable. Functional groups can overlap and are ecological annotations rather than directly observed genes.
 
+Functional eligibility is method-specific. Every covariance-study branch with
+classified taxa and a corresponding abundance table is submitted to FAPROTAX.
+PICRUSt2 eligibility is narrower: it requires ASV-level counts and matching ASV
+sequences. A PICRUSt2 skip therefore does not make a study functionally
+ineligible when its classified taxonomic table can be analyzed by FAPROTAX.
+
 ## Docker
 
 Build the software image:
