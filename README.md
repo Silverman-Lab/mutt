@@ -16,9 +16,31 @@ git lfs pull
 R CMD INSTALL .
 ```
 
-New study-data files must be stored as one-file ZIP archives so the existing
-`*.zip` Git LFS rule applies. Preview an explicit archive operation first, then
-apply it:
+## Study registry and repository conventions
+
+The study registry is maintained here: [study sheet](https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing)
+
+It is the working list for study names, metadata, and repository decisions. Use it as the canonical reference when adding a new dataset or checking whether a study already exists in MUTT.
+
+The repository conventions are:
+
+- Use Git LFS for large files: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage
+- Each dataset gets its own directory with an informative name, all lower-case, using the pattern `year_name_journal_keyword`.
+- Be concise, but not vague. Do not use a year range like `2020-2024` when a single study year is enough.
+- Compress datasets before uploading, and store the archive with Git LFS. The helper script `./zip-push-gitlfs.sh` handles that workflow from the repository root.
+- Study parsers should use file paths relative to the root `mutt` directory.
+- Large shotgun metagenomic tables are kept as processed data tables in this repository rather than as raw uploads.
+
+The parsed data structure for each study should remain easy to inspect:
+
+- `counts`: integer count table, with sample IDs as rows and taxa or sequence IDs as columns.
+- `proportions`: real-valued abundance table with the same row and column alignment as `counts`.
+- `scale`: positive-valued measurement table for total microbial abundance or a related scale variable.
+- `metadata`: sample-level covariate table.
+- `tax`: taxonomy table linking sequence IDs to classified labels and, when available, raw sequence strings.
+- `phylo`: optional phylogenetic tree when a study provides one.
+
+New study-data files must be stored as one-file ZIP archives so the existing `*.zip` Git LFS rule applies. Preview an explicit archive operation first, then apply it:
 
 ```bash
 ./zip-push-gitlfs.sh studies/STUDY/data.tsv
@@ -27,10 +49,7 @@ git add studies/STUDY/data.tsv.zip
 git lfs status
 ```
 
-The archiver accepts only explicit paths under `studies/`, validates that each
-archive reproduces its input byte-for-byte, and refuses to overwrite archives
-unless `--replace` is explicit. It does not change remotes, stage unrelated
-files, commit, or push.
+The archiver accepts only explicit paths under `studies/`, validates that each archive reproduces its input byte-for-byte, and refuses to overwrite archives unless `--replace` is explicit. It does not change remotes, stage unrelated files, commit, or push.
 
 Functional caches can be refreshed without removing the working cache:
 
@@ -40,10 +59,7 @@ Functional caches can be refreshed without removing the working cache:
 git add studies/STUDY/functional.zip
 ```
 
-When `functional/` is absent and `functional.zip` is present, `mutt()` restores
-the archive atomically before checking its cache. Cached PICRUSt2 paths are
-rebased to the current checkout, so stratified outputs remain readable after a
-clone or move.
+When `functional/` is absent and `functional.zip` is present, `mutt()` restores the archive atomically before checking its cache. Cached PICRUSt2 paths are rebased to the current checkout, so stratified outputs remain readable after a clone or move.
 
 CRAN submission is a target, not a current installation claim.
 
@@ -124,17 +140,14 @@ flowchart TD
     N --> O[Attach audit, validation, and provenance]
 ```
 
-PICRUSt2 receives raw integer counts. MUTT does not rarefy, add pseudocounts, close compositions, or log-transform counts during functional inference.
+MUTT does not rarefy, add pseudocounts, close compositions, or log-transform counts during functional inference.
 
 PICRUSt2 requires count, sequence, and taxonomy ASV identifiers to align. MUTT checks both sequence orientations, uses PICRUSt2's 0.8 minimum alignment threshold, requests coverage and `--stratified` outputs, and retains EC, KO, MetaCyc, NSTI, ASV mapping, taxonomy, and provenance records.
 
 FAPROTAX receives classified taxonomic abundance tables with formatted lineages. MUTT uses counts whenever that branch has counts and falls back to its proportions only when counts are unavailable. Functional groups can overlap and are ecological annotations rather than directly observed genes.
 
-Functional eligibility is method-specific. Every covariance-study branch with
-classified taxa and a corresponding abundance table is submitted to FAPROTAX.
-PICRUSt2 eligibility is narrower: it requires ASV-level counts and matching ASV
-sequences. A PICRUSt2 skip therefore does not make a study functionally
-ineligible when its classified taxonomic table can be analyzed by FAPROTAX.
+Functional eligibility is method-specific. Every covariance-study branch with classified taxa and a corresponding abundance table is submitted to FAPROTAX.
+PICRUSt2 eligibility is narrower: it requires ASV-level counts and matching ASV sequences. A PICRUSt2 skip therefore does not make a study functionally ineligible when its classified taxonomic table can be analyzed by FAPROTAX.
 
 ## Docker
 
@@ -154,14 +167,11 @@ docker run --rm -it \
   mutt:0.1.0
 ```
 
-For rootless Podman, add `--userns=keep-id`. Mapping the host UID/GID is
-required when functional caches should be written back to the mounted study
-directories.
+For rootless Podman, add `--userns=keep-id`. Mapping the host UID/GID is required when functional caches should be written back to the mounted study directories.
 
 The image provides R 4.5.3, Python 3.12.13, PICRUSt2 2.6.3, FAPROTAX 1.2.12, and parser dependencies. The release image is tested locally with Podman and rebuilt in GitHub Actions.
 
-Main-branch builds are also published to
-`ghcr.io/silverman-lab/mutt:latest`. On an HPC system with Apptainer:
+Main-branch builds are also published to `ghcr.io/silverman-lab/mutt:latest`. On an HPC system with Apptainer:
 
 ```bash
 apptainer build mutt.sif docker://ghcr.io/silverman-lab/mutt:latest
@@ -169,16 +179,15 @@ apptainer exec --bind "$PWD:/work" --pwd /work mutt.sif \
   Rscript --vanilla -e 'library(mutt); print(getNamespaceExports("mutt"))'
 ```
 
-The image contains software only. Study data and functional caches are supplied
-through bind-mounted Git LFS checkouts.
+The image contains software only. Study data and functional caches are supplied through bind-mounted Git LFS checkouts.
 
 ## Data releases
 
-Remote study downloads are disabled until a release asset has a fixed URL, archive size, SHA-256, and documented redistribution status in `inst/extdata/studies.json`. Public availability alone is not treated as redistribution permission.
+Remote study downloads are disabled until a release asset has a fixed URL, archive size, SHA-256, and documented redistribution status in `inst/extdata/studies.json`. 
 
 Current release state: all 57 local study directories and all 57 bundled parsers are present, but 0 of 57 studies have a verified redistribution decision and 0 of 57 production remote assets are enabled. The remote download, checksum rejection, extraction, and cache path are tested with local release fixtures; production HTTPS download remains intentionally unavailable until the release workflow below is completed.
 
-Parser presence is not a claim that all 57 historical parsers are validated. The pre-restructure validation artifact contains 33 successful study outputs generated with sample alignment enabled. Compatibility checks for that set use `align_samples = TRUE`; the separate default-mode audit uses `align_samples = FALSE`. Failures outside the 33-study historical-success set are not treated as restructuring regressions.
+The pre-restructure validation artifact contains 33 successful study outputs generated with sample alignment enabled. Compatibility checks for that set use `align_samples = TRUE`; the separate default-mode audit uses `align_samples = FALSE`. Failures outside the 33-study historical-success set are not treated as restructuring regressions.
 
 Check all registered study directories, parsers, and redistribution decisions without writing archives:
 
@@ -186,7 +195,7 @@ Check all registered study directories, parsers, and redistribution decisions wi
 Rscript scripts/build_study_release.R --all --check-only
 ```
 
-After every study has documented redistribution evidence and its manifest status is `verified`, build the complete staged release:
+After every study has documented redistribution evidence and its manifest status is `verified`, the complete staged release can be rebuilt with:
 
 ```bash
 Rscript scripts/build_study_release.R --all
