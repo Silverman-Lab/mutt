@@ -1,5 +1,23 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
+
+PS4='+ $(date --iso-8601=seconds) ${BASH_SOURCE##*/}:${LINENO}: '
+if [[ ${MUTT_TRACE:-0} == 1 ]]; then
+  set -x
+fi
+
+log() {
+  printf '[%s] %s\n' "$(date --iso-8601=seconds)" "$*"
+}
+
+on_error() {
+  local status=$?
+  printf '[%s] ERROR status=%d script=%s line=%d command=%q\n' \
+    "$(date --iso-8601=seconds)" "$status" "${BASH_SOURCE[1]##*/}" \
+    "${BASH_LINENO[0]}" "$BASH_COMMAND" >&2
+  exit "$status"
+}
+trap on_error ERR
 
 readonly DEFAULT_REPOSITORY_URL="git@github.com:Silverman-Lab/mutt.git"
 readonly DEFAULT_BRANCH="main"
@@ -77,7 +95,7 @@ Useful environment overrides:
   MUTT_IBD_CONCURRENCY, MUTT_REST_CONCURRENCY
   MUTT_MIN_FREE_GB, MUTT_MAX_LFS_BYTES, SLURM_PARTITION
   APPTAINER_MODULE, MUTT_GIT_NAME, MUTT_GIT_EMAIL
-  MUTT_FUNCTIONAL_MODE=use|rebuild
+  MUTT_FUNCTIONAL_MODE=use|rebuild, MUTT_TRACE=0|1
 EOF
 }
 
@@ -300,12 +318,34 @@ prepare_image() {
   mkdir -p "$image_dir"
   if [[ ! -f "$image" ]]; then
     uri=${MUTT_IMAGE_URI:-docker://ghcr.io/silverman-lab/mutt:sha-$code_commit}
-    temporary=${image}.partial
-    echo "Pulling Apptainer image: $uri" >&2
-    apptainer pull "$temporary" "$uri" >&2
+    temporary=${image}.partial.${SLURM_JOB_ID:-$$}
+    log "Pulling Apptainer image: $uri" >&2
+    if ! apptainer pull "$temporary" "$uri" >&2; then
+      echo "Apptainer could not pull $uri. For private GHCR images, run 'apptainer registry login docker://ghcr.io' on the HPC login node or set MUTT_IMAGE_URI to a readable image." >&2
+      return 1
+    fi
+    [[ -s "$temporary" ]] || {
+      echo "Apptainer reported success but did not create $temporary." >&2
+      return 1
+    }
     mv "$temporary" "$image"
   fi
   echo "$image"
+}
+
+write_checkpoint() {
+  local marker=$1 status=$2 temporary
+  mkdir -p "$(dirname "$marker")"
+  temporary=${marker}.partial.${SLURM_JOB_ID:-$$}
+  {
+    echo "status=$status"
+    echo "run_id=$MUTT_RUN_ID"
+    echo "code_commit=$MUTT_CODE_COMMIT"
+    echo "job_id=${SLURM_JOB_ID:-NA}"
+    echo "completed_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  } > "$temporary"
+  mv "$temporary" "$marker"
+  log "Checkpoint written: $marker"
 }
 
 install_source_package() {
@@ -455,13 +495,25 @@ print_worker_settings() {
 run_setup_worker() {
   validate_worker_environment
 
-  local repository_url branch repository min_free image library current_head
+  local repository_url branch repository min_free image library current_head checkpoint
   repository_url=${MUTT_REPO_URL:-$DEFAULT_REPOSITORY_URL}
   branch=${MUTT_BRANCH:-$DEFAULT_BRANCH}
   repository=$MUTT_WORK_ROOT/repository
   min_free=${MUTT_MIN_FREE_GB:-$DEFAULT_MIN_FREE_GB}
+  checkpoint=$MUTT_WORK_ROOT/checkpoints/setup.complete
 
   mkdir -p "$MUTT_WORK_ROOT/slurm_logs"
+  if [[ -f "$checkpoint" ]]; then
+    log "Setup checkpoint already exists; validating reusable setup."
+    image=$MUTT_WORK_ROOT/images/mutt-${MUTT_CODE_COMMIT}.sif
+    library=$MUTT_WORK_ROOT/r-library/$MUTT_CODE_COMMIT
+    [[ -d "$repository/.git" && -s "$image" && -d "$library/mutt" ]] || {
+      echo "Setup checkpoint exists, but one or more setup artifacts are missing." >&2
+      exit 1
+    }
+    log "Setup artifacts are complete; skipping setup."
+    return
+  fi
   check_free_space "$MUTT_WORK_ROOT" "$min_free"
   load_apptainer
   command -v git >/dev/null 2>&1
@@ -469,19 +521,26 @@ run_setup_worker() {
   print_worker_settings setup "$repository_url"
   command -v quota >/dev/null 2>&1 && quota -s || true
 
+  log "Preparing repository checkout."
   prepare_repository "$repository_url" "$branch" "$repository"
   current_head=$(git -C "$repository" rev-parse HEAD)
   [[ "$current_head" == "$MUTT_CODE_COMMIT" ]] || {
     echo "Remote $branch changed after submission; resubmit to pin the new commit." >&2
     exit 1
   }
-  image=$(prepare_image "$MUTT_WORK_ROOT" "$MUTT_CODE_COMMIT" "$repository")
+  log "Preparing container image."
+  if ! image=$(prepare_image "$MUTT_WORK_ROOT" "$MUTT_CODE_COMMIT" "$repository"); then
+    echo "Container image preparation failed." >&2
+    exit 1
+  fi
   library=$MUTT_WORK_ROOT/r-library/$MUTT_CODE_COMMIT
   echo "Image: $image"
+  log "Installing and smoke-testing the MUTT source package."
   install_source_package "$image" "$repository" "$library"
+  log "Validating the IBD and remaining-study registries."
   MUTT_PHASE=ibd validate_registry "$repository"
   MUTT_PHASE=rest validate_registry "$repository"
-  touch "$MUTT_WORK_ROOT/setup_complete"
+  write_checkpoint "$checkpoint" setup_complete
   echo "Setup completed: $(date --iso-8601=seconds)"
 }
 
@@ -490,7 +549,7 @@ run_study_worker() {
   validate_phase
   : "${SLURM_ARRAY_TASK_ID:?SLURM_ARRAY_TASK_ID is required.}"
 
-  local repository_url repository mode cpus image library phase_output study
+  local repository_url repository mode cpus image library phase_output study checkpoint
   repository_url=${MUTT_REPO_URL:-$DEFAULT_REPOSITORY_URL}
   repository=$MUTT_WORK_ROOT/repository
   mode=${MUTT_FUNCTIONAL_MODE:-use}
@@ -499,7 +558,7 @@ run_study_worker() {
     echo "MUTT_FUNCTIONAL_MODE must be use or rebuild." >&2
     exit 2
   }
-  [[ -f "$MUTT_WORK_ROOT/setup_complete" ]] || {
+  [[ -f "$MUTT_WORK_ROOT/checkpoints/setup.complete" ]] || {
     echo "Setup completion marker is missing." >&2
     exit 1
   }
@@ -518,28 +577,45 @@ run_study_worker() {
   phase_output="$MUTT_WORK_ROOT/phase-output/$MUTT_PHASE"
   mkdir -p "$phase_output"
   study=$(phase_study_at_index "$MUTT_PHASE" "$SLURM_ARRAY_TASK_ID")
+  checkpoint=$MUTT_WORK_ROOT/checkpoints/$MUTT_PHASE/$study.complete
+  if [[ -f "$checkpoint" ]]; then
+    log "Study checkpoint already exists; skipping $study."
+    return
+  fi
+  log "Running study $study."
   run_study "$image" "$repository" "$library" "$phase_output" "$study" "$mode" "$cpus"
+  write_checkpoint "$checkpoint" study_complete
 }
 
 run_finalize_worker() {
   validate_worker_environment
   validate_phase
 
-  local repository_url branch repository max_lfs output_dir phase_output study
+  local repository_url branch repository max_lfs output_dir phase_output study checkpoint
   repository_url=${MUTT_REPO_URL:-$DEFAULT_REPOSITORY_URL}
   branch=${MUTT_BRANCH:-$DEFAULT_BRANCH}
   repository=$MUTT_WORK_ROOT/repository
   max_lfs=${MUTT_MAX_LFS_BYTES:-$DEFAULT_MAX_LFS_BYTES}
   output_dir="analysis/hpc_functional/$MUTT_RUN_ID/$MUTT_PHASE"
   phase_output="$MUTT_WORK_ROOT/phase-output/$MUTT_PHASE"
+  checkpoint=$MUTT_WORK_ROOT/checkpoints/$MUTT_PHASE/finalize.complete
 
   print_worker_settings finalize "$repository_url"
+  if [[ -f "$checkpoint" ]]; then
+    log "Finalization checkpoint already exists; skipping phase $MUTT_PHASE."
+    return
+  fi
   command -v git >/dev/null 2>&1
   git lfs version
   command -v zip >/dev/null 2>&1
   command -v unzip >/dev/null 2>&1
 
   while IFS= read -r study; do
+    [[ -f "$MUTT_WORK_ROOT/checkpoints/$MUTT_PHASE/$study.complete" ]] || {
+      echo "Study checkpoint is missing for $study; refusing to finalize." >&2
+      exit 1
+    }
+    log "Archiving functional cache for $study."
     archive_study_cache "$repository" "$study" "$max_lfs"
   done < <(phase_studies "$MUTT_PHASE")
 
@@ -551,7 +627,9 @@ run_finalize_worker() {
   } > "$phase_output/phase_complete.txt"
   mkdir -p "$repository/$output_dir"
   cp -a "$phase_output/." "$repository/$output_dir/"
+  log "Committing and pushing phase $MUTT_PHASE."
   commit_and_push_phase "$repository" "$MUTT_PHASE" "$MUTT_RUN_ID" "$branch" "$output_dir"
+  write_checkpoint "$checkpoint" finalize_complete
   echo "Finished and pushed: $(date --iso-8601=seconds)"
 }
 
