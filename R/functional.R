@@ -277,6 +277,45 @@
   invisible(TRUE)
 }
 
+.collapse_reverse_complement_duplicates <- function(counts, sequences, tax = NULL) {
+  sequences <- toupper(as.character(sequences))
+  names(sequences) <- colnames(counts)
+  reverse <- .reverse_complement_dna(sequences)
+  reverse_match <- match(reverse, sequences, nomatch = 0L)
+  paired <- reverse_match != 0L & reverse_match != seq_along(sequences)
+  if (!any(paired)) {
+    return(list(counts = counts, sequences = sequences, taxonomy = tax, merged_pairs = 0L))
+  }
+
+  feature_group <- sequences
+  feature_group[paired] <- pmin(sequences[paired], reverse[paired])
+  group_order <- unique(feature_group)
+  before <- rowSums(counts)
+  collapsed <- t(rowsum(t(counts), group = feature_group, reorder = FALSE))
+  collapsed <- collapsed[, group_order, drop = FALSE]
+  if (!identical(as.numeric(rowSums(collapsed)), as.numeric(before))) {
+    stop("Reverse-complement merging changed sample read totals.", call. = FALSE)
+  }
+
+  aligned_taxonomy <- .match_taxonomy_to_counts(counts, tax)
+  collapsed_taxonomy <- if (is.null(aligned_taxonomy)) {
+    NULL
+  } else {
+    .consensus_taxonomy(aligned_taxonomy, feature_group, group_order)
+  }
+  collapsed_sequences <- setNames(group_order, group_order)
+  .assert_no_reverse_complement_duplicates(
+    collapsed_sequences,
+    "Reverse-complement-normalized PICRUSt2 sequence input"
+  )
+  list(
+    counts = collapsed,
+    sequences = collapsed_sequences,
+    taxonomy = collapsed_taxonomy,
+    merged_pairs = as.integer(sum(table(feature_group) == 2L))
+  )
+}
+
 .normalize_count_matrix <- function(x, require_sequences = FALSE) {
   if (!is.data.frame(x) && !is.matrix(x)) {
     stop("Count input must be a matrix or data.frame.", call. = FALSE)
@@ -551,6 +590,10 @@
       tax <- as.data.frame(.read_rds_zip(source$tax_file, "_taxa\\.rds$"), stringsAsFactors = FALSE)
       if (is.null(rownames(tax)) && nrow(tax) == ncol(counts)) rownames(tax) <- colnames(counts)
     }
+    repaired <- .collapse_reverse_complement_duplicates(counts, sequences, tax)
+    counts <- repaired$counts
+    sequences <- repaired$sequences
+    tax <- repaired$taxonomy
   } else {
     raw_counts <- .read_study_delim(
       source$counts_file, check.names = FALSE, stringsAsFactors = FALSE

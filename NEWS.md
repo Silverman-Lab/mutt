@@ -1,5 +1,8 @@
 # mutt 0.1.0.9000
 
+* DADA2 PICRUSt2 inputs now merge exact reverse-complement ASV duplicates before
+  inference while preserving every sample's read total and rebuilding aligned
+  consensus taxonomy for the merged features.
 * Added safe, explicit one-file study-data archiving with Git LFS verification.
 * Study TSV and RDS readers now support either an uncompressed file or its
   one-file `.zip` archive, preserving local rebuild workflows and archived Git

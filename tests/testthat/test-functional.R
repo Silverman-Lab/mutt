@@ -96,6 +96,36 @@ test_that("PICRUSt2 rejects exact reverse-complement duplicate features", {
   )
 })
 
+test_that("PICRUSt2 reverse-complement repair preserves counts and taxonomy alignment", {
+  counts <- matrix(
+    c(1, 2, 3, 4, 5, 6),
+    nrow = 2,
+    dimnames = list(c("S1", "S2"), c("AAGC", "GCTT", "CCGA"))
+  )
+  sequences <- setNames(colnames(counts), colnames(counts))
+  taxonomy <- data.frame(
+    Kingdom = rep("Bacteria", 3),
+    Genus = c("Alpha", "Alpha", "Beta"),
+    row.names = colnames(counts),
+    stringsAsFactors = FALSE
+  )
+
+  repaired <- mutt:::.collapse_reverse_complement_duplicates(
+    counts, sequences, taxonomy
+  )
+
+  expect_equal(repaired$merged_pairs, 1L)
+  expect_identical(colnames(repaired$counts), c("AAGC", "CCGA"))
+  expect_equal(repaired$counts[, "AAGC"], counts[, "AAGC"] + counts[, "GCTT"])
+  expect_equal(rowSums(repaired$counts), rowSums(counts))
+  expect_identical(names(repaired$sequences), colnames(repaired$counts))
+  expect_identical(rownames(repaired$taxonomy), colnames(repaired$counts))
+  expect_identical(repaired$taxonomy$Genus, c("Alpha", "Beta"))
+  expect_invisible(
+    mutt:::.assert_no_reverse_complement_duplicates(repaired$sequences, "fixture")
+  )
+})
+
 test_that("taxonomy is matched and formatted for FAPROTAX", {
   counts <- matrix(
     c(2, 1, 3, 4), nrow = 2,
