@@ -1,0 +1,107 @@
+"study","status","runtime_seconds","data_source","nonempty_entries","warnings","error","align_samples"
+"2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow","error",1.14,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","duplicate 'row.names' are not allowed",FALSE
+"2016_stammler_microbiome_micehuman","success",0.0809999999999995,"local",7,"","",FALSE
+"2017_liu_mbio_penilehivqPCR","success",2.464,"local",7,"","",FALSE
+"2017_props_isme_longitudinal","error",0.0410000000000004,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","Can't select columns that don't exist.
+✖ Column `Cell.density.sd (cells/mL` doesn't exist.",FALSE
+"2017_sinha_natureBiotec_spikeinhumanfecalreproducibility","error",84.926,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","missing values in 'row.names' are not allowed",FALSE
+"2017_vandeputte_nature_flow","success",14.568,"local",7,"","",FALSE
+"2018_piwosz_ismej_spikeinampliconfreshwater","error",0.0259999999999962,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","Can't rename columns that don't exist.
+✖ Column `Run` doesn't exist.",FALSE
+"2018_tkacz_microbiome_spikeinamplicon","error",9.786,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","error in evaluating the argument 'x' in selecting a method for function 'XStringSet': object 'counts_reprocessed' not found",FALSE
+"2018_tourlousse_scientificreports_soilsewagespikein","error",0,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","object 'counts_original' not found",FALSE
+"2019_contijoch_elife_multispeciesqPCRshotgunandamplicon","success",9.15100000000001,"local",7,"","",FALSE
+"2019_ji_nature_human_soil","error",0.0600000000000023,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","Can't rename columns that don't exist.
+✖ Column `sample name` doesn't exist.",FALSE
+"2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein","success",4.62900000000002,"local",7,"","",FALSE
+"2019_morton_naturecommunications_songbird_oral","success",1.45600000000002,"local",7,"","",FALSE
+"2019_vieirasilva_naturemicrobiology_pscibd","success",0.135999999999996,"local",7,"Not deleting session-wide tempdir(): /tmp/Rtmpv6Coln","",FALSE
+"2020_barlow_naturecommunications_miceGI","success",5.02799999999999,"local",7,"","",FALSE
+"2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics","error",0.00100000000000477,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","object 'tax' not found",FALSE
+"2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy","success",1.39500000000001,"local",7,"There were 2 warnings in `mutate()`.
+The first warning was:
+ℹ In argument: `across(-Sample_name, as.numeric)`.
+Caused by warning:
+! NAs introduced by coercion
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.","",FALSE
+"2020_regalado_isme_metagenomicsbacteriaandfungalsequencing","error",0.00899999999998613,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","object 'metadata_16s_zip' not found",FALSE
+"2020_tettamantiboshier_msystems_vaginaltimeseries","success",4.03900000000002,"local",7,"","",FALSE
+"2020_vieirasilva_nature_BMIS","error",0.314999999999998,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","attempt to select less than one element in get1index",FALSE
+"2020_zemb_microOpen_spike","success",0.519000000000005,"local",7,"","",FALSE
+"2021_barlow_microbiome_reimaginestudypatientsddpcr","error",0.0400000000000205,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","Can't rename columns that don't exist.
+✖ Column `Run` doesn't exist.",FALSE
+"2021_forslund_nature_metacardis","error",0.0349999999999966,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","object 'sra_list' not found",FALSE
+"2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct","success",72.164,"local",7,"","",FALSE
+"2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow","error",0.0200000000000102,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","argument ""x"" is missing, with no default",FALSE
+"2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal","error",0.00100000000000477,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","zip file '2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/' cannot be opened",FALSE
+"2021_marotz_mSystems_oral_mouthwash","success",2.55699999999999,"local",7,"missing values for 'group'","",FALSE
+"2021_ott_environmentalmicrobiome_riverwater","error",0.0739999999999554,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","Can't rename columns that don't exist.
+✖ Column `run` doesn't exist.",FALSE
+"2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification","success",41.926,"local",7,"There were 7 warnings in `mutate()`.
+The first warning was:
+ℹ In argument: `across(-Sample_name, as.numeric)`.
+Caused by warning:
+! NAs introduced by coercion
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 6 remaining warnings. | There was 1 warning in `summarise()`.
+ℹ In argument: `across(where(is.numeric), sum, na.rm = TRUE)`.
+ℹ In group 1: `Taxa = ""g_Alistipes""`.
+Caused by warning:
+! The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
+Supply arguments directly to `.fns` through an anonymous function instead.
+
+  # Previously
+  across(a:b, mean, na.rm = TRUE)
+
+  # Now
+  across(a:b, \(x) mean(x, na.rm = TRUE))
+ℹ The deprecated feature was likely used in the mutt package.
+  Please report the issue at <https://github.com/Silverman-Lab/mutt/issues>. | 
+2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification | No matching accessions found between counts_reprocessed and metadata","",FALSE
+"2021_reese_cell_chimpanzee","success",6.25,"local",7,"There was 1 warning in `mutate()`.
+ℹ In argument: `16S copies per g feces = as.numeric(`16S copies per g feces`)`.
+Caused by warning:
+! NAs introduced by coercion","",FALSE
+"2021_rolling_naturemicrobiology_allohct_ITS_16s","error",127.807,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | missing values for 'group'","ℹ In index: 1.
+Caused by error in `rownames_to_column()`:
+! Column 1 must be named.
+Caused by error in `repaired_names()`:
+! Names can't be empty.
+✖ Empty name found at location 1.",FALSE
+"2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome","error",0.0220000000000482,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | ","Can't rename columns that don't exist.
+✖ Column `Sample ID` doesn't exist.",FALSE
+"2021_vandeputte_naturecommunications_flow_timeseries","success",0.199000000000012,"local",7,"","",FALSE
+"2022_cvandevelde_ismecommunications_culturedflowhumanfecal","success",0.118999999999971,"local",7,"Error reading SRA file: ","",FALSE
+"2022_dreier_bmcmicrobiology_cheeseqpcr","success",0.348000000000013,"local",7,"","",FALSE
+"2022_fromentin_naturemedicine_metacardissubset","success",116.012,"local",7,"NAs introduced by coercion","",FALSE
+"2022_jin_natureComm_technicalReplicates","error",11.631,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | NAs introduced by coercion | Setting row names on a tibble is deprecated. | missing values for 'group'","ℹ In index: 2.
+Caused by error in `rownames_to_column()`:
+! Column 1 must be named.
+Caused by error in `repaired_names()`:
+! Names can't be empty.
+✖ Empty name found at location 1.",FALSE
+"2022_krawczyk_microbiome_tickgeographicaldistributionqpcr","success",6.822,"local",7,"","",FALSE
+"2022_suriano_aps_micefecal","success",2.05999999999995,"local",7,"","",FALSE
+"2022_zaramela_msystems_synDNA","success",5.97000000000003,"local",7,"","",FALSE
+"2023_feng_imetawiley_chickensegment","success",67.102,"local",7,"","",FALSE
+"2023_galla_scientificreports_spikeinmockvariousorganismssampletypes","error",0.17999999999995,"local",0,"1 of 1 requested study parsers failed. Inspect attr(result, ""audit""). | EOF within quoted string | number of items read is not a multiple of the number of columns","Join columns in `y` must be present in the data.
+✖ Problem with `fastq ID`.",FALSE
+"2023_kallastu_research_foodscience_food","success",0.109000000000037,"local",7,"","",FALSE
+"2023_maghini_naturebiotechnology_samplemesurement","success",2.72200000000009,"local",7,"Expected 3 pieces. Additional pieces discarded in 181 rows [2, 8, 9, 10, 11,
+12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, ...].","",FALSE
+"2023_pereira_nature_nervous","success",1.75199999999995,"local",7,"","",FALSE
+"2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota","success",0.218999999999937,"local",7,"
+2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota | No matching accessions found between counts_reprocessed and metadata","",FALSE
+"2024_caenepeel_gastroenterology_IBD_CD_flow","success",5.303,"local",5,"","",FALSE
+"2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum","success",4.47699999999998,"local",7,"","",FALSE
+"2024_jin_pnas_semen","success",3.01799999999992,"local",7,"","",FALSE
+"2024_kruger_scientificreports_ddpcrhealthysubjects","success",1.16100000000006,"local",7,"There was 1 warning in `mutate()`.
+ℹ In argument: `StoolsperDay = as.integer(StoolsperDay)`.
+Caused by warning:
+! NAs introduced by coercion","",FALSE
+"2024_nishijima_cell_galaxy","success",19.621,"local",7,"","",FALSE
+"2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal","success",0.989000000000033,"local",7,"","",FALSE
+"2024_sternes_frontmicrobiol_IBDppiqPCR","success",19.116,"local",7,"","",FALSE
+"2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity","success",0.547000000000025,"local",7,"","",FALSE
+"2025_thiruppathy_microbiome_relicDNAflow","success",0.534999999999968,"local",7,"","",FALSE
+"2025_wagner_frontiersinmiccrobiology_flowpiglets","success",0.704999999999927,"local",6,"","",FALSE
+"2023_fu_imeta_wasterwater_pathogens","success",1.365,"local",6,"Setting row names on a tibble is deprecated.","",FALSE

@@ -1,0 +1,13 @@
+Bootstrap: docker
+From: ghcr.io/silverman-lab/mutt:latest
+
+%labels
+    org.opencontainers.image.source https://github.com/Silverman-Lab/mutt
+    org.opencontainers.image.description "MUTT R package with PICRUSt2 and FAPROTAX"
+
+%runscript
+    exec R --no-save "$@"
+
+%test
+    Rscript --vanilla -e 'library(mutt); stopifnot(identical(getNamespaceExports("mutt"), "mutt"))'
+    picrust2_pipeline.py --version

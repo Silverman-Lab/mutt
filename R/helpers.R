@@ -16,7 +16,7 @@
 #' @param study_name Optional name of the study for logging purposes
 #'
 #' @return A list with three elements: `$reprocessed`, `$original`, and `$proportions_original`
-#' @export
+#' @noRd
 rename_and_align <- function(counts_reprocessed = NULL,
                              counts_original = NULL,
                              proportions_original = NULL,
@@ -138,7 +138,7 @@ rename_and_align <- function(counts_reprocessed = NULL,
 #' @param skip Number of lines to skip before reading data
 #'
 #' @return A data frame read from the zipped file, or NA if the file does not exist
-#' @export
+#' @noRd
 read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1, check.names = FALSE, skip=0) {
   if (file.exists(zip_path)) {
     inner_file <- unzip(zip_path, list = TRUE)$Name[1]
@@ -156,6 +156,55 @@ read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1,
   }
 }
 
+.resolve_study_file <- function(path, must_work = TRUE) {
+  candidates <- path
+  if (!grepl("[.]zip$", path, ignore.case = TRUE)) {
+    candidates <- c(candidates, paste0(path, ".zip"))
+  }
+  existing <- candidates[file.exists(candidates)]
+  if (length(existing)) return(existing[[1L]])
+  if (!must_work) return("")
+  stop("Study-data file not found: `", path, "` or its `.zip` archive.", call. = FALSE)
+}
+
+.study_zip_member <- function(path) {
+  members <- utils::unzip(path, list = TRUE)$Name
+  members <- members[!grepl("/$", members)]
+  expected <- sub("[.]zip$", "", basename(path), ignore.case = TRUE)
+  matching <- members[basename(members) == expected]
+  if (length(matching) == 1L) return(matching)
+  if (length(members) == 1L) return(members)
+  stop("Study-data ZIP must contain exactly one identifiable file: ", path, call. = FALSE)
+}
+
+.read_study_delim <- function(path, ...) {
+  resolved <- .resolve_study_file(path)
+  if (!grepl("[.]zip$", resolved, ignore.case = TRUE)) {
+    return(utils::read.delim(resolved, ...))
+  }
+  connection <- unz(resolved, .study_zip_member(resolved), open = "r")
+  on.exit(if (isOpen(connection)) close(connection), add = TRUE)
+  utils::read.delim(connection, ...)
+}
+
+.read_study_rds <- function(path) {
+  resolved <- .resolve_study_file(path)
+  if (!grepl("[.]zip$", resolved, ignore.case = TRUE)) return(readRDS(resolved))
+  temporary <- tempfile("mutt-study-rds-")
+  dir.create(temporary)
+  on.exit(unlink(temporary, recursive = TRUE), add = TRUE)
+  extracted <- utils::unzip(
+    resolved,
+    files = .study_zip_member(resolved),
+    exdir = temporary,
+    junkpaths = TRUE
+  )
+  if (length(extracted) != 1L || !file.exists(extracted)) {
+    stop("Failed to extract study-data RDS archive: ", resolved, call. = FALSE)
+  }
+  readRDS(extracted)
+}
+
 #' Generate a unique taxonomic label from taxonomic ranks
 #'
 #' Creates a `Taxa` column in the dataframe based on taxonomic hierarchy.
@@ -166,7 +215,7 @@ read_zipped_table <- function(zip_path, sep = ",", header = TRUE, row.names = 1,
 #'           If `Species` is present, it will be used as the terminal label.
 #'
 #' @return The input dataframe with an added `Taxa` column
-#' @export
+#' @noRd
 make_taxa_label <- function(df) {
   # define taxonomic ranks and their single-letter prefixes
   tax_ranks <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
@@ -246,7 +295,7 @@ make_taxa_label <- function(df) {
 #' @param x A data frame, numeric matrix, or nested list of such objects (can be NULL or NA)
 #'
 #' @return The same object as `x`, with NA values in numeric components replaced by 0
-#' @export
+#' @noRd
 fill_na_zero_numeric <- function(x) {
   if (missing(x)) return(NULL)
   if (is.data.frame(x)) {
@@ -276,7 +325,7 @@ fill_na_zero_numeric <- function(x) {
 #' data <- read_zipped_csv("path/to/archive.zip")
 #' }
 #'
-#' @export
+#' @noRd
 read_zipped_csv <- function(zip_path) {
     if (file.exists(zip_path)) {
         csv_file <- unzip(zip_path, list = TRUE)$Name[1]
@@ -308,7 +357,7 @@ read_zipped_csv <- function(zip_path) {
 #' data <- read_xlsx_zip("path/to/archive.zip", sheet = "Sheet2", skip = 2)
 #' }
 #'
-#' @export
+#' @noRd
 read_xlsx_zip <- function(zipfile,
                          sheet = NULL,
                          skip  = 0,
@@ -354,7 +403,7 @@ read_xlsx_zip <- function(zipfile,
 #' cleanup_tempfiles(temp_files)
 #' }
 #'
-#' @export
+#' @noRd
 cleanup_tempfiles <- function(temp_paths, safety_check = TRUE) {
   for (p in temp_paths) {
     if (!file.exists(p)) next
@@ -401,7 +450,7 @@ cleanup_tempfiles <- function(temp_paths, safety_check = TRUE) {
 #' # Result: data frame with columns "Name" and "Age"
 #' }
 #'
-#' @export
+#' @noRd
 first_row_to_colnames <- function(df) {
     colnames(df) <- as.character(df[1, ])
     df <- df[-1, ]
@@ -445,7 +494,7 @@ first_row_to_colnames <- function(df) {
 #' tax_table <- build_taxonomy_table(my_data, method = "sintax")
 #' }
 #'
-#' @export
+#' @noRd
 build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full", "utax", "vsearch")) {
     method <- match.arg(method)
     if (method == "qiime") {
@@ -528,7 +577,7 @@ build_taxonomy_table <- function(df, method = c("qiime", "sintax", "sintax_full"
 #' result <- validate_output_structure(my_output, study_name = "MyStudy")
 #' }
 #'
-#' @export
+#' @noRd
 validate_output_structure <- function(output, study_name = NULL) {
     # Check if output is a list
     if (!is.list(output)) {
@@ -607,14 +656,14 @@ validate_output_structure <- function(output, study_name = NULL) {
 #' standardized_output <- standardize_output_order(my_output)
 #' }
 #'
-#' @export
+#' @noRd
 standardize_output_order <- function(output) {
     if (!is.list(output)) {
         stop("Input must be a list")
     }
     
     # Define the standard order for main elements
-    standard_order <- c("counts", "proportions", "tax", "scale", "metadata")
+    standard_order <- c("counts", "proportions", "tax", "function", "scale", "metadata")
     
     # Get all current elements
     current_elements <- names(output)
@@ -662,7 +711,7 @@ standardize_output_order <- function(output) {
 #' result <- collapse_duplicate_columns_exact(df)
 #' }
 #'
-#' @export
+#' @noRd
 collapse_duplicate_columns_exact <- function(df) {
   # 1. Capture original dimnames
   orig_rn <- rownames(df)
@@ -726,7 +775,7 @@ collapse_duplicate_columns_exact <- function(df) {
 #' clean_df <- remove_empty_columns(df)
 #' }
 #'
-#' @export
+#' @noRd
 remove_empty_columns <- function(df) {
   if (!is.data.frame(df)) {
     stop("Input must be a data frame")
@@ -767,10 +816,10 @@ remove_empty_columns <- function(df) {
 #'   df2 = data.frame(value = 3:4, row.names = c("TAGC", "invalid"))
 #' )
 #' result_list <- add_sequence_column(list_df)
-#' @export
+#' @noRd
 add_sequence_column <- function(x) {
   if (is.data.frame(x)) {
-    seq_pattern <- "^[ACGTN]+$"
+    seq_pattern <- "^[ACGTRYSWKMBDHVN]+$"
     seq_rows    <- grepl(seq_pattern, rownames(x), ignore.case = TRUE)
 
     if ("sequence" %in% names(x)) {
@@ -784,10 +833,11 @@ add_sequence_column <- function(x) {
       x$Sequence <- as.character(x$Sequence)
     }
 
-    to_fill <- seq_rows & (is.na(x$Sequence) |
-                           !grepl(seq_pattern, x$Sequence, ignore.case = TRUE))
+    valid_sequence <- !is.na(x$Sequence) &
+      grepl(seq_pattern, x$Sequence, ignore.case = TRUE)
+    x$Sequence[!valid_sequence] <- NA_character_
+    to_fill <- seq_rows & is.na(x$Sequence)
     x$Sequence[to_fill] <- rownames(x)[to_fill]
-    x$Sequence[!seq_rows] <- NA_character_
 
     return(x)
   }
@@ -816,6 +866,7 @@ add_sequence_column <- function(x) {
 #' @return The input repository with added publication information
 #'
 #' @examples
+#' \dontrun{
 #' # Create a sample repository with a study containing a PMID
 #' repo <- list(
 #'   study1 = list(
@@ -824,7 +875,7 @@ add_sequence_column <- function(x) {
 #' )
 #'
 #' # Annotate the repository with publication information
-#' script_path <- "totallia/inst/python/obtainpublicationinfo_pmid.py"
+#' script_path <- "data_repository/obtainpublicationinfo_pmid.py"
 #' annotated_repo <- annotate_studies(
 #'   repo = repo,
 #'   script_path = script_path,
@@ -833,8 +884,9 @@ add_sequence_column <- function(x) {
 #'
 #' # View the added publication information
 #' print(annotated_repo$study1$studyinfo)
+#' }
 #'
-#' @export
+#' @noRd
 annotate_studies <-             function(repo,
                                          script_path,
                                          email         = NA_character_,
@@ -940,7 +992,7 @@ annotate_studies <-             function(repo,
 #' convert_repo_to_pkl(microbialscalerepository, "output/microbiome.pkl")
 #' }
 #' @import reticulate
-#' @export
+#' @noRd
 convert_repo_to_pkl <- function(microbialscalerepository, filepath) {
   if (!requireNamespace("reticulate", quietly = TRUE)) {
     stop("Package 'reticulate' is required. Please install it first.", call. = FALSE)
@@ -964,12 +1016,4 @@ convert_repo_to_pkl <- function(microbialscalerepository, filepath) {
   message("Pickle saved to: ", filepath)
   invisible(filepath)
 }
-
-
-
-
-
-
-
-
 

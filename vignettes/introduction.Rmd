@@ -1,19 +1,72 @@
 ---
-title: "introduction"
+title: "Using the MUTT data API"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{introduction}
+  %\VignetteIndexEntry{Using the MUTT data API}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE, purl = FALSE)
+```
+
+MUTT has one exported function, `mutt()`. The package bundles parser code while study data are resolved from a local Git LFS checkout or a checksum-verified user cache.
+
+```{r, purl = FALSE}
+library(mutt)
+
+x <- mutt(
+  studies = "2021_vandeputte_naturecommunications_flow_timeseries",
+  base_directory = "/path/to/mutt"
 )
 ```
 
-```{r setup}
-library(mutt)
+The returned object remains a named list of study objects. Audit information is additive and does not replace study entries.
+
+```{r, purl = FALSE}
+x[[1]]$counts
+x[[1]]$scale
+attr(x, "audit")
+attr(x, "validation")
+attr(x, "provenance")
 ```
+
+## Resolution and execution
+
+1. Validate arguments and registered study IDs.
+2. Resolve each study from `base_directory`, `MUTT_DATA_DIR`, `./studies`, or the user cache.
+3. Download and verify a published study bundle only when no local copy exists.
+4. Load the parser bundled under `inst/parsers`.
+5. Run the unchanged parser in a scoped data-root context.
+6. Validate the returned object.
+7. Optionally run or reuse PICRUSt2 and FAPROTAX.
+8. Return successful studies with structured status, validation, and provenance attributes.
+
+The scoped parser context is a compatibility boundary for historical parsers that use study-relative paths. It restores the caller's working directory after success or failure.
+
+## Functional inference
+
+```{r, purl = FALSE}
+x <- mutt(
+  studies = "2022_cvandevelde_ismecommunications_culturedflowhumanfecal",
+  functional = TRUE
+)
+```
+
+`functional = TRUE` reuses matching caches. `functional = "REBUILD"` recomputes eligible branches. Neither mode rarefies counts, adds pseudocounts, closes compositions, or log-transforms the input counts.
+
+PICRUSt2 is used only when integer ASV counts, aligned sequences, and aligned prokaryotic taxonomy are available. FAPROTAX uses a matching classified taxonomic abundance table: integer counts are preferred, and proportions are used only when counts are unavailable. Missing external tools produce structured skipped records rather than changing parsed study data.
+
+Stratified PICRUSt2 output remains file-backed:
+
+```{r, purl = FALSE}
+branch <- x[[1]][["function"]]$picrust2[[1]]
+head(as.data.frame(branch, type = "ko", n_max = 100))
+```
+
+## Failure interpretation
+
+A parser error is not converted into a successful empty dataset. MUTT continues with other requested studies, leaves the failed study entry `NULL`, emits one summary warning, and records the error in `attr(x, "audit")`.
+
+A functional-engine failure does not invalidate an otherwise valid parsed study. It is recorded in the study's functional manifest and audit warnings while counts, scale, metadata, and taxonomy remain available.

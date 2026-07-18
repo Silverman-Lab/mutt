@@ -1,0 +1,44 @@
+name: Docker
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build MUTT image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: |
+            mutt:test
+            ghcr.io/silverman-lab/mutt:latest
+            ghcr.io/silverman-lab/mutt:sha-${{ github.sha }}
+      - name: Smoke-test package and tools
+        run: |
+          docker run --rm mutt:test Rscript --vanilla -e 'library(mutt); stopifnot(identical(getNamespaceExports("mutt"), "mutt"))'
+          docker run --rm mutt:test picrust2_pipeline.py --version
+      - name: Publish main-branch images
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          docker push ghcr.io/silverman-lab/mutt:latest
+          docker push ghcr.io/silverman-lab/mutt:sha-${GITHUB_SHA}

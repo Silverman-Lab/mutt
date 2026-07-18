@@ -2,129 +2,67 @@
 % Please edit documentation in R/microbialscalerepo.R
 \name{mutt}
 \alias{mutt}
-\title{Microbial Scale Repository}
+\title{Parse MUTT microbiome studies}
 \usage{
 mutt(
   studies = NULL,
-  base_directory = ".",
+  base_directory = NULL,
   rawdata = FALSE,
   align_samples = FALSE,
   save_to = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  functional = FALSE
 )
 }
 \arguments{
-\item{studies}{Character vector \emph{or named list} indicating which parser
-subdirectories to run.  If unnamed, \code{studies} entries must exactly
-match folder names.  If named, \code{names(studies)} become the output
-list names and the values are folder names.  \code{NULL} (default) runs
-every parser folder found.}
+\item{studies}{\code{NULL}, a character vector of study IDs, or a named character
+vector. \code{NULL} parses every locally available registered study. Names, when
+supplied, become names in the returned list.}
 
-\item{base_directory}{Character(1). Directory containing the parser
-sub‑folders.  Default \code{"."}.}
+\item{base_directory}{Optional local data root. This may be the MUTT
+repository root containing \verb{studies/} or the \verb{studies/} directory itself.
+When omitted, MUTT checks \code{MUTT_DATA_DIR}, \code{./studies}, and its versioned
+user cache.}
 
-\item{rawdata}{Logical(1). Passed as \code{raw = rawdata} to each parser.
-Default \code{FALSE}.}
+\item{rawdata}{Logical scalar passed to parsers as \code{raw}.}
 
-\item{align_samples}{Logical(1). If \code{TRUE}, aligns the rows of \verb{$counts}
-to the sample IDs in the first column of \verb{$scale}.  Default
-\code{FALSE}.}
+\item{align_samples}{Logical scalar passed to parsers as \code{align}.}
 
-\item{save_to}{Optional character(1) path to save the resulting list as an
-\code{.RData} file.}
+\item{save_to}{Optional path ending in \code{.RData}. The parsed result and a
+companion validation object are saved without changing the returned value.}
 
-\item{verbose}{Logical(1). If \code{TRUE}, verbose output to console of the structure
-of returned studies named list}
+\item{verbose}{Logical scalar controlling progress and parser summaries.}
+
+\item{functional}{\code{FALSE}, \code{TRUE}, or \code{"REBUILD"}. \code{TRUE} runs or reuses
+PICRUSt2 and FAPROTAX where valid inputs and tools are available;
+\code{"REBUILD"} forces eligible cached branches to rerun.}
 }
 \value{
-Named list of parser outputs.  Each element/study must at minimum contain
-a \verb{$counts} data.frame and a \verb{$scale} data.frame. Details listed below
-in section.
+A \code{mutt_result}: a named list whose successful entries retain the
+established MUTT study structure. \code{attr(x, "audit")} contains one row per
+requested study, \code{attr(x, "provenance")} records package and data-release
+information, and \code{attr(x, "validation")} contains structural checks.
 }
 \description{
-Public genomic (Amplicon or Shotgun Sequencing) datasets parsed or reanalyzed
-stored in subdirectories under \code{base_directory} that contain a \code{parse.R}
-file, source each in isolation, run its \verb{parse_<folder>()} function, and
-collect the results.
+\code{mutt()} is the package's public API. It resolves study data from a local
+Git LFS checkout or the versioned MUTT user cache, runs the bundled study
+parsers in isolation, validates their returned objects, and optionally runs
+PICRUSt2 for eligible ASV count tables and FAPROTAX for eligible taxonomic
+abundance tables. FAPROTAX prefers counts and falls back to proportions only
+when a matching count table is unavailable.
 }
-\section{Individual Parser Output Specification}{
-
-
-Each \code{parse.R} must define a single function named \verb{parse_<foldername>} where
-\verb{<foldername>} is the lowercase name of the parser subdirectory. The function
-should return a named list with the elements below. Each can be a list representing multiple
-datasets (e.g. both amplicon and shotgun data) either from the original manuscript or reanalyzed data.
-
-\describe{
-\item{\code{counts}}{
-An integer-valued matrix of raw counts (not a data.frame), dimension \eqn{N \times D},
-where rows are sample IDs and columns are sequence IDs (e.g., taxa IDs).
-Must include sample ID rownames that link to \code{proportions}, \code{scale},
-and \code{metadata}.
-}
-
-\item{\code{proportions}}{
-A real-valued matrix of relative abundances (not a data.frame),
-dimension \eqn{N \times D}, with row and column names matching sample and
-sequence IDs respectively. Must include sample ID rownames linking to
-\code{counts}, \code{scale}, and \code{metadata}.
-}
-
-\item{\code{scale}}{
-A matrix of positive-valued scaling factors (often \eqn{N \times 1}, but
-may vary depending on method, e.g., with columns for mean and SD).
-Must include sample ID rownames matching other tables.
-}
-
-\item{\code{metadata} (optional)}{
-A data.frame of dimension \eqn{N \times Q} containing metadata for each sample.
-Must include a column or rownames matching sample IDs in \code{counts} and \code{proportions}.
-}
-
-\item{\code{tax} (optional)}{
-A character-valued data.frame of dimension \eqn{D \times ?} with sequence IDs as rownames.
-Expected columns include taxonomic levels such as \code{Kingdom}, \code{Phylum},
-\code{Class}, \code{Order}, \code{Genus}, \code{Species}, and optionally \code{Strain}.
-Each row describes the taxonomy assigned to a sequence ID. A column named \code{Sequence}
-should link sequence IDs to their actual DNA/RNA sequence (e.g., 16S region).
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{Taxa not classified at a given level should be prefixed with \code{uc_}
-followed by the taxonomic level and classification name
-(e.g., \code{uc_p_Bacteroidota} for an unclassified phylum).
-}\if{html}{\out{</div>}}
-
-}
-
-\item{\code{phylo} (optional)}{
-A phylogenetic tree object (class to be standardized).
-Let the maintainers know if your dataset includes a tree so that
-we can determine a common format.
-}
-
-\item{\code{studydemographics} (optional)}{
-List. Manually curated information about a particular studies data.
-}
-}
-}
-
 \examples{
-## Run every parser
-all_data <- mutt(base_directory = "mutt")
-
-## Run two specific parsers and rename outputs
-subset <- mutt(
-  studies        = c(Vandeputte2021 = "2021_vandeputte_naturecommunications_flow_timeseries",
-                     Pereira2023   = "2023_pereira_nature_nervous"),
-  base_directory = "mutt",
-  align_samples  = TRUE,
-  save_to        = "my_parsed.RData",
-  verbose        = TRUE
+\dontrun{
+one <- mutt(
+  studies = "2021_vandeputte_naturecommunications_flow_timeseries",
+  base_directory = "/path/to/mutt"
 )
-names(subset)
 
+with_functions <- mutt(
+  studies = "2022_cvandevelde_ismecommunications_culturedflowhumanfecal",
+  base_directory = "/path/to/mutt/studies",
+  functional = TRUE
+)
 }
-\author{
-Maxwell Konnaris
 
-Justin Silverman
 }

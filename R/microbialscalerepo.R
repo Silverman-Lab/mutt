@@ -1,266 +1,217 @@
-# ─────────────────────────────────────────────────────────────────────────────
-#' Microbial Scale Repository
+#' Parse MUTT microbiome studies
 #'
-#' Public genomic (Amplicon or Shotgun Sequencing) datasets parsed or reanalyzed
-#' stored in subdirectories under `base_directory` that contain a `parse.R`
-#' file, source each in isolation, run its `parse_<folder>()` function, and
-#' collect the results. 
+#' `mutt()` is the package's public API. It resolves study data from a local
+#' Git LFS checkout or the versioned MUTT user cache, runs the bundled study
+#' parsers in isolation, validates their returned objects, and optionally runs
+#' PICRUSt2 for eligible ASV count tables and FAPROTAX for eligible taxonomic
+#' abundance tables. FAPROTAX prefers counts and falls back to proportions only
+#' when a matching count table is unavailable.
 #'
-#' @author Maxwell Konnaris
-#' @author Justin Silverman
+#' @param studies `NULL`, a character vector of study IDs, or a named character
+#'   vector. `NULL` parses every locally available registered study. Names, when
+#'   supplied, become names in the returned list.
+#' @param base_directory Optional local data root. This may be the MUTT
+#'   repository root containing `studies/` or the `studies/` directory itself.
+#'   When omitted, MUTT checks `MUTT_DATA_DIR`, `./studies`, and its versioned
+#'   user cache.
+#' @param rawdata Logical scalar passed to parsers as `raw`.
+#' @param align_samples Logical scalar passed to parsers as `align`.
+#' @param save_to Optional path ending in `.RData`. The parsed result and a
+#'   companion validation object are saved without changing the returned value.
+#' @param verbose Logical scalar controlling progress and parser summaries.
+#' @param functional `FALSE`, `TRUE`, or `"REBUILD"`. `TRUE` runs or reuses
+#'   PICRUSt2 and FAPROTAX where valid inputs and tools are available;
+#'   `"REBUILD"` forces eligible cached branches to rerun.
 #'
-#' @importFrom utils txtProgressBar setTxtProgressBar 
-#' @import tidyverse 
-#' @import optparse
-#'
-#' @param studies Character vector *or named list* indicating which parser
-#'        subdirectories to run.  If unnamed, `studies` entries must exactly
-#'        match folder names.  If named, `names(studies)` become the output
-#'        list names and the values are folder names.  `NULL` (default) runs
-#'        every parser folder found.
-#' @param base_directory Character(1). Directory containing the parser
-#'        sub‑folders.  Default `"."`.
-#' @param rawdata Logical(1). Passed as `raw = rawdata` to each parser.
-#'        Default `FALSE`.
-#' @param align_samples Logical(1). If `TRUE`, aligns the rows of `$counts`
-#'        to the sample IDs in the first column of `$scale`.  Default
-#'        `FALSE`.
-#' @param save_to Optional character(1) path to save the resulting list as an
-#'        `.RData` file.
-#' @param verbose Logical(1). If `TRUE`, verbose output to console of the structure
-#'        of returned studies named list
-#'
-#' @return Named list of parser outputs.  Each element/study must at minimum contain
-#'         a `$counts` data.frame and a `$scale` data.frame. Details listed below
-#'         in section.
-#' 
-#' @section Individual Parser Output Specification:
-#'
-#' Each `parse.R` must define a single function named `parse_<foldername>` where
-#' `<foldername>` is the lowercase name of the parser subdirectory. The function
-#' should return a named list with the elements below. Each can be a list representing multiple 
-#' datasets (e.g. both amplicon and shotgun data) either from the original manuscript or reanalyzed data.
-#'
-#' \describe{
-#'   \item{\code{counts}}{
-#'     An integer-valued matrix of raw counts (not a data.frame), dimension \eqn{N \times D},
-#'     where rows are sample IDs and columns are sequence IDs (e.g., taxa IDs).
-#'     Must include sample ID rownames that link to \code{proportions}, \code{scale},
-#'     and \code{metadata}.
-#'   }
-#'
-#'   \item{\code{proportions}}{
-#'     A real-valued matrix of relative abundances (not a data.frame),
-#'     dimension \eqn{N \times D}, with row and column names matching sample and
-#'     sequence IDs respectively. Must include sample ID rownames linking to
-#'     \code{counts}, \code{scale}, and \code{metadata}.
-#'   }
-#'
-#'   \item{\code{scale}}{
-#'     A matrix of positive-valued scaling factors (often \eqn{N \times 1}, but
-#'     may vary depending on method, e.g., with columns for mean and SD).
-#'     Must include sample ID rownames matching other tables.
-#'   }
-#'
-#'   \item{\code{metadata} (optional)}{
-#'     A data.frame of dimension \eqn{N \times Q} containing metadata for each sample.
-#'     Must include a column or rownames matching sample IDs in \code{counts} and \code{proportions}.
-#'   }
-#'
-#'   \item{\code{tax} (optional)}{
-#'     A character-valued data.frame of dimension \eqn{D \times ?} with sequence IDs as rownames.
-#'     Expected columns include taxonomic levels such as \code{Kingdom}, \code{Phylum},
-#'     \code{Class}, \code{Order}, \code{Genus}, \code{Species}, and optionally \code{Strain}.
-#'     Each row describes the taxonomy assigned to a sequence ID. A column named \code{Sequence}
-#'     should link sequence IDs to their actual DNA/RNA sequence (e.g., 16S region).
-#'
-#'     Taxa not classified at a given level should be prefixed with \code{uc_}
-#'     followed by the taxonomic level and classification name
-#'     (e.g., \code{uc_p_Bacteroidota} for an unclassified phylum).
-#'   }
-#'
-#'   \item{\code{phylo} (optional)}{
-#'     A phylogenetic tree object (class to be standardized).
-#'     Let the maintainers know if your dataset includes a tree so that
-#'     we can determine a common format.
-#'   }
-#' 
-#'   \item{\code{studydemographics} (optional)}{
-#'     List. Manually curated information about a particular studies data.
-#'   }
-#' }
+#' @return A `mutt_result`: a named list whose successful entries retain the
+#'   established MUTT study structure. `attr(x, "audit")` contains one row per
+#'   requested study, `attr(x, "provenance")` records package and data-release
+#'   information, and `attr(x, "validation")` contains structural checks.
 #'
 #' @examples
-#' ## Run every parser
-#' all_data <- totallia(base_directory = "totallia")
-#'
-#' ## Run two specific parsers and rename outputs
-#' subset <- mutt(
-#'   studies        = c(Vandeputte2021 = "2021_vandeputte_naturecommunications_flow_timeseries",
-#'                      Pereira2023   = "2023_pereira_nature_nervous"),
-#'   base_directory = "totallia",
-#'   align_samples  = TRUE,
-#'   save_to        = "my_parsed.RData",
-#'   verbose        = TRUE
+#' \dontrun{
+#' one <- mutt(
+#'   studies = "2021_vandeputte_naturecommunications_flow_timeseries",
+#'   base_directory = "/path/to/mutt"
 #' )
-#' names(subset)
-#' 
+#'
+#' with_functions <- mutt(
+#'   studies = "2022_cvandevelde_ismecommunications_culturedflowhumanfecal",
+#'   base_directory = "/path/to/mutt/studies",
+#'   functional = TRUE
+#' )
+#' }
+#'
 #' @export
-# ─────────────────────────────────────────────────────────────────────────────
 mutt <- function(
-  studies        = NULL,
-  base_directory = ".",
-  rawdata        = FALSE,
-  align_samples  = FALSE,
-  save_to        = NULL,
-  verbose        = FALSE
+  studies = NULL,
+  base_directory = NULL,
+  rawdata = FALSE,
+  align_samples = FALSE,
+  save_to = NULL,
+  verbose = FALSE,
+  functional = FALSE
 ) {
-  # --- helper: coerce list → named character vector --------------------------
-  if (is.list(studies)) {
-    studies <- unlist(studies, use.names = TRUE)
+  .mutt_assert_flag(rawdata, "rawdata")
+  .mutt_assert_flag(align_samples, "align_samples")
+  .mutt_assert_flag(verbose, "verbose")
+  if (!is.null(save_to) &&
+      (!is.character(save_to) || length(save_to) != 1L || is.na(save_to) || !nzchar(save_to))) {
+    stop("`save_to` must be NULL or one nonempty path.", call. = FALSE)
   }
 
-  ## ---------- helper: recursively drop all‑NA columns -----------------------
-  remove_all_na <- function(x) {
-    if (is.data.frame(x)) {
-      keep <- vapply(x, function(col) !all(is.na(col)), logical(1))
-      x[, keep, drop = FALSE]
-    } else if (is.list(x)) {
-      lapply(x, remove_all_na)
-    } else {
-      x
+  functional_mode <- .functional_mode(functional)
+  parser_ids <- .mutt_parser_ids()
+  selection <- .mutt_select_studies(studies, parser_ids)
+  selected <- selection$studies
+  output_names <- selection$output_names
+  locations <- .mutt_resolve_study_locations(
+    selected,
+    base_directory = base_directory,
+    all_requested = selection$all_requested
+  )
+  if (rawdata) {
+    missing_references <- any(vapply(
+      locations,
+      function(location) !dir.exists(file.path(location$data_root, "helperdata")),
+      logical(1)
+    ))
+    if (missing_references) {
+      stop(
+        "`rawdata = TRUE` requires the reference files from a local Git LFS checkout. ",
+        "Set `base_directory` or MUTT_DATA_DIR to that checkout.",
+        call. = FALSE
+      )
     }
   }
 
-  # ---------------------------- Check ----------------------------------------
-  stopifnot(is.logical(rawdata), length(rawdata) == 1)
-  stopifnot(is.logical(align_samples), length(align_samples) == 1)
-
-  # --- locate parser sub‑folders ---------------------------------------------
-  setwd(base_directory)
-  all_dirs    <- list.dirs(base_directory, full.names = FALSE, recursive = FALSE)
-  parser_dirs <- all_dirs[file.exists(file.path(base_directory, all_dirs, "parse.R"))]
-  if (!file.exists("R/demographics.R")) {
-    stop("R/demographics.R not found in base_directory: ", base_directory)
+  functional_tools <- if (functional_mode == "off") NULL else .discover_functional_tools()
+  if (functional_mode != "off") {
+    if (!nzchar(functional_tools$picrust2)) {
+      message("PICRUSt2 was not found on PATH; eligible branches will be recorded as skipped.")
+    }
+    if (!nzchar(functional_tools$faprotax) || !nzchar(functional_tools$faprotax_db)) {
+      message("FAPROTAX was not found with its database; eligible branches will be recorded as skipped.")
+    }
   }
-  source("R/demographics.R") 
 
-  # --- resolve selections ----------------------------------------------------
-  if (is.null(studies)) {
-    selected  <- parser_dirs
-    out_names <- parser_dirs
-  } else if (is.null(names(studies))) {
-    missing <- setdiff(studies, parser_dirs)
-    if (length(missing))
-      stop("Parser folder(s) not found: ", paste(missing, collapse = ", "))
-    selected  <- studies
-    out_names <- studies
-  } else {
-    missing <- setdiff(unname(studies), parser_dirs)
-    if (length(missing))
-      stop("Parser folder(s) not found: ", paste(missing, collapse = ", "))
-    selected  <- unname(studies)
-    out_names <- names(studies)
+  result <- setNames(vector("list", length(selected)), output_names)
+  validation <- setNames(vector("list", length(selected)), output_names)
+  audit_rows <- vector("list", length(selected))
+  progress <- NULL
+  if (!verbose && length(selected) > 1L) {
+    progress <- utils::txtProgressBar(min = 0, max = length(selected), style = 3)
+    on.exit(try(close(progress), silent = TRUE), add = TRUE)
   }
-  n <- length(selected)
-  if (n == 0) return(invisible(list()))
-  pb <- utils::txtProgressBar(min = 0, max = n, style = 3)
-  on.exit(close(pb), add = TRUE)
-  microbialscalerepository <- vector("list", n)
-  names(microbialscalerepository) <- out_names
-  validation_results <- vector("list", n)
-  names(validation_results) <- out_names
 
-  # --- main loop -------------------------------------------------------------
-  for (i in seq_along(selected)) {
-    parser          <- selected[i]
-    parse_file      <- file.path(base_directory, parser, "parse.R")
-    helperfunctions <- file.path(base_directory, "R/helpers.R")
+  for (index in seq_along(selected)) {
+    study <- selected[[index]]
+    output_name <- output_names[[index]]
+    location <- locations[[study]]
+    if (verbose) message(sprintf("[%d/%d] %s", index, length(selected), study))
 
-    env <- new.env()
-    if (file.exists(helperfunctions)) {
-    sys.source(helperfunctions, envir = env)
-    }
-    sys.source(parse_file, envir = env)
-
-    fun_name <- paste0("parse_", parser)
-    if (!exists(fun_name, envir = env, mode = "function")) {
-      warning("Skipping ", parser, ": function ", fun_name, "() not found")
-      utils::setTxtProgressBar(pb, i); next
-    }
-
-    if (verbose) {
-      cat(sprintf("\r[%d/%d] %s", i, n, parser))
-      flush.console()  
-    }
-
-    res <- tryCatch(
-      suppressWarnings(suppressMessages(get(fun_name, envir = env)(raw = rawdata, align = align_samples))), 
-      error = function(e) {
-        warning(sprintf("\n\n----------------------------------------\nError in parser '%s': %s\n----------------------------------------\n", 
-                       parser, 
-                       e$message))
-        e
-      }
+    parsed <- .mutt_run_parser(
+      study = study,
+      data_root = location$data_root,
+      rawdata = rawdata,
+      align_samples = align_samples
     )
+    status <- "success"
+    error_message <- ""
+    parser_warnings <- parsed$warnings
 
-    if(verbose) {
-      if (inherits(res, "error")) {
-        warning(sprintf("\n\n----------------------------------------\nError in parser '%s': %s\n----------------------------------------\n", 
-                       parser, 
-                       res$message))
-        utils::setTxtProgressBar(pb, i); next
+    if (inherits(parsed$value, "error")) {
+      status <- "error"
+      error_message <- conditionMessage(parsed$value)
+    } else if (!is.list(parsed$value)) {
+      status <- "error"
+      error_message <- "Parser did not return a list."
+    } else {
+      value <- .mutt_remove_all_na(parsed$value)
+      if (!is.null(value$tax)) value$tax <- add_sequence_column(value$tax)
+      functional_value <- tryCatch(
+        .run_study_functional(
+          parsed = value,
+          study_dir = location$study_dir,
+          mode = functional_mode,
+          tools = functional_tools
+        ),
+        error = identity
+      )
+      if (inherits(functional_value, "error")) {
+        parser_warnings <- c(
+          parser_warnings,
+          paste("Functional inference failed:", conditionMessage(functional_value))
+        )
+        functional_value <- .empty_functional_result(functional_mode != "off")
       }
-    }
-
-    res <- remove_all_na(res)
-    res <- standardize_output_order(res)
-    if (!is.null(datasets[[parser]])) {
-        res$studydemographics <- datasets[[parser]]
+      value[["function"]] <- functional_value
+      value <- standardize_output_order(value)
+      if (exists("datasets", inherits = TRUE) && !is.null(datasets[[study]])) {
+        value$studydemographics <- datasets[[study]]
       }
-    microbialscalerepository[[i]] <- res
-    validation_results[[i]] <- validate_output_structure(res, study_name = parser)
-    
-    utils::setTxtProgressBar(pb, i)
-  }
-  utils::setTxtProgressBar(pb, n)
-  close(pb)
-  if (verbose) cat("\n")
-
-  microbialscalerepository <-lapply(microbialscalerepository, function(study) {
-    if (!is.null(study$tax)) {
-      study$tax <- add_sequence_column(study$tax)
+      result[[output_name]] <- value
+      validation[[output_name]] <- validate_output_structure(value, study_name = study)
     }
-    study
-  })
 
-  # --- optional save ---------------------------------------------------------
-  if (!is.null(save_to)) {
-    dir.create(dirname(save_to), showWarnings = FALSE, recursive = TRUE)
-    save(microbialscalerepository, file = save_to)
-    cat(sprintf("File saved to: %s\n", save_to))
-    validation_file <- sub("\\.RData$", "_validation.RData", save_to)
-    save(validation_results, file = validation_file)
-    if (verbose) {
-      summary_file <- sub("\\.RData$", "_validation_summary.txt", save_to)
-      summary_text <- capture.output({
-        cat("Validation Summary\n")
-        cat("=================\n\n")
-        
-        for (study in names(validation_results)) {
-          if (!is.null(validation_results[[study]])) {
-            cat(sprintf("Study: %s\n", study))
-            cat("Structure:\n")
-            for (elem in names(validation_results[[study]])) {
-              cat(sprintf("  %s: %s\n", elem, validation_results[[study]][[elem]]))
-            }
-            cat("\n")
-          }
-        }
-      })
-      writeLines(summary_text, summary_file)
-      cat(summary_text, sep="\n")
-    }
+    audit_rows[[index]] <- data.frame(
+      output_name = output_name,
+      study = study,
+      status = status,
+      data_source = location$source,
+      data_directory = location$study_dir,
+      runtime_seconds = unname(parsed$runtime_seconds),
+      warnings = paste(unique(parser_warnings), collapse = " | "),
+      error = error_message,
+      stringsAsFactors = FALSE
+    )
+    if (!is.null(progress)) utils::setTxtProgressBar(progress, index)
   }
-  microbialscalerepository
+  if (!is.null(progress)) close(progress)
+
+  audit <- do.call(rbind, audit_rows)
+  provenance <- list(
+    package_version = tryCatch(as.character(utils::packageVersion("mutt")), error = function(e) "development"),
+    data_release = .mutt_data_release,
+    completed_at = format(Sys.time(), tz = "UTC", usetz = TRUE),
+    functional_mode = functional_mode
+  )
+  result <- .new_mutt_result(result, audit, provenance, validation)
+
+  if (!is.null(save_to)) .mutt_save_result(result, validation, save_to, verbose)
+  failed <- audit$status != "success"
+  if (any(failed)) {
+    warning(
+      sum(failed), " of ", nrow(audit),
+      " requested study parsers failed. Inspect attr(result, \"audit\").",
+      call. = FALSE
+    )
+  }
+  result
+}
+
+.mutt_assert_flag <- function(value, argument) {
+  if (!is.logical(value) || length(value) != 1L || is.na(value)) {
+    stop("`", argument, "` must be TRUE or FALSE.", call. = FALSE)
+  }
+  invisible(value)
+}
+
+.mutt_save_result <- function(result, validation, save_to, verbose) {
+  directory <- dirname(save_to)
+  dir.create(directory, showWarnings = FALSE, recursive = TRUE)
+  microbialscalerepository <- result
+  save(microbialscalerepository, file = save_to)
+  validation_file <- if (grepl("\\.RData$", save_to, ignore.case = TRUE)) {
+    sub("\\.RData$", "_validation.RData", save_to, ignore.case = TRUE)
+  } else {
+    paste0(save_to, "_validation.RData")
+  }
+  validation_results <- validation
+  save(validation_results, file = validation_file)
+  if (verbose) {
+    message("Saved result to ", normalizePath(save_to, mustWork = TRUE))
+    message("Saved validation to ", normalizePath(validation_file, mustWork = TRUE))
+  }
+  invisible(save_to)
 }

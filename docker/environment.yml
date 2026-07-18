@@ -1,0 +1,33 @@
+name: base
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base=4.5.3
+  - python=3.12.13
+  - picrust2=2.6.3
+  - biom-format
+  - hmmer
+  - zip
+  - unzip
+  - r-digest
+  - r-reticulate
+  - r-optparse
+  - r-dplyr
+  - r-fs
+  - r-jsonlite
+  - r-matrixstats
+  - r-purrr
+  - r-readr
+  - r-readxl
+  - r-stringr
+  - r-tibble
+  - r-tidyr
+  - r-tidyverse
+  - r-r.utils
+  - r-withr
+  - r-testthat
+  - r-knitr
+  - r-rmarkdown
+  - bioconductor-biostrings
+  - bioconductor-dada2

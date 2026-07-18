@@ -1,0 +1,66 @@
+"output_name","study","status","align_samples","core_structure_match","runtime_seconds","data_source","warnings","error","mismatch"
+"Vandeputte2021","2021_vandeputte_naturecommunications_flow_timeseries","success",TRUE,TRUE,1.552,"local","running command 'timedatectl' had status 1","",""
+"CvandeVelde2022","2022_cvandevelde_ismecommunications_culturedflowhumanfecal","success",TRUE,TRUE,0.157,"local","Error reading SRA file: ","",""
+"Vandeputte2017","2017_vandeputte_nature_flow","success",TRUE,TRUE,14.804,"local","","",""
+"Pereira2023","2023_pereira_nature_nervous","success",TRUE,TRUE,13.6,"local","","",""
+"Krawczyk2022","2022_krawczyk_microbiome_tickgeographicaldistributionqpcr","success",TRUE,TRUE,8.144,"local","","",""
+"Liao2021","2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct","success",TRUE,TRUE,70.336,"local","","",""
+"Stammler2016","2016_stammler_microbiome_micehuman","success",TRUE,TRUE,0.054000000000002,"local","","",""
+"Dreier2022","2022_dreier_bmcmicrobiology_cheeseqpcr","success",TRUE,TRUE,0.536000000000001,"local","","",""
+"Marotz2021","2021_marotz_mSystems_oral_mouthwash","success",TRUE,TRUE,2.16499999999999,"local","missing values for 'group'","",""
+"Vieira_Silva2019","2019_vieirasilva_naturemicrobiology_pscibd","success",TRUE,TRUE,0.129999999999995,"local","Not deleting session-wide tempdir(): /tmp/Rtmpcshzrw","",""
+"Contijoch2019","2019_contijoch_elife_multispeciesqPCRshotgunandamplicon","success",TRUE,TRUE,7.119,"local","","",""
+"Tunsakul2024","2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity","success",TRUE,TRUE,0.549000000000007,"local","","",""
+"Alessandri2024","2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota","success",TRUE,TRUE,0.216999999999985,"local","
+2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota | No matching accessions found between counts_reprocessed and metadata","",""
+"Maghini2023","2023_maghini_naturebiotechnology_samplemesurement","success",TRUE,TRUE,2.672,"local","Expected 3 pieces. Additional pieces discarded in 181 rows [2, 8, 9, 10, 11,
+12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, ...].","",""
+"Garcia_Martinez2024","2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum","success",TRUE,TRUE,4.33199999999999,"local","","",""
+"Sternes2024","2024_sternes_frontmicrobiol_IBDppiqPCR","success",TRUE,TRUE,19.505,"local","","",""
+"Rao2021","2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification","success",TRUE,TRUE,39.081,"local","There were 7 warnings in `mutate()`.
+The first warning was:
+ℹ In argument: `across(-Sample_name, as.numeric)`.
+Caused by warning:
+! NAs introduced by coercion
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 6 remaining warnings. | There was 1 warning in `summarise()`.
+ℹ In argument: `across(where(is.numeric), sum, na.rm = TRUE)`.
+ℹ In group 1: `Taxa = ""g_Alistipes""`.
+Caused by warning:
+! The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
+Supply arguments directly to `.fns` through an anonymous function instead.
+
+  # Previously
+  across(a:b, mean, na.rm = TRUE)
+
+  # Now
+  across(a:b, \(x) mean(x, na.rm = TRUE))
+ℹ The deprecated feature was likely used in the mutt package.
+  Please report the issue at <https://github.com/Silverman-Lab/mutt/issues>. | 
+2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification | No matching accessions found between counts_reprocessed and metadata","",""
+"Tettamanti_Boshier2020","2020_tettamantiboshier_msystems_vaginaltimeseries","success",TRUE,TRUE,3.01399999999998,"local","","",""
+"Kruger2024","2024_kruger_scientificreports_ddpcrhealthysubjects","success",TRUE,TRUE,1.12299999999999,"local","There was 1 warning in `mutate()`.
+ℹ In argument: `StoolsperDay = as.integer(StoolsperDay)`.
+Caused by warning:
+! NAs introduced by coercion","",""
+"Liu2017","2017_liu_mbio_penilehivqPCR","success",TRUE,TRUE,2.41299999999998,"local","","",""
+"Jin2022","2022_jin_natureComm_technicalReplicates","success",TRUE,TRUE,13.4,"local","NAs introduced by coercion | Setting row names on a tibble is deprecated. | No valid data found in 2022_jin_natureComm_technicalReplicates/PRJNA639647_dada2_counts.rds.zip","",""
+"Zaramela2022","2022_zaramela_msystems_synDNA","success",TRUE,TRUE,5.99700000000001,"local","","",""
+"Feng2023","2023_feng_imetawiley_chickensegment","success",TRUE,TRUE,74.804,"local","","",""
+"Reese2022","2021_reese_cell_chimpanzee","success",TRUE,TRUE,6.976,"local","There was 1 warning in `mutate()`.
+ℹ In argument: `16S copies per g feces = as.numeric(`16S copies per g feces`)`.
+Caused by warning:
+! NAs introduced by coercion","",""
+"Barlow2020","2020_barlow_naturecommunications_miceGI","success",TRUE,TRUE,5.93299999999999,"local","","",""
+"Morton2019","2019_morton_naturecommunications_songbird_oral","success",TRUE,TRUE,1.59199999999998,"local","","",""
+"Prochazkova2024","2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal","success",TRUE,TRUE,1.09399999999999,"local","","",""
+"Zemb2020","2020_zemb_microOpen_spike","success",TRUE,TRUE,0.606999999999971,"local","","",""
+"Galazzo2020","2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy","success",TRUE,TRUE,1.30700000000002,"local","There were 2 warnings in `mutate()`.
+The first warning was:
+ℹ In argument: `across(-Sample_name, as.numeric)`.
+Caused by warning:
+! NAs introduced by coercion
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.","",""
+"Lin2019","2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein","success",TRUE,TRUE,4.47999999999996,"local","","",""
+"Suriano2022","2022_suriano_aps_micefecal","success",TRUE,TRUE,2.09500000000003,"local","","",""
+"Thiruppathy2025","2025_thiruppathy_microbiome_relicDNAflow","success",TRUE,TRUE,0.528999999999996,"local","","",""
+"Kallastu2023","2023_kallastu_research_foodscience_food","success",TRUE,TRUE,0.107999999999947,"local","","",""

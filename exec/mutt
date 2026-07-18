@@ -42,7 +42,11 @@ option_list <- list(
   make_option(c("-v", "--verbose"),
               action  = "store_true",
               default = FALSE,
-              help    = "Print verbose progress to console")
+              help    = "Print verbose progress to console"),
+  make_option(c("-f", "--functional"),
+              type    = "character",
+              default = "false",
+              help    = "Functional inference: false, true, or rebuild [default %default]")
 )
 
 parser <- OptionParser(
@@ -51,6 +55,14 @@ parser <- OptionParser(
 )
 
 opts <- parse_args(parser)
+
+functional <- switch(
+  tolower(opts$functional),
+  "false" = FALSE,
+  "true" = TRUE,
+  "rebuild" = "rebuild",
+  stop("--functional must be false, true, or rebuild")
+)
 
 # Parse --studies into a named or unnamed character vector
 studs <- if (!is.null(opts$studies)) {
@@ -75,7 +87,8 @@ res <- mutt(
   rawdata        = opts$raw,
   align_samples  = opts$align,
   save_to        = opts$output,
-  verbose        = opts$verbose
+  verbose        = opts$verbose,
+  functional     = functional
 )
 
 # Print or save results

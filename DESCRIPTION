@@ -1,6 +1,6 @@
 Package: mutt
 Title: A Microbial Scale Repository for Paired Microbiome Sequence Count Data with Total Abundance Measurements
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R:
     c(
       person("Maxwell", "Konnaris",
@@ -18,8 +18,8 @@ URL: https://github.com/Silverman-Lab/mutt
 BugReports: https://github.com/Silverman-Lab/mutt/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
 Imports:
+    digest,
     reticulate (>= 1.24),
     optparse,
     dplyr,
@@ -28,13 +28,22 @@ Imports:
     purrr,
     readr,
     readxl,
+    stringr,
     tibble,
+    tidyr,
+    tidyverse,
     withr
 SystemRequirements:
-    Python (>= 3.9)
+    Python (>= 3.9), PICRUSt2 (optional functional inference),
+    FAPROTAX 1.2.12 (optional functional inference)
 Suggests:
+    Biostrings,
+    dada2,
     knitr,
+    matrixStats,
+    R.utils,
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

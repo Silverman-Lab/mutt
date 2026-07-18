@@ -1,0 +1,14 @@
+.git
+.github
+.Rproj.user
+studies
+analysis
+doc
+Meta
+*.Rcheck
+*.tar.gz
+*.RData
+**/functional
+**/orientation_repair.staging
+helperdata/*.zip
+helperdata/__MACOSX
