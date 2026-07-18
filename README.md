@@ -80,6 +80,7 @@ The result remains a named list, so existing indexing continues to work:
 ```r
 names(x)
 x[[1]]$counts
+x[[1]]$proportions
 x[[1]]$scale
 x[[1]]$metadata
 x[[1]]$tax
@@ -170,30 +171,6 @@ apptainer exec --bind "$PWD:/work" --pwd /work mutt.sif \
 
 The image contains software only. Study data and functional caches are supplied
 through bind-mounted Git LFS checkouts.
-
-## Slurm functional run
-
-`scripts/hpc_run_functional_all.sh` is the single entry point for the covariance
-study set. It pins the current remote commit, submits the five IBD studies first,
-and submits the remaining 28 studies with an `afterok` dependency. Each phase
-uses the commit-matched GHCR image, installs the checked-out source into an
-isolated R library, retains reusable functional caches in scratch, archives them
-as Git LFS `functional.zip` files, records study diagnostics, commits the whole
-phase, and pushes only after every study in that phase succeeds or is explicitly
-ineligible.
-
-On the login node, validate without submitting and then submit with the cluster
-allocation that should be charged:
-
-```bash
-./scripts/hpc_run_functional_all.sh --validate-only
-SLURM_ACCOUNT=your_account ./scripts/hpc_run_functional_all.sh
-```
-
-The submitting user must have Git LFS, Git push access to the repository, and
-permission to pull the GHCR image. `APPTAINER_MODULE`, `SLURM_PARTITION`, and the
-documented `MUTT_*` environment variables can be used for cluster-specific
-settings without editing the script.
 
 ## Data releases
 

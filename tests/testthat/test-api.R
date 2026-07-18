@@ -38,6 +38,7 @@ test_that("mutt runs a bundled parser without leaking its working directory", {
   expect_identical(getwd(), original)
   expect_identical(names(observed), "fixture")
   expect_equal(observed$fixture$counts[1, 1], 2)
+  expect_equal(observed$fixture$proportions, observed$fixture$counts / 3)
   expect_identical(attr(observed, "audit")$status, "success")
 })
 
