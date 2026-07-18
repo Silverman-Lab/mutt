@@ -6,7 +6,11 @@ readonly DEFAULT_BRANCH="main"
 readonly DEFAULT_CPUS="16"
 readonly DEFAULT_MEMORY="64G"
 readonly DEFAULT_IBD_TIME="2-00:00:00"
-readonly DEFAULT_REST_TIME="7-00:00:00"
+readonly DEFAULT_REST_TIME="2-00:00:00"
+readonly DEFAULT_SETUP_TIME="02:00:00"
+readonly DEFAULT_FINALIZE_TIME="04:00:00"
+readonly DEFAULT_IBD_CONCURRENCY="2"
+readonly DEFAULT_REST_CONCURRENCY="2"
 readonly DEFAULT_MIN_FREE_GB="100"
 readonly DEFAULT_MAX_LFS_BYTES="1900000000"
 
@@ -59,15 +63,18 @@ usage() {
 Usage:
   SLURM_ACCOUNT=account ./hpc_run_functional_all.sh
   ./hpc_run_functional_all.sh --validate-only
-  MUTT_PHASE=ibd|rest ./hpc_run_functional_all.sh --worker
+  MUTT_PHASE=ibd|rest ./hpc_run_functional_all.sh --study-worker
 
-The default command submits two Slurm jobs. The rest job has an afterok
-dependency on the IBD job. Required credentials are read from the user's Git or
+The default command submits a setup job, one array task per IBD study, an IBD
+finalizer, one array task per remaining study, and a final finalizer. Each stage
+uses afterok dependencies. Required credentials are read from the user's Git or
 SSH configuration; this script never stores credentials.
 
 Useful environment overrides:
   MUTT_REPO_URL, MUTT_BRANCH, MUTT_WORK_ROOT, MUTT_IMAGE_URI
   MUTT_CPUS, MUTT_MEMORY, MUTT_IBD_TIME, MUTT_REST_TIME
+  MUTT_SETUP_TIME, MUTT_FINALIZE_TIME
+  MUTT_IBD_CONCURRENCY, MUTT_REST_CONCURRENCY
   MUTT_MIN_FREE_GB, MUTT_MAX_LFS_BYTES, SLURM_PARTITION
   APPTAINER_MODULE, MUTT_GIT_NAME, MUTT_GIT_EMAIL
   MUTT_FUNCTIONAL_MODE=use|rebuild
@@ -112,6 +119,11 @@ CPUs per task: ${MUTT_CPUS:-$DEFAULT_CPUS}
 Memory per task: ${MUTT_MEMORY:-$DEFAULT_MEMORY}
 IBD walltime: ${MUTT_IBD_TIME:-$DEFAULT_IBD_TIME}
 Remaining walltime: ${MUTT_REST_TIME:-$DEFAULT_REST_TIME}
+Walltime applies to each study array task.
+IBD maximum concurrent tasks: ${MUTT_IBD_CONCURRENCY:-$DEFAULT_IBD_CONCURRENCY}
+Remaining maximum concurrent tasks: ${MUTT_REST_CONCURRENCY:-$DEFAULT_REST_CONCURRENCY}
+Setup walltime: ${MUTT_SETUP_TIME:-$DEFAULT_SETUP_TIME}
+Finalizer walltime: ${MUTT_FINALIZE_TIME:-$DEFAULT_FINALIZE_TIME}
 Minimum free scratch: ${MUTT_MIN_FREE_GB:-$DEFAULT_MIN_FREE_GB} GB
 Functional mode: ${MUTT_FUNCTIONAL_MODE:-use}
 EOF
@@ -124,6 +136,15 @@ submit_pipeline() {
     exit 1
   }
   command -v git >/dev/null 2>&1 || { echo "git was not found." >&2; exit 1; }
+  local concurrency
+  for concurrency in \
+      "${MUTT_IBD_CONCURRENCY:-$DEFAULT_IBD_CONCURRENCY}" \
+      "${MUTT_REST_CONCURRENCY:-$DEFAULT_REST_CONCURRENCY}"; do
+    [[ "$concurrency" =~ ^[1-9][0-9]*$ ]] || {
+      echo "Array concurrency limits must be positive integers." >&2
+      exit 2
+    }
+  done
 
   local script repository_url branch code_commit run_id scratch work_root log_dir
   script=$(readlink -f "$0")
@@ -145,39 +166,86 @@ submit_pipeline() {
 
   local -a common=(
     --account="$SLURM_ACCOUNT"
-    --cpus-per-task="${MUTT_CPUS:-$DEFAULT_CPUS}"
-    --mem="${MUTT_MEMORY:-$DEFAULT_MEMORY}"
-    --output="$log_dir/%x_%j.out"
-    --error="$log_dir/%x_%j.err"
   )
   if [[ -n ${SLURM_PARTITION:-} ]]; then
     common+=(--partition="$SLURM_PARTITION")
   fi
 
-  local ibd_job rest_job
+  local export_vars setup_job ibd_job ibd_finalize_job rest_job rest_finalize_job
+  local ibd_last rest_last
+  export_vars="ALL,MUTT_RUN_ID=$run_id,MUTT_WORK_ROOT=$work_root,MUTT_CODE_COMMIT=$code_commit,MUTT_REPO_URL=$repository_url,MUTT_BRANCH=$branch"
+  ibd_last=$((${#IBD_STUDIES[@]} - 1))
+  rest_last=$((${#COVARIANCE_STUDIES[@]} - ${#IBD_STUDIES[@]} - 1))
+
+  setup_job=$(sbatch --parsable "${common[@]}" \
+    --job-name=mutt_setup \
+    --cpus-per-task=2 \
+    --mem=8G \
+    --time="${MUTT_SETUP_TIME:-$DEFAULT_SETUP_TIME}" \
+    --output="$log_dir/%x_%j.out" \
+    --error="$log_dir/%x_%j.err" \
+    --export="$export_vars" \
+    "$script" --setup-worker)
+  setup_job=${setup_job%%;*}
   ibd_job=$(sbatch --parsable "${common[@]}" \
+    --dependency="afterok:$setup_job" \
     --job-name=mutt_ibd \
+    --array="0-${ibd_last}%${MUTT_IBD_CONCURRENCY:-$DEFAULT_IBD_CONCURRENCY}" \
+    --cpus-per-task="${MUTT_CPUS:-$DEFAULT_CPUS}" \
+    --mem="${MUTT_MEMORY:-$DEFAULT_MEMORY}" \
     --time="${MUTT_IBD_TIME:-$DEFAULT_IBD_TIME}" \
-    --export="ALL,MUTT_PHASE=ibd,MUTT_RUN_ID=$run_id,MUTT_WORK_ROOT=$work_root,MUTT_CODE_COMMIT=$code_commit,MUTT_REPO_URL=$repository_url,MUTT_BRANCH=$branch" \
-    "$script" --worker)
+    --output="$log_dir/%x_%A_%a.out" \
+    --error="$log_dir/%x_%A_%a.err" \
+    --export="$export_vars,MUTT_PHASE=ibd" \
+    "$script" --study-worker)
   ibd_job=${ibd_job%%;*}
-  rest_job=$(sbatch --parsable "${common[@]}" \
+  ibd_finalize_job=$(sbatch --parsable "${common[@]}" \
     --dependency="afterok:$ibd_job" \
+    --job-name=mutt_ibd_finalize \
+    --cpus-per-task=2 \
+    --mem=8G \
+    --time="${MUTT_FINALIZE_TIME:-$DEFAULT_FINALIZE_TIME}" \
+    --output="$log_dir/%x_%j.out" \
+    --error="$log_dir/%x_%j.err" \
+    --export="$export_vars,MUTT_PHASE=ibd" \
+    "$script" --finalize-worker)
+  ibd_finalize_job=${ibd_finalize_job%%;*}
+  rest_job=$(sbatch --parsable "${common[@]}" \
+    --dependency="afterok:$ibd_finalize_job" \
     --job-name=mutt_rest \
+    --array="0-${rest_last}%${MUTT_REST_CONCURRENCY:-$DEFAULT_REST_CONCURRENCY}" \
+    --cpus-per-task="${MUTT_CPUS:-$DEFAULT_CPUS}" \
+    --mem="${MUTT_MEMORY:-$DEFAULT_MEMORY}" \
     --time="${MUTT_REST_TIME:-$DEFAULT_REST_TIME}" \
-    --export="ALL,MUTT_PHASE=rest,MUTT_RUN_ID=$run_id,MUTT_WORK_ROOT=$work_root,MUTT_CODE_COMMIT=$code_commit,MUTT_REPO_URL=$repository_url,MUTT_BRANCH=$branch" \
-    "$script" --worker)
+    --output="$log_dir/%x_%A_%a.out" \
+    --error="$log_dir/%x_%A_%a.err" \
+    --export="$export_vars,MUTT_PHASE=rest" \
+    "$script" --study-worker)
   rest_job=${rest_job%%;*}
+  rest_finalize_job=$(sbatch --parsable "${common[@]}" \
+    --dependency="afterok:$rest_job" \
+    --job-name=mutt_rest_finalize \
+    --cpus-per-task=2 \
+    --mem=8G \
+    --time="${MUTT_FINALIZE_TIME:-$DEFAULT_FINALIZE_TIME}" \
+    --output="$log_dir/%x_%j.out" \
+    --error="$log_dir/%x_%j.err" \
+    --export="$export_vars,MUTT_PHASE=rest" \
+    "$script" --finalize-worker)
+  rest_finalize_job=${rest_finalize_job%%;*}
 
   print_plan
   cat <<EOF
 Run ID: $run_id
 Pinned package commit: $code_commit
 Work root: $work_root
-IBD job: $ibd_job
-Remaining-studies job: $rest_job (afterok:$ibd_job)
-Monitor: squeue -j $ibd_job,$rest_job
-After completion: sacct -j $ibd_job,$rest_job --format=JobID,State,Elapsed,MaxRSS,ExitCode
+Setup job: $setup_job
+IBD array: $ibd_job (afterok:$setup_job)
+IBD finalizer: $ibd_finalize_job (afterok:$ibd_job)
+Remaining-studies array: $rest_job (afterok:$ibd_finalize_job)
+Remaining-studies finalizer: $rest_finalize_job (afterok:$rest_job)
+Monitor: squeue -j $setup_job,$ibd_job,$ibd_finalize_job,$rest_job,$rest_finalize_job
+After completion: sacct -j $setup_job,$ibd_job,$ibd_finalize_job,$rest_job,$rest_finalize_job --format=JobID,State,Elapsed,MaxRSS,ExitCode
 EOF
 }
 
@@ -271,6 +339,16 @@ phase_studies() {
   done
 }
 
+phase_study_at_index() {
+  local phase=$1 index=$2
+  mapfile -t studies < <(phase_studies "$phase")
+  [[ "$index" =~ ^[0-9]+$ ]] && (( index < ${#studies[@]} )) || {
+    echo "Invalid array index $index for phase $phase." >&2
+    exit 2
+  }
+  printf '%s\n' "${studies[$index]}"
+}
+
 validate_registry() {
   local repository=$1 study
   while IFS= read -r study; do
@@ -346,76 +424,120 @@ commit_and_push_phase() {
   git push origin "HEAD:$branch"
 }
 
-run_worker() {
+validate_worker_environment() {
+  : "${MUTT_RUN_ID:?MUTT_RUN_ID is required.}"
+  : "${MUTT_WORK_ROOT:?MUTT_WORK_ROOT is required.}"
+  : "${MUTT_CODE_COMMIT:?MUTT_CODE_COMMIT is required.}"
+}
+
+validate_phase() {
   : "${MUTT_PHASE:?MUTT_PHASE must be ibd or rest.}"
   [[ "$MUTT_PHASE" == "ibd" || "$MUTT_PHASE" == "rest" ]] || {
     echo "MUTT_PHASE must be ibd or rest." >&2
     exit 2
   }
-  : "${MUTT_RUN_ID:?MUTT_RUN_ID is required.}"
-  : "${MUTT_WORK_ROOT:?MUTT_WORK_ROOT is required.}"
-  : "${MUTT_CODE_COMMIT:?MUTT_CODE_COMMIT is required.}"
+}
 
-  local repository_url branch repository mode cpus min_free max_lfs image library
-  local output_dir phase_output study current_head
-  repository_url=${MUTT_REPO_URL:-$DEFAULT_REPOSITORY_URL}
-  branch=${MUTT_BRANCH:-$DEFAULT_BRANCH}
-  repository=$MUTT_WORK_ROOT/repository
-  mode=${MUTT_FUNCTIONAL_MODE:-use}
-  cpus=${SLURM_CPUS_PER_TASK:-${MUTT_CPUS:-$DEFAULT_CPUS}}
-  min_free=${MUTT_MIN_FREE_GB:-$DEFAULT_MIN_FREE_GB}
-  max_lfs=${MUTT_MAX_LFS_BYTES:-$DEFAULT_MAX_LFS_BYTES}
-  [[ "$mode" == "use" || "$mode" == "rebuild" ]] || {
-    echo "MUTT_FUNCTIONAL_MODE must be use or rebuild." >&2
-    exit 2
-  }
-
-  mkdir -p "$MUTT_WORK_ROOT/slurm_logs"
-  exec 9>"$MUTT_WORK_ROOT/pipeline.lock"
-  flock -n 9 || { echo "Another MUTT phase is using $MUTT_WORK_ROOT." >&2; exit 1; }
-  check_free_space "$MUTT_WORK_ROOT" "$min_free"
-  load_apptainer
-  command -v git >/dev/null 2>&1
-  git lfs version
-  command -v flock >/dev/null 2>&1
-  command -v zip >/dev/null 2>&1
-  command -v unzip >/dev/null 2>&1
-
+print_worker_settings() {
+  local role=$1 repository_url=$2
   echo "Job ID: ${SLURM_JOB_ID:-NA}"
   echo "Host: $(hostname)"
-  echo "Phase: $MUTT_PHASE"
+  echo "Role: $role"
+  echo "Phase: ${MUTT_PHASE:-NA}"
+  echo "Array task: ${SLURM_ARRAY_TASK_ID:-NA}"
   echo "Run ID: $MUTT_RUN_ID"
   echo "Work root: $MUTT_WORK_ROOT"
   echo "Repository: $repository_url"
   echo "Pinned code commit: $MUTT_CODE_COMMIT"
-  echo "CPUs: $cpus"
-  echo "Functional mode: $mode"
   echo "Started: $(date --iso-8601=seconds)"
+}
+
+run_setup_worker() {
+  validate_worker_environment
+
+  local repository_url branch repository min_free image library current_head
+  repository_url=${MUTT_REPO_URL:-$DEFAULT_REPOSITORY_URL}
+  branch=${MUTT_BRANCH:-$DEFAULT_BRANCH}
+  repository=$MUTT_WORK_ROOT/repository
+  min_free=${MUTT_MIN_FREE_GB:-$DEFAULT_MIN_FREE_GB}
+
+  mkdir -p "$MUTT_WORK_ROOT/slurm_logs"
+  check_free_space "$MUTT_WORK_ROOT" "$min_free"
+  load_apptainer
+  command -v git >/dev/null 2>&1
+  git lfs version
+  print_worker_settings setup "$repository_url"
   command -v quota >/dev/null 2>&1 && quota -s || true
 
   prepare_repository "$repository_url" "$branch" "$repository"
   current_head=$(git -C "$repository" rev-parse HEAD)
-  if [[ "$MUTT_PHASE" == "ibd" && "$current_head" != "$MUTT_CODE_COMMIT" ]]; then
-    echo "Remote main changed after submission; resubmit to pin the new code commit." >&2
-    exit 1
-  fi
-  git -C "$repository" merge-base --is-ancestor "$MUTT_CODE_COMMIT" "$current_head" || {
-    echo "Pinned package commit is not an ancestor of the phase checkout." >&2
+  [[ "$current_head" == "$MUTT_CODE_COMMIT" ]] || {
+    echo "Remote $branch changed after submission; resubmit to pin the new commit." >&2
     exit 1
   }
-
   image=$(prepare_image "$MUTT_WORK_ROOT" "$MUTT_CODE_COMMIT" "$repository")
   library=$MUTT_WORK_ROOT/r-library/$MUTT_CODE_COMMIT
   echo "Image: $image"
   install_source_package "$image" "$repository" "$library"
-  validate_registry "$repository"
+  MUTT_PHASE=ibd validate_registry "$repository"
+  MUTT_PHASE=rest validate_registry "$repository"
+  touch "$MUTT_WORK_ROOT/setup_complete"
+  echo "Setup completed: $(date --iso-8601=seconds)"
+}
 
-  output_dir="analysis/hpc_functional/$MUTT_RUN_ID/$MUTT_PHASE"
+run_study_worker() {
+  validate_worker_environment
+  validate_phase
+  : "${SLURM_ARRAY_TASK_ID:?SLURM_ARRAY_TASK_ID is required.}"
+
+  local repository_url repository mode cpus image library phase_output study
+  repository_url=${MUTT_REPO_URL:-$DEFAULT_REPOSITORY_URL}
+  repository=$MUTT_WORK_ROOT/repository
+  mode=${MUTT_FUNCTIONAL_MODE:-use}
+  cpus=${SLURM_CPUS_PER_TASK:-${MUTT_CPUS:-$DEFAULT_CPUS}}
+  [[ "$mode" == "use" || "$mode" == "rebuild" ]] || {
+    echo "MUTT_FUNCTIONAL_MODE must be use or rebuild." >&2
+    exit 2
+  }
+  [[ -f "$MUTT_WORK_ROOT/setup_complete" ]] || {
+    echo "Setup completion marker is missing." >&2
+    exit 1
+  }
+  load_apptainer
+  print_worker_settings study "$repository_url"
+  echo "CPUs: $cpus"
+  echo "Functional mode: $mode"
+
+  image=$MUTT_WORK_ROOT/images/mutt-${MUTT_CODE_COMMIT}.sif
+  library=$MUTT_WORK_ROOT/r-library/$MUTT_CODE_COMMIT
+  [[ -f "$image" && -d "$library/mutt" ]] || {
+    echo "Prepared image or R package library is missing." >&2
+    exit 1
+  }
+  echo "Image: $image"
   phase_output="$MUTT_WORK_ROOT/phase-output/$MUTT_PHASE"
   mkdir -p "$phase_output"
-  while IFS= read -r study; do
-    run_study "$image" "$repository" "$library" "$phase_output" "$study" "$mode" "$cpus"
-  done < <(phase_studies "$MUTT_PHASE")
+  study=$(phase_study_at_index "$MUTT_PHASE" "$SLURM_ARRAY_TASK_ID")
+  run_study "$image" "$repository" "$library" "$phase_output" "$study" "$mode" "$cpus"
+}
+
+run_finalize_worker() {
+  validate_worker_environment
+  validate_phase
+
+  local repository_url branch repository max_lfs output_dir phase_output study
+  repository_url=${MUTT_REPO_URL:-$DEFAULT_REPOSITORY_URL}
+  branch=${MUTT_BRANCH:-$DEFAULT_BRANCH}
+  repository=$MUTT_WORK_ROOT/repository
+  max_lfs=${MUTT_MAX_LFS_BYTES:-$DEFAULT_MAX_LFS_BYTES}
+  output_dir="analysis/hpc_functional/$MUTT_RUN_ID/$MUTT_PHASE"
+  phase_output="$MUTT_WORK_ROOT/phase-output/$MUTT_PHASE"
+
+  print_worker_settings finalize "$repository_url"
+  command -v git >/dev/null 2>&1
+  git lfs version
+  command -v zip >/dev/null 2>&1
+  command -v unzip >/dev/null 2>&1
 
   while IFS= read -r study; do
     archive_study_cache "$repository" "$study" "$max_lfs"
@@ -440,8 +562,14 @@ case ${1:-} in
     printf 'IBD cohort:\n%s\n' "$(printf '  %s\n' "${IBD_STUDIES[@]}")"
     echo "Validation passed. No jobs were submitted."
     ;;
-  --worker)
-    run_worker
+  --setup-worker)
+    run_setup_worker
+    ;;
+  --study-worker)
+    run_study_worker
+    ;;
+  --finalize-worker)
+    run_finalize_worker
     ;;
   -h|--help)
     usage
