@@ -10,6 +10,9 @@ Authors@R:
              email = "JustinSilverman@psu.edu",
              role = c("aut", "ctb"))
     )
+Author: Maxwell Konnaris [aut, cre],
+    Justin Silverman [aut, ctb]
+Maintainer: Maxwell Konnaris <mak6930@psu.edu>
 Description: Parses and formats individual studies containing microbiome sequence count data
     paired with total abundance measurements (flow cytometry, ddPCR, qPCR, etc.), and returns
     a single data object containing selected studies.
