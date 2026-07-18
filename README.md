@@ -1,4 +1,4 @@
-# MUTT: Microbiome analysis Using Total Taxa
+# MUTT: \color{red}{M}icrobiome analysis Using Total Taxa
 
 MUTT is an R package and data API for microbiome studies that pair sequence-count data with measurements of total microbial abundance. Its only exported function is `mutt()`.
 
