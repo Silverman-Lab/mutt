@@ -61,8 +61,6 @@ git add studies/STUDY/functional.zip
 
 When `functional/` is absent and `functional.zip` is present, `mutt()` restores the archive atomically before checking its cache. Cached PICRUSt2 paths are rebased to the current checkout, so stratified outputs remain readable after a clone or move.
 
-CRAN submission is a target, not a current installation claim.
-
 ## Use the API
 
 Parse one local study:
