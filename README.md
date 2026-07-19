@@ -140,12 +140,11 @@ flowchart TD
 
 MUTT does not rarefy, add pseudocounts, close compositions, or log-transform counts during functional inference.
 
-PICRUSt2 requires count, sequence, and taxonomy ASV identifiers to align. MUTT checks both sequence orientations, uses PICRUSt2's 0.8 minimum alignment threshold, requests coverage and `--stratified` outputs, and retains EC, KO, MetaCyc, NSTI, ASV mapping, taxonomy, and provenance records.
+PICRUSt2 requires amplicon count, sequence, and taxonomy ASV identifiers to align. MUTT checks both sequence orientations, uses PICRUSt2's 0.8 minimum alignment threshold, requests coverage and `--stratified` outputs, and retains EC, KO, MetaCyc, NSTI, ASV mapping, taxonomy, and provenance records. If PICRUSt2 omits input samples after ASV placement/filtering, MUTT restores those samples as zero-prediction rows and records every retained and zero-filled sample in `sample_reconciliation` and `sample_reconciliation.tsv`. Unexpected or renamed sample IDs remain a hard error, and raw outputs are retained for diagnosis.
 
-FAPROTAX receives classified taxonomic abundance tables with formatted lineages. MUTT uses counts whenever that branch has counts and falls back to its proportions only when counts are unavailable. Functional groups can overlap and are ecological annotations rather than directly observed genes.
+FAPROTAX receives classified amplicon taxonomic abundance tables with formatted lineages. MUTT uses counts whenever that branch has counts and falls back to its proportions only when counts are unavailable. Functional groups can overlap and are ecological annotations rather than directly observed genes.
 
-Functional eligibility is method-specific. Every covariance-study branch with classified taxa and a corresponding abundance table is submitted to FAPROTAX.
-PICRUSt2 eligibility is narrower: it requires ASV-level counts and matching ASV sequences. A PICRUSt2 skip therefore does not make a study functionally ineligible when its classified taxonomic table can be analyzed by FAPROTAX.
+Functional eligibility is method- and assay-specific. PICRUSt2 requires amplicon ASV-level counts and matching ASV sequences. FAPROTAX requires a branch explicitly identified as amplicon data, classified taxa, and a corresponding abundance table. Shotgun/metagenomic branches are recorded as skipped for both methods until a metagenomic functional workflow is implemented; branches whose modality cannot be established are also skipped rather than guessed.
 
 ## Docker
 

@@ -8,8 +8,40 @@
   stop("`functional` must be FALSE, TRUE, or \"rebuild\".", call. = FALSE)
 }
 
-.functional_engine_version <- "4"
+.functional_engine_version <- "5"
 .picrust_min_align <- 0.8
+
+.functional_branch_modality <- function(path) {
+  if (length(path) != 1L || is.na(path) || !nzchar(path)) return("unknown")
+  tokens <- unlist(
+    strsplit(tolower(gsub("\\\\", "/", path)), "[^a-z0-9]+", perl = TRUE),
+    use.names = FALSE
+  )
+  tokens <- tokens[nzchar(tokens)]
+  metagenomic <- c(
+    "shotgun", "metagenome", "metagenomic", "metaphlan", "metaphlan2",
+    "metaphlan3", "metaphlan4", "motu", "motus", "kraken", "kraken2",
+    "bracken", "humann", "humann2", "humann3", "wgs"
+  )
+  amplicon <- c(
+    "amplicon", "dada2", "asv", "asvs", "otu", "otus", "rdp", "rdp16",
+    "rdp19", "16s", "18s", "its"
+  )
+  if (any(tokens %in% metagenomic)) return("metagenomic")
+  if (any(tokens %in% amplicon)) return("amplicon")
+  "unknown"
+}
+
+.functional_faprotax_exclusion_template <- function() {
+  data.frame(
+    branch = character(),
+    reason = character(),
+    source = character(),
+    samples = integer(),
+    features = integer(),
+    stringsAsFactors = FALSE
+  )
+}
 
 .functional_processes <- function() {
   requested <- suppressWarnings(as.integer(Sys.getenv("MUTT_FUNCTIONAL_PROCESSES", "")))
@@ -541,6 +573,7 @@
     list(
       id = prefix,
       type = "dada2",
+      modality = "amplicon",
       counts_file = counts_file,
       tax_file = if (file.exists(tax_file)) tax_file else ""
     )
@@ -566,6 +599,7 @@
     out[[length(out) + 1L]] <- list(
       id = "asv",
       type = "explicit",
+      modality = "amplicon",
       counts_file = .resolve_study_file(file.path(explicit_directory, "asv_counts_by_run.tsv")),
       sequences_file = .resolve_study_file(file.path(explicit_directory, "asv_sequences.tsv")),
       tax_file = .resolve_study_file(
@@ -862,7 +896,11 @@
   )
 }
 
-.read_function_table <- function(path, expected_samples = NULL) {
+.read_function_table <- function(
+  path,
+  expected_samples = NULL,
+  allow_missing_samples = FALSE
+) {
   con <- if (grepl("\\.gz$", path, ignore.case = TRUE)) gzfile(path, "rt") else file(path, "rt")
   on.exit(close(con), add = TRUE)
   lines <- readLines(con, warn = FALSE)
@@ -893,10 +931,43 @@
   out <- t(as.matrix(x))
   colnames(out) <- feature_ids
   if (!is.null(expected_samples)) {
-    if (!setequal(rownames(out), expected_samples)) {
-      stop("Functional output sample IDs do not match its input counts.", call. = FALSE)
+    expected_samples <- as.character(expected_samples)
+    observed_samples <- rownames(out)
+    if (anyNA(observed_samples) || any(!nzchar(observed_samples)) ||
+        anyDuplicated(observed_samples)) {
+      stop("Functional output requires unique, non-empty sample IDs.", call. = FALSE)
     }
-    out <- out[expected_samples, , drop = FALSE]
+    missing_samples <- setdiff(expected_samples, observed_samples)
+    extra_samples <- setdiff(observed_samples, expected_samples)
+    if (length(extra_samples) || (length(missing_samples) && !allow_missing_samples)) {
+      stop(
+        "Functional output sample IDs do not match its input counts: ",
+        length(missing_samples), " expected sample(s) missing and ",
+        length(extra_samples), " unexpected sample(s) present.",
+        call. = FALSE
+      )
+    }
+    if (length(missing_samples)) {
+      restored <- matrix(
+        0,
+        nrow = length(expected_samples),
+        ncol = ncol(out),
+        dimnames = list(expected_samples, colnames(out))
+      )
+      restored[observed_samples, ] <- out
+      out <- restored
+    } else {
+      out <- out[expected_samples, , drop = FALSE]
+    }
+    if (isTRUE(allow_missing_samples)) {
+      attr(out, "sample_reconciliation") <- list(
+        expected_samples = expected_samples,
+        observed_samples = observed_samples,
+        missing_samples = missing_samples,
+        extra_samples = extra_samples,
+        zero_filled_missing_samples = length(missing_samples)
+      )
+    }
   }
   out
 }
@@ -952,10 +1023,29 @@
     close(con)
   }
   expected <- rownames(counts)
-  ec <- .read_function_table(ec_path, expected)
-  ko <- .read_function_table(ko_path, expected)
-  metacyc_abundance <- .read_function_table(abundance_path, expected)
-  metacyc_coverage <- .read_function_table(coverage_path, expected)
+  ec <- .read_function_table(ec_path, expected, allow_missing_samples = TRUE)
+  ko <- .read_function_table(ko_path, expected, allow_missing_samples = TRUE)
+  metacyc_abundance <- .read_function_table(
+    abundance_path, expected, allow_missing_samples = TRUE
+  )
+  metacyc_coverage <- .read_function_table(
+    coverage_path, expected, allow_missing_samples = TRUE
+  )
+  reconciliations <- lapply(
+    list(ec, ko, metacyc_abundance, metacyc_coverage),
+    attr,
+    which = "sample_reconciliation",
+    exact = TRUE
+  )
+  observed_sets <- lapply(reconciliations, `[[`, "observed_samples")
+  if (!all(vapply(observed_sets[-1L], setequal, logical(1), observed_sets[[1L]]))) {
+    stop("PICRUSt2 output tables disagree about retained sample IDs.", call. = FALSE)
+  }
+  missing_samples <- reconciliations[[1L]]$missing_samples
+  attr(ec, "sample_reconciliation") <- NULL
+  attr(ko, "sample_reconciliation") <- NULL
+  attr(metacyc_abundance, "sample_reconciliation") <- NULL
+  attr(metacyc_coverage, "sample_reconciliation") <- NULL
   contribution_paths <- list.files(
     raw_dir,
     pattern = "^(pred_metagenome|path_abun)_contrib\\.tsv\\.gz$",
@@ -990,7 +1080,14 @@
       ec_features = ncol(ec),
       ko_features = ncol(ko),
       metacyc_pathways = ncol(metacyc_abundance),
-      nsti_records = if (is.null(nsti)) NA_integer_ else nrow(nsti)
+      nsti_records = if (is.null(nsti)) NA_integer_ else nrow(nsti),
+      picrust_output_samples = length(reconciliations[[1L]]$observed_samples),
+      zero_filled_missing_samples = length(missing_samples)
+    ),
+    sample_reconciliation = data.frame(
+      sample_id = expected,
+      status = ifelse(expected %in% missing_samples, "zero_filled_missing", "retained"),
+      stringsAsFactors = FALSE
     )
   )
 }
@@ -1148,6 +1245,19 @@ read_picrust2_contributions <- function(
   invisible(directory)
 }
 
+.retain_failed_picrust_staging <- function(staging, target) {
+  failed <- paste0(target, ".failed")
+  if (dir.exists(failed) || file.exists(failed)) {
+    failed <- paste0(
+      failed, "-", format(Sys.time(), "%Y%m%dT%H%M%SZ", tz = "UTC"),
+      "-", Sys.getpid()
+    )
+  }
+  dir.create(dirname(failed), recursive = TRUE, showWarnings = FALSE)
+  if (!file.rename(staging, failed)) return(staging)
+  failed
+}
+
 .publish_cache <- function(staging, target) {
   dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
   backup <- ""
@@ -1275,14 +1385,21 @@ read_picrust2_contributions <- function(
     file.path(logs_dir, "stderr.log")
   )
   if (run$status != 0L) {
-    failed <- paste0(target, ".failed")
-    if (dir.exists(failed)) unlink(failed, recursive = TRUE)
-    dir.create(dirname(failed), recursive = TRUE, showWarnings = FALSE)
-    published <- file.rename(staging, failed)
-    log_location <- if (published) file.path(failed, "logs") else logs_dir
+    failed <- .retain_failed_picrust_staging(staging, target)
+    log_location <- file.path(failed, "logs")
     stop("PICRUSt2 failed for ", branch, "; see ", log_location, call. = FALSE)
   }
-  result <- .parse_picrust_output(raw_dir, counts)
+  result <- tryCatch(
+    .parse_picrust_output(raw_dir, counts),
+    error = function(error) {
+      failed <- .retain_failed_picrust_staging(staging, target)
+      stop(
+        "PICRUSt2 completed but output validation failed for ", branch,
+        ": ", conditionMessage(error), " Raw outputs retained at ", failed, ".",
+        call. = FALSE
+      )
+    }
+  )
   result$asv_mapping <- inputs$mapping_data
   result$taxonomy <- taxonomy
   retained_ids <- if (is.null(result$nsti) || !nrow(result$nsti)) {
@@ -1303,6 +1420,15 @@ read_picrust2_contributions <- function(
   result$qc$orientation_failed_asvs <- sum(!inputs$mapping_data$passes_min_align)
   result$qc$min_align <- .picrust_min_align
   result$qc$processes <- processes
+  if (nrow(result$sample_reconciliation)) {
+    utils::write.table(
+      result$sample_reconciliation,
+      file.path(staging, "sample_reconciliation.tsv"),
+      sep = "\t",
+      quote = FALSE,
+      row.names = FALSE
+    )
+  }
   result$provenance <- list(source = source, input_hash = input_hash,
                             tool_version = tools$picrust2_version,
                             biom_version = tools$biom_version,
@@ -1436,6 +1562,7 @@ read_picrust2_contributions <- function(
   proportions <- .flatten_tables(parsed$proportions)
   tax <- .flatten_tables(parsed$tax)
   out <- list()
+  excluded <- .functional_faprotax_exclusion_template()
   for (path in names(tax)) {
     abundance <- NULL
     input_type <- ""
@@ -1451,6 +1578,26 @@ read_picrust2_contributions <- function(
       if (!is.null(abundance)) input_type <- "proportions"
     }
     if (is.null(abundance)) next
+    source <- paste0(input_type, ":", path)
+    modality <- .functional_branch_modality(path)
+    if (!identical(modality, "amplicon")) {
+      excluded <- rbind(
+        excluded,
+        data.frame(
+          branch = path,
+          reason = if (identical(modality, "metagenomic")) {
+            "Excluded from FAPROTAX because this is a shotgun/metagenomic branch."
+          } else {
+            "Excluded from FAPROTAX because the branch is not explicitly identified as amplicon data."
+          },
+          source = source,
+          samples = nrow(abundance),
+          features = ncol(abundance),
+          stringsAsFactors = FALSE
+        )
+      )
+      next
+    }
     matched_tax <- .match_taxonomy_to_counts(abundance, tax[[path]], allow_partial = TRUE)
     if (is.null(matched_tax) || all(is.na(.taxonomy_lineages(matched_tax)))) next
     out[[path]] <- list(
@@ -1459,6 +1606,7 @@ read_picrust2_contributions <- function(
       input_type = input_type
     )
   }
+  attr(out, "excluded") <- excluded
   out
 }
 
@@ -1478,6 +1626,14 @@ read_picrust2_contributions <- function(
       "picrust2", "study", "skipped", "picrust2_pipeline.py was not found on PATH.", study_dir
     ))
   } else for (source in picrust_sources) {
+    if (!identical(source$modality, "amplicon")) {
+      manifest <- rbind(manifest, .manifest_row(
+        "picrust2", source$id, "skipped",
+        "PICRUSt2 is currently supported only for amplicon ASV inputs.",
+        source$counts_file
+      ))
+      next
+    }
     loaded <- tryCatch(.load_picrust_source(source), error = function(e) e)
     branch <- source$id
     source_label <- source$counts_file
@@ -1517,6 +1673,8 @@ read_picrust2_contributions <- function(
 
   fap_ready <- nzchar(tools$faprotax) && nzchar(tools$faprotax_db)
   fap_pairs <- if (fap_ready) .functional_faprotax_pairs(parsed) else list()
+  fap_excluded <- attr(fap_pairs, "excluded", exact = TRUE)
+  if (is.null(fap_excluded)) fap_excluded <- .functional_faprotax_exclusion_template()
   if (!fap_ready) {
     reason <- if (!nzchar(tools$faprotax)) {
       "collapse_table.py was not found on PATH."
@@ -1524,7 +1682,17 @@ read_picrust2_contributions <- function(
       "FAPROTAX.txt was not found beside the installed FAPROTAX executable."
     }
     manifest <- rbind(manifest, .manifest_row("faprotax", "study", "skipped", reason, study_dir))
-  } else for (branch in names(fap_pairs)) {
+  } else {
+    if (nrow(fap_excluded)) {
+      for (index in seq_len(nrow(fap_excluded))) {
+        manifest <- rbind(manifest, .manifest_row(
+          "faprotax", fap_excluded$branch[[index]], "skipped",
+          fap_excluded$reason[[index]], fap_excluded$source[[index]],
+          fap_excluded$samples[[index]], fap_excluded$features[[index]]
+        ))
+      }
+    }
+    for (branch in names(fap_pairs)) {
     pair <- fap_pairs[[branch]]
     fit <- tryCatch(
       .run_faprotax(pair$counts, pair$taxonomy, branch,
@@ -1539,8 +1707,9 @@ read_picrust2_contributions <- function(
     if (!is.null(fit$result)) {
       out$faprotax <- .set_nested(out$faprotax, strsplit(branch, "/", fixed = TRUE)[[1L]], fit$result)
     }
+    }
   }
-  if (fap_ready && !length(fap_pairs)) {
+  if (fap_ready && !length(fap_pairs) && !nrow(fap_excluded)) {
     manifest <- rbind(manifest, .manifest_row(
       "faprotax", "study", "skipped", "No matched bacterial/archaeal count and taxonomy branch was found.",
       study_dir

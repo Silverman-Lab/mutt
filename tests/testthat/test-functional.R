@@ -15,6 +15,18 @@ test_that("functional process selection is internal and bounded", {
   expect_identical(mutt:::.functional_processes(), 3L)
 })
 
+test_that("functional branch modality routing is conservative", {
+  expect_identical(
+    mutt:::.functional_branch_modality("reprocessed/amplicon/rdp19"),
+    "amplicon"
+  )
+  expect_identical(
+    mutt:::.functional_branch_modality("reprocessed/shotgun/MetaPhlAn4"),
+    "metagenomic"
+  )
+  expect_identical(mutt:::.functional_branch_modality("original"), "unknown")
+})
+
 test_that("tool versions can use the PICRUSt2 -v convention", {
   skip_on_os("windows")
   executable <- tempfile("mutt_version_test_")
@@ -52,7 +64,7 @@ test_that("functional count validation is strict and preserves orientation", {
   expect_error(mutt:::.normalize_count_matrix(bad), "integer-valued")
 })
 
-test_that("FAPROTAX uses counts when available and proportions otherwise", {
+test_that("FAPROTAX uses amplicon counts when available and proportions otherwise", {
   counts <- matrix(
     c(2L, 1L, 3L, 4L), nrow = 2L,
     dimnames = list(c("S1", "S2"), c("g_Lactobacillus", "g_Bacteroides"))
@@ -65,24 +77,53 @@ test_that("FAPROTAX uses counts when available and proportions otherwise", {
   )
 
   with_counts <- mutt:::.functional_faprotax_pairs(list(
-    counts = list(original = counts),
-    proportions = list(original = proportions),
-    tax = list(original = tax)
+    counts = list(amplicon = counts),
+    proportions = list(amplicon = proportions),
+    tax = list(amplicon = tax)
   ))
-  expect_identical(with_counts$original$input_type, "counts")
-  expect_equal(with_counts$original$counts, counts)
+  expect_identical(with_counts$amplicon$input_type, "counts")
+  expect_equal(with_counts$amplicon$counts, counts)
   expect_identical(
-    mutt:::.taxonomy_lineages(with_counts$original$taxonomy),
+    mutt:::.taxonomy_lineages(with_counts$amplicon$taxonomy),
     c("g__Lactobacillus", "g__Bacteroides")
   )
 
   without_counts <- mutt:::.functional_faprotax_pairs(list(
     counts = NA,
-    proportions = list(original = proportions),
-    tax = list(original = tax)
+    proportions = list(amplicon = proportions),
+    tax = list(amplicon = tax)
   ))
-  expect_identical(without_counts$original$input_type, "proportions")
-  expect_equal(without_counts$original$counts, proportions)
+  expect_identical(without_counts$amplicon$input_type, "proportions")
+  expect_equal(without_counts$amplicon$counts, proportions)
+})
+
+test_that("FAPROTAX skips metagenomic and unknown branches", {
+  counts <- matrix(
+    c(2L, 1L, 3L, 4L), nrow = 2L,
+    dimnames = list(c("S1", "S2"), c("g_A", "g_B"))
+  )
+  tax <- data.frame(Taxa = colnames(counts), row.names = colnames(counts))
+  pairs <- mutt:::.functional_faprotax_pairs(list(
+    counts = list(
+      reprocessed = list(shotgun = list(MetaPhlAn4 = counts)),
+      original = counts
+    ),
+    proportions = NA,
+    tax = list(
+      reprocessed = list(shotgun = list(MetaPhlAn4 = tax)),
+      original = tax
+    )
+  ))
+  expect_length(pairs, 0L)
+  excluded <- attr(pairs, "excluded", exact = TRUE)
+  expect_setequal(
+    excluded$branch,
+    c("reprocessed/shotgun/MetaPhlAn4", "original")
+  )
+  expect_match(
+    excluded$reason[excluded$branch == "reprocessed/shotgun/MetaPhlAn4"],
+    "shotgun/metagenomic"
+  )
 })
 
 test_that("PICRUSt2 rejects exact reverse-complement duplicate features", {
@@ -176,6 +217,108 @@ test_that("functional output tables retain only numeric sample columns", {
   expect_equal(observed, expected)
 })
 
+test_that("PICRUSt2 output restores missing input samples as diagnosed zero rows", {
+  path <- tempfile(fileext = ".tsv")
+  on.exit(unlink(path), add = TRUE)
+  writeLines(c(
+    "function\tS1\tS3",
+    "F1\t1\t3",
+    "F2\t2\t4"
+  ), path)
+
+  observed <- mutt:::.read_function_table(
+    path,
+    c("S1", "S2", "S3"),
+    allow_missing_samples = TRUE
+  )
+  expect_identical(rownames(observed), c("S1", "S2", "S3"))
+  expect_equal(unname(observed["S2", ]), c(0, 0))
+  reconciliation <- attr(observed, "sample_reconciliation", exact = TRUE)
+  expect_identical(reconciliation$missing_samples, "S2")
+  expect_identical(reconciliation$zero_filled_missing_samples, 1L)
+})
+
+test_that("functional output rejects unexpected sample IDs", {
+  path <- tempfile(fileext = ".tsv")
+  on.exit(unlink(path), add = TRUE)
+  writeLines(c("function\tS1\tRENAMED", "F1\t1\t2"), path)
+  expect_error(
+    mutt:::.read_function_table(
+      path,
+      c("S1", "S2"),
+      allow_missing_samples = TRUE
+    ),
+    "1 expected sample.*1 unexpected"
+  )
+})
+
+test_that("PICRUSt2 parsing reconciles the same missing samples across outputs", {
+  root <- tempfile("mutt_picrust_parse_")
+  dir.create(file.path(root, "EC_metagenome_out"), recursive = TRUE)
+  dir.create(file.path(root, "KO_metagenome_out"), recursive = TRUE)
+  dir.create(file.path(root, "pathways_out"), recursive = TRUE)
+  on.exit(unlink(root, recursive = TRUE), add = TRUE)
+
+  write_gzip <- function(path, lines) {
+    connection <- gzfile(path, "wt")
+    on.exit(close(connection), add = TRUE)
+    writeLines(lines, connection)
+  }
+  write_gzip(
+    file.path(root, "EC_metagenome_out", "pred_metagenome_unstrat.tsv.gz"),
+    c("function\tS1", "EC1\t1")
+  )
+  write_gzip(
+    file.path(root, "KO_metagenome_out", "pred_metagenome_unstrat.tsv.gz"),
+    c("function\tS1", "KO1\t2")
+  )
+  write_gzip(
+    file.path(root, "pathways_out", "path_abun_unstrat.tsv.gz"),
+    c("function\tS1", "PWY1\t3")
+  )
+  write_gzip(
+    file.path(root, "pathways_out", "path_cov_unstrat.tsv.gz"),
+    c("function\tS1", "PWY1\t0.5")
+  )
+  contribution_header <- paste(
+    c(
+      "sample", "function", "taxon", "taxon_abun", "taxon_rel_abun",
+      "genome_function_count", "taxon_function_abun",
+      "taxon_rel_function_abun", "norm_taxon_function_contrib"
+    ),
+    collapse = "\t"
+  )
+  write_gzip(
+    file.path(root, "EC_metagenome_out", "pred_metagenome_contrib.tsv.gz"),
+    c(contribution_header, "S1\tEC1\tASV1\t1\t1\t1\t1\t1\t1")
+  )
+  write_gzip(
+    file.path(root, "KO_metagenome_out", "pred_metagenome_contrib.tsv.gz"),
+    c(contribution_header, "S1\tKO1\tASV1\t1\t1\t1\t1\t1\t1")
+  )
+  write_gzip(
+    file.path(root, "pathways_out", "path_abun_contrib.tsv.gz"),
+    c(contribution_header, "S1\tPWY1\tASV1\t1\t1\t1\t1\t1\t1")
+  )
+
+  counts <- matrix(
+    c(2L, 0L, 1L, 3L),
+    nrow = 2L,
+    dimnames = list(c("S1", "S2"), c("ASV1", "ASV2"))
+  )
+  parsed <- mutt:::.parse_picrust_output(root, counts)
+  expect_equal(parsed$ec["S2", "EC1"], 0)
+  expect_equal(parsed$ko["S2", "KO1"], 0)
+  expect_equal(parsed$metacyc_abundance["S2", "PWY1"], 0)
+  expect_equal(parsed$metacyc_coverage["S2", "PWY1"], 0)
+  expect_identical(parsed$qc$picrust_output_samples, 1L)
+  expect_identical(parsed$qc$zero_filled_missing_samples, 1L)
+  expect_identical(
+    parsed$sample_reconciliation$status,
+    c("retained", "zero_filled_missing")
+  )
+})
+
 test_that("PICRUSt2 discovery ignores archives disabled in a parser", {
   root <- tempfile("mutt_discovery_test_")
   dir.create(root)
@@ -190,6 +333,21 @@ test_that("PICRUSt2 discovery ignores archives disabled in a parser", {
 
   sources <- mutt:::.discover_picrust_sources(root)
   expect_identical(vapply(sources, `[[`, character(1), "id"), "ACTIVE")
+  expect_identical(vapply(sources, `[[`, character(1), "modality"), "amplicon")
+})
+
+test_that("PICRUSt2 post-processing failures retain staging output", {
+  root <- tempfile("mutt_picrust_failed_staging_")
+  staging <- file.path(root, "staging")
+  target <- file.path(root, "picrust2", "branch")
+  dir.create(file.path(staging, "raw"), recursive = TRUE)
+  on.exit(unlink(root, recursive = TRUE), add = TRUE)
+  writeLines("diagnostic", file.path(staging, "raw", "output.txt"))
+
+  retained <- mutt:::.retain_failed_picrust_staging(staging, target)
+  expect_false(dir.exists(staging))
+  expect_true(file.exists(file.path(retained, "raw", "output.txt")))
+  expect_match(retained, "branch[.]failed")
 })
 
 test_that("explicit ASV discovery prefers validated orientation repair outputs", {

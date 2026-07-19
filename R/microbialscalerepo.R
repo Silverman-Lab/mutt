@@ -3,9 +3,10 @@
 #' `mutt()` is the package's public API. It resolves study data from a local
 #' Git LFS checkout or the versioned MUTT user cache, runs the bundled study
 #' parsers in isolation, validates their returned objects, and optionally runs
-#' PICRUSt2 for eligible ASV count tables and FAPROTAX for eligible taxonomic
-#' abundance tables. FAPROTAX prefers counts and falls back to proportions only
-#' when a matching count table is unavailable.
+#' PICRUSt2 for eligible amplicon ASV count tables and FAPROTAX for eligible
+#' amplicon taxonomic abundance tables. Metagenomic branches are currently
+#' recorded as skipped. FAPROTAX prefers counts and falls back to proportions
+#' only when a matching count table is unavailable.
 #'
 #' @param studies `NULL`, a character vector of study IDs, or a named character
 #'   vector. `NULL` parses every locally available registered study. Names, when
@@ -20,8 +21,9 @@
 #'   companion validation object are saved without changing the returned value.
 #' @param verbose Logical scalar controlling progress and parser summaries.
 #' @param functional `FALSE`, `TRUE`, or `"REBUILD"`. `TRUE` runs or reuses
-#'   PICRUSt2 and FAPROTAX where valid inputs and tools are available;
-#'   `"REBUILD"` forces eligible cached branches to rerun.
+#'   PICRUSt2 and FAPROTAX for eligible amplicon branches where valid inputs and
+#'   tools are available; metagenomic branches are skipped. `"REBUILD"` forces
+#'   eligible cached branches to rerun.
 #'
 #' @return A `mutt_result`: a named list whose successful entries retain the
 #'   established MUTT study structure. `attr(x, "audit")` contains one row per

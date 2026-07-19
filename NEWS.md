@@ -1,5 +1,12 @@
 # mutt 0.1.0.9000
 
+* Functional inference now routes only explicitly identified amplicon branches
+  to PICRUSt2 and FAPROTAX; shotgun, metagenomic, and unknown-modality branches
+  are retained in the manifest as skipped.
+* PICRUSt2 outputs may omit input samples only when no unexpected sample IDs are
+  introduced and every output table agrees. Missing samples are restored as
+  zero-prediction rows with explicit reconciliation QC, while irreconcilable
+  post-processing failures retain their raw output directories for diagnosis.
 * DADA2 PICRUSt2 inputs now merge exact reverse-complement ASV duplicates before
   inference while preserving every sample's read total and rebuilding aligned
   consensus taxonomy for the merged features.
