@@ -95,7 +95,7 @@ Useful environment overrides:
   MUTT_IBD_CONCURRENCY, MUTT_REST_CONCURRENCY
   MUTT_MIN_FREE_GB, MUTT_MAX_LFS_BYTES, SLURM_PARTITION
   APPTAINER_MODULE, MUTT_GIT_NAME, MUTT_GIT_EMAIL
-  MUTT_FUNCTIONAL_MODE=use|rebuild, MUTT_TRACE=0|1
+  MUTT_FUNCTIONAL_MODE=use|rebuild|revalidate, MUTT_TRACE=0|1
 EOF
 }
 
@@ -554,10 +554,14 @@ run_study_worker() {
   repository=$MUTT_WORK_ROOT/repository
   mode=${MUTT_FUNCTIONAL_MODE:-use}
   cpus=${SLURM_CPUS_PER_TASK:-${MUTT_CPUS:-$DEFAULT_CPUS}}
-  [[ "$mode" == "use" || "$mode" == "rebuild" ]] || {
-    echo "MUTT_FUNCTIONAL_MODE must be use or rebuild." >&2
-    exit 2
-  }
+  case "$mode" in
+    use|rebuild|revalidate)
+      ;;
+    *)
+      echo "MUTT_FUNCTIONAL_MODE must be use, rebuild, or revalidate." >&2
+      exit 2
+      ;;
+  esac
   [[ -f "$MUTT_WORK_ROOT/checkpoints/setup.complete" ]] || {
     echo "Setup completion marker is missing." >&2
     exit 1

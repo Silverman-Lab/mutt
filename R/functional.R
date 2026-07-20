@@ -1,11 +1,14 @@
 .functional_mode <- function(functional) {
   if (isFALSE(functional)) return("off")
   if (isTRUE(functional)) return("use")
-  if (is.character(functional) && length(functional) == 1L &&
-      !is.na(functional) && tolower(functional) == "rebuild") {
-    return("rebuild")
+  if (is.character(functional) && length(functional) == 1L && !is.na(functional) &&
+      tolower(functional) %in% c("rebuild", "revalidate")) {
+    return(tolower(functional))
   }
-  stop("`functional` must be FALSE, TRUE, or \"rebuild\".", call. = FALSE)
+  stop(
+    "`functional` must be FALSE, TRUE, \"rebuild\", or \"revalidate\".",
+    call. = FALSE
+  )
 }
 
 .functional_engine_version <- "5"
@@ -1341,6 +1344,207 @@ read_picrust2_contributions <- function(
   invisible(target)
 }
 
+.picrust_tool_value <- function(tools, name, default = "") {
+  value <- tools[[name]]
+  if (is.null(value) || !length(value) || is.na(value[[1L]])) return(default)
+  as.character(value[[1L]])
+}
+
+.picrust_revalidation_directory <- function(target) {
+  normal_raw <- file.path(target, "raw")
+  failed <- paste0(target, ".failed")
+  failed_raw <- file.path(failed, "raw")
+  if (dir.exists(normal_raw)) return(target)
+  if (dir.exists(failed_raw)) return(failed)
+  NULL
+}
+
+.read_picrust_mapping <- function(directory) {
+  path <- file.path(directory, "input", "asv_id_map.tsv")
+  if (!file.exists(path)) {
+    stop(
+      "Retained PICRUSt2 output is missing input/asv_id_map.tsv; ",
+      "validated ASV provenance cannot be reconstructed.",
+      call. = FALSE
+    )
+  }
+  mapping <- utils::read.delim(
+    path,
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+  required <- c("picrust_id", "original_feature_id")
+  if (!all(required %in% names(mapping)) || anyDuplicated(mapping$picrust_id) ||
+      anyDuplicated(mapping$original_feature_id)) {
+    stop("Retained PICRUSt2 ASV mapping is invalid.", call. = FALSE)
+  }
+  mapping
+}
+
+.enrich_picrust_result <- function(
+  result,
+  counts,
+  taxonomy,
+  mapping_data,
+  source,
+  input_hash,
+  tools,
+  output_directory,
+  processes
+) {
+  result$asv_mapping <- mapping_data
+  result$taxonomy <- taxonomy
+  retained_ids <- if (is.null(result$nsti) || !nrow(result$nsti)) {
+    character()
+  } else {
+    as.character(result$nsti[[1L]])
+  }
+  retained <- mapping_data$picrust_id %in% retained_ids
+  matched_counts <- match(mapping_data$original_feature_id, colnames(counts))
+  if (anyNA(matched_counts)) {
+    stop("Retained PICRUSt2 ASV mapping does not match the current count table.", call. = FALSE)
+  }
+  input_reads <- sum(counts)
+  retained_reads <- sum(counts[, matched_counts[retained], drop = FALSE])
+  result$qc$retained_asvs <- sum(retained)
+  result$qc$excluded_asvs <- sum(!retained)
+  result$qc$retained_read_fraction <- if (input_reads > 0) retained_reads / input_reads else NA_real_
+  result$qc$reverse_complemented_asvs <- if ("orientation" %in% names(mapping_data)) {
+    sum(mapping_data$orientation == "reverse_complement", na.rm = TRUE)
+  } else {
+    NA_integer_
+  }
+  result$qc$orientation_passed_asvs <- if ("passes_min_align" %in% names(mapping_data)) {
+    sum(as.logical(mapping_data$passes_min_align), na.rm = TRUE)
+  } else {
+    NA_integer_
+  }
+  result$qc$orientation_failed_asvs <- if ("passes_min_align" %in% names(mapping_data)) {
+    sum(!as.logical(mapping_data$passes_min_align), na.rm = TRUE)
+  } else {
+    NA_integer_
+  }
+  result$qc$min_align <- .picrust_min_align
+  result$qc$processes <- processes
+  result$provenance <- list(
+    source = source,
+    input_hash = input_hash,
+    tool_version = .picrust_tool_value(tools, "picrust2_version", "unknown"),
+    biom_version = .picrust_tool_value(tools, "biom_version", "unknown"),
+    output_directory = output_directory,
+    orientation_method = paste(
+      "maximum aligned fraction across PICRUSt2 bacterial and archaeal",
+      "reference HMMs"
+    ),
+    min_align = .picrust_min_align,
+    processes = processes
+  )
+  class(result) <- unique(c("mutt_picrust_branch", class(result)))
+  result
+}
+
+.write_picrust_validated_output <- function(
+  directory,
+  result,
+  branch,
+  source,
+  input_hash,
+  tools,
+  processes,
+  runtime_seconds
+) {
+  if (nrow(result$sample_reconciliation)) {
+    utils::write.table(
+      result$sample_reconciliation,
+      file.path(directory, "sample_reconciliation.tsv"),
+      sep = "\t", quote = FALSE, row.names = FALSE
+    )
+  }
+  zero_filled_path <- file.path(directory, "pathway_zero_filled_samples.tsv")
+  if (length(result$pathway_zero_filled_samples)) {
+    utils::write.table(
+      data.frame(
+        sample_id = result$pathway_zero_filled_samples,
+        action = "zero_filled_in_pathway_output",
+        stringsAsFactors = FALSE
+      ),
+      zero_filled_path,
+      sep = "\t", quote = FALSE, row.names = FALSE
+    )
+  } else if (file.exists(zero_filled_path)) {
+    unlink(zero_filled_path)
+  }
+  saveRDS(result, file.path(directory, "result.rds"))
+  metadata <- list(
+    method = "picrust2",
+    branch = branch,
+    source = source,
+    input_hash = input_hash,
+    tool_version = .picrust_tool_value(tools, "picrust2_version", "unknown"),
+    engine_version = .functional_engine_version,
+    biom_version = .picrust_tool_value(tools, "biom_version", "unknown"),
+    processes = processes,
+    runtime_seconds = runtime_seconds
+  )
+  jsonlite::write_json(
+    metadata,
+    file.path(directory, "manifest.json"),
+    auto_unbox = TRUE,
+    pretty = TRUE
+  )
+  invisible(metadata)
+}
+
+.revalidate_picrust2 <- function(
+  counts,
+  taxonomy,
+  branch,
+  source,
+  target,
+  input_hash,
+  tools
+) {
+  retained_directory <- .picrust_revalidation_directory(target)
+  if (is.null(retained_directory)) {
+    stop(
+      "Revalidation was requested, but retained PICRUSt2 raw output was not found for branch ",
+      branch, ". Refusing to rerun PICRUSt2.",
+      call. = FALSE
+    )
+  }
+  raw_dir <- file.path(retained_directory, "raw")
+  message("Revalidating retained PICRUSt2 raw output for ", branch, ": ", raw_dir)
+  started <- proc.time()[["elapsed"]]
+  result <- .parse_picrust_output(raw_dir, counts)
+  mapping_data <- .read_picrust_mapping(retained_directory)
+  processes <- .functional_processes()
+  result <- .enrich_picrust_result(
+    result, counts, taxonomy, mapping_data, source, input_hash, tools, target, processes
+  )
+  runtime <- proc.time()[["elapsed"]] - started
+  .write_picrust_validated_output(
+    retained_directory, result, branch, source, input_hash, tools, processes, runtime
+  )
+  if (!identical(retained_directory, target)) {
+    .publish_cache(retained_directory, target)
+  }
+  status <- if (nzchar(result$picrust_warning)) {
+    "generated_with_warning"
+  } else {
+    "generated"
+  }
+  list(
+    result = result,
+    manifest = .manifest_row(
+      "picrust2", branch, status, reason = result$picrust_warning,
+      source = source, samples = nrow(counts), features = ncol(counts),
+      input_hash = input_hash,
+      tool_version = .picrust_tool_value(tools, "picrust2_version", "unknown"),
+      runtime_seconds = runtime, output_directory = target
+    )
+  )
+}
+
 .run_picrust2 <- function(counts, sequences, branch, source, functional_dir, mode, tools,
                           input_hash = NULL, taxonomy = NULL) {
   target <- file.path(functional_dir, "picrust2", .safe_branch_name(branch))
@@ -1348,7 +1552,14 @@ read_picrust2_contributions <- function(
   if (is.null(input_hash)) {
     input_hash <- .object_md5(list(counts = counts, sequences = sequences, taxonomy = taxonomy))
   }
-  if (mode != "rebuild" && .cache_is_valid(target, input_hash, tools$picrust2_version)) {
+  if (identical(mode, "revalidate")) {
+    return(.revalidate_picrust2(
+      counts, taxonomy, branch, source, target, input_hash, tools
+    ))
+  }
+  if (mode != "rebuild" && .cache_is_valid(
+    target, input_hash, .picrust_tool_value(tools, "picrust2_version")
+  )) {
     result <- readRDS(file.path(target, "result.rds"))
     class(result) <- unique(c("mutt_picrust_branch", class(result)))
     result$provenance$output_directory <- target
@@ -1361,7 +1572,7 @@ read_picrust2_contributions <- function(
                                runtime_seconds = 0, output_directory = target)
     ))
   }
-  if (!nzchar(tools$picrust2)) {
+  if (!nzchar(.picrust_tool_value(tools, "picrust2"))) {
     return(list(result = NULL, manifest = .manifest_row(
       "picrust2", branch, "skipped", "picrust2_pipeline.py was not found on PATH.", source,
       nrow(counts), ncol(counts), input_hash, output_directory = target
@@ -1467,65 +1678,14 @@ read_picrust2_contributions <- function(
       )
     }
   )
-  result$asv_mapping <- inputs$mapping_data
-  result$taxonomy <- taxonomy
-  retained_ids <- if (is.null(result$nsti) || !nrow(result$nsti)) {
-    character()
-  } else {
-    as.character(result$nsti[[1L]])
-  }
-  retained <- inputs$mapping_data$picrust_id %in% retained_ids
-  input_reads <- sum(counts)
-  retained_reads <- sum(counts[, retained, drop = FALSE])
-  result$qc$retained_asvs <- sum(retained)
-  result$qc$excluded_asvs <- sum(!retained)
-  result$qc$retained_read_fraction <- if (input_reads > 0) retained_reads / input_reads else NA_real_
-  result$qc$reverse_complemented_asvs <- sum(
-    inputs$mapping_data$orientation == "reverse_complement"
+  result <- .enrich_picrust_result(
+    result, counts, taxonomy, inputs$mapping_data, source, input_hash, tools,
+    target, processes
   )
-  result$qc$orientation_passed_asvs <- sum(inputs$mapping_data$passes_min_align)
-  result$qc$orientation_failed_asvs <- sum(!inputs$mapping_data$passes_min_align)
-  result$qc$min_align <- .picrust_min_align
-  result$qc$processes <- processes
-  if (nrow(result$sample_reconciliation)) {
-    utils::write.table(
-      result$sample_reconciliation,
-      file.path(staging, "sample_reconciliation.tsv"),
-      sep = "\t",
-      quote = FALSE,
-      row.names = FALSE
-    )
-  }
-  if (length(result$pathway_zero_filled_samples)) {
-    utils::write.table(
-      data.frame(
-        sample_id = result$pathway_zero_filled_samples,
-        action = "zero_filled_in_pathway_output",
-        stringsAsFactors = FALSE
-      ),
-      file.path(staging, "pathway_zero_filled_samples.tsv"),
-      sep = "\t",
-      quote = FALSE,
-      row.names = FALSE
-    )
-  }
-  result$provenance <- list(source = source, input_hash = input_hash,
-                            tool_version = tools$picrust2_version,
-                            biom_version = tools$biom_version,
-                            output_directory = target,
-                            orientation_method = "maximum aligned fraction across PICRUSt2 bacterial and archaeal reference HMMs",
-                            min_align = .picrust_min_align,
-                            processes = processes)
-  class(result) <- unique(c("mutt_picrust_branch", class(result)))
   .compact_picrust_cache(staging)
-  saveRDS(result, file.path(staging, "result.rds"))
-  metadata <- list(method = "picrust2", branch = branch, source = source,
-                   input_hash = input_hash, tool_version = tools$picrust2_version,
-                   engine_version = .functional_engine_version,
-                   biom_version = tools$biom_version,
-                   processes = processes,
-                   runtime_seconds = run$runtime)
-  jsonlite::write_json(metadata, file.path(staging, "manifest.json"), auto_unbox = TRUE, pretty = TRUE)
+  .write_picrust_validated_output(
+    staging, result, branch, source, input_hash, tools, processes, run$runtime
+  )
   .publish_cache(staging, target)
   picrust_status <- if (nzchar(result$picrust_warning)) {
     "generated_with_warning"
@@ -1537,7 +1697,8 @@ read_picrust2_contributions <- function(
     "picrust2", branch, picrust_status, reason = picrust_reason,
     source = source, samples = nrow(counts),
     features = ncol(counts), input_hash = input_hash,
-    tool_version = tools$picrust2_version, runtime_seconds = run$runtime,
+    tool_version = .picrust_tool_value(tools, "picrust2_version", "unknown"),
+    runtime_seconds = run$runtime,
     output_directory = target
   ))
 }
@@ -1708,7 +1869,8 @@ read_picrust2_contributions <- function(
 
   picrust_sources <- .discover_picrust_sources(study_dir)
   eligible_picrust <- 0L
-  if (!nzchar(tools$picrust2)) {
+  picrust_available <- nzchar(.picrust_tool_value(tools, "picrust2"))
+  if (!picrust_available && mode != "revalidate") {
     manifest <- rbind(manifest, .manifest_row(
       "picrust2", "study", "skipped", "picrust2_pipeline.py was not found on PATH.", study_dir
     ))
@@ -1752,7 +1914,8 @@ read_picrust2_contributions <- function(
     rm(loaded)
     gc(FALSE)
   }
-  if (nzchar(tools$picrust2) && !eligible_picrust && !length(picrust_sources)) {
+  if ((picrust_available || mode == "revalidate") &&
+      !eligible_picrust && !length(picrust_sources)) {
     manifest <- rbind(manifest, .manifest_row(
       "picrust2", "study", "skipped", "No ASV-level count and sequence input was found.", study_dir
     ))

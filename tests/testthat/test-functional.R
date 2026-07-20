@@ -2,6 +2,7 @@ test_that("functional mode has a small, strict public interface", {
   expect_identical(mutt:::.functional_mode(FALSE), "off")
   expect_identical(mutt:::.functional_mode(TRUE), "use")
   expect_identical(mutt:::.functional_mode("REBUILD"), "rebuild")
+  expect_identical(mutt:::.functional_mode("REVALIDATE"), "revalidate")
   expect_error(mutt:::.functional_mode("picrust2"), "FALSE, TRUE")
   expect_error(mutt:::.functional_mode(NA), "FALSE, TRUE")
 
@@ -337,6 +338,15 @@ test_that("PICRUSt2 parsing reconciles the same missing samples across outputs",
     parsed$sample_reconciliation$status,
     c("retained", "zero_filled_missing")
   )
+
+  write_gzip(
+    file.path(root, "KO_metagenome_out", "pred_metagenome_unstrat.tsv.gz"),
+    c("function\tS2", "KO1\t2")
+  )
+  expect_error(
+    mutt:::.parse_picrust_output(root, counts),
+    "EC and KO output tables disagree"
+  )
 })
 
 test_that("PICRUSt2 discovery ignores archives disabled in a parser", {
@@ -637,6 +647,50 @@ test_that("PICRUSt2 cache is reusable and a failed rebuild preserves it", {
   cached_contributions <- as.data.frame(cached$result, type = "ec")
   expect_identical(cached_contributions$original_feature_id, "ASV_A")
   expect_identical(cached_contributions$Genus, "Alpha")
+
+  revalidate_root <- tempfile("mutt_picrust_revalidate_")
+  dir.create(file.path(revalidate_root, "picrust2"), recursive = TRUE)
+  on.exit(unlink(revalidate_root, recursive = TRUE), add = TRUE)
+  failed_cache <- file.path(revalidate_root, "picrust2", "asv.failed")
+  expect_true(file.copy(
+    cache_dir, file.path(revalidate_root, "picrust2"), recursive = TRUE
+  ))
+  expect_true(file.rename(
+    file.path(revalidate_root, "picrust2", "asv"), failed_cache
+  ))
+  unlink(file.path(failed_cache, c("result.rds", "manifest.json")))
+  raw_files <- list.files(
+    file.path(failed_cache, "raw"), recursive = TRUE, full.names = TRUE
+  )
+  raw_md5 <- unname(tools::md5sum(raw_files))
+  revalidated <- mutt:::.run_picrust2(
+    counts, sequences, "asv", "fixture", revalidate_root, "revalidate",
+    list(picrust2 = "/bin/false", picrust2_version = "fake-picrust2 1",
+         biom_version = "biom 2.1.17"),
+    taxonomy = taxonomy
+  )
+  revalidated_cache <- file.path(revalidate_root, "picrust2", "asv")
+  expect_identical(revalidated$manifest$status, "generated_with_warning")
+  expect_match(revalidated$manifest$reason, "Pathway output omitted 1 of 2 samples")
+  expect_equal(revalidated$result$metacyc_abundance["S2", "PWY1"], 0)
+  expect_true(file.exists(file.path(revalidated_cache, "result.rds")))
+  expect_false(dir.exists(failed_cache))
+  revalidated_raw <- list.files(
+    file.path(revalidated_cache, "raw"), recursive = TRUE, full.names = TRUE
+  )
+  expect_identical(unname(tools::md5sum(revalidated_raw)), raw_md5)
+
+  empty_revalidate <- tempfile("mutt_picrust_empty_revalidate_")
+  dir.create(empty_revalidate)
+  on.exit(unlink(empty_revalidate, recursive = TRUE), add = TRUE)
+  expect_error(
+    mutt:::.run_picrust2(
+      counts, sequences, "asv", "fixture", empty_revalidate, "revalidate",
+      list(picrust2 = "/bin/false"), taxonomy = taxonomy
+    ),
+    "Refusing to rerun PICRUSt2"
+  )
+
   expect_error(
     mutt:::.run_picrust2(
       counts, sequences, "asv", "fixture", root, "rebuild",

@@ -3,7 +3,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 4L) {
   stop(
-    "Usage: run_functional_study.R STUDY REPOSITORY OUTPUT_DIRECTORY use|rebuild",
+    "Usage: run_functional_study.R STUDY REPOSITORY OUTPUT_DIRECTORY use|rebuild|revalidate",
     call. = FALSE
   )
 }
@@ -11,7 +11,7 @@ if (length(args) != 4L) {
 study <- args[[1L]]
 repository <- normalizePath(args[[2L]], mustWork = TRUE)
 output_directory <- args[[3L]]
-mode <- match.arg(tolower(args[[4L]]), c("use", "rebuild"))
+mode <- match.arg(tolower(args[[4L]]), c("use", "rebuild", "revalidate"))
 dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
 
 safe_study <- gsub("[^A-Za-z0-9._-]+", "_", study)
@@ -37,7 +37,12 @@ result <- tryCatch(
       studies = study,
       base_directory = repository,
       align_samples = TRUE,
-      functional = if (mode == "rebuild") "REBUILD" else TRUE,
+      functional = switch(
+        mode,
+        use = TRUE,
+        rebuild = "REBUILD",
+        revalidate = "REVALIDATE"
+      ),
       verbose = TRUE
     ),
     warning = function(condition) {
@@ -123,5 +128,6 @@ saveRDS(
 print(summary, row.names = FALSE)
 if (parser_failed) quit(save = "no", status = 10L)
 if (failed > 0L) {
+  message("Functional analysis contained ", failed, " failed branch(es).")
   quit(save = "no", status = 11L)
 }

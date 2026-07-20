@@ -20,10 +20,11 @@
 #' @param save_to Optional path ending in `.RData`. The parsed result and a
 #'   companion validation object are saved without changing the returned value.
 #' @param verbose Logical scalar controlling progress and parser summaries.
-#' @param functional `FALSE`, `TRUE`, or `"REBUILD"`. `TRUE` runs or reuses
+#' @param functional `FALSE`, `TRUE`, `"REBUILD"`, or `"REVALIDATE"`. `TRUE` runs or reuses
 #'   PICRUSt2 and FAPROTAX for eligible amplicon branches where valid inputs and
 #'   tools are available; metagenomic branches are skipped. `"REBUILD"` forces
-#'   eligible cached branches to rerun.
+#'   eligible cached branches to rerun. `"REVALIDATE"` requires retained raw
+#'   PICRUSt2 output, never launches PICRUSt2, and reconstructs validated output.
 #'
 #' @return A `mutt_result`: a named list whose successful entries retain the
 #'   established MUTT study structure. `attr(x, "audit")` contains one row per
@@ -89,8 +90,10 @@ mutt <- function(
 
   functional_tools <- if (functional_mode == "off") NULL else .discover_functional_tools()
   if (functional_mode != "off") {
-    if (!nzchar(functional_tools$picrust2)) {
+    if (!nzchar(functional_tools$picrust2) && functional_mode != "revalidate") {
       message("PICRUSt2 was not found on PATH; eligible branches will be recorded as skipped.")
+    } else if (!nzchar(functional_tools$picrust2) && functional_mode == "revalidate") {
+      message("PICRUSt2 was not found on PATH; retained raw output can still be revalidated.")
     }
     if (!nzchar(functional_tools$faprotax) || !nzchar(functional_tools$faprotax_db)) {
       message("FAPROTAX was not found with its database; eligible branches will be recorded as skipped.")
@@ -141,11 +144,19 @@ mutt <- function(
         error = identity
       )
       if (inherits(functional_value, "error")) {
+        functional_error <- conditionMessage(functional_value)
         parser_warnings <- c(
           parser_warnings,
-          paste("Functional inference failed:", conditionMessage(functional_value))
+          paste("Functional inference failed:", functional_error)
         )
         functional_value <- .empty_functional_result(functional_mode != "off")
+        functional_value$manifest <- .manifest_row(
+          method = "functional",
+          branch = "study",
+          status = "failed",
+          reason = functional_error,
+          source = location$study_dir
+        )
       }
       value[["function"]] <- functional_value
       value <- standardize_output_order(value)

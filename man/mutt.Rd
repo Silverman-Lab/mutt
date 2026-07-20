@@ -33,10 +33,11 @@ companion validation object are saved without changing the returned value.}
 
 \item{verbose}{Logical scalar controlling progress and parser summaries.}
 
-\item{functional}{\code{FALSE}, \code{TRUE}, or \code{"REBUILD"}. \code{TRUE} runs or reuses
+\item{functional}{\code{FALSE}, \code{TRUE}, \code{"REBUILD"}, or \code{"REVALIDATE"}. \code{TRUE} runs or reuses
 PICRUSt2 and FAPROTAX for eligible amplicon branches where valid inputs and
 tools are available; metagenomic branches are skipped. \code{"REBUILD"} forces
-eligible cached branches to rerun.}
+eligible cached branches to rerun. \code{"REVALIDATE"} requires retained raw
+PICRUSt2 output, never launches PICRUSt2, and reconstructs validated output.}
 }
 \value{
 A \code{mutt_result}: a named list whose successful entries retain the

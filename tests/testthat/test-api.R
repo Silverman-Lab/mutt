@@ -66,3 +66,24 @@ test_that("functional mode and flags are validated before parser execution", {
   expect_error(mutt(verbose = NA), "verbose")
   expect_error(mutt(functional = "picrust2"), "FALSE, TRUE")
 })
+
+test_that("study-level functional errors are retained as failed manifest rows", {
+  fixture <- make_mutt_fixture()
+  on.exit(unlink(c(fixture$root, fixture$parser_root), recursive = TRUE), add = TRUE)
+  withr::local_options(mutt.parser_root = fixture$parser_root)
+  testthat::local_mocked_bindings(
+    .run_study_functional = function(...) stop("fixture functional failure"),
+    .package = "mutt"
+  )
+
+  observed <- suppressMessages(mutt(
+    studies = "fixture",
+    base_directory = fixture$root,
+    functional = "REVALIDATE"
+  ))
+  manifest <- observed$fixture[["function"]]$manifest
+
+  expect_identical(manifest$status, "failed")
+  expect_identical(manifest$method, "functional")
+  expect_match(manifest$reason, "fixture functional failure")
+})

@@ -1,12 +1,19 @@
 # mutt 0.1.0.9000
 
+* Added `functional = "REVALIDATE"` to reconstruct validated PICRUSt2 results
+  from retained normal or `.failed/raw` output without launching PICRUSt2.
+  Pathway-only sample omissions are zero-filled and reported as
+  `generated_with_warning`; EC/KO disagreement and unexpected pathway samples
+  remain failures.
+* The HPC study runner now accepts `revalidate` and exits with status 11 when
+  any functional manifest branch has `status = "failed"`, preventing failed
+  studies from receiving completion checkpoints.
 * Functional inference now routes only explicitly identified amplicon branches
   to PICRUSt2 and FAPROTAX; shotgun, metagenomic, and unknown-modality branches
   are retained in the manifest as skipped.
-* PICRUSt2 outputs may omit input samples only when no unexpected sample IDs are
-  introduced and every output table agrees. Missing samples are restored as
-  zero-prediction rows with explicit reconciliation QC, while irreconcilable
-  post-processing failures retain their raw output directories for diagnosis.
+* PICRUSt2 EC and KO outputs must agree exactly. Pathway outputs may omit EC/KO
+  samples, which are restored as zero-prediction rows with explicit
+  reconciliation QC; unexpected pathway samples remain validation failures.
 * DADA2 PICRUSt2 inputs now merge exact reverse-complement ASV duplicates before
   inference while preserving every sample's read total and rebuilding aligned
   consensus taxonomy for the merged features.
