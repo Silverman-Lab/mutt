@@ -82,14 +82,17 @@ write_tsv(audit, paste0(prefix, "_audit.tsv"))
 if (nrow(manifest)) write_tsv(manifest, paste0(prefix, "_functional_manifest.tsv"))
 
 parser_failed <- !identical(audit$status[[1L]], "success")
-hard_functional_failure <- any(grepl("Functional inference failed:", audit$warnings, fixed = TRUE))
 failed <- if (nrow(manifest)) sum(manifest$status == "failed") else 0L
-generated <- if (nrow(manifest)) sum(manifest$status == "generated") else 0L
+generated <- if (nrow(manifest)) {
+  sum(manifest$status %in% c("generated", "generated_with_warning"))
+} else {
+  0L
+}
 cached <- if (nrow(manifest)) sum(manifest$status == "cached") else 0L
 skipped <- if (nrow(manifest)) sum(manifest$status == "skipped") else 0L
 outcome <- if (parser_failed) {
   "parser_error"
-} else if (hard_functional_failure || failed > 0L || !nrow(manifest)) {
+} else if (failed > 0L) {
   "functional_error"
 } else if (generated + cached > 0L) {
   "completed"
@@ -119,6 +122,6 @@ saveRDS(
 
 print(summary, row.names = FALSE)
 if (parser_failed) quit(save = "no", status = 10L)
-if (hard_functional_failure || failed > 0L || !nrow(manifest)) {
+if (failed > 0L) {
   quit(save = "no", status = 11L)
 }

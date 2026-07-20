@@ -972,6 +972,49 @@
   out
 }
 
+.align_picrust_pathway_samples <- function(pathway_table, expected_samples) {
+  expected_samples <- as.character(expected_samples)
+  observed_samples <- rownames(pathway_table)
+  missing_samples <- setdiff(expected_samples, observed_samples)
+  extra_samples <- setdiff(observed_samples, expected_samples)
+
+  if (length(extra_samples)) {
+    stop(
+      "PICRUSt2 pathway output contains ", length(extra_samples),
+      " unexpected sample(s): ", paste(extra_samples, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  warning_message <- ""
+  if (length(missing_samples)) {
+    zero_rows <- matrix(
+      0,
+      nrow = length(missing_samples),
+      ncol = ncol(pathway_table),
+      dimnames = list(missing_samples, colnames(pathway_table))
+    )
+    pathway_table <- rbind(pathway_table, zero_rows)
+    warning_message <- sprintf(
+      paste0(
+        "Pathway output omitted %d of %d samples; ",
+        "missing sample%s %s zero-filled."
+      ),
+      length(missing_samples),
+      length(expected_samples),
+      if (length(missing_samples) == 1L) "" else "s",
+      if (length(missing_samples) == 1L) "was" else "were"
+    )
+  }
+
+  pathway_table <- pathway_table[expected_samples, , drop = FALSE]
+  list(
+    table = pathway_table,
+    warning = warning_message,
+    zero_filled_samples = missing_samples
+  )
+}
+
 .find_one <- function(directory, pattern, required = TRUE) {
   hits <- list.files(directory, pattern = pattern, recursive = TRUE, full.names = TRUE,
                      ignore.case = TRUE)
@@ -1025,27 +1068,48 @@
   expected <- rownames(counts)
   ec <- .read_function_table(ec_path, expected, allow_missing_samples = TRUE)
   ko <- .read_function_table(ko_path, expected, allow_missing_samples = TRUE)
-  metacyc_abundance <- .read_function_table(
-    abundance_path, expected, allow_missing_samples = TRUE
-  )
-  metacyc_coverage <- .read_function_table(
-    coverage_path, expected, allow_missing_samples = TRUE
-  )
-  reconciliations <- lapply(
-    list(ec, ko, metacyc_abundance, metacyc_coverage),
-    attr,
-    which = "sample_reconciliation",
-    exact = TRUE
-  )
-  observed_sets <- lapply(reconciliations, `[[`, "observed_samples")
-  if (!all(vapply(observed_sets[-1L], setequal, logical(1), observed_sets[[1L]]))) {
-    stop("PICRUSt2 output tables disagree about retained sample IDs.", call. = FALSE)
+  metacyc_abundance <- .read_function_table(abundance_path)
+  metacyc_coverage <- .read_function_table(coverage_path)
+  ec_reconciliation <- attr(ec, "sample_reconciliation", exact = TRUE)
+  ko_reconciliation <- attr(ko, "sample_reconciliation", exact = TRUE)
+  ec_samples <- ec_reconciliation$observed_samples
+  ko_samples <- ko_reconciliation$observed_samples
+  if (!identical(ec_samples, ko_samples)) {
+    stop(
+      "PICRUSt2 EC and KO output tables disagree about retained sample IDs.",
+      call. = FALSE
+    )
   }
-  missing_samples <- reconciliations[[1L]]$missing_samples
+  abundance_alignment <- .align_picrust_pathway_samples(
+    metacyc_abundance, ec_samples
+  )
+  coverage_alignment <- .align_picrust_pathway_samples(
+    metacyc_coverage, ec_samples
+  )
+  pathway_zero_filled_samples <- unique(c(
+    abundance_alignment$zero_filled_samples,
+    coverage_alignment$zero_filled_samples
+  ))
+  warning_messages <- unique(Filter(
+    nzchar,
+    c(abundance_alignment$warning, coverage_alignment$warning)
+  ))
+  picrust_warning <- paste(warning_messages, collapse = " ")
+  metacyc_abundance <- abundance_alignment$table
+  metacyc_coverage <- coverage_alignment$table
+  missing_samples <- ec_reconciliation$missing_samples
+  if (length(missing_samples)) {
+    restore <- function(x) {
+      out <- matrix(0, nrow = length(expected), ncol = ncol(x),
+                    dimnames = list(expected, colnames(x)))
+      out[ec_samples, ] <- x
+      out
+    }
+    metacyc_abundance <- restore(metacyc_abundance)
+    metacyc_coverage <- restore(metacyc_coverage)
+  }
   attr(ec, "sample_reconciliation") <- NULL
   attr(ko, "sample_reconciliation") <- NULL
-  attr(metacyc_abundance, "sample_reconciliation") <- NULL
-  attr(metacyc_coverage, "sample_reconciliation") <- NULL
   contribution_paths <- list.files(
     raw_dir,
     pattern = "^(pred_metagenome|path_abun)_contrib\\.tsv\\.gz$",
@@ -1081,14 +1145,17 @@
       ko_features = ncol(ko),
       metacyc_pathways = ncol(metacyc_abundance),
       nsti_records = if (is.null(nsti)) NA_integer_ else nrow(nsti),
-      picrust_output_samples = length(reconciliations[[1L]]$observed_samples),
-      zero_filled_missing_samples = length(missing_samples)
+      picrust_output_samples = length(ec_samples),
+      zero_filled_missing_samples = length(missing_samples),
+      pathway_zero_filled_samples = length(pathway_zero_filled_samples)
     ),
     sample_reconciliation = data.frame(
       sample_id = expected,
       status = ifelse(expected %in% missing_samples, "zero_filled_missing", "retained"),
       stringsAsFactors = FALSE
-    )
+    ),
+    picrust_warning = picrust_warning,
+    pathway_zero_filled_samples = pathway_zero_filled_samples
   )
 }
 
@@ -1429,6 +1496,19 @@ read_picrust2_contributions <- function(
       row.names = FALSE
     )
   }
+  if (length(result$pathway_zero_filled_samples)) {
+    utils::write.table(
+      data.frame(
+        sample_id = result$pathway_zero_filled_samples,
+        action = "zero_filled_in_pathway_output",
+        stringsAsFactors = FALSE
+      ),
+      file.path(staging, "pathway_zero_filled_samples.tsv"),
+      sep = "\t",
+      quote = FALSE,
+      row.names = FALSE
+    )
+  }
   result$provenance <- list(source = source, input_hash = input_hash,
                             tool_version = tools$picrust2_version,
                             biom_version = tools$biom_version,
@@ -1447,8 +1527,15 @@ read_picrust2_contributions <- function(
                    runtime_seconds = run$runtime)
   jsonlite::write_json(metadata, file.path(staging, "manifest.json"), auto_unbox = TRUE, pretty = TRUE)
   .publish_cache(staging, target)
+  picrust_status <- if (nzchar(result$picrust_warning)) {
+    "generated_with_warning"
+  } else {
+    "generated"
+  }
+  picrust_reason <- if (nzchar(result$picrust_warning)) result$picrust_warning else ""
   list(result = result, manifest = .manifest_row(
-    "picrust2", branch, "generated", source = source, samples = nrow(counts),
+    "picrust2", branch, picrust_status, reason = picrust_reason,
+    source = source, samples = nrow(counts),
     features = ncol(counts), input_hash = input_hash,
     tool_version = tools$picrust2_version, runtime_seconds = run$runtime,
     output_directory = target

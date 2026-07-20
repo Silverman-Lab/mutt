@@ -252,6 +252,26 @@ test_that("functional output rejects unexpected sample IDs", {
   )
 })
 
+test_that("PICRUSt2 pathway alignment zero-fills omissions and rejects extras", {
+  pathway <- matrix(
+    c(1, 2),
+    nrow = 1L,
+    dimnames = list("S1", c("PWY1", "PWY2"))
+  )
+  aligned <- mutt:::.align_picrust_pathway_samples(pathway, c("S1", "S2"))
+
+  expect_identical(rownames(aligned$table), c("S1", "S2"))
+  expect_equal(unname(aligned$table["S2", ]), c(0, 0))
+  expect_identical(aligned$zero_filled_samples, "S2")
+  expect_match(aligned$warning, "omitted 1 of 2 samples")
+
+  rownames(pathway) <- "UNEXPECTED"
+  expect_error(
+    mutt:::.align_picrust_pathway_samples(pathway, c("S1", "S2")),
+    "1 unexpected sample.*UNEXPECTED"
+  )
+})
+
 test_that("PICRUSt2 parsing reconciles the same missing samples across outputs", {
   root <- tempfile("mutt_picrust_parse_")
   dir.create(file.path(root, "EC_metagenome_out"), recursive = TRUE)
@@ -527,9 +547,9 @@ test_that("PICRUSt2 cache is reusable and a failed rebuild preserves it", {
     "printf 'sample\\tfunction\\ttaxon\\ttaxon_abun\\ttaxon_rel_abun\\tgenome_function_count\\ttaxon_function_abun\\ttaxon_rel_function_abun\\tnorm_taxon_function_contrib\\nS1\\tEC1\\tASV1\\t1\\t0.5\\t2\\t2\\t1\\t1\\n' | gzip -c > \"$out/EC_metagenome_out/pred_metagenome_contrib.tsv.gz\"",
     "printf 'function\\tS1\\tS2\\nKO1\\t3\\t4\\n' | gzip -c > \"$out/KO_metagenome_out/pred_metagenome_unstrat.tsv.gz\"",
     "printf 'sample\\tfunction\\ttaxon\\ttaxon_abun\\ttaxon_rel_abun\\tgenome_function_count\\ttaxon_function_abun\\ttaxon_rel_function_abun\\tnorm_taxon_function_contrib\\nS1\\tKO1\\tASV1\\t1\\t0.5\\t2\\t2\\t1\\t1\\n' | gzip -c > \"$out/KO_metagenome_out/pred_metagenome_contrib.tsv.gz\"",
-    "printf 'function\\tS1\\tS2\\nPWY1\\t5\\t6\\n' | gzip -c > \"$out/pathways_out/path_abun_unstrat.tsv.gz\"",
+    "printf 'function\\tS1\\nPWY1\\t5\\n' | gzip -c > \"$out/pathways_out/path_abun_unstrat.tsv.gz\"",
     "printf 'sample\\tfunction\\ttaxon\\ttaxon_abun\\ttaxon_rel_abun\\tgenome_function_count\\ttaxon_function_abun\\ttaxon_rel_function_abun\\tnorm_taxon_function_contrib\\nS1\\tPWY1\\tASV1\\t1\\t0.5\\t2\\t2\\t1\\t1\\n' | gzip -c > \"$out/pathways_out/path_abun_contrib.tsv.gz\"",
-    "printf 'function\\tS1\\tS2\\nPWY1\\t0.5\\t0.6\\n' | gzip -c > \"$out/pathways_out/path_cov_unstrat.tsv.gz\"",
+    "printf 'function\\tS1\\nPWY1\\t0.5\\n' | gzip -c > \"$out/pathways_out/path_cov_unstrat.tsv.gz\"",
     "printf 'sequence\\tNSTI\\nASV1\\t0.1\\n' | gzip -c > \"$out/marker_predicted_and_nsti.tsv.gz\""
   ), executable)
   Sys.chmod(executable, "0755")
@@ -570,12 +590,25 @@ test_that("PICRUSt2 cache is reusable and a failed rebuild preserves it", {
     counts, sequences, "asv", "fixture", root, "use", tools,
     taxonomy = taxonomy
   )
-  expect_identical(first$manifest$status, "generated")
+  expect_identical(first$manifest$status, "generated_with_warning")
+  expect_match(first$manifest$reason, "Pathway output omitted 1 of 2 samples")
   expect_equal(first$result$ko["S2", "KO1"], 4)
+  expect_equal(first$result$metacyc_abundance["S2", "PWY1"], 0)
   cache_dir <- file.path(root, "picrust2", "asv")
   expect_true(file.exists(file.path(cache_dir, "input", "study_sequences.fna")))
   expect_true(file.exists(file.path(cache_dir, "input", "asv_counts.biom")))
   expect_true(file.exists(file.path(cache_dir, "input", "asv_id_map.tsv")))
+  expect_true(file.exists(file.path(cache_dir, "pathway_zero_filled_samples.tsv")))
+  zero_filled <- utils::read.delim(
+    file.path(cache_dir, "pathway_zero_filled_samples.tsv"),
+    stringsAsFactors = FALSE
+  )
+  expect_identical(zero_filled$sample_id, "S2")
+  expect_identical(zero_filled$action, "zero_filled_in_pathway_output")
+  raw_pathway <- mutt:::.read_function_table(
+    file.path(cache_dir, "raw", "pathways_out", "path_abun_unstrat.tsv.gz")
+  )
+  expect_identical(rownames(raw_pathway), "S1")
   expect_false(dir.exists(file.path(cache_dir, "input", "orientation")))
   expect_false(dir.exists(file.path(cache_dir, "raw", "intermediate")))
   expect_identical(first$result$asv_mapping$original_feature_id, colnames(counts))
