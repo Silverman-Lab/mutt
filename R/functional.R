@@ -1179,7 +1179,7 @@
 #' @return A data frame with sample, function, original ASV identifier, and
 #'   PICRUSt2 contribution quantities.
 #' @noRd
-read_picrust2_contributions <- function(
+read_picrust2_contributions_legacy <- function(
   x,
   type = c("ec", "ko", "metacyc_abundance"),
   n_max = Inf
@@ -1860,6 +1860,11 @@ read_picrust2_contributions <- function(
 
 .run_study_functional <- function(parsed, study_dir, mode, tools = NULL) {
   if (mode == "off") return(.empty_functional_result(FALSE))
+  if (identical(mode, "use")) {
+    published <- .load_functional_publication(study_dir)
+    if (!is.null(published)) return(published)
+  }
+
   .restore_functional_archive(study_dir)
   functional_dir <- file.path(study_dir, "functional")
   dir.create(functional_dir, recursive = TRUE, showWarnings = FALSE)

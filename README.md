@@ -51,7 +51,7 @@ git lfs status
 
 The archiver accepts only explicit paths under `studies/`, validates that each archive reproduces its input byte-for-byte, and refuses to overwrite archives unless `--replace` is explicit. It does not change remotes, stage unrelated files, commit, or push.
 
-Functional caches can be refreshed without removing the working cache:
+Legacy functional cache archives can still be refreshed without removing the working cache:
 
 ```bash
 ./zip-push-gitlfs.sh --apply --keep-source --replace \
@@ -60,6 +60,41 @@ git add studies/STUDY/functional.zip
 ```
 
 When `functional/` is absent and `functional.zip` is present, `mutt()` restores the archive atomically before checking its cache. Cached PICRUSt2 paths are rebased to the current checkout, so stratified outputs remain readable after a clone or move.
+
+New functional releases separate the complete execution cache from the
+API-facing publication:
+
+- `studies/STUDY/functional/` retains inputs, raw outputs, intermediates, and
+  logs needed for diagnosis or revalidation. It is not published as one Git
+  LFS archive.
+- `studies/STUDY/functional_data/` contains validated final tables, ASV
+  mappings, taxonomy, reconciliation records, provenance, checksums, and a
+  versioned publication manifest.
+
+The publication does not duplicate PICRUSt2 input FASTA/BIOM files or raw
+intermediates. Those stay in the execution cache; the original counts,
+sequences, and taxonomy stay in the study directory.
+
+Maintainers and the HPC finalizer build the publication from an existing
+validated cache with the internal publisher:
+
+```r
+mutt:::publish_functional_data(
+  "studies/STUDY",
+  max_asset_bytes = 1900000000
+)
+```
+
+Files below the limit remain single files. Oversized TSV outputs become
+gzip-compressed shards, and an oversized `result.rds` is represented by
+reconstructable RDS components. The HPC finalizer performs this operation and
+stages non-JSON publication assets through Git LFS. The execution cache remains
+unchanged. Legacy `functional.zip` archives remain readable.
+
+MUTT does not create a study-wide monolithic functional RDS. That would make a
+single large table expensive to download and load. The publication manifest is
+the stable logical interface: physical files may be single assets or shards,
+while `mutt()` returns the same branch structure in either case.
 
 ## Use the API
 
@@ -87,6 +122,9 @@ x <- mutt(
 
 Use `functional = "REBUILD"` only when eligible functional results must be recomputed. Use `functional = "REVALIDATE"` to require retained raw PICRUSt2 output and rebuild validated MUTT results without launching PICRUSt2. Functional outputs are stored under the selected study's `functional/` directory. `MUTT_FUNCTIONAL_PROCESSES` can override automatic PICRUSt2 worker detection.
 
+When `functional_data/` is present, `functional = TRUE` loads that validated
+publication before inspecting external tools or execution caches.
+
 ## Returned object
 
 The result remains a named list, so existing indexing continues to work:
@@ -112,6 +150,30 @@ attr(x, "validation")
 
 If one parser fails, successful studies remain available and the error is recorded in the audit. PICRUSt2 stratified contribution branches are file-backed; use the base `as.data.frame()` generic on a returned branch and specify `type = "ec"`, `"ko"`, or `"metacyc_abundance"`.
 
+The same API works for a single contribution file or many shards:
+
+```r
+branch <- x[[1]][["function"]]$picrust2$asv
+
+selected <- as.data.frame(
+  branch,
+  type = "ko",
+  samples = c("sample_1", "sample_2"),
+  functions = c("K00001", "K00002"),
+  n_max = 100000
+)
+
+complete <- as.data.frame(
+  branch,
+  type = "ko",
+  collect_all = TRUE
+)
+```
+
+`as.data.frame()` accepts the same `type`, `samples`, `functions`, `asvs`,
+`n_max`, and `collect_all` arguments. Reading a complete sharded table must be
+explicit; MUTT does not silently reconstruct it.
+
 ## Processing flow
 
 ```mermaid
@@ -128,12 +190,14 @@ flowchart TD
     I --> J[Validate returned counts, scale, metadata, and taxonomy]
     J --> K{functional requested?}
     K -->|No| L[Attach empty functional result]
-    K -->|Yes| M{Functional cache or archive available?}
-    M -->|Archive| P[Validate and restore functional.zip atomically]
-    M -->|Directory or none| Q[Use existing cache state]
-    P --> R[Run or reuse PICRUSt2 and FAPROTAX where eligible]
-    Q --> R
-    L --> N[Return named mutt_result]
+    K -->|Yes| M{Published functional_data available?}
+    M -->|Yes| P[Load manifest and file-backed table descriptors]
+    M -->|No| Q{Legacy archive or execution cache available?}
+    Q -->|Archive| S[Validate and restore functional.zip atomically]
+    Q -->|Directory or none| R[Run or reuse eligible functional methods]
+    S --> R
+    P --> N[Return named mutt_result]
+    L --> N
     R --> N
     N --> O[Attach audit, validation, and provenance]
 ```

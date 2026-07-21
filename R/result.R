@@ -32,8 +32,8 @@ print.mutt_result <- function(x, ...) {
 #' @param n_max Maximum rows to read.
 #' @param ... Unused.
 #' @return A data frame joined to original ASV identifiers and taxonomy.
-#' @export
-as.data.frame.mutt_picrust_branch <- function(x, row.names = NULL, optional = FALSE,
+#' @noRd
+.as_data_frame_picrust_legacy <- function(x, row.names = NULL, optional = FALSE,
                                                type = c("ec", "ko", "metacyc_abundance"),
                                                n_max = Inf, ...) {
   read_picrust2_contributions(x, type = match.arg(type), n_max = n_max)

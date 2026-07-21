@@ -6,3 +6,6 @@
 *.fa.gz filter=lfs diff=lfs merge=lfs -text
 *.tar.gz filter=lfs diff=lfs merge=lfs -text
 *.zip filter=lfs diff=lfs merge=lfs -text
+studies/**/functional_data/** filter=lfs diff=lfs merge=lfs -text
+studies/**/functional_data/*.json -filter -diff -merge text
+studies/**/functional_data/**/*.json -filter -diff -merge text

@@ -421,7 +421,8 @@ run_study() {
   echo "[$(date --iso-8601=seconds)] Completed $study"
 }
 
-archive_study_cache() {
+# Retained for recovery of runs created before functional_data schema version 1.
+archive_study_cache_legacy() {
   local repository=$1 study=$2 max_bytes=$3 archive bytes pointer
   archive="$repository/studies/$study/functional.zip"
   [[ -d "$repository/studies/$study/functional" ]] || {
@@ -443,6 +444,50 @@ archive_study_cache() {
     echo "Archive was not staged as a Git LFS pointer: $archive" >&2
     exit 1
   }
+}
+
+publish_study_functional_data() {
+    local repository=$1 study=$2 max_bytes=$3 publication file relative pointer
+    publication="$repository/studies/$study/functional_data"
+
+    [[ -d "$repository/studies/$study/functional" ]] || {
+        echo "Functional execution cache was not created for $study." >&2
+        exit 1
+    }
+
+    log "Building adaptive functional publication for $study."
+    apptainer exec --cleanenv \
+        --bind "$repository:/work" \
+        --bind "$library:/mutt-lib" \
+        --pwd /work \
+        --env R_LIBS_USER=/mutt-lib \
+        "$image" \
+        Rscript --vanilla -e \
+        'args <- commandArgs(TRUE); mutt:::publish_functional_data(args[[1L]], as.numeric(args[[2L]]))' \
+        "/work/studies/$study" "$max_bytes"
+
+    [[ -f "$publication/publication_manifest.json" ]] || {
+        echo "Functional publication manifest was not created for $study." >&2
+        exit 1
+    }
+
+    while IFS= read -r -d '' file; do
+        if (( $(stat -c '%s' "$file") > max_bytes )); then
+            echo "Published functional asset exceeds limit ($max_bytes bytes): $file" >&2
+            exit 1
+        fi
+    done < <(find "$publication" -type f -print0)
+
+    git -C "$repository" add -- "studies/$study/functional_data"
+    while IFS= read -r -d '' file; do
+        [[ "$file" == *.json ]] && continue
+        relative=${file#"$repository/"}
+        pointer=$(git -C "$repository" show ":$relative" | sed -n '1p')
+        [[ "$pointer" == "version https://git-lfs.github.com/spec/v1" ]] || {
+            echo "Published functional asset is not staged through Git LFS: $relative" >&2
+            exit 1
+        }
+    done < <(find "$publication" -type f -print0)
 }
 
 commit_and_push_phase() {
@@ -619,8 +664,8 @@ run_finalize_worker() {
       echo "Study checkpoint is missing for $study; refusing to finalize." >&2
       exit 1
     }
-    log "Archiving functional cache for $study."
-    archive_study_cache "$repository" "$study" "$max_lfs"
+        log "Publishing API-facing functional data for $study."
+        publish_study_functional_data "$repository" "$study" "$max_lfs"
   done < <(phase_studies "$MUTT_PHASE")
 
   {
