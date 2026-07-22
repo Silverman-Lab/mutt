@@ -1,0 +1,42 @@
+{
+  "bundle_schema_version": 2,
+  "publication_schema_version": 1,
+  "created_utc": "2026-07-22T12:49:29Z",
+  "core": {
+    "relative_path": "functional-core.zip",
+    "size_bytes": 4655476,
+    "sha256": "62835f79930865479393925db454619b02c617b8af6667ad46814dc045376503"
+  },
+  "contributions": [
+    {
+      "publication_path": "picrust2/PRJEB21504/stratified/ec/pred_metagenome_contrib.tsv.gz",
+      "branch": "picrust2/PRJEB21504",
+      "relative_path": "stratified/ec/pred_metagenome_contrib.tsv.gz",
+      "role": "stratified_ec",
+      "source": "/work/studies/2017_vandeputte_nature_flow/functional/picrust2/PRJEB21504/raw/EC_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 179092176,
+      "sha256": "309fa50ad53add8ce2edc43e4a9b88e9f92585a615bb15e7c12789f2f9b696d2",
+      "rows": null
+    },
+    {
+      "publication_path": "picrust2/PRJEB21504/stratified/ko/pred_metagenome_contrib.tsv.gz",
+      "branch": "picrust2/PRJEB21504",
+      "relative_path": "stratified/ko/pred_metagenome_contrib.tsv.gz",
+      "role": "stratified_ko",
+      "source": "/work/studies/2017_vandeputte_nature_flow/functional/picrust2/PRJEB21504/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 355417200,
+      "sha256": "94659fa66b7fb35c59bbcfebc8951bc25ee01e54617274a7f35a50a23a4dc5de",
+      "rows": null
+    },
+    {
+      "publication_path": "picrust2/PRJEB21504/stratified/metacyc_abundance/path_abun_contrib.tsv.gz",
+      "branch": "picrust2/PRJEB21504",
+      "relative_path": "stratified/metacyc_abundance/path_abun_contrib.tsv.gz",
+      "role": "stratified_metacyc_abundance",
+      "source": "/work/studies/2017_vandeputte_nature_flow/functional/picrust2/PRJEB21504/raw/pathways_out/path_abun_contrib.tsv.gz",
+      "size_bytes": 141001161,
+      "sha256": "4d4f016fdc931b9a84af3fe39d96cfadfb701ec47020b4a39428a426d198cb13",
+      "rows": null
+    }
+  ]
+}

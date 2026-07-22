@@ -1,0 +1,6 @@
+method	branch	status	reason	source	samples	features	input_hash	tool_version	runtime_seconds	output_directory
+picrust2	PRJEB21504	generated		/work/studies/2017_vandeputte_nature_flow/PRJEB21504_dada2_counts.rds.zip	135	5173	93f429c1d48220dd37958832082851bd	PICRUSt2 2.6.3	2370.521	/work/studies/2017_vandeputte_nature_flow/functional/picrust2/PRJEB21504
+faprotax	original/rdp16	generated		counts:original/rdp16	135	139	7689291682a64cfed60bfcc92021cb33	unknown	0.550000000000182	/work/studies/2017_vandeputte_nature_flow/functional/faprotax/original_rdp16
+faprotax	nishijima2024	generated		counts:nishijima2024	95	166	b2f00829adda6839e2cf81964a4733ab	unknown	0.548999999999978	/work/studies/2017_vandeputte_nature_flow/functional/faprotax/nishijima2024
+faprotax	reprocessed/rdp19	generated		counts:reprocessed/rdp19	135	334	e657717e826dc1263823ec8663401a4e	unknown	0.880000000000109	/work/studies/2017_vandeputte_nature_flow/functional/faprotax/reprocessed_rdp19
+faprotax	reprocessed/rdp16	generated		counts:reprocessed/rdp16	135	221	2cd042f3138092020206871fbd0bf002	unknown	0.682000000000244	/work/studies/2017_vandeputte_nature_flow/functional/faprotax/reprocessed_rdp16

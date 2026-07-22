@@ -1,0 +1,2 @@
+output_name	study	status	data_source	data_directory	runtime_seconds	warnings	error
+2019_vieirasilva_naturemicrobiology_pscibd	2019_vieirasilva_naturemicrobiology_pscibd	success	local	/work/studies/2019_vieirasilva_naturemicrobiology_pscibd	0.587000000000001	Not deleting session-wide tempdir(): /tmp/RtmpGnkfoH	

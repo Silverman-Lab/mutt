@@ -1,0 +1,42 @@
+{
+  "bundle_schema_version": 2,
+  "publication_schema_version": 1,
+  "created_utc": "2026-07-22T13:57:53Z",
+  "core": {
+    "relative_path": "functional-core.zip",
+    "size_bytes": 32659223,
+    "sha256": "a3bcbaf9549b8ec8ee902cbc81d8f3783294eae537c90a2c4e7d4daea7ea4651"
+  },
+  "contributions": [
+    {
+      "publication_path": "picrust2/PRJNA1120972/stratified/ec/pred_metagenome_contrib.tsv.gz",
+      "branch": "picrust2/PRJNA1120972",
+      "relative_path": "stratified/ec/pred_metagenome_contrib.tsv.gz",
+      "role": "stratified_ec",
+      "source": "/work/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/functional/picrust2/PRJNA1120972/raw/EC_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 785348695,
+      "sha256": "86b52de22c0da42b4401900697f980bb703d962b1519499582b25c891460d20b",
+      "rows": null
+    },
+    {
+      "publication_path": "picrust2/PRJNA1120972/stratified/ko/pred_metagenome_contrib.tsv.gz",
+      "branch": "picrust2/PRJNA1120972",
+      "relative_path": "stratified/ko/pred_metagenome_contrib.tsv.gz",
+      "role": "stratified_ko",
+      "source": "/work/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/functional/picrust2/PRJNA1120972/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 1577055165,
+      "sha256": "558ddf7a6c50bbedeeb144918ca8f7c84bdc2a8afa4eacf1063341d3fdcc3773",
+      "rows": null
+    },
+    {
+      "publication_path": "picrust2/PRJNA1120972/stratified/metacyc_abundance/path_abun_contrib.tsv.gz",
+      "branch": "picrust2/PRJNA1120972",
+      "relative_path": "stratified/metacyc_abundance/path_abun_contrib.tsv.gz",
+      "role": "stratified_metacyc_abundance",
+      "source": "/work/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/functional/picrust2/PRJNA1120972/raw/pathways_out/path_abun_contrib.tsv.gz",
+      "size_bytes": 661327914,
+      "sha256": "a95afeeffd0bd84693ebde773d3d3081391a978facd25aaaf2e4979c18534210",
+      "rows": null
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "bundle_schema_version": 2,
+  "publication_schema_version": 1,
+  "created_utc": "2026-07-22T13:54:54Z",
+  "core": {
+    "relative_path": "functional-core.zip",
+    "size_bytes": 79178,
+    "sha256": "f73e3b2ddc956abeadc6d8b9b7a854d13ffec6415771b03a00c195a08486c273"
+  },
+  "contributions": []
+}

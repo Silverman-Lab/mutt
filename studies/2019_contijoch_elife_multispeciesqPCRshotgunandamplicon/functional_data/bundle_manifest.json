@@ -1,0 +1,712 @@
+{
+  "bundle_schema_version": 2,
+  "publication_schema_version": 1,
+  "created_utc": "2026-07-22T13:54:06Z",
+  "core": {
+    "relative_path": "functional-core.zip",
+    "size_bytes": 44085674,
+    "sha256": "88e3161854a9e1615cb88caae8c9b2aa2a94153a1bf9fb1c4399240b07e70016"
+  },
+  "contributions": [
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ec/pred_metagenome_contrib.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ec/pred_metagenome_contrib.tsv.gz",
+      "role": "stratified_ec",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/EC_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 1237785255,
+      "sha256": "1144a23e1520e35ec644b3e92f5d8b35b707b5faf13aa57701d032360261d1a2",
+      "rows": null
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00001.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00001.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 34377183,
+      "sha256": "ac8065563eddf937de146e07c7940990718b9ae65899a7f0cb90851c63b9fd16",
+      "rows": 2613236
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00002.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00002.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36664630,
+      "sha256": "4056cefc7b39a6a3f9766bc9253da3a03aa9f3f34b9cc99191623060ff64d829",
+      "rows": 2589263
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00003.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00003.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 34795685,
+      "sha256": "7959faa0276fd4364a61446a8152f022819903c0b4e37b35fafe0183065d73b9",
+      "rows": 2606993
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00004.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00004.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 34310623,
+      "sha256": "48b039afd78dd325b6b9d227fc5c2297f287648808281fe0abbc9b8dc6f16019",
+      "rows": 2620067
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00005.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00005.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36086207,
+      "sha256": "96280810749b98e86f2f7f885c39234d67a889607e0deb4da9aa871fa1b9a465",
+      "rows": 2603529
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00006.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00006.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36095594,
+      "sha256": "937b14dcf2ca4a574ccb7973c7567a5b9db6fdfc819767a523e7803322e0a1f1",
+      "rows": 2594438
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00007.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00007.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36653333,
+      "sha256": "81968ce3bca9a183e9efc64744325c90714dc695f0689906fcb521f9b6618a44",
+      "rows": 2597275
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00008.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00008.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 37101882,
+      "sha256": "709ffb119f3d8b67b4920d38a6198a01ed185bbc37aaa80b23ee8dfba8f42b9d",
+      "rows": 2588779
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00009.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00009.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36113709,
+      "sha256": "6c3c88a377049a167e7930ae48a79e8f9efac59197229f484d2dffffcf45aece",
+      "rows": 2598407
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00010.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00010.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 35014355,
+      "sha256": "6082c5d089dfe7dab81fe86731623e4e9c729d6a5c7c0ff4cd6076af961cf32c",
+      "rows": 2613091
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00011.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00011.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36159031,
+      "sha256": "28d10be6f1eb39aee1299e9ecd9db9797d726f369fa9185178fe24f0ee882f21",
+      "rows": 2592836
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00012.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00012.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36902670,
+      "sha256": "113196a537ce9a08b7e357f86387ebcf529992f4a9fea3060f4b46fe2bded162",
+      "rows": 2588216
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00013.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00013.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 34453254,
+      "sha256": "9a441435127719b0b4e4f5dde0229ef62ebb955a6faf4e5d276a08dbe4a7f0d5",
+      "rows": 2608705
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00014.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00014.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 35246548,
+      "sha256": "17d00056a2e6c0e133d88182e5ee613e960bc92608b574ac25e911c5507e54ca",
+      "rows": 2608589
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00015.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00015.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 35020246,
+      "sha256": "83b8c8560e573f1b41362e06ce4b547204642ec2bb3ce9a51a1d201b8525a830",
+      "rows": 2616583
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00016.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00016.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 37756138,
+      "sha256": "7093669901c77aa217ab37893cc6054e1fdc09d32bb7b94c13b66eac9b02bf0c",
+      "rows": 2592648
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00017.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00017.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39153044,
+      "sha256": "16100e52bb4277a17095b9aa3812dcedaaf9764b53f87425d818113ee3d9150d",
+      "rows": 2616429
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00018.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00018.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40021722,
+      "sha256": "aed7cabcee2004ed778cba19d1d10dc471895c3f14b3dab2bfeb25c5adac603c",
+      "rows": 2588630
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00019.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00019.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36153644,
+      "sha256": "71906a5568d196170ec77030a16159f1482a895ac19d1b230acca07737aef39b",
+      "rows": 2602382
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00020.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00020.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 38063466,
+      "sha256": "282200efb92c9e9b22c8e99843816042b90b3e6b868737878222623605a00bcb",
+      "rows": 2611099
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00021.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00021.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 34494293,
+      "sha256": "97ab85a84f018feb95b14a2367bb7d93acf4f135bf1a115c9fd09227bd9d1184",
+      "rows": 2608459
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00022.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00022.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 37328318,
+      "sha256": "2774478dd5d66a38f0103de199dfd6d42efe13701ac9f910787a6aa55b397b63",
+      "rows": 2598578
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00023.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00023.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 38929357,
+      "sha256": "68a637202eb13aa5695084aec5330f5a4c8a1bebe8729de16ea6a62bcce08af5",
+      "rows": 2601235
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00024.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00024.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36488532,
+      "sha256": "2558d571648f9c004e61374744c1c86e97e0744759d4df89b4d5763fe86e2e3c",
+      "rows": 2609877
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00025.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00025.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39725595,
+      "sha256": "aa0aae0b14679e3a9f63f255d0e451e28b531e9d30bb0a0643cf39ef9b816b4b",
+      "rows": 2599910
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00026.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00026.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 37006817,
+      "sha256": "0ad43f38f360b439f7636c19754354c2a33e942ec3c127cdcc4186bbb3559553",
+      "rows": 2607022
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00027.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00027.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40112838,
+      "sha256": "b21e94a1f51fda6886cca5ff75d08542e162fbdd1ba04e1dbcc9a34eaee1395e",
+      "rows": 2603886
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00028.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00028.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40089452,
+      "sha256": "48e37034138436b530ba17f9984d43708debc40ecff993eb7f39884ed9742faa",
+      "rows": 2588991
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00029.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00029.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 34516949,
+      "sha256": "b508b3bae63f34888b950907eeb544e8bc2d65940d11a90a8ee8d8ee91bd72bf",
+      "rows": 2603809
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00030.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00030.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 38373127,
+      "sha256": "8e6c07a2034ff9bc576e3fca801e2573e8bf210ccd8f4549480e3e5b6bbd2670",
+      "rows": 2604225
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00031.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00031.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40359561,
+      "sha256": "fb1da9d4f69856ea4749be9ea14d13ee9b7177af5cc1ea204e210e4a47a5d6f9",
+      "rows": 2592259
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00032.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00032.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 35879767,
+      "sha256": "52b992aa9d9dca727d748722d69e16db6a37e0cc0ea649cea8129c7647dfd7f1",
+      "rows": 2600985
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00033.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00033.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36168594,
+      "sha256": "05c8deedf8426f3a2e5d687300fcf10c3e14f58da0d0da58b5d4355f5cc02316",
+      "rows": 2602620
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00034.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00034.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40606329,
+      "sha256": "233ed79462f993313daf5240ce7e088354270486513baf288198308a42eb84e3",
+      "rows": 2584442
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00035.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00035.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40803614,
+      "sha256": "21cb0741e16d95a082c0d982c987156b94c4c7d4c8b6eb6681e175cad3827e55",
+      "rows": 2586085
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00036.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00036.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39675718,
+      "sha256": "63777ef288ecc70cfcb818646e6139f91077a03350125307725d45be11c6a717",
+      "rows": 2595608
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00037.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00037.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 41020829,
+      "sha256": "375fcbf86d1f00d8a0db8979a0e1a77245a196bcc2fded23d3307a9c92d74282",
+      "rows": 2585089
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00038.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00038.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39846309,
+      "sha256": "8e4187c4adbbb7083bf9062756cae320f3f575e33bebcee9ba6d626e62980098",
+      "rows": 2582795
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00039.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00039.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39492192,
+      "sha256": "4c111c71a8ffdc08d5c5ce21b46680994c579a3db13f86314e55e482e9cdf018",
+      "rows": 2599463
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00040.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00040.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 41491583,
+      "sha256": "15c59193aad0cb055f72db3faa07b5ed209d68fd30725df73f3d85d07c28713e",
+      "rows": 2582834
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00041.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00041.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 41813030,
+      "sha256": "c8cb8cba9012b8e9cf719f7437396abf6dea8ce63f458835d7e0f6b93f064671",
+      "rows": 2584647
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00042.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00042.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40728117,
+      "sha256": "ba4b2cd7d61f9ba775277574e06fc626439826f7c49123a4fdfed86d6197daed",
+      "rows": 2582160
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00043.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00043.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39948079,
+      "sha256": "2f06248f49bd3bf0020b4bacee3ae39dbd43139306ccdd977ed215c3b2fbd8a7",
+      "rows": 2584250
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00044.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00044.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39212982,
+      "sha256": "9c60554d5c274677d6e52e6212a90a105b0f6aa42f7eddebc90342f3172cb83a",
+      "rows": 2597821
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00045.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00045.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40328635,
+      "sha256": "61bbfbc28a950e1d1a6c2de6216ad06342b9c8507e78d6de2911214b5e9fd932",
+      "rows": 2585792
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00046.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00046.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39961249,
+      "sha256": "79a3ed02654b640a90f71f8383ddad9237d3f0c29eec61fb42589f14f1316ddf",
+      "rows": 2591861
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00047.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00047.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40768975,
+      "sha256": "c13d5b24b6b1f92d82e2bcb19f7d5965fbcf7694cb0c52bfd00d119de9276357",
+      "rows": 2579757
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00048.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00048.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 41306760,
+      "sha256": "0e83b6bae9cb9a8abbce49d24d4c4ee98329d5e9998b9d7db9e35b63d73165ac",
+      "rows": 2571317
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00049.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00049.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39848268,
+      "sha256": "fd13fd5c0b041f667015f39bfafd5f4e73cf068c50e0515f18cba0101a2c6db3",
+      "rows": 2586853
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00050.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00050.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39581951,
+      "sha256": "c53b40f4db270709a4d5bcd311021f6e8bb20b3d8e5d4fb552546c494129a719",
+      "rows": 2594911
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00051.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00051.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39266285,
+      "sha256": "7a6fbb832dd1ae7538fb3b0e715e88e5879f19d7660bc2e09ea1ee0fd6c4765f",
+      "rows": 2577912
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00052.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00052.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40449411,
+      "sha256": "b265565b844eb5b4703fe4ed15292c5f4b22836fc0ea7628d4d76fe6a1049518",
+      "rows": 2585102
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00053.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00053.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 38771006,
+      "sha256": "81ef2a999faf2e27435c11484ac657fa9c86f4660b3f3659d5345c7b84c03bef",
+      "rows": 2592399
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00054.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00054.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39986995,
+      "sha256": "fee45d49b8389dd65ccfa30b4f457023cd1c095ba155fa3812f5c4b7ed70f6ed",
+      "rows": 2584288
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00055.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00055.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 41522441,
+      "sha256": "876a33fd4f98a5535ed89cca07b4d1693790d952c46021bfa97d3e0b584bc6f4",
+      "rows": 2572874
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00056.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00056.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 39980118,
+      "sha256": "f195540950047f037f49cdec60e3b48ef57e88f74bbcea3aae4f45e720620f0c",
+      "rows": 2575754
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00057.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00057.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 40542879,
+      "sha256": "c04f0e776810fdea9c184143a8840c6a9fc9b5e1ab89de96da944fc99ca6b39d",
+      "rows": 2572532
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00058.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00058.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 37127204,
+      "sha256": "26a2dad31dcac884fb593951f88943ad825fcb304b761a3feebaeef1a76472b6",
+      "rows": 2588757
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00059.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00059.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 37173667,
+      "sha256": "7569efdc576779a1ed1f08641fee769ad5058e03d285e01f9f2d28f94432816f",
+      "rows": 2635211
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00060.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00060.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 37830083,
+      "sha256": "2dcef780d0c389335fab7a3b4d565b25e250dcd171eeeccd518308604bab215d",
+      "rows": 2638279
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00061.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00061.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 34927366,
+      "sha256": "1022a6bc98bf8ddd9ac3cc1099e6f99e734829a2cbcf311af29bbb310e5f0fcb",
+      "rows": 2612862
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00062.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00062.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 34945171,
+      "sha256": "61daa8be95ee033b39db75f941d11e0aab854cb3a0b80526570ab834dea6096d",
+      "rows": 2625871
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00063.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00063.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 37139005,
+      "sha256": "86b80b77bd0e68409180c29342eeeda9c5bf52b03ea7152feb68f7e8b7c102b4",
+      "rows": 2627770
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00064.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00064.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 38706285,
+      "sha256": "47fd830ccfcc71a0d47e52cd8d5b785540e302ed671dd79d7caf26fd7a3a5153",
+      "rows": 2638024
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00065.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00065.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 38149234,
+      "sha256": "43547a3f0435e52e4bfb32d4ddb929c2ca58eaf545097377a06212c8d540dead",
+      "rows": 2634910
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00066.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00066.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36961871,
+      "sha256": "695fe69ae34e2259a6e729feef3f6b611d3737de8d98860dbeb478a305ba92e5",
+      "rows": 2635321
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00067.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00067.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 36638610,
+      "sha256": "7b5bd7f612d245115ab0cd9a391b5652d79c0c8eb7dabb68be15a131e9bc1c86",
+      "rows": 2639184
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/ko/part-00068.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/ko/part-00068.tsv.gz",
+      "role": "stratified_shard",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 33138266,
+      "sha256": "53875dd26176b9bb186b4814d9fdf78156aea9b8e33ff37ecfae41369d57e23b",
+      "rows": 2458089
+    },
+    {
+      "publication_path": "picrust2/PRJNA413199/stratified/metacyc_abundance/path_abun_contrib.tsv.gz",
+      "branch": "picrust2/PRJNA413199",
+      "relative_path": "stratified/metacyc_abundance/path_abun_contrib.tsv.gz",
+      "role": "stratified_metacyc_abundance",
+      "source": "/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199/raw/pathways_out/path_abun_contrib.tsv.gz",
+      "size_bytes": 997057122,
+      "sha256": "7169c9fe75aa98d84bfd2c1fe170c9d444443a1d6186da3f1f0ba60db330c71a",
+      "rows": null
+    }
+  ]
+}

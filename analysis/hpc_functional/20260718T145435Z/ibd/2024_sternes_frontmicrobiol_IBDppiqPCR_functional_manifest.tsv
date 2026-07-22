@@ -1,0 +1,4 @@
+method	branch	status	reason	source	samples	features	input_hash	tool_version	runtime_seconds	output_directory
+picrust2	PRJNA1120972	generated_with_warning	Pathway output omitted 2 of 870 samples; missing samples were zero-filled.	/work/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/PRJNA1120972_dada2_counts.rds.zip	870	37708	c82699c1b305951451aca214280a7c02	PICRUSt2 2.6.3	13.364	/work/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/functional/picrust2/PRJNA1120972
+faprotax	reprocessed/rdp19	cached		counts:reprocessed/rdp19	673	1197	16f130ac55da34d77b711a63e478e764	unknown	0	/work/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/functional/faprotax/reprocessed_rdp19
+faprotax	reprocessed/rdp16	cached		counts:reprocessed/rdp16	673	922	6a1fcfc2817e74c6ccf2665e5dc57827	unknown	0	/work/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/functional/faprotax/reprocessed_rdp16

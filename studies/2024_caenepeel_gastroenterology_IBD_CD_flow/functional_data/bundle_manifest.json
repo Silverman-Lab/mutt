@@ -1,0 +1,42 @@
+{
+  "bundle_schema_version": 2,
+  "publication_schema_version": 1,
+  "created_utc": "2026-07-22T13:55:53Z",
+  "core": {
+    "relative_path": "functional-core.zip",
+    "size_bytes": 14280054,
+    "sha256": "b64b7509d093b5c476220e93325c36ed64954bda98c1a397c2f89f53866823a0"
+  },
+  "contributions": [
+    {
+      "publication_path": "picrust2/asv/stratified/ec/pred_metagenome_contrib.tsv.gz",
+      "branch": "picrust2/asv",
+      "relative_path": "stratified/ec/pred_metagenome_contrib.tsv.gz",
+      "role": "stratified_ec",
+      "source": "/work/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/functional/picrust2/asv/raw/EC_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 509497446,
+      "sha256": "e24238b43d3946b2ea13dbcb77a2eba7a47190261c072c557a8f9640e4cb6a9d",
+      "rows": null
+    },
+    {
+      "publication_path": "picrust2/asv/stratified/ko/pred_metagenome_contrib.tsv.gz",
+      "branch": "picrust2/asv",
+      "relative_path": "stratified/ko/pred_metagenome_contrib.tsv.gz",
+      "role": "stratified_ko",
+      "source": "/work/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/functional/picrust2/asv/raw/KO_metagenome_out/pred_metagenome_contrib.tsv.gz",
+      "size_bytes": 1006113447,
+      "sha256": "2e2e0ba6d614bf0107776ca488e646e2f90b1ee1eb8dcfe11309773892bd6bf3",
+      "rows": null
+    },
+    {
+      "publication_path": "picrust2/asv/stratified/metacyc_abundance/path_abun_contrib.tsv.gz",
+      "branch": "picrust2/asv",
+      "relative_path": "stratified/metacyc_abundance/path_abun_contrib.tsv.gz",
+      "role": "stratified_metacyc_abundance",
+      "source": "/work/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/functional/picrust2/asv/raw/pathways_out/path_abun_contrib.tsv.gz",
+      "size_bytes": 403243888,
+      "sha256": "aa5270b6797dad395e9287d837afbe31af9958b43719c4c2843e1422e5dc69e1",
+      "rows": null
+    }
+  ]
+}

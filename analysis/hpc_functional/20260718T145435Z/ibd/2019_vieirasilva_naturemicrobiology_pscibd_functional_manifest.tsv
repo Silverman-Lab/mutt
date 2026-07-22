@@ -1,0 +1,3 @@
+method	branch	status	reason	source	samples	features	input_hash	tool_version	runtime_seconds	output_directory
+picrust2	study	skipped	No ASV-level count and sequence input was found.	/work/studies/2019_vieirasilva_naturemicrobiology_pscibd						
+faprotax	original	generated		proportions:original	160	301	868304e1d839fffdd61523f82f28daae	unknown	0.739	/work/studies/2019_vieirasilva_naturemicrobiology_pscibd/functional/faprotax/original

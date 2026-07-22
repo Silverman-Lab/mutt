@@ -1,0 +1,5 @@
+method	branch	status	reason	source	samples	features	input_hash	tool_version	runtime_seconds	output_directory
+picrust2	PRJNA413199	generated_with_warning	Pathway output omitted 1 of 1631 samples; missing sample was zero-filled.	/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/PRJNA413199_dada2_counts.rds.zip	1631	13562	cbef69232e8cd7e65c7be9d60cf9693c	PICRUSt2 2.6.3	26.547	/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/picrust2/PRJNA413199
+faprotax	reprocessed/shotgun/MetaPhlAn4	skipped	Excluded from FAPROTAX because this is a shotgun/metagenomic branch.	counts:reprocessed/shotgun/MetaPhlAn4	15	181				
+faprotax	reprocessed/amplicon/rdp19	cached		counts:reprocessed/amplicon/rdp19	1629	684	aeae7ff241fb28c6c74b645722a0253e	unknown	0	/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/faprotax/reprocessed_amplicon_rdp19
+faprotax	reprocessed/amplicon/rdp16	cached		counts:reprocessed/amplicon/rdp16	1629	478	20d0cbd84e99b131c5b5b3b879ce8d10	unknown	0	/work/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/functional/faprotax/reprocessed_amplicon_rdp16

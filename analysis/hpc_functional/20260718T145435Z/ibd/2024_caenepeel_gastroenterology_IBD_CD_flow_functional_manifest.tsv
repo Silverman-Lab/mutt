@@ -1,0 +1,4 @@
+method	branch	status	reason	source	samples	features	input_hash	tool_version	runtime_seconds	output_directory
+picrust2	asv	generated		/work/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/asv_counts_by_run.tsv.zip	514	4918	c52a704ea6ff8cd594d631c20482d237	PICRUSt2 2.6.3	5714.001	/work/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/functional/picrust2/asv
+faprotax	reprocessed/rdp19	generated		counts:reprocessed/rdp19	514	418	22d87fe18d4446714599e66d8363a088	unknown	1.1260000000002	/work/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/functional/faprotax/reprocessed_rdp19
+faprotax	reprocessed/rdp16	generated		counts:reprocessed/rdp16	514	282	441b9c48dfe10943da950da29edb810c	unknown	0.898999999999432	/work/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/functional/faprotax/reprocessed_rdp16
