@@ -20,7 +20,10 @@ options <- list(
   )
 )
 
-args <- optparse::parse_args(optparse::OptionParser(option_list = options))
+args <- optparse::parse_args(
+  optparse::OptionParser(option_list = options),
+  convert_hyphens_to_underscores = TRUE
+)
 if (is.null(args$study_dir) || !nzchar(args$study_dir)) {
   stop("--study-dir is required.", call. = FALSE)
 }
