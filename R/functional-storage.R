@@ -377,7 +377,7 @@
     nchar(normalizePath(branch_source, winslash = "/", mustWork = TRUE)) + 2L
   )
   keep <- basename(relative_files) != "result.rds" &
-    !grepl("(^|/)raw/intermediate(/|$)", relative_files) &
+    !grepl("(^|/)raw(/|$)", relative_files) &
     !grepl("(^|/)input(/|$)", relative_files) &
     !(normalized %in% contribution_sources)
 
@@ -517,17 +517,23 @@ publish_functional_data <- function(
   invisible(target)
 }
 
-.functional_validate_publication_assets <- function(root, index) {
+.functional_validate_publication_assets <- function(
+  root,
+  index,
+  asset_root = root,
+  external_paths = character()
+) {
   assets <- index$assets
   required <- c("branch", "relative_path", "size_bytes")
   if (!is.data.frame(assets) || !all(required %in% names(assets))) {
     stop("Functional publication index has an invalid asset table.", call. = FALSE)
   }
-  paths <- file.path(
-    root,
-    as.character(assets$branch),
-    as.character(assets$relative_path)
+  relative_paths <- .functional_full_asset_path(
+    assets$branch,
+    assets$relative_path
   )
+  roots <- ifelse(relative_paths %in% external_paths, asset_root, root)
+  paths <- file.path(roots, relative_paths)
   missing <- !file.exists(paths)
   if (any(missing)) {
     stop(
@@ -550,19 +556,32 @@ publish_functional_data <- function(
 }
 
 .load_functional_publication <- function(study_dir) {
-  root <- file.path(study_dir, "functional_data")
+  roots <- .functional_publication_roots(study_dir)
+  root <- roots$core_root
   index_path <- file.path(root, "publication_index.rds")
   if (!file.exists(index_path)) return(NULL)
   index <- readRDS(index_path)
   if (!identical(as.integer(index$schema_version), .functional_publication_version)) {
     stop("Unsupported functional publication schema version.", call. = FALSE)
   }
-  .functional_validate_publication_assets(root, index)
+  external_paths <- character()
+  if (!is.null(roots$bundle) && is.data.frame(roots$bundle$contributions)) {
+    external_paths <- as.character(roots$bundle$contributions$publication_path)
+  }
+  .functional_validate_publication_assets(
+    root,
+    index,
+    asset_root = roots$asset_root,
+    external_paths = external_paths
+  )
   out <- .empty_functional_result(TRUE)
   for (entry in index$branches) {
     branch_root <- file.path(root, entry$relative_directory)
+    asset_branch_root <- file.path(roots$asset_root, entry$relative_directory)
     result <- .functional_read_result(branch_root, entry$result)
-    if (is.list(result$provenance)) result$provenance$output_directory <- branch_root
+    if (is.list(result$provenance)) {
+      result$provenance$output_directory <- asset_branch_root
+    }
     path <- strsplit(entry$branch, "/", fixed = TRUE)[[1L]]
     if (identical(entry$method, "picrust2")) {
       class(result) <- unique(c("mutt_picrust_branch", class(result)))
@@ -577,6 +596,10 @@ publish_functional_data <- function(
     out$manifest <- as.data.frame(manifest, stringsAsFactors = FALSE)
   }
   attr(out, "publication") <- index[c("schema_version", "created_utc")]
+  if (!is.null(roots$bundle)) {
+    attr(out, "publication")$bundle_schema_version <-
+      roots$bundle$bundle_schema_version
+  }
   out
 }
 

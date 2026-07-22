@@ -446,7 +446,7 @@ archive_study_cache_legacy() {
   }
 }
 
-publish_study_functional_data() {
+archive_study_cache() {
     local repository=$1 study=$2 max_bytes=$3 publication file relative pointer
     publication="$repository/studies/$study/functional_data"
 
@@ -455,19 +455,23 @@ publish_study_functional_data() {
         exit 1
     }
 
-    log "Building adaptive functional publication for $study."
+    log "Building adaptive functional bundle for $study."
     apptainer exec --cleanenv \
         --bind "$repository:/work" \
         --bind "$library:/mutt-lib" \
         --pwd /work \
         --env R_LIBS_USER=/mutt-lib \
         "$image" \
-        Rscript --vanilla -e \
-        'args <- commandArgs(TRUE); mutt:::publish_functional_data(args[[1L]], as.numeric(args[[2L]]))' \
-        "/work/studies/$study" "$max_bytes"
+        Rscript --vanilla /work/scripts/build_functional_bundle.R \
+        --study-dir "/work/studies/$study" \
+        --max-asset-bytes "$max_bytes"
 
-    [[ -f "$publication/publication_manifest.json" ]] || {
-        echo "Functional publication manifest was not created for $study." >&2
+    [[ -f "$publication/bundle_manifest.json" ]] || {
+        echo "Functional bundle manifest was not created for $study." >&2
+        exit 1
+    }
+    [[ -f "$publication/functional-core.zip" ]] || {
+        echo "Functional core archive was not created for $study." >&2
         exit 1
     }
 
@@ -665,7 +669,7 @@ run_finalize_worker() {
       exit 1
     }
         log "Publishing API-facing functional data for $study."
-        publish_study_functional_data "$repository" "$study" "$max_lfs"
+        archive_study_cache "$repository" "$study" "$max_lfs"
   done < <(phase_studies "$MUTT_PHASE")
 
   {

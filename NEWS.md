@@ -1,5 +1,9 @@
 # mutt 0.1.0.9000
 
+* Functional publication now writes a compact `functional-core.zip` plus
+  separately published EC, KO, and MetaCyc contribution assets. Oversized
+  contribution tables are sharded below the configured per-file limit, while
+  `mutt()` transparently reads legacy loose files and new bundle descriptors.
 * Added `functional = "REVALIDATE"` to reconstruct validated PICRUSt2 results
   from retained normal or `.failed/raw` output without launching PICRUSt2.
   Pathway-only sample omissions are zero-filled and reported as

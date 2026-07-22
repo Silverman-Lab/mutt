@@ -76,20 +76,28 @@ intermediates. Those stay in the execution cache; the original counts,
 sequences, and taxonomy stay in the study directory.
 
 Maintainers and the HPC finalizer build the publication from an existing
-validated cache with the internal publisher:
+validated cache with:
 
-```r
-mutt:::publish_functional_data(
-  "studies/STUDY",
-  max_asset_bytes = 1900000000
-)
+```bash
+Rscript scripts/build_functional_bundle.R \
+  --study-dir studies/STUDY \
+  --max-asset-bytes 1900000000
 ```
 
-Files below the limit remain single files. Oversized TSV outputs become
-gzip-compressed shards, and an oversized `result.rds` is represented by
-reconstructable RDS components. The HPC finalizer performs this operation and
-stages non-JSON publication assets through Git LFS. The execution cache remains
-unchanged. Legacy `functional.zip` archives remain readable.
+The resulting `functional_data/` directory contains:
+
+- `functional-core.zip`: compact result objects, manifests, mappings,
+  taxonomy, reconciliation records, and provenance;
+- `bundle_manifest.json`: checksums, sizes, roles, and paths for the core and
+  every contribution asset;
+- separately published EC, KO, and MetaCyc contribution tables.
+
+Contribution files below the limit remain single gzip files. Oversized
+contribution tables become independently usable gzip shards, and an oversized
+`result.rds` is represented by reconstructable RDS components inside the core.
+The HPC finalizer stages the core and contribution assets through Git LFS. The
+complete execution cache remains unchanged. Legacy loose `functional_data/`
+publications and `functional.zip` archives remain readable.
 
 MUTT does not create a study-wide monolithic functional RDS. That would make a
 single large table expensive to download and load. The publication manifest is
@@ -122,8 +130,10 @@ x <- mutt(
 
 Use `functional = "REBUILD"` only when eligible functional results must be recomputed. Use `functional = "REVALIDATE"` to require retained raw PICRUSt2 output and rebuild validated MUTT results without launching PICRUSt2. Functional outputs are stored under the selected study's `functional/` directory. `MUTT_FUNCTIONAL_PROCESSES` can override automatic PICRUSt2 worker detection.
 
-When `functional_data/` is present, `functional = TRUE` loads that validated
-publication before inspecting external tools or execution caches.
+When `functional_data/` is present, `functional = TRUE` verifies and extracts
+the small core into MUTT's user cache, then reads contribution assets directly
+from their single-file or sharded publication. It does this before inspecting
+external tools or execution caches.
 
 ## Returned object
 
@@ -191,12 +201,13 @@ flowchart TD
     J --> K{functional requested?}
     K -->|No| L[Attach empty functional result]
     K -->|Yes| M{Published functional_data available?}
-    M -->|Yes| P[Load manifest and file-backed table descriptors]
+    M -->|Yes| P[Verify and extract functional-core.zip]
+    P --> T[Resolve single-file or sharded contribution descriptors]
     M -->|No| Q{Legacy archive or execution cache available?}
     Q -->|Archive| S[Validate and restore functional.zip atomically]
     Q -->|Directory or none| R[Run or reuse eligible functional methods]
     S --> R
-    P --> N[Return named mutt_result]
+    T --> N[Return named mutt_result]
     L --> N
     R --> N
     N --> O[Attach audit, validation, and provenance]

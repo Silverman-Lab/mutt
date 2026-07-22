@@ -142,6 +142,61 @@ test_that("functional publication shards oversized tables and loads transparentl
   )
 })
 
+test_that("functional bundle separates core and contribution assets", {
+  study <- tempfile("mutt_functional_bundle_")
+  original <- build_functional_publication_fixture(study)
+  on.exit(unlink(study, recursive = TRUE), add = TRUE)
+  withr::local_options(list(
+    mutt.functional_core_cache = file.path(study, "core-cache")
+  ))
+
+  published <- build_functional_bundle(
+    study,
+    max_asset_bytes = 50000,
+    target_shard_bytes = 25000
+  )
+
+  core <- file.path(published, "functional-core.zip")
+  manifest_path <- file.path(published, "bundle_manifest.json")
+  expect_true(file.exists(core))
+  expect_true(file.exists(manifest_path))
+  expect_false(file.exists(file.path(published, "publication_index.rds")))
+  expect_lte(unname(file.info(core)$size), 50000)
+
+  manifest <- jsonlite::read_json(manifest_path, simplifyVector = TRUE)
+  expect_identical(as.integer(manifest$bundle_schema_version), 2L)
+  expect_true(is.data.frame(manifest$contributions))
+  expect_true(nrow(manifest$contributions) > 3L)
+  contribution_files <- file.path(
+    published,
+    manifest$contributions$publication_path
+  )
+  expect_true(all(file.exists(contribution_files)))
+  expect_true(all(unname(file.info(contribution_files)$size) <= 50000))
+
+  core_members <- utils::unzip(core, list = TRUE)$Name
+  expect_true("publication_index.rds" %in% core_members)
+  expect_false(any(grepl("stratified", core_members, fixed = TRUE)))
+  expect_false(any(grepl("raw/", core_members, fixed = TRUE)))
+  expect_false(any(grepl("intermediate", core_members, fixed = TRUE)))
+
+  loaded <- mutt:::.load_functional_publication(study)
+  branch <- loaded$picrust2$asv
+  expect_s3_class(branch, "mutt_picrust_branch")
+  expect_identical(branch$ec, matrix(
+    1:4,
+    nrow = 2,
+    dimnames = list(c("S001", "S002"), c("E1", "E2"))
+  ))
+  expect_identical(attr(loaded, "publication")$bundle_schema_version, 2L)
+
+  complete <- as.data.frame(branch, type = "ec", collect_all = TRUE)
+  expect_equal(nrow(complete), nrow(original$ec))
+  expect_identical(complete$sample, original$ec$sample)
+  expect_identical(complete[["function"]], original$ec[["function"]])
+  expect_identical(complete$picrust_id, original$ec$taxon)
+})
+
 test_that("small contribution tables remain single file assets", {
   root <- tempfile("mutt_functional_single_")
   dir.create(root)
