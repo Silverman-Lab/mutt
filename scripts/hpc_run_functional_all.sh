@@ -644,7 +644,8 @@ run_finalize_worker() {
   validate_worker_environment
   validate_phase
 
-  local repository_url branch repository max_lfs output_dir phase_output study checkpoint
+  local repository_url branch repository max_lfs output_dir phase_output
+  local study checkpoint image library
   repository_url=${MUTT_REPO_URL:-$DEFAULT_REPOSITORY_URL}
   branch=${MUTT_BRANCH:-$DEFAULT_BRANCH}
   repository=$MUTT_WORK_ROOT/repository
@@ -652,12 +653,26 @@ run_finalize_worker() {
   output_dir="analysis/hpc_functional/$MUTT_RUN_ID/$MUTT_PHASE"
   phase_output="$MUTT_WORK_ROOT/phase-output/$MUTT_PHASE"
   checkpoint=$MUTT_WORK_ROOT/checkpoints/$MUTT_PHASE/finalize.complete
+  image="$MUTT_WORK_ROOT/images/mutt-${MUTT_CODE_COMMIT}.sif"
+  library="$MUTT_WORK_ROOT/r-library/$MUTT_CODE_COMMIT"
 
   print_worker_settings finalize "$repository_url"
   if [[ -f "$checkpoint" ]]; then
     log "Finalization checkpoint already exists; skipping phase $MUTT_PHASE."
     return
   fi
+  [[ -f "$MUTT_WORK_ROOT/checkpoints/setup.complete" ]] || {
+    echo "Setup completion marker is missing." >&2
+    exit 1
+  }
+
+  load_apptainer
+  [[ -s "$image" && -d "$library/mutt" ]] || {
+    echo "Prepared image or R package library is missing." >&2
+    exit 1
+  }
+
+  mkdir -p "$phase_output"
   command -v git >/dev/null 2>&1
   git lfs version
   command -v zip >/dev/null 2>&1
