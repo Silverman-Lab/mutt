@@ -716,7 +716,14 @@ collapse_duplicate_columns_exact <- function(df) {
   # 1. Capture original dimnames
   orig_rn <- rownames(df)
   orig_cn <- colnames(df)
-  
+
+  # NA column names (e.g. a taxonomy lookup that didn't match any reference
+  # sequence) would otherwise survive rowsum()'s grouping below as a column
+  # literally named NA, which later crashes tibble::rownames_to_column()
+  # ("Column 1 must be named" / "Names can't be empty") in any caller that
+  # does that. Pool them into one explicit "Unclassified" column instead.
+  orig_cn[is.na(orig_cn)] <- "Unclassified"
+
   # 2. Coerce every column to numeric
   #    (non-numeric columns become numeric via as.character -> as.numeric)
   df_num <- data.frame(
