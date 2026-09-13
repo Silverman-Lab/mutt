@@ -130,6 +130,14 @@ parse_2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRheal
     mutate(log2_FC = ifelse(facs > 0, log2(facs), NA)) %>%
     mutate(log2_qpcr_ct = ifelse(qpcr_ct > 0, log2(qpcr_ct), NA)) %>%
     mutate(log10_qpcr_ct = ifelse(qpcr_ct > 0, log10(qpcr_ct), NA)) %>%
+    # qpcr_log ("log copies per gram" in the source workbook) is the study's
+    # own standard-curve-derived log10(qpcr_copies) -- verified exactly equal
+    # to log10(qpcr_copies) (max abs diff ~5e-14, floating-point noise) and on
+    # the same per-gram-feces basis as facs. Exposed under a self-documenting,
+    # convention-following name so it is selectable as a real total-load
+    # column (unlike log10_qpcr_ct, which is log10 of the raw Ct cycle number
+    # and not a total-load quantity at all).
+    mutate(log10_qpcr_copies_per_gram = qpcr_log) %>%
     mutate(log2_ddpcr_copies_ul_dna = ifelse(ddPCR_copies_ul_dna > 0, log2(ddPCR_copies_ul_dna), NA)) %>%
     mutate(log10_ddpcr_copies_ul_dna = ifelse(ddPCR_copies_ul_dna > 0, log10(ddPCR_copies_ul_dna), NA)) %>%
     mutate(Sample_name = ifelse(str_detect(Sample_name, "\\.PMA$"),
