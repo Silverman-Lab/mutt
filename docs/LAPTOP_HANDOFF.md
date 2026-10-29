@@ -1,5 +1,36 @@
 # Continue the MUTT release on a laptop
 
+## If you already have the pre-migration repository locally
+
+There is **no published download link** for the cloud handoff ZIP. Its existence
+in the cloud filesystem does not make it downloadable from this chat.
+
+If your existing local checkout contains the original processed study files, use
+it as the source instead of transferring the cloud archive. In Codex desktop,
+open that existing folder and ask the local agent to:
+
+1. Inspect and preserve local changes and the pre-migration checkout at `01c648b`.
+2. Fetch `codex/mutt-v1-release` and create a separate sibling worktree for it.
+3. Retain/install the old API in an isolated R library, then use
+   `scripts/migration/capture-current.R` from the new worktree against the old
+   processed study inputs. This loads existing tables; it must not denoise,
+   classify, profile, or invoke raw-data processing.
+4. Compare captured default objects with the committed `scientific_sha256`
+   values in `docs/migration/current-object-comparison.csv`. Investigate any
+   mismatch instead of accepting changed scientific data.
+5. Use `stage-current.R` and the permanent release builder locally. Archives
+   built on another machine may have different ZIP bytes/timestamps, so generate
+   the local candidate hashes rather than reusing the cloud asset hashes.
+6. Verify old/new complete scientific objects in both forms, upload/download
+   the draft release with local gh authentication, and stop for review.
+
+If processed files are missing or are LFS pointers, stop and report which inputs
+are missing. Do not silently reprocess studies or substitute historical objects.
+This route still needs the old package's parsing dependencies; the separate
+already-built-asset route below needs only digest and jsonlite.
+
+## If the already-built cloud archive can be exported
+
 The reviewed work is on branch `codex/mutt-v1-release`, draft PR
 https://github.com/Silverman-Lab/mutt/pull/2. The large release assets are **not**
 in Git. They are provided separately in `mutt-laptop-handoff.zip`, under
