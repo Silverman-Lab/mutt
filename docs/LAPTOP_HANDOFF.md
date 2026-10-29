@@ -14,7 +14,10 @@ open that existing folder and ask the local agent to:
 3. Retain/install the old API in an isolated R library, then use
    `scripts/migration/capture-current.R` from the new worktree against the old
    processed study inputs. This loads existing tables; it must not denoise,
-   classify, profile, or invoke raw-data processing.
+   classify, profile, or invoke raw-data processing. Run the capture with
+   `TZ=UTC`, matching the cloud baseline: some old parsers read timestamps
+   with no explicit timezone. Using a laptop timezone changes timestamp
+   values and therefore the scientific object checksums.
 4. Compare captured default objects with the committed `scientific_sha256`
    values in `docs/migration/current-object-comparison.csv`. Investigate any
    mismatch instead of accepting changed scientific data.
@@ -28,6 +31,25 @@ If processed files are missing or are LFS pointers, stop and report which inputs
 are missing. Do not silently reprocess studies or substitute historical objects.
 This route still needs the old package's parsing dependencies; the separate
 already-built-asset route below needs only digest and jsonlite.
+
+## Local Dreier recovery
+
+The local Dreier recapture differed from the cloud default in 150 load-summary
+values across six columns and 25 samples (maximum relative difference
+`2.0302307561987318e-14`). All other components, identifiers and missingness
+matched exactly. Local R 4.6.1 versus cloud R 4.5.3 may explain numerical
+variation, but the cause is not fully established.
+
+Use the recovered historical `scale` field from blob
+`5ef175e49c7eec8b4725cf33ac5aa2bf087bbbc8` with the otherwise unchanged local
+current-API object. The diagnostic reconstructed default object exactly matches
+the recorded cloud scientific SHA-256
+`4951997ad8467ab87320b35a69e38db2a4792ef2dff3206bd4094be17a45effc`.
+The full historical study object does **not** match and must not be substituted.
+Retain exact scientific comparisons for staging and release verification; do not
+accept a tolerance-based match. See `docs/migration/FINAL.md` and the local
+`.build/laptop-release/dreier-audit/` records for the evidence. This diagnostic
+match does not itself verify staging or the draft release.
 
 ## If the already-built cloud archive can be exported
 
@@ -110,7 +132,8 @@ Read AGENTS.md, docs/migration/FINAL.md and docs/RELEASING.md first. The baselin
 is current mutt at `01c648b`, as clarified by the user. Forty working studies
 match the old API exactly in both default and aligned forms. Seventeen existing
 parsers failed in both forms; six other directories were unregistered source
-records. Do not substitute historical objects for the current results.
+records. Do not substitute complete historical study objects for the current
+results; the bounded Dreier scale recovery above retains the exact cloud baseline.
 
 All 40 default and 40 aligned objects passed exact end-to-end loader comparisons.
 953 package fixture assertions and 5 release-tool assertions passed. R CMD check
@@ -121,7 +144,9 @@ were retained. The 37-study historical object was investigated but is not the
 selected baseline.
 
 The cloud network proxy blocked api.github.com/uploads.github.com, preventing
-data-release creation there. No data release upload has succeeded. The pinned
-package manifest therefore says staged, and normal first downloads are not live.
-Finish the draft upload/download verification locally. Preserve existing asset
-bytes; do not invoke migration, DADA2, MetaPhlAn, or build-release to repeat work.
+data-release creation there. The local continuation and its verification evidence
+are documented in `docs/migration/FINAL.md`; the pinned package manifest remains
+staged until publication and public verification, so normal first downloads are
+not live. Use `draft-verification.json` to establish successful remote verification.
+Preserve verified asset bytes; do not repeat completed capture or packaging, or
+invoke DADA2/MetaPhlAn scientific preprocessing.

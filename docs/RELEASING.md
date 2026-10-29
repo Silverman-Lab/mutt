@@ -12,7 +12,7 @@ distribution. The local `.build/legacy/` snapshot preserves those files; the
 original commit also remains accessible in unchanged Git history.
 
 ```sh
-Rscript scripts/migration/capture-current.R OLD_R_LIBRARY LEGACY_STUDIES PARSER_INDEX .build/capture
+TZ=UTC Rscript scripts/migration/capture-current.R OLD_R_LIBRARY LEGACY_STUDIES PARSER_INDEX .build/capture
 Rscript scripts/migration/stage-current.R .build/capture/default .build/capture/aligned .build/data-v1.0.0
 ```
 
@@ -27,6 +27,11 @@ as the historical extraction record; do not use it to select v1 release data.
 
 After initial migration these scripts are historical, unsupported ongoing tools.
 New studies enter staging through their normal study recipes.
+
+Some old parsers require the `dada2` namespace even to read stored tables.
+Install that parsing dependency if needed, while retaining the capture script's
+classification and denoising guards. See `docs/migration/FINAL.md` for the
+approved, checksum-verified Dreier scale recovery used on the laptop.
 
 ## Permanent staged contract
 
