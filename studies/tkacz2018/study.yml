@@ -8,9 +8,9 @@
   "display_name": "2018 tkacz microbiome spikeinamplicon",
   "schema_version": 1,
   "legacy_id": "2018_tkacz_microbiome_spikeinamplicon",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -60,5 +60,7 @@
       "sha256": "16f4cad454b13c78687e3e9301e785275f717684c35bda1a7ecc924ffe7127dd"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "error in evaluating the argument 'x' in selecting a method for function 'XStringSet': object 'counts_reprocessed' not found",
+  "baseline_warnings": ""
 }

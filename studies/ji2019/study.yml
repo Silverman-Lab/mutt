@@ -11,9 +11,9 @@
   "display_name": "2019 ji nature human soil",
   "schema_version": 1,
   "legacy_id": "2019_ji_nature_human_soil",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "Code: https://github.com/brianwji/DIVERS?tab=readme-ov-file\npaper: https://pubmed.ncbi.nlm.nih.gov/31308552/\n",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -58,5 +58,7 @@
       "sha256": "f3c95b5184309b312bbc703bb1545c93e7128fdbccabe708dfc3e59bacfe678d"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "Can't rename columns that don't exist.\n\u2716 Column `sample name` doesn't exist.",
+  "baseline_warnings": ""
 }

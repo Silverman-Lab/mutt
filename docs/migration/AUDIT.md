@@ -91,3 +91,14 @@ processed tables is recorded separately from biological reprocessing. Full old
 API success/failure reports, warnings and exact object comparisons are retained
 with the final migration report. Broken existing parsers are not silently replaced
 by historical objects.
+
+## Scientific scope review
+
+Remaining functional-inference search hits are audit/architecture documentation
+or original source-method notes. Wagner's original authors describe PICRUSt2 for
+16S copy-number correction; preserving that note and source counts does not
+retain downstream functional inference. All added implementation, resources,
+exports, tests, HPC products and containers for inferred functions were removed.
+A recovered Regalado source R file contains non-R console/shell material and is
+preserved verbatim as `correct_16S_load.R.txt` for inspection. Its already broken
+study parser remains explicitly unavailable.

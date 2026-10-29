@@ -10,9 +10,9 @@
   "display_name": "2018 piwosz ismej spikeinampliconfreshwater",
   "schema_version": 1,
   "legacy_id": "2018_piwosz_ismej_spikeinampliconfreshwater",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "added the fixed amount of E.coli cells to every water sample during the filtration step. The cells were fixed with ethanol and the spike-ins were done using the same amount of fixed E. coli cells. Then we used the number of E.coli reads for normalization.\n\npaper:https://academic.oup.com/ismej/article/12/11/2640/7475339\n\nData collection,cleaning, parser by Maxwell Konnaris 05/05/2025\n",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -37,5 +37,7 @@
       "sha256": "cd6c97aab7aab8cf4976354ba48e471aee884dfac33dd88b43b2b54a531d887d"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "Can't rename columns that don't exist.\n\u2716 Column `Run` doesn't exist.",
+  "baseline_warnings": ""
 }

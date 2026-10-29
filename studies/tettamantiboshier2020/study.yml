@@ -10,9 +10,9 @@
   "display_name": "2020 tettamantiboshier msystems vaginaltimeseries",
   "schema_version": 1,
   "legacy_id": "2020_tettamantiboshier_msystems_vaginaltimeseries",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "https://pubmed.ncbi.nlm.nih.gov/32265316/\n",
-  "baseline_status": "historical saved object; provisional manuscript selection",
+  "baseline_status": "current API exact capture",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -75,5 +75,7 @@
     "covariates": "Hours_In_Study",
     "ID": "Sample_ID",
     "PMID": "32265316"
-  }
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
 }

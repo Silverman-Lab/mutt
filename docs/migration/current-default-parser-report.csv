@@ -1,0 +1,97 @@
+"output_name","study","status","data_source","data_directory","runtime_seconds","warnings","error"
+"2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow","2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow","error","local","/workspace/mutt/studies/2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow",0.247999999999999,"","duplicate 'row.names' are not allowed"
+"2016_stammler_microbiome_micehuman","2016_stammler_microbiome_micehuman","success","local","/workspace/mutt/studies/2016_stammler_microbiome_micehuman",0.0340000000000007,"",""
+"2017_liu_mbio_penilehivqPCR","2017_liu_mbio_penilehivqPCR","success","local","/workspace/mutt/studies/2017_liu_mbio_penilehivqPCR",1.016,"",""
+"2017_props_isme_longitudinal","2017_props_isme_longitudinal","error","local","/workspace/mutt/studies/2017_props_isme_longitudinal",0.0139999999999993,"","Can't select columns that don't exist.
+✖ Column `Cell.density.sd (cells/mL` doesn't exist."
+"2017_sinha_natureBiotec_spikeinhumanfecalreproducibility","2017_sinha_natureBiotec_spikeinhumanfecalreproducibility","error","local","/workspace/mutt/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility",41.176,"","missing values in 'row.names' are not allowed"
+"2017_vandeputte_nature_flow","2017_vandeputte_nature_flow","success","local","/workspace/mutt/studies/2017_vandeputte_nature_flow",7.104,"",""
+"2018_piwosz_ismej_spikeinampliconfreshwater","2018_piwosz_ismej_spikeinampliconfreshwater","error","local","/workspace/mutt/studies/2018_piwosz_ismej_spikeinampliconfreshwater",0.00899999999999324,"","Can't rename columns that don't exist.
+✖ Column `Run` doesn't exist."
+"2018_tkacz_microbiome_spikeinamplicon","2018_tkacz_microbiome_spikeinamplicon","error","local","/workspace/mutt/studies/2018_tkacz_microbiome_spikeinamplicon",0.00900000000000034,"","error in evaluating the argument 'x' in selecting a method for function 'XStringSet': object 'counts_reprocessed' not found"
+"2018_tourlousse_scientificreports_soilsewagespikein","2018_tourlousse_scientificreports_soilsewagespikein","error","local","/workspace/mutt/studies/2018_tourlousse_scientificreports_soilsewagespikein",0,"","object 'counts_original' not found"
+"2019_contijoch_elife_multispeciesqPCRshotgunandamplicon","2019_contijoch_elife_multispeciesqPCRshotgunandamplicon","success","local","/workspace/mutt/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon",2.943,"",""
+"2019_ji_nature_human_soil","2019_ji_nature_human_soil","error","local","/workspace/mutt/studies/2019_ji_nature_human_soil",0.0169999999999959,"","Can't rename columns that don't exist.
+✖ Column `sample name` doesn't exist."
+"2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein","2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein","success","local","/workspace/mutt/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein",1.836,"",""
+"2019_morton_naturecommunications_songbird_oral","2019_morton_naturecommunications_songbird_oral","success","local","/workspace/mutt/studies/2019_morton_naturecommunications_songbird_oral",1.379,"",""
+"2019_vieirasilva_naturemicrobiology_pscibd","2019_vieirasilva_naturemicrobiology_pscibd","success","local","/workspace/mutt/studies/2019_vieirasilva_naturemicrobiology_pscibd",0.0520000000000067,"Not deleting session-wide tempdir(): /tmp/RtmpKknUpe",""
+"2020_barlow_naturecommunications_miceGI","2020_barlow_naturecommunications_miceGI","success","local","/workspace/mutt/studies/2020_barlow_naturecommunications_miceGI",1.932,"",""
+"2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics","2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics","error","local","/workspace/mutt/studies/2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics",0.00100000000000477,"","object 'tax' not found"
+"2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy","2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy","success","local","/workspace/mutt/studies/2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy",0.510000000000005,"There were 2 warnings in `mutate()`.
+The first warning was:
+ℹ In argument: `across(-Sample_name, as.numeric)`.
+Caused by warning:
+! NAs introduced by coercion
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.",""
+"2020_regalado_isme_metagenomicsbacteriaandfungalsequencing","2020_regalado_isme_metagenomicsbacteriaandfungalsequencing","error","local","/workspace/mutt/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing",0.00300000000000011,"","object 'metadata_16s_zip' not found"
+"2020_tettamantiboshier_msystems_vaginaltimeseries","2020_tettamantiboshier_msystems_vaginaltimeseries","success","local","/workspace/mutt/studies/2020_tettamantiboshier_msystems_vaginaltimeseries",1.289,"",""
+"2020_vieirasilva_nature_BMIS","2020_vieirasilva_nature_BMIS","error","local","/workspace/mutt/studies/2020_vieirasilva_nature_BMIS",0.174999999999997,"","attempt to select less than one element in get1index"
+"2020_zemb_microOpen_spike","2020_zemb_microOpen_spike","success","local","/workspace/mutt/studies/2020_zemb_microOpen_spike",0.191000000000003,"",""
+"2021_barlow_microbiome_reimaginestudypatientsddpcr","2021_barlow_microbiome_reimaginestudypatientsddpcr","error","local","/workspace/mutt/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr",0.0139999999999958,"","Can't rename columns that don't exist.
+✖ Column `Run` doesn't exist."
+"2021_forslund_nature_metacardis","2021_forslund_nature_metacardis","error","local","/workspace/mutt/studies/2021_forslund_nature_metacardis",0.00799999999999557,"","object 'sra_list' not found"
+"2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct","2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct","success","local","/workspace/mutt/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct",26.116,"",""
+"2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow","2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow","error","local","/workspace/mutt/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow",0.00600000000000023,"","argument ""x"" is missing, with no default"
+"2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal","2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal","error","local","/workspace/mutt/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal",0,"","zip file '2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/' cannot be opened"
+"2021_marotz_mSystems_oral_mouthwash","2021_marotz_mSystems_oral_mouthwash","success","local","/workspace/mutt/studies/2021_marotz_mSystems_oral_mouthwash",0.942999999999998,"",""
+"2021_ott_environmentalmicrobiome_riverwater","2021_ott_environmentalmicrobiome_riverwater","error","local","/workspace/mutt/studies/2021_ott_environmentalmicrobiome_riverwater",0.0249999999999915,"","Can't rename columns that don't exist.
+✖ Column `run` doesn't exist."
+"2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification","2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification","success","local","/workspace/mutt/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification",14.932,"There were 7 warnings in `mutate()`.
+The first warning was:
+ℹ In argument: `across(-Sample_name, as.numeric)`.
+Caused by warning:
+! NAs introduced by coercion
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 6 remaining warnings. | There was 1 warning in `summarise()`.
+ℹ In argument: `across(where(is.numeric), sum, na.rm = TRUE)`.
+ℹ In group 1: `Taxa = ""g_Alistipes""`.
+Caused by warning:
+! The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
+Supply arguments directly to `.fns` through an anonymous function instead.
+
+  # Previously
+  across(a:b, mean, na.rm = TRUE)
+
+  # Now
+  across(a:b, \(x) mean(x, na.rm = TRUE))
+ℹ The deprecated feature was likely used in the mutt package.
+  Please report the issue at <https://github.com/Silverman-Lab/mutt/issues>. | 
+2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification | No matching accessions found between counts_reprocessed and metadata",""
+"2021_reese_cell_chimpanzee","2021_reese_cell_chimpanzee","success","local","/workspace/mutt/studies/2021_reese_cell_chimpanzee",2.55600000000001,"There was 1 warning in `mutate()`.
+ℹ In argument: `16S copies per g feces = as.numeric(`16S copies per g feces`)`.
+Caused by warning:
+! NAs introduced by coercion",""
+"2021_rolling_naturemicrobiology_allohct_ITS_16s","2021_rolling_naturemicrobiology_allohct_ITS_16s","success","local","/workspace/mutt/studies/2021_rolling_naturemicrobiology_allohct_ITS_16s",56.972,"",""
+"2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome","2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome","error","local","/workspace/mutt/studies/2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome",0.00800000000000978,"","Can't rename columns that don't exist.
+✖ Column `Sample ID` doesn't exist."
+"2021_vandeputte_naturecommunications_flow_timeseries","2021_vandeputte_naturecommunications_flow_timeseries","success","local","/workspace/mutt/studies/2021_vandeputte_naturecommunications_flow_timeseries",0.0859999999999843,"",""
+"2022_cvandevelde_ismecommunications_culturedflowhumanfecal","2022_cvandevelde_ismecommunications_culturedflowhumanfecal","success","local","/workspace/mutt/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal",0.0459999999999923,"Error reading SRA file: ",""
+"2022_dreier_bmcmicrobiology_cheeseqpcr","2022_dreier_bmcmicrobiology_cheeseqpcr","success","local","/workspace/mutt/studies/2022_dreier_bmcmicrobiology_cheeseqpcr",0.140000000000015,"",""
+"2022_fromentin_naturemedicine_metacardissubset","2022_fromentin_naturemedicine_metacardissubset","success","local","/workspace/mutt/studies/2022_fromentin_naturemedicine_metacardissubset",48.927,"NAs introduced by coercion",""
+"2022_jin_natureComm_technicalReplicates","2022_jin_natureComm_technicalReplicates","success","local","/workspace/mutt/studies/2022_jin_natureComm_technicalReplicates",5.80600000000004,"NAs introduced by coercion | Setting row names on a tibble is deprecated.",""
+"2022_krawczyk_microbiome_tickgeographicaldistributionqpcr","2022_krawczyk_microbiome_tickgeographicaldistributionqpcr","success","local","/workspace/mutt/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr",3.38800000000003,"",""
+"2022_suriano_aps_micefecal","2022_suriano_aps_micefecal","success","local","/workspace/mutt/studies/2022_suriano_aps_micefecal",1.14499999999998,"",""
+"2022_zaramela_msystems_synDNA","2022_zaramela_msystems_synDNA","success","local","/workspace/mutt/studies/2022_zaramela_msystems_synDNA",2.80000000000001,"",""
+"2023_feng_imetawiley_chickensegment","2023_feng_imetawiley_chickensegment","success","local","/workspace/mutt/studies/2023_feng_imetawiley_chickensegment",32.199,"",""
+"2023_fu_imeta_wasterwater_pathogens","2023_fu_imeta_wasterwater_pathogens","success","local","/workspace/mutt/studies/2023_fu_imeta_wasterwater_pathogens",0.0659999999999741,"Setting row names on a tibble is deprecated.",""
+"2023_galla_scientificreports_spikeinmockvariousorganismssampletypes","2023_galla_scientificreports_spikeinmockvariousorganismssampletypes","error","local","/workspace/mutt/studies/2023_galla_scientificreports_spikeinmockvariousorganismssampletypes",0.0670000000000073,"EOF within quoted string | number of items read is not a multiple of the number of columns","Join columns in `y` must be present in the data.
+✖ Problem with `fastq ID`."
+"2023_kallastu_research_foodscience_food","2023_kallastu_research_foodscience_food","success","local","/workspace/mutt/studies/2023_kallastu_research_foodscience_food",0.0419999999999732,"",""
+"2023_maghini_naturebiotechnology_samplemesurement","2023_maghini_naturebiotechnology_samplemesurement","success","local","/workspace/mutt/studies/2023_maghini_naturebiotechnology_samplemesurement",1.06799999999998,"Expected 3 pieces. Additional pieces discarded in 181 rows [2, 8, 9, 10, 11,
+12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, ...].",""
+"2023_pereira_nature_nervous","2023_pereira_nature_nervous","success","local","/workspace/mutt/studies/2023_pereira_nature_nervous",0.800000000000011,"",""
+"2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota","2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota","success","local","/workspace/mutt/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota",0.0660000000000309,"
+2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota | No matching accessions found between counts_reprocessed and metadata",""
+"2024_caenepeel_gastroenterology_IBD_CD_flow","2024_caenepeel_gastroenterology_IBD_CD_flow","success","local","/workspace/mutt/studies/2024_caenepeel_gastroenterology_IBD_CD_flow",2.58999999999997,"",""
+"2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum","2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum","success","local","/workspace/mutt/studies/2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum",1.92199999999997,"",""
+"2024_jin_pnas_semen","2024_jin_pnas_semen","success","local","/workspace/mutt/studies/2024_jin_pnas_semen",1.24899999999997,"",""
+"2024_kruger_scientificreports_ddpcrhealthysubjects","2024_kruger_scientificreports_ddpcrhealthysubjects","success","local","/workspace/mutt/studies/2024_kruger_scientificreports_ddpcrhealthysubjects",0.757000000000005,"There was 1 warning in `mutate()`.
+ℹ In argument: `StoolsperDay = as.integer(StoolsperDay)`.
+Caused by warning:
+! NAs introduced by coercion",""
+"2024_nishijima_cell_galaxy","2024_nishijima_cell_galaxy","success","local","/workspace/mutt/studies/2024_nishijima_cell_galaxy",5.50900000000001,"",""
+"2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal","2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal","success","local","/workspace/mutt/studies/2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal",0.449999999999989,"",""
+"2024_sternes_frontmicrobiol_IBDppiqPCR","2024_sternes_frontmicrobiol_IBDppiqPCR","success","local","/workspace/mutt/studies/2024_sternes_frontmicrobiol_IBDppiqPCR",7.58999999999997,"",""
+"2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity","2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity","success","local","/workspace/mutt/studies/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity",0.365000000000009,"",""
+"2025_thiruppathy_microbiome_relicDNAflow","2025_thiruppathy_microbiome_relicDNAflow","success","local","/workspace/mutt/studies/2025_thiruppathy_microbiome_relicDNAflow",0.206999999999994,"",""
+"2025_wagner_frontiersinmiccrobiology_flowpiglets","2025_wagner_frontiersinmiccrobiology_flowpiglets","success","local","/workspace/mutt/studies/2025_wagner_frontiersinmiccrobiology_flowpiglets",0.329000000000008,"",""

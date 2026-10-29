@@ -105,6 +105,7 @@
     }
   ],
   "source_notes": "paper: https://www.nature.com/articles/s41589-023-01462-8\n",
-  "baseline_status": "unavailable",
-  "source_urls": []
+  "baseline_status": "unavailable: unregistered legacy study",
+  "source_urls": [],
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence"
 }

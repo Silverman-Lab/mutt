@@ -6,7 +6,9 @@
 
 .mutt_fetch <- function(row, cache, refresh, representation='default') {
   if (row$status != 'available') stop('Study ',row$study_id,' is ',row$status,
-    '; no verified public data release is available. See mutt_source() and docs/migration.',call.=FALSE)
+    '; no verified public data release is available. ',
+    if(!is.null(row$reason)) paste0(row$reason,'. ') else '',
+    'See mutt_source() and docs/migration.',call.=FALSE)
   parent <- file.path(cache,row$release_tag)
   target <- file.path(parent,paste0(row$study_id,'-',row$sha256))
   if (dir.exists(target) && !refresh) return(.mutt_validate_directory(target,row,representation))

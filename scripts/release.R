@@ -1,5 +1,5 @@
 # Permanent tooling: inputs are canonical staged directories only.
-source('R/validation.R')
+source('R/validation.R',local=TRUE)
 
 validate_study <- function(input) {
   input <- normalizePath(input,mustWork=TRUE)
@@ -54,7 +54,10 @@ build_release <- function(input, tag, output, manifest=NULL) {
   dirs <- sort(list.dirs(input,recursive=FALSE,full.names=TRUE))
   if(!length(dirs)) stop('No staged studies.')
   # Validate the entire input before producing an asset.
-  invisible(lapply(dirs,validate_study))
+  for(d in dirs) {
+    validate_study(d)
+    invisible(gc(FALSE))
+  }
   if(dir.exists(output) && length(list.files(output,all.files=TRUE,no..=TRUE))) stop('Release output must be empty.')
   rows <- lapply(dirs,function(d) package_study(d,output,tag))
   result <- list(schema_version=1L,release_tag=tag,studies=rows)
@@ -82,7 +85,7 @@ publish_draft <- function(input, output, repo='Silverman-Lab/mutt') {
   if(!length(matching)) {
     target <- system2('git',c('rev-parse','HEAD'),stdout=TRUE)
     notes <- tempfile();on.exit(unlink(notes),add=TRUE)
-    writeLines('Curated processed taxonomic study assets. Provisional manuscript baseline: see provenance and migration audit. Do not publish until selections are reviewed.',notes)
+    writeLines('Curated processed taxonomic study assets preserving the current mutt API at 01c648b. See per-study provenance and the migration audit for exact default/aligned comparisons and existing parser failures.',notes)
     .gh(c('release','create',tag,'--repo',repo,'--draft','--target',target,
           '--title',tag,'--notes-file',notes))
   }

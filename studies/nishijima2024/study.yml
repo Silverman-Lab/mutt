@@ -17,9 +17,9 @@
   "display_name": "2024 nishijima cell galaxy",
   "schema_version": 1,
   "legacy_id": "2024_nishijima_cell_galaxy",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "",
-  "baseline_status": "historical saved object; provisional manuscript selection",
+  "baseline_status": "current API exact capture",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
   "archived_inputs": [
@@ -52,5 +52,7 @@
     "covariates": "cohort",
     "ID": "ID",
     "PMID": "39541968"
-  }
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
 }

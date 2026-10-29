@@ -8,9 +8,9 @@
   "display_name": "2022 suriano aps micefecal",
   "schema_version": 1,
   "legacy_id": "2022_suriano_aps_micefecal",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "",
-  "baseline_status": "historical saved object; provisional manuscript selection",
+  "baseline_status": "current API exact capture",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -58,5 +58,7 @@
     "covariates": "Day",
     "ID": "Sample_name",
     "PMID": "36516223"
-  }
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
 }

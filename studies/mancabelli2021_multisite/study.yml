@@ -13,9 +13,9 @@
   "display_name": "2021 mancabelli applenvironmicrobiology chickenfecalhumanvaginalshotgunflow",
   "schema_version": 1,
   "legacy_id": "2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC8091109/\ndata: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA641015\n\nShallow shotgun sequencing. Has relative counts in datasheet 2 from supplemental data\n\ncollected and processed by Maxwell Konnaris: 5/3/25\n",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
   "archived_inputs": [
@@ -70,5 +70,7 @@
       "sha256": "ed215fd057d631f5d88370deb860852d30a7990f2794100268033d8da79966e4"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "argument \"x\" is missing, with no default",
+  "baseline_warnings": ""
 }

@@ -14,9 +14,9 @@
   "display_name": "2019 morton naturecommunications songbird oral",
   "schema_version": 1,
   "legacy_id": "2019_morton_naturecommunications_songbird_oral",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "## Paper\n\nThis is from the songbird paper: https://www.nature.com/articles/s41467-019-10656-5\n\n## Files\n\nThe raw files oral_trimmed_deblur.biom, oral_trimmed_metadata.csv, and taxonomy.tsv were downloaded from https://github.com/knightlab-analyses/reference-frames.\n\nThe file 2019_morton_songbird_oral_counts.RDS is the counts table in a better format than biom,\nthe code for going from biom to counts is:\n\n```R\nlibrary(biomformat)\n## Load sequence count data\nbiom_data <- read_hdf5_biom(\"oral_trimmed_deblur.biom\")\nY <- do.call(rbind, biom_data$data)\nrow.names(Y) <- sapply(biom_data$rows, function(item){item$id})\n```\n\n## Notes on Data\n\n* Metadata: the metadata contains many columns related to the scale including: flow.cell.5min.1, flow.cells.ul.1, and flow.cells.ul.2. The first two are not normalized by saliva sample size and the last two are. The scale is the average of the normalized counts.\n\n",
-  "baseline_status": "historical saved object; provisional manuscript selection",
+  "baseline_status": "current API exact capture",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -123,5 +123,7 @@
     ],
     "ID": "Accession",
     "PMID": "31222023"
-  }
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
 }

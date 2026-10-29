@@ -34,9 +34,12 @@
 mutt_studies <- function() {
   rows <- .mutt_manifest()
   fields <- c('study_id','display_name','sequencing','load','status','release_tag','data_version','size_bytes')
-  do.call(rbind, lapply(rows,function(r) {
+  out <- do.call(rbind, lapply(rows,function(r) {
     out <- lapply(fields,function(k) if(is.null(r[[k]])) NA else paste(unlist(r[[k]]),collapse='; '))
     names(out) <- fields
     as.data.frame(out,stringsAsFactors=FALSE)
   }))
+  out$size_bytes <- as.numeric(out$size_bytes)
+  rownames(out) <- NULL
+  out
 }

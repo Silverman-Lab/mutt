@@ -20,6 +20,7 @@
     }
   ],
   "source_notes": "https://www.nature.com/articles/s41591-024-02963-2#data-availability\n",
-  "baseline_status": "unavailable",
-  "source_urls": []
+  "baseline_status": "unavailable: unregistered legacy study",
+  "source_urls": [],
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence"
 }

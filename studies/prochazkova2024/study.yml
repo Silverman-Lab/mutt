@@ -8,9 +8,9 @@
   "display_name": "2024 prochazkova naturemicrobiology longitudinalhealthyflowfecal",
   "schema_version": 1,
   "legacy_id": "2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "",
-  "baseline_status": "historical saved object; provisional manuscript selection",
+  "baseline_status": "current API exact capture",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -63,5 +63,7 @@
     ],
     "ID": "ID",
     "PMID": "39604623"
-  }
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
 }

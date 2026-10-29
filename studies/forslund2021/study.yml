@@ -8,9 +8,9 @@
   "display_name": "2021 forslund nature metacardis",
   "schema_version": 1,
   "legacy_id": "2021_forslund_nature_metacardis",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -60,5 +60,7 @@
       "sha256": "246c5a50ffc98f2cb2d1b88df0ab76b81d5d95219849d82090e24c7c29225764"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "object 'sra_list' not found",
+  "baseline_warnings": ""
 }

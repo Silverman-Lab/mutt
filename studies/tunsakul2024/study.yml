@@ -8,9 +8,9 @@
   "display_name": "2024 tunsakul peerj aerobicvsanaerobicinhealthyvsobesity",
   "schema_version": 1,
   "legacy_id": "2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "paper: \ncode:\n\n9 healthy and 11 fat-metabolic disorder Thai adults aged 23\u201343 years with qPCR total microbial load measurements. The 40 fecal samples were split into anaerobic and aerobic sample processing and evaluated (2 samples from each patient, 1 goes to aerobic collection and the other goes to anaerobic collection).  \"employed metagenomics followed by 16S rRNA gene sequencing and 16S rRNA gene qPCR, to analyze taxonomic composition, alpha diversity, beta diversity, bacterial quantification, Pearson's correlation with clinical factors for fat-metabolic disorder, and the microbial community and species potential metabolic functions\"\n",
-  "baseline_status": "historical saved object; provisional manuscript selection",
+  "baseline_status": "current API exact capture",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -68,5 +68,7 @@
     "covariates": "environment",
     "ID": "Sample",
     "PMID": "38650647"
-  }
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
 }

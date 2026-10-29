@@ -11,9 +11,9 @@
   "display_name": "2020 vieirasilva nature BMIS",
   "schema_version": 1,
   "legacy_id": "2020_vieirasilva_nature_BMIS",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "https://www.nature.com/articles/s41586-020-2269-x#Sec25\n\nThe processed microbiome profiles can be downloaded at http://raeslab.org/software/BMIS/  \n\n\n",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -48,5 +48,7 @@
       "sha256": "50ce869f63f273b1eb1bb5bccaf1b879ce4cb0c7b597ce7b3f5b679f01442961"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "attempt to select less than one element in get1index",
+  "baseline_warnings": ""
 }

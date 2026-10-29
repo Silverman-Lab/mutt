@@ -10,9 +10,9 @@
   "display_name": "2020 regalado isme metagenomicsbacteriaandfungalsequencing",
   "schema_version": 1,
   "legacy_id": "2020_regalado_isme_metagenomicsbacteriaandfungalsequencing",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "Paper: https://academic.oup.com/ismej/article/14/8/2116/7474856\n\nShotgun sequencing supplies information on the total DNA content of microorganisms as opposed to a specific locus, which in principle enables the functional characterization of reads, de novo assembly of genes, and in the best cases, leads to the recovery of entire metagenome assembled genomes [8, 18\u201320].\nWe estimated absolute microbial load as the ratio of microbial reads to plant chromosomal reads in each sample, and observed that the microbial load varied across samples from <1% to up to 77% of plant reads. We used the bacterial load calculated from the metagenome data to similarly scale the 16S data.\n\n\n\n\n\n\n\n\n\n\nDear Maxwell,\n\nWe intended to put these types of files in an organized way in a public Dryad directory but sadly that's not operational. For expediency I am giving you the files directly from my laptop, as I used them for the analysis (therefore, the file names are all in the original shorthand instead). I give you a key of what's what below. I also attached the R script I used to integrate these data for the publication. Again, this R script is not unfortunately well-annotated as a public document, but it may be helpful. I can easily imagine some further confusion or clarification will arise - feel welcome to reach out to me and I'll try to help you get going.\n\nGreetings,\nDerek\n\n\n>16S OTU table, taxonomy, and metadata respectively:\n515_blackblue_all_Zotutab_20181206.txt\n515_blackblue_all_zotus.tax\n515_blackblue_metadata.txt\n\n>ITS OTU table, taxonomy, and metadata respectively:\n\n\nAgITS1blackblue_READ1_271_all_Zotutab.txt\nAgITS1blackblue_READ1_271_all_zotus.tax\nITS_blackblue_metadata_v2.txt\n\n>Metagenome count tables at various taxonomic limits:\nBacteriaGenusRaw.txt\nFungiGenusRaw.txt\nBacteriaFamilyRaw.txt\nFungiFamilyRaw.txt\nBacteriaPhylumRaw.txt\n\n>Metagenome total reads for each sample (needed for any normalization of metagenome data)\ntotal_seq.txt\n\n>Metagenome reads assigned to the plant chromosome\nchromCountsNew.txt\n\n>Unassignable metagenome reads per sample\nnumUnaligned.txt\n\n>The rather messy R script I used to integrate these data and prepare the figures, not written to be read easily or followed, but still perhaps useful:\ncorrect_16S_load.R\n\n>A metadata table of the metagenomes that connects the IDs from ENA to the IDs used throughout these other files\nMetadata_PRJEB31530.xlsx\n\n\n\n",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -112,5 +112,7 @@
       "sha256": "4b1debe90eac72d76df635c6b34adfae27c42c32329464197e5f73b52b3eb60b"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "object 'metadata_16s_zip' not found",
+  "baseline_warnings": ""
 }

@@ -11,9 +11,9 @@
   "display_name": "2020 ellegaard currbiology honeybeeqPCRshotgunmetagenomics",
   "schema_version": 1,
   "legacy_id": "2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC7342003/\ncode and data: https://zenodo.org/records/3747314\n",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -53,5 +53,7 @@
       "sha256": "0c8ea06327a719b297b9fb921f442b7d3ee935f7d74f1205dff3a9790ddeddba"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "object 'tax' not found",
+  "baseline_warnings": ""
 }

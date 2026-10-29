@@ -10,9 +10,9 @@
   "display_name": "2013 reyes procnationalacademyscience gnotobioticmousehumangutflow",
   "schema_version": 1,
   "legacy_id": "2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "paper: https://pubmed.ncbi.nlm.nih.gov/24259713/\nsupp files: supp_110_50_20236__index.html \n\n",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -32,5 +32,7 @@
       "sha256": "5dd6b6c3b19d92aa432324cfe8837e9252f89c20b2cfc123a67a5249cfe94866"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "duplicate 'row.names' are not allowed",
+  "baseline_warnings": ""
 }

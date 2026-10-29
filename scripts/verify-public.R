@@ -14,4 +14,11 @@ for(i in seq_along(manifest$studies)) {
   },finally=unlink(temp))
   manifest$studies[[i]]$status <- 'available'
 }
+# Retain other curated studies, including explicit unavailable records.
+if(file.exists('inst/extdata/studies.json')) {
+  existing <- jsonlite::read_json('inst/extdata/studies.json')$studies
+  replacement_ids <- vapply(manifest$studies,function(r)r$study_id,character(1))
+  retained <- Filter(function(r) !r$study_id %in% replacement_ids,existing)
+  manifest$studies <- c(manifest$studies,retained)
+}
 jsonlite::write_json(manifest,a[[3]],pretty=TRUE,auto_unbox=TRUE,null='null')

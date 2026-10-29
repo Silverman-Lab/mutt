@@ -8,9 +8,9 @@
   "display_name": "2023 fu imeta wasterwater pathogens",
   "schema_version": 1,
   "legacy_id": "2023_fu_imeta_wasterwater_pathogens",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "current API exact capture",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -50,5 +50,7 @@
       "sha256": "3c794031fc627337ae073c69c7b4a69a41dfdf33a131ca60c2bd3f0ec3d09b08"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "",
+  "baseline_warnings": "Setting row names on a tibble is deprecated."
 }

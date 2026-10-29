@@ -10,9 +10,9 @@
   "display_name": "2023 galla scientificreports spikeinmockvariousorganismssampletypes",
   "schema_version": 1,
   "legacy_id": "2023_galla_scientificreports_spikeinmockvariousorganismssampletypes",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "Paper: https://www.nature.com/articles/s41598-023-30916-1?fromPaywallRec=false#Sec8\n\nBovine fecal samples (heifers):\nSubjects: 8 heifers.\nSamples: 3 pooled samples (BP1, BP2, BP3), with each pool further split into:\nHigh Biomass (HBM): 3 subsamples per pool \u2192 \n3\u00d73=9 subsamples.\nLow Biomass (LBM): 3 subsamples per pool \u2192 \n3\u00d73=9 subsamples.\n\nTotal samples from bovine feces: \n9+9=18.\n\nRhizosphere soil:\nSubjects: Single soil sample.\nSamples: 9 technical replicates.\n\nGround beetles (Carabidae spp.):\nSubjects: 3 individuals.\nSamples: 3 technical replicates per individual \u2192 \n3\u00d73=9.\n\nEarthworms (Lumbricus spp.):\nSubjects: 3 individuals.\nSamples: 3 technical replicates per individual \u2192 \n3\u00d73=9.\n\nSpringtails (Collembola):\nSubjects: Pool of 6 individuals.\nSamples: 6 technical replicates.\n\nRoundworms (Nematoda spp.):\nSubjects: 9 pools (30 individuals per pool).\nSamples: 9 technical replicates.\n\nRed deer (Cervus elaphus) fecal pellets:\nSubjects: 3 fecal pellets.\nSamples: 3 technical replicates per pellet \u2192 \n3\u00d73=9.\n\nEuropean brown hare (Lepus europaeus) fecal pellets:\nSubjects: 2 fecal pellets.\n\nTotal: 30 Subjects\n\t75 Samples\n",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -42,5 +42,7 @@
       "sha256": "30bf7d90899370f26cf773d920e599c15ece1ba707bd99a98146d59e0294117a"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "Join columns in `y` must be present in the data.\n\u2716 Problem with `fastq ID`.",
+  "baseline_warnings": "EOF within quoted string | number of items read is not a multiple of the number of columns"
 }

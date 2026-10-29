@@ -15,9 +15,9 @@
   "display_name": "2022 fromentin naturemedicine metacardissubset",
   "schema_version": 1,
   "legacy_id": "2022_fromentin_naturemedicine_metacardissubset",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "Paper: https://www.nature.com/articles/s41591-022-01688-4\n\nThis study encompassed 372 individuals with IHD, including 112 with acute coronary syndrome (ACS), 158 with chronic ischemic heart disease (CIHD) and 102 with IHD and heart failure (HF). Included 275 healthy controls (HCs) matched on demographics, age and sex and 222 untreated metabolically matched controls (UMMCs)\u2014that is, individuals with features of the metabolic syndrome and at increased risk of IHD but receiving no lipid-lowering or anti-diabetic or anti-hypertensive drugs. Included 372 controls matched with individuals with IHD in terms of T2D status and body mass index (BMI), thereafter termed metabolically matched controls (MMCs). They profiled their serum and urine metabolome (1,558 metabolites and lipids) and examined their intestinal microbiome, considering inter-individual variations in absolute fecal bacterial cell density, a factor potentially reflecting the disease state and obscuring genuine microbiome involvement.\n\nCode: https://github.com/TillBirkner/metadeconfoundR\n\nI think data can be downloaded straight from repo R folder or from package: install.packages(\"metadeconfoundR\") in R \n",
-  "baseline_status": "historical saved object; provisional manuscript selection",
+  "baseline_status": "current API exact capture",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -92,5 +92,7 @@
       "39541968",
       "34880489"
     ]
-  }
+  },
+  "baseline_error": "",
+  "baseline_warnings": "NAs introduced by coercion"
 }

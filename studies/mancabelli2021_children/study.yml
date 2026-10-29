@@ -12,9 +12,9 @@
   "display_name": "2021 mancabelli appliedenvironmentalmicrobiology childrenantibiotictherapyflowfecal",
   "schema_version": 1,
   "legacy_id": "2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "Paper:https://pmc.ncbi.nlm.nih.gov/articles/PMC8091617/#_ad93_\n\nData retrieved and processed, genomic processed, and parse script completed by Maxwell Konnaris: 04/11/25\n\n\n",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
   "archived_inputs": [
@@ -69,5 +69,7 @@
       "sha256": "b146d7a1db7e13763faf7791c0987984e697c7e49ff7ae5e8405c170a5bd455c"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "zip file '2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/' cannot be opened",
+  "baseline_warnings": ""
 }

@@ -8,9 +8,9 @@
   "display_name": "2021 vallescolomer naturemicrobiology femalebloodlinefamilialmicrobiome",
   "schema_version": 1,
   "legacy_id": "2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "",
-  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "baseline_status": "unavailable: existing parser failed",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -30,5 +30,7 @@
       "sha256": "7a73a62db59a912f38e3e94b4f5a5fe9b12aee90f8f590de80109a62e6e5c7e7"
     }
   ],
-  "legacy_demographics": null
+  "legacy_demographics": null,
+  "baseline_error": "Can't rename columns that don't exist.\n\u2716 Column `Sample ID` doesn't exist.",
+  "baseline_warnings": ""
 }

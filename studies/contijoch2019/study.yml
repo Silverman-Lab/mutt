@@ -8,9 +8,9 @@
   "display_name": "2019 contijoch elife multispeciesqPCRshotgunandamplicon",
   "schema_version": 1,
   "legacy_id": "2019_contijoch_elife_multispeciesqPCRshotgunandamplicon",
-  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "library(biomformat)\nlibrary(readr)\nparse_2019_contijoch_eLife_metagenomic <- function(paths = NULL) {\n  local <- file.path(\"~/2019_contijoch_eLife_5data16S/\")\n  \n  # data associated with FMT in patients with rCDI : metagenomic data (data 4) n=15\n  metadata <- read_table(paste0(local,\"metagenomics_sample_metadata.txt\"))\n\n  counts <- as.data.frame(read_table(paste0(local, \"metagenomics_combined_full.txt\")))\n  \n  # Define the ranks in order\n  ranks <- c(\"kingdom\", \"phylum\", \"class\", \"order\", \"family\", \"genus\", \"species\")\n\n  # Split strings into components\n  tax_split <- strsplit(counts$Taxa, \"\\\\|\")\n\n  # Create a matrix with 7 columns\n  tax_matrix <- do.call(rbind, lapply(tax_split, function(entry) {\n    # Extract ranks, ensuring a length of 7 (filling with NA if missing)\n    ranks <- sapply(ranks, function(rank) {\n      matched <- grep(paste0(\"^\", substr(rank, 1, 1), \"__\"), entry, value = TRUE)\n      if (length(matched) == 0) return(NA) else return(sub(\"^[a-z]__\", \"\", matched))\n    })\n    return(ranks)\n  }))\n\n  # Convert to data frame for better visualization\n  tax <- as.data.frame(tax_matrix, stringsAsFactors = FALSE)\n  colnames(tax) <- ranks\n  rownames(tax) <- paste0(\"seq\", 1:nrow(counts))\n  \n  rownames(counts) <- rownames(tax)\n  counts <- counts[,-1]\n  \n  scale <- data.frame(total = metadata$sample_mass_mg * (metadata$sample_microbial_density_ug_per_mg * 10^-6) / (10^-15))\n  rownames(scale) <- metadata$Sample_ID\n  \n  all.equal(colnames(counts), metadata$Sample_ID)\n  all.equal(rownames(scale), metadata$Sample_ID)\n\n  return(list(scale=scale, metadata=metadata, counts=counts, tax=tax))\n}\n",
-  "baseline_status": "historical saved object; provisional manuscript selection",
+  "baseline_status": "current API exact capture",
   "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
   "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
   "archived_inputs": [
@@ -26,62 +26,62 @@
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._16S_full_combined_OTU_table.biom",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._16S_full_combined_OTU_table.biom",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._16S_full_combined_OTU_table.biom",
       "sha256": "03e8511957497c94029c2964c76ee93c09fbb4cd6ebe8ab931aabfa2b54b2e1c"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data1-v1.xlsx",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data1-v1.xlsx",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data1-v1.xlsx",
       "sha256": "1b4c6c43cbfe362a9e72ea9e77bd96fec589780a554f4f6c5bf1c9bf81db73f1"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data2-v1.xlsx",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data2-v1.xlsx",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data2-v1.xlsx",
       "sha256": "37057321f1605ac3a2b4fe9424dbc2faa92c24b18dcb58449d1d7397d0a58753"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data3-v1.xlsx",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data3-v1.xlsx",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data3-v1.xlsx",
       "sha256": "7da80c2b08b13774008315e15c8a19ab27b09f8ff814cdaed3ad01c211e40a87"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data1-v1.xlsx",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data1-v1.xlsx",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data1-v1.xlsx",
       "sha256": "0ef98d40ac2a78afe62e9a8098c729bd28c493140bfbd7182f85be121b8c0aef"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data2-v1.xlsx",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data2-v1.xlsx",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data2-v1.xlsx",
       "sha256": "abc61664abe9e93d7401ed54df2136d26bdfb52d4724d7c807c43271fcaf8119"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data3-v1.xlsx",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data3-v1.xlsx",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data3-v1.xlsx",
       "sha256": "c30d89ed565469843c4a1856c38f59f5003ebe321fd2ace63c95d65e8a50b2f7"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data4-v1.xlsx",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data4-v1.xlsx",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data4-v1.xlsx",
       "sha256": "526bb88c645ff93531ceedadf63027f158dcc584483865013d64cecc25009f2c"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig3-data1-v1.xlsx",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig3-data1-v1.xlsx",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig3-data1-v1.xlsx",
       "sha256": "857bd52d2a51f63f3c936b428b2806919ce13e82612c54656d1919c7e1a7ddb9"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig4-data1-v1.xlsx",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig4-data1-v1.xlsx",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig4-data1-v1.xlsx",
       "sha256": "b84f1dbabf35a2518834295a04a7a5b5ba1850e7b235b4404601d779e80e41ac"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig4-data2-v1.xlsx",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig4-data2-v1.xlsx",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig4-data2-v1.xlsx",
       "sha256": "f49e0221283936bb75fe8cf13f1cbc408e35350406b76e9b83a99405e29817a5"
     },
     {
       "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._gg_13_8_99.gg.tax",
-      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._gg_13_8_99.gg.tax",
+      "url": "https://raw.githubusercontent.com/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._gg_13_8_99.gg.tax",
       "sha256": "c8cdff4ee501505cc3289c8a00ebd2407716369a00bd04627a17a80dca6deb97"
     },
     {
@@ -401,5 +401,7 @@
     ],
     "ID": "Sample Name",
     "PMID": "30666957"
-  }
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
 }
