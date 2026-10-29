@@ -29,10 +29,16 @@
 mutt_as_phyloseq <- function(counts, metadata=NULL, taxonomy=NULL) {
   x <- .mutt_conversion_tables(counts,metadata,taxonomy)
   if(!requireNamespace('phyloseq',quietly=TRUE)) stop('Install phyloseq with BiocManager::install("phyloseq") to convert.')
-  parts <- list(phyloseq::otu_table(x$counts,taxa_are_rows=FALSE))
-  if(ncol(x$metadata)) parts <- c(parts,list(phyloseq::sample_data(x$metadata)))
+  # A single OTU component is returned unchanged by phyloseq's constructor.
+  # Supply the existing sample identifiers when no covariates were provided.
+  if(!ncol(x$metadata)) x$metadata <- data.frame(sample_id=rownames(x$counts),row.names=rownames(x$counts))
+  parts <- list(phyloseq::otu_table(x$counts,taxa_are_rows=FALSE),phyloseq::sample_data(x$metadata))
   if(ncol(x$taxonomy)) parts <- c(parts,list(phyloseq::tax_table(as.matrix(x$taxonomy))))
-  do.call(phyloseq::phyloseq,parts)
+  result <- do.call(phyloseq::phyloseq,parts)
+  if(!identical(phyloseq::sample_names(result),rownames(x$counts)) ||
+     !identical(phyloseq::taxa_names(result),colnames(x$counts)))
+    stop('phyloseq changed sample or feature identifiers. Use miaverse or provide compatible identifiers explicitly.')
+  result
 }
 
 #' @rdname mutt_as_phyloseq

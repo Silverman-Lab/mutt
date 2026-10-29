@@ -84,3 +84,12 @@ corrections use a new data tag and an updated pinned package manifest.
 Run local fixture tests and build/check the source package. CI must not run
 migration, download study data/FASTQs or build a data release. Optional Bioconductor
 converters are not dependencies of the ordinary download API.
+
+The maintainer-only release fixture test lives outside the installed package:
+
+```sh
+Rscript -e 'pkgload::load_all(".", quiet=TRUE); source("tests/testthat/helper-release.R"); testthat::test_file("scripts/tests/test-release-tools.R", stop_on_failure=TRUE)'
+```
+
+It packages only tiny local fixtures. Installed-package tests must not depend on
+maintainer scripts excluded from the source package.
