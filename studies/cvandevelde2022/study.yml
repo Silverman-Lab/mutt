@@ -1,0 +1,87 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "Flow Cytometry",
+  "pmid": "37938658",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "cvandevelde2022",
+  "display_name": "2022 cvandevelde ismecommunications culturedflowhumanfecal",
+  "schema_version": 1,
+  "legacy_id": "2022_cvandevelde_ismecommunications_culturedflowhumanfecal",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "Metadata.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/Metadata.txt.zip",
+      "sha256": "12e3f6133abd7dfc4553a1677751d52497e1c9745a91ffa65b4810d6570974a6"
+    },
+    {
+      "file": "PRJEB51873_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/PRJEB51873_dada2_counts.rds.zip",
+      "sha256": "0c243cf6b6341b8ed572318b361ac7b3a70b5d563194660f143f3f102b9a00ac"
+    },
+    {
+      "file": "PRJEB51873_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/PRJEB51873_dada2_counts_withchimeras.rds.zip",
+      "sha256": "b43de1b3cb8e780119bc9b75e4177e9b4901235dd07add11dc02db43a39b1344"
+    },
+    {
+      "file": "PRJEB51873_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/PRJEB51873_dada2_taxa.rds.zip",
+      "sha256": "f7c1c2b28fc3aab17d2740d2b10360edb17773c1c0075343cf60b4dc514e151d"
+    },
+    {
+      "file": "SraRunTable (39).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/SraRunTable%20%2839%29.csv.zip",
+      "sha256": "324ea15a614076f2296548c525b3a3c26e8d8920fe099eb892e69901eb62bd9e"
+    },
+    {
+      "file": "VandeVelde2022_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/VandeVelde2022_scale.csv.zip",
+      "sha256": "8ac67e839e5b46f903bf9de40accaa25e7795b05e7e5898b5f84d60c2c5eadad"
+    },
+    {
+      "file": "VandeVelde_2022_16S.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/VandeVelde_2022_16S.csv.zip",
+      "sha256": "b332f51c12e8cd72a3a9d13444299ca642aa0d6213b3ead3264f889b308d214c"
+    },
+    {
+      "file": "VandeVelde_2022_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/VandeVelde_2022_metadata.csv.zip",
+      "sha256": "8bd250333002532acb4d3ebbc1f916c29d43c41b483c9c5d3f3668e39ecc9df9"
+    },
+    {
+      "file": "cellcounts.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/cellcounts.txt.zip",
+      "sha256": "5a820c0a1f5858a341f8fd8a6cf8b45e50abd3e7ae44b2c6e9fa533f20805060"
+    },
+    {
+      "file": "otu_cellcount.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/otu_cellcount.tsv.zip",
+      "sha256": "427cdb3db5afd9c3e9fcc2080dcdda3f5d2d8bb536ca41565a824de936d5ac92"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/rdp16classified.csv.zip",
+      "sha256": "f97f2f24c6b99755b00974dcf62134283d423596065794f6c75f4ef410e23107"
+    },
+    {
+      "file": "supplementary data.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_cvandevelde_ismecommunications_culturedflowhumanfecal/supplementary%20data.xlsx.zip",
+      "sha256": "ae7a79fde0af27ac6c060426500474e389072f25f1a2aa2c5ad2020956040d7f"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": "Prefix",
+    "ID": "Sample",
+    "PMID": "37938658"
+  }
+}

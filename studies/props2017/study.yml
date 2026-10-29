@@ -1,0 +1,74 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [
+    "SRP066190"
+  ],
+  "source_urls": [
+    "http://dx.doi.org/10.5061/dryad.m1c04",
+    "https://www.nature.com/articles/ismej2016117"
+  ],
+  "study_id": "props2017",
+  "display_name": "2017 props isme longitudinal",
+  "schema_version": 1,
+  "legacy_id": "2017_props_isme_longitudinal",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "paper:https://www.nature.com/articles/ismej2016117\nFlow cytometry data (.fcs format) are available on the FlowRepository archive under repository ID FR-FCM-ZZNA and the Dryad Digital Repository (http://dx.doi.org/10.5061/dryad.m1c04). Sequences are available on the NCBI Sequence Read Archive (SRA) under accession number SRP066190.\nCase study data used in MEASURING THE BIODIVERSITY OF MICROBIAL COMMUNITIES BY FLOW CYTOMETRY by Ruben Props, Pieter Monsieurs, Mohamed Mysara, Lieven Clement and Nico Boon\n\nData provided by Nico Boon, email: <Nico.Boon@UGent.be>.\nSee Materials and Methods of the paper for detailed information about the data.\nThe file metadata folder contains additional information that was collected concurrently with the flow cytometry analysis:\n1. Denoising strategy that was used on the flow cytometry data. Explanation for this can be found in SI figure 1 of the paper.\n\n2. Extra metadata\n- Cycle: the number of the survey (1 or 2)\n- Reactor phase: phase of the reactor operation\n- Conductivity, pH and temperature of the ecosystem\n- Timepoint of sampling relative to the start-up of the reactors for each respective cycle\n- D2.tax/D1.tax/D0.tax: Hill species diversities based on the 16S rRNA gene amplicon sequencing. Further description of these parameters is available in the materials and methods section of the paper.\n- D2.fcm/D1.fcm/D0.fcm: Hill diversities calculated from the flow cytometry data. Calculation is described in materials and methods of the paper.\n- D2.fcm.sd/D1.fcm.sd/D0.fcm.sd: standard deviations on the above diversity estimates based on triplicate measurements.\n- Cell.density: total cell density of the community as calculated by flow cytometry\n- Cell.density.sd: standard deviation on the total cell density measurements based on triplicate measurements.\n\n\n",
+  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+  "archived_inputs": [
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_props_isme_longitudinal/README.txt.zip",
+      "sha256": "7d0566fb5d53dcb9dd047b4515a3c595f54ac68252a77aa3d6a6e9de86fc7592"
+    },
+    {
+      "file": "SRP066190_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_props_isme_longitudinal/SRP066190_dada2_counts.rds.zip",
+      "sha256": "9213365634ca147fa49e0a51819a9aedbdb72dc3d523084d2e6b4d71a975c7d3"
+    },
+    {
+      "file": "SRP066190_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_props_isme_longitudinal/SRP066190_dada2_counts_withchimeras.rds.zip",
+      "sha256": "8b2368d6cabd6d4531fcffb3dc0c383f881065c2f94a098b61c02e26341f9418"
+    },
+    {
+      "file": "SRP066190_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_props_isme_longitudinal/SRP066190_dada2_taxa.rds.zip",
+      "sha256": "b0be87224af2ba02056eae28301fc2d7f5dc1d90a7efb2522ebe348c91aa86f5"
+    },
+    {
+      "file": "SraRunTable (30).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_props_isme_longitudinal/SraRunTable%20%2830%29.csv.zip",
+      "sha256": "51624ff28c56ee42626207d36a387ccef85fae26147c1eb09e6a58e9e46ef154"
+    },
+    {
+      "file": "ismej2016117x3.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_props_isme_longitudinal/ismej2016117x3.xlsx.zip",
+      "sha256": "0f9e6047b1febc1070863fd06edb890f25ace8ab6e37d8b17aa99f853368c1b4"
+    },
+    {
+      "file": "metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_props_isme_longitudinal/metadata.csv.zip",
+      "sha256": "fcc2bf4a14c528326a6212d4605702dcfefe1e3f1f977c30175acb14f1f3ddc0"
+    },
+    {
+      "file": "stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.an.unique_list.0.03.cons_CYANO (1).taxonomy.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_props_isme_longitudinal/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.an.unique_list.0.03.cons_CYANO%20%281%29.taxonomy.zip",
+      "sha256": "aa51d7fd9f8cd96b563d9d3895e2bff8985566d77eb3b305235e62b381e8b2fd"
+    },
+    {
+      "file": "stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.an.unique_list_CYANO.shared.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_props_isme_longitudinal/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.an.unique_list_CYANO.shared.zip",
+      "sha256": "f5b4663b83977619b608c2602dbf308f3c16a4ffb41ecab7f480f64c75ea79e0"
+    },
+    {
+      "file": "supplemental_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_props_isme_longitudinal/supplemental_metadata.csv.zip",
+      "sha256": "20f01ecefb79d94b5ed4e61b797f4f7f9fa06edb52d8a543376b3841b9df0dfa"
+    }
+  ],
+  "legacy_demographics": null
+}

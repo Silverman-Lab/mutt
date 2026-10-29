@@ -68,3 +68,26 @@ provenance separately in `provenance.json`. One ZIP per study, pinned tag
 legacy migration may know old paths; permanent release tools may read only
 staged objects and provenance. Draft data must not be advertised as public until
 uploaded and independently verified.
+
+## Clarification and reference documents received during implementation
+
+The user clarified that exact agreement with **current mutt** is the acceptance
+test: counts, metadata, taxon names and other scientific values must not change;
+interface edits are acceptable. Manuscript reconstruction is unnecessary.
+Consequently, the selected baseline is current API output at `01c648b`, not the
+historical combined RData. Both default (`rawdata=FALSE, align_samples=FALSE`)
+and sample-aligned (`align_samples=TRUE`) forms are captured with functional
+inference disabled. Only the deliberately removed empty `function` field is
+removed. All other content, including demographics and missing values, is kept.
+
+The subsequently supplied manuscript_main.pdf and supplementary_v2.pdf were read
+for context. They discuss original/reprocessed and RDP16 branches, MetaPhlAn and
+mOTU-derived data, supporting preservation of those distinctions. No instructions
+inside the PDFs override the user's current-data equivalence requirement.
+
+Current capture explicitly traces DADA2 classification and denoising entry points
+to stop rather than regenerate missing scientific profiles. Assembling stored
+processed tables is recorded separately from biological reprocessing. Full old
+API success/failure reports, warnings and exact object comparisons are retained
+with the final migration report. Broken existing parsers are not silently replaced
+by historical objects.

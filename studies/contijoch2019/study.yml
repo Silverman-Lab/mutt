@@ -1,0 +1,405 @@
+{
+  "sequencing": "Shotgun Metagenomics",
+  "load": "qPCR",
+  "pmid": "30666957",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "contijoch2019",
+  "display_name": "2019 contijoch elife multispeciesqPCRshotgunandamplicon",
+  "schema_version": 1,
+  "legacy_id": "2019_contijoch_elife_multispeciesqPCRshotgunandamplicon",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "library(biomformat)\nlibrary(readr)\nparse_2019_contijoch_eLife_metagenomic <- function(paths = NULL) {\n  local <- file.path(\"~/2019_contijoch_eLife_5data16S/\")\n  \n  # data associated with FMT in patients with rCDI : metagenomic data (data 4) n=15\n  metadata <- read_table(paste0(local,\"metagenomics_sample_metadata.txt\"))\n\n  counts <- as.data.frame(read_table(paste0(local, \"metagenomics_combined_full.txt\")))\n  \n  # Define the ranks in order\n  ranks <- c(\"kingdom\", \"phylum\", \"class\", \"order\", \"family\", \"genus\", \"species\")\n\n  # Split strings into components\n  tax_split <- strsplit(counts$Taxa, \"\\\\|\")\n\n  # Create a matrix with 7 columns\n  tax_matrix <- do.call(rbind, lapply(tax_split, function(entry) {\n    # Extract ranks, ensuring a length of 7 (filling with NA if missing)\n    ranks <- sapply(ranks, function(rank) {\n      matched <- grep(paste0(\"^\", substr(rank, 1, 1), \"__\"), entry, value = TRUE)\n      if (length(matched) == 0) return(NA) else return(sub(\"^[a-z]__\", \"\", matched))\n    })\n    return(ranks)\n  }))\n\n  # Convert to data frame for better visualization\n  tax <- as.data.frame(tax_matrix, stringsAsFactors = FALSE)\n  colnames(tax) <- ranks\n  rownames(tax) <- paste0(\"seq\", 1:nrow(counts))\n  \n  rownames(counts) <- rownames(tax)\n  counts <- counts[,-1]\n  \n  scale <- data.frame(total = metadata$sample_mass_mg * (metadata$sample_microbial_density_ug_per_mg * 10^-6) / (10^-15))\n  rownames(scale) <- metadata$Sample_ID\n  \n  all.equal(colnames(counts), metadata$Sample_ID)\n  all.equal(rownames(scale), metadata$Sample_ID)\n\n  return(list(scale=scale, metadata=metadata, counts=counts, tax=tax))\n}\n",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive.zip",
+      "sha256": "ea3e5ca6736951199f6f562d60b204f7338fba24fcce37d8d54cb8e145439a5b"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/16S_full_combined_OTU_table.biom.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/16S_full_combined_OTU_table.biom.zip",
+      "sha256": "16f90a3d5ccce5a6ff19932323ba8a382f6daa1d7ad9fcbcd271dacdbc18cf22"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._16S_full_combined_OTU_table.biom",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._16S_full_combined_OTU_table.biom",
+      "sha256": "03e8511957497c94029c2964c76ee93c09fbb4cd6ebe8ab931aabfa2b54b2e1c"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data1-v1.xlsx",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data1-v1.xlsx",
+      "sha256": "1b4c6c43cbfe362a9e72ea9e77bd96fec589780a554f4f6c5bf1c9bf81db73f1"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data2-v1.xlsx",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data2-v1.xlsx",
+      "sha256": "37057321f1605ac3a2b4fe9424dbc2faa92c24b18dcb58449d1d7397d0a58753"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data3-v1.xlsx",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig1-data3-v1.xlsx",
+      "sha256": "7da80c2b08b13774008315e15c8a19ab27b09f8ff814cdaed3ad01c211e40a87"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data1-v1.xlsx",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data1-v1.xlsx",
+      "sha256": "0ef98d40ac2a78afe62e9a8098c729bd28c493140bfbd7182f85be121b8c0aef"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data2-v1.xlsx",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data2-v1.xlsx",
+      "sha256": "abc61664abe9e93d7401ed54df2136d26bdfb52d4724d7c807c43271fcaf8119"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data3-v1.xlsx",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data3-v1.xlsx",
+      "sha256": "c30d89ed565469843c4a1856c38f59f5003ebe321fd2ace63c95d65e8a50b2f7"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data4-v1.xlsx",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig2-data4-v1.xlsx",
+      "sha256": "526bb88c645ff93531ceedadf63027f158dcc584483865013d64cecc25009f2c"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig3-data1-v1.xlsx",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig3-data1-v1.xlsx",
+      "sha256": "857bd52d2a51f63f3c936b428b2806919ce13e82612c54656d1919c7e1a7ddb9"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig4-data1-v1.xlsx",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig4-data1-v1.xlsx",
+      "sha256": "b84f1dbabf35a2518834295a04a7a5b5ba1850e7b235b4404601d779e80e41ac"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig4-data2-v1.xlsx",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._elife-40553-fig4-data2-v1.xlsx",
+      "sha256": "f49e0221283936bb75fe8cf13f1cbc408e35350406b76e9b83a99405e29817a5"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/__MACOSX/._gg_13_8_99.gg.tax",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/__MACOSX/._gg_13_8_99.gg.tax",
+      "sha256": "c8cdff4ee501505cc3289c8a00ebd2407716369a00bd04627a17a80dca6deb97"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/elife-40553-fig1-data1-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/elife-40553-fig1-data1-v1.xlsx.zip",
+      "sha256": "b88d3dc194085d46914d18e705a6b222124de524a1b13c9a365176201918a9ff"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/elife-40553-fig1-data2-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/elife-40553-fig1-data2-v1.xlsx.zip",
+      "sha256": "eff4a870c6ac8d376c376d774217076a23494e8fb9ffcb2d90d5d965261c673b"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/elife-40553-fig1-data3-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/elife-40553-fig1-data3-v1.xlsx.zip",
+      "sha256": "811af0608efe38d233c7ad3735388c45d80cad7fc9813d49b10fa756431f75ab"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/elife-40553-fig2-data1-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/elife-40553-fig2-data1-v1.xlsx.zip",
+      "sha256": "32f93e1f0ca5dfba0eb2b122a84c93eec6531d2aa5c07043ff819ff4682c3fb6"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/elife-40553-fig2-data2-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/elife-40553-fig2-data2-v1.xlsx.zip",
+      "sha256": "94596f3b305f9aca45e8f57ea3709e2a589ed0a19bfa430e401d7d18a192d55a"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/elife-40553-fig2-data3-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/elife-40553-fig2-data3-v1.xlsx.zip",
+      "sha256": "f46635637e8deb51c1eaf9a465736abae39a344d986261ffaead37a00496bc97"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/elife-40553-fig2-data4-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/elife-40553-fig2-data4-v1.xlsx.zip",
+      "sha256": "488740084bae03286d3d0d5d7f923ad2a26e40ed07eb6800e90d1cce053f2b36"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/elife-40553-fig3-data1-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/elife-40553-fig3-data1-v1.xlsx.zip",
+      "sha256": "0e7a68f39a5810ebdd053489c9beeda9b456eea95e100e974cae0135343d275e"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/elife-40553-fig4-data1-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/elife-40553-fig4-data1-v1.xlsx.zip",
+      "sha256": "1b77a4bc618bb4421872d1b5f62249ce162ade6d7ebcadacd9229f711057813f"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/elife-40553-fig4-data2-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/elife-40553-fig4-data2-v1.xlsx.zip",
+      "sha256": "6131a5f6679fc5496dc4d8aca2e53bfccd1a7794ec9b3d2f7c253ce6aaa482d2"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/gg_13_8_99.gg.tax.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/gg_13_8_99.gg.tax.zip",
+      "sha256": "e769d3badb7945be666b837f47990c96081b69875da2f454cfdf6c4e9d64411b"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/Archive/metagenomics_combined_full.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/Archive/metagenomics_combined_full.txt.zip",
+      "sha256": "f3d23dee12cbce207e0695eab911f6d9c9aa7fbdb407b73135605660e910e418"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/README.txt.zip",
+      "sha256": "0b71520ea195014fc84bb201f8d2f7f4d18ba76d3513b8199a5b73d3f37fe217"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/cleanedcounts16S.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/cleanedcounts16S.csv.zip",
+      "sha256": "8b8a96d9a652a75c2584100f459cc2371e3370a70511ec8b8864e1787453d0b9"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/contijochdata.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/contijochdata.zip",
+      "sha256": "db5d7a06ee582ccbcd9af16c2dc4b9893cc701657f4f473a0e3592575ee717ac"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/sixteensmetadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/sixteensmetadata.csv.zip",
+      "sha256": "f748cdb91e4a6a595be70e2eadd928f3c6ba92ac16a0dfaae7243069b4f35e8b"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/sixteensscale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/sixteensscale.csv.zip",
+      "sha256": "b046f015c08adc234d373702c86c41c7b51979b20f945ed89f8e052aabb73af9"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/taxonomy_results.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/taxonomy_results.csv.zip",
+      "sha256": "28008183cb170adc50411fcc5028ac68ed2a0ad9848aff618a731adfa3d1daea"
+    },
+    {
+      "file": "2019_contijoch_eLife_5data16S/won_parse.R.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_5data16S/won_parse.R.zip",
+      "sha256": "b99290ec34c7180e48977a1eb5a17575ae480ec2865336b9d66a4b01095327cf"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/Archive.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/Archive.zip",
+      "sha256": "cdaebf941345d626161fced807f5852298afbde789f2dc59f35d370541402c97"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/Contijoch2019_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/Contijoch2019_scale.csv.zip",
+      "sha256": "70d56e60c2fc22f512715b8ad81442270f69d53b4476a6d09fb84b8dc7949c7f"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/Contijoch_2019_shotgunmetagenomics.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/Contijoch_2019_shotgunmetagenomics.csv.zip",
+      "sha256": "ffb7b0c69d8fc802cbe27cc55921cab5e494758c5d36abdfee051e88825b252a"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/Contijoch_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/Contijoch_metadata.csv.zip",
+      "sha256": "630ed58fa300ef5aa97e7764cf51fc38dbe3a5914ffda42fab3acbbf144574f6"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/README.txt.zip",
+      "sha256": "75ed2f4fbeee1a4557b9cef98ec3309f0d28ead60105de852c155023f9750527"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/PRJNA413199_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/PRJNA413199_metadata.csv.zip",
+      "sha256": "7d046c28c9f881e9d4497c2e961ea46e9096651799cbe18c8bb8e64362f90c80"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig1-data1-v1 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig1-data1-v1%20%281%29.xlsx.zip",
+      "sha256": "6830a6fdb41e25acff2f53e1872295ac0a45c083732ab6a7d5255dc7a40ce60e"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig1-data2-v1 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig1-data2-v1%20%281%29.xlsx.zip",
+      "sha256": "1b4ffba4993fc2e8b125c567723f0597028f5ae257b4fac4d2e85ab3432faf6d"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig1-data3-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig1-data3-v1.xlsx.zip",
+      "sha256": "fd4ff1a5629e4eb78c3ae5916f00984a6e8a5f9e466121c56847f031b312d8c5"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig2-data1-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig2-data1-v1.xlsx.zip",
+      "sha256": "190bf41292d45eff2da8e5a4c6e5f79424a3aaca8f972a91eb64016cbef09eab"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig2-data2-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig2-data2-v1.xlsx.zip",
+      "sha256": "03478a6ef037ea78c4b52b2021c4fce2271c1672e010783da629abc009b3ed57"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig2-data3-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig2-data3-v1.xlsx.zip",
+      "sha256": "276ec7116e1920daa9f4464e5b885f913e99373724c621a062e0e82fbfc7275e"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig2-data4-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig2-data4-v1.xlsx.zip",
+      "sha256": "02007379ed1d5d8de5b655704d7c1fd55e0997159db671d4842d31b7edd98a58"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig3-data1-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig3-data1-v1.xlsx.zip",
+      "sha256": "20227c4670dd61169051b13cf96e970d9cb838faf620057f77a60ff0f8c659fa"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig4-data1-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig4-data1-v1.xlsx.zip",
+      "sha256": "360ae6079dbd8ac74f046df86399ec7bbafa159e4583aa44987c347864e4472c"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig4-data2-v1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/elife-40553-fig4-data2-v1.xlsx.zip",
+      "sha256": "353400b1a847d8cd91786a586bb3bb582ce90c4dbabd5dd81ba3b25229512492"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/hiseq_samples.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/hiseq_samples.csv.zip",
+      "sha256": "9410f90b6c4dee361840f68d8a28b7feb7f3531f1f0ae8722844394fe38ecc75"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/intersected_sample_ids.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/intersected_sample_ids.txt.zip",
+      "sha256": "43a764bd4bae83b79affc70f89ab7e9cb2981c8d152fe47c2070e09794500879"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/master.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/master.csv.zip",
+      "sha256": "b8122f8aedcd3f94bf3813a15837d5e6f21112a5fc5987e90409a3527b333970"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/matched_samples.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/matched_samples.csv.zip",
+      "sha256": "526d6d22e959fada4879c960add8c2b81131ac6b3a946842ff087a4fe4342c4e"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/sample_ids_master.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/sample_ids_master.txt.zip",
+      "sha256": "5b9dae772b540855f918b5b4edcd84cede508a7463f2d3e9954a35639fe223a5"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/contijochdata/sample_ids_prjna.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/contijochdata/sample_ids_prjna.txt.zip",
+      "sha256": "12ef78ccce2a4671cba79eb7cd1d88ddb1adcbd4e3d350006e0953db25d259c7"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/metagenomiccounts.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/metagenomiccounts.csv.zip",
+      "sha256": "8d62e3f931734fd8b2e35716615dc6b4b4df1ac5b843be40baa55105c4671da1"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/metagenomicmetadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/metagenomicmetadata.csv.zip",
+      "sha256": "8428568a2158ffb26735b78f663e1e3b13a17cd435770325892b225e6d3ba895"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/metagenomicrelativeabundances.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/metagenomicrelativeabundances.csv.zip",
+      "sha256": "dd9bd26ba4dc626d3887e9864444de41dbe4289c8acb4d47da6645c25c0782fb"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/metagenomicscale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/metagenomicscale.csv.zip",
+      "sha256": "c2847c05263dd14251dae83e04a88e5ffdd0b9d5fadcd94708ad0ec67ce7ad8a"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/taxonomy_results.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/taxonomy_results.csv.zip",
+      "sha256": "1b0a556a25598eb8cd20d25e86ea87220647e37c9413b1a472f1c466451969b4"
+    },
+    {
+      "file": "2019_contijoch_eLife_metagenomics/won_parse.R.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/2019_contijoch_eLife_metagenomics/won_parse.R.zip",
+      "sha256": "7abb7fd60515e3cb9b564b6b9ca862156137c380bceb99b7847cb3639270f2b8"
+    },
+    {
+      "file": "Contijoch2019 16S_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/Contijoch2019%2016S_scale.csv.zip",
+      "sha256": "12bef6729efcb30b60807b053cff5471ab48a4c8671610944040eea26ca76eba"
+    },
+    {
+      "file": "Contijoch2019_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/Contijoch2019_scale.csv.zip",
+      "sha256": "aef70f3707da12a0a26d00750182a41d57c0674200ef47ec536f079725357ae6"
+    },
+    {
+      "file": "Contijoch_2019_16S.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/Contijoch_2019_16S.csv.zip",
+      "sha256": "14c3d45f535470b64d3dc360fcbc9483f9e6069d4aba96474f5b0c8f6e56376c"
+    },
+    {
+      "file": "Contijoch_2019_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/Contijoch_2019_metadata.csv.zip",
+      "sha256": "ea951ba9a773f75b0a77e3ad030cd865aa0e90b4d18365cb695738472a201626"
+    },
+    {
+      "file": "Contijoch_2019_shotgunmetagenomics.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/Contijoch_2019_shotgunmetagenomics.csv.zip",
+      "sha256": "a899e3f673d608c9438c670ac3655b279aff5938a9b4d4484a5b53f39b8000d5"
+    },
+    {
+      "file": "Contijoch_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/Contijoch_metadata.csv.zip",
+      "sha256": "9ff4625d98f0f6623d1f55ef2257032c27d6fae7684e219830466297095c4ce7"
+    },
+    {
+      "file": "PRJNA413199_MetaPhlAn_merged_counts.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/PRJNA413199_MetaPhlAn_merged_counts.tsv.zip",
+      "sha256": "67cc9dfb7cd86ee82f82b0a2232ca8a518a7163e79dcb0144d5cdfcabae795b4"
+    },
+    {
+      "file": "PRJNA413199_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/PRJNA413199_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "sha256": "40cc411276226fb4211abb5c32a5dc345d37de4b5c08d9b4701909a9b6f5a3cd"
+    },
+    {
+      "file": "PRJNA413199_MetaPhlAn_proportions.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/PRJNA413199_MetaPhlAn_proportions.tsv.zip",
+      "sha256": "01a30db226c8310817090de5f129c968647211ea1888558760a96f38058512e3"
+    },
+    {
+      "file": "PRJNA413199_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/PRJNA413199_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "sha256": "6c1d878d603becc442093d9abe615823741f7165fa17381715fc6e7e6dca373d"
+    },
+    {
+      "file": "PRJNA413199_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/PRJNA413199_dada2_counts.rds.zip",
+      "sha256": "6d9c2b2cb8d666ce512310826feddb45a2293da457fa4f44ff10e079da0c8b6c"
+    },
+    {
+      "file": "PRJNA413199_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/PRJNA413199_dada2_counts_withchimeras.rds.zip",
+      "sha256": "97660cacacc15c30f993c2467cc417333ff4dd6264e6b272f1f944a779375c90"
+    },
+    {
+      "file": "PRJNA413199_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/PRJNA413199_dada2_taxa.rds.zip",
+      "sha256": "d6c164895e18b4a90da1a017d86249bf3fa276e1cf04a229bd483ff67190fc32"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon/rdp16classified.csv.zip",
+      "sha256": "7151b35e3d5270f286d7223c1048e0e91ba32e2ae15b49c7039d7e9aa49a72ed"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "Shotgun Metagenomics",
+    "loadtype": "qPCR",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": [
+      "experimental_timepoint",
+      "sample_mass"
+    ],
+    "ID": "Sample Name",
+    "PMID": "30666957"
+  }
+}

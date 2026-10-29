@@ -1,0 +1,64 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "Flow Cytometry",
+  "pmid": "39462312",
+  "accessions": [],
+  "source_urls": [
+    "https://bmcmicrobiol.biomedcentral.com/articles/10.1186/s12866-024-03590-0"
+  ],
+  "study_id": "garciamartinez2024",
+  "display_name": "2024 garciamartinez bmcmicrobiology ckdanddysbiosiswithserum",
+  "schema_version": 1,
+  "legacy_id": "2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "paper: https://bmcmicrobiol.biomedcentral.com/articles/10.1186/s12866-024-03590-0\n\nEighty-eight CKD patients stratified as non-dialysis (CKD, n\u2009=\u200924), hemodialysis (HD, n\u2009=\u200922), and transplant patients (Tx, n\u2009=\u200942), as well as 26 healthy controls (HC), were enrolled at the University Hospital Luigi Vanvitelli, Italy.\n\nEach participant provided a fecal and blood sample (generated serum) during their outpatient visit or hospital admission.\n\nDemographic and clinical parameters were retrieved from the subjects\u2019 medical records. Additionally, each participant completed a questionnaire covering lifestyle, bowel habits, and weekly dietary intake over the six months preceding the sample collection. In particular, participants selected the food items they regularly consumed over the six months preceding the sample collection from a list of items typically found in Italian diets. These items were categorized into food groups: eggs, fish and seafood, lean meats, lean poultry, fruits, nuts and seeds, coffee and tea, and alcoholic beverages. \n\nSerum concentrations of lanthionine were quantified \nSerum H2S was quantified using the methylene blue method \n\nCount tables/relative abundances/ASV-sequences processed by Maxwell Konnaris 04/09/25 and not provided by the study.\n\nall data collected by Maxwell Konnaris\n\nparse.R finished 04/09/25\n\n\n\n",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "12866_2024_3590_MOESM1_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum/12866_2024_3590_MOESM1_ESM.xlsx.zip",
+      "sha256": "d0ce3ffacb9d77f44b1778a9cebed32c9e9fbfc7834c691cc458e55dd1709366"
+    },
+    {
+      "file": "PRJEB67373_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum/PRJEB67373_dada2_counts.rds.zip",
+      "sha256": "1c6e0bae46aac8294ff094c59de8ff6f18366e13ffe52782816da161716004b9"
+    },
+    {
+      "file": "PRJEB67373_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum/PRJEB67373_dada2_counts_withchimeras.rds.zip",
+      "sha256": "9abd2920b45608dfbc3f1694ce79a4d4b378229493c226da6ebd0c8ee332ec57"
+    },
+    {
+      "file": "PRJEB67373_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum/PRJEB67373_dada2_taxa.rds.zip",
+      "sha256": "74500d44b614f6a14d4df0eee271ec19ab7f861544ec12c5b329d933a244b50f"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum/README.txt.zip",
+      "sha256": "ac98c255c553cfe9f05fe7e3f7b49eeb2d4150afa3ba94e73cd772e00e4a26cd"
+    },
+    {
+      "file": "SraRunTable (19).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum/SraRunTable%20%2819%29.csv.zip",
+      "sha256": "126cc934da84b9d6c84958e173d576feef98b272be6b8bf1b563d319b7c0d3dd"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum/rdp16classified.csv.zip",
+      "sha256": "c6f05769ac9b059177edf11d2d1562b2a6b2d0aefdb03e4bfb90e949857f10b6"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": "population",
+    "ID": "Sample",
+    "PMID": "39462312"
+  }
+}

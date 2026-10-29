@@ -1,0 +1,79 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "32265316",
+  "accessions": [],
+  "source_urls": [
+    "https://pubmed.ncbi.nlm.nih.gov/32265316/"
+  ],
+  "study_id": "tettamantiboshier2020",
+  "display_name": "2020 tettamantiboshier msystems vaginaltimeseries",
+  "schema_version": 1,
+  "legacy_id": "2020_tettamantiboshier_msystems_vaginaltimeseries",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "https://pubmed.ncbi.nlm.nih.gov/32265316/\n",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "PRJNA549339_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_tettamantiboshier_msystems_vaginaltimeseries/PRJNA549339_dada2_counts.rds.zip",
+      "sha256": "1579283febdf14201ab556e325f8b8f9f007e46c32685f8581845db59eaa5f06"
+    },
+    {
+      "file": "PRJNA549339_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_tettamantiboshier_msystems_vaginaltimeseries/PRJNA549339_dada2_counts_withchimeras.rds.zip",
+      "sha256": "f8dda75c5b98e06c635f875d64db3926bc36c4f457fed472594468f5921645c2"
+    },
+    {
+      "file": "PRJNA549339_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_tettamantiboshier_msystems_vaginaltimeseries/PRJNA549339_dada2_taxa.rds.zip",
+      "sha256": "ccfdc7f956162f58d8fbea42e5e9955f8318adc27d697c49a59d851b0088d5f7"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_tettamantiboshier_msystems_vaginaltimeseries/README.txt.zip",
+      "sha256": "f7d748e7864bc04921e25f0a3c4a64ce38e381aea5ac7f49c210d8ee0076f2d7"
+    },
+    {
+      "file": "SraRunTable (30).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_tettamantiboshier_msystems_vaginaltimeseries/SraRunTable%20%2830%29.csv.zip",
+      "sha256": "8d512e4cee5a79e997d87cd9eb07981bcc3ebe7e02c144cdaf7a9221e4edd0ec"
+    },
+    {
+      "file": "mSystems.00777-19-st003.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_tettamantiboshier_msystems_vaginaltimeseries/mSystems.00777-19-st003.csv.zip",
+      "sha256": "9fb56d6774c4469e5556a09173c9e401e8e4255bc2e5cbb4f86d6fd2e3afd052"
+    },
+    {
+      "file": "originalcounts.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_tettamantiboshier_msystems_vaginaltimeseries/originalcounts.csv.zip",
+      "sha256": "6126cf33fb113c1aa1217b8478369dcdc824626eb383a59ceca433efa5d1747a"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_tettamantiboshier_msystems_vaginaltimeseries/rdp16classified.csv.zip",
+      "sha256": "7d4c19f7cef6289dd0456298a4a1868d2a40a34946f08145d2dc859117b40e9d"
+    },
+    {
+      "file": "scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_tettamantiboshier_msystems_vaginaltimeseries/scale.csv.zip",
+      "sha256": "0aabd62dd4906b9d14ed45ebef8d4cb5665e6fca58a5cb26d9a627b974d7d9f4"
+    },
+    {
+      "file": "scale_connect20250425.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_tettamantiboshier_msystems_vaginaltimeseries/scale_connect20250425.csv.zip",
+      "sha256": "f6121449811cb28d8b12355fd98a8fc01138df9271dcc7b5d0f066bcd6ff530a"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Human",
+    "sampletype": "Vaginal muscosa",
+    "covariates": "Hours_In_Study",
+    "ID": "Sample_ID",
+    "PMID": "32265316"
+  }
+}

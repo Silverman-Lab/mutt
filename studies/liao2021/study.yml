@@ -1,0 +1,242 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "33654104",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "liao2021",
+  "display_name": "2021 liao scientificdata longitudinalmicrobiomeqpcr allohct",
+  "schema_version": 1,
+  "legacy_id": "2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "Liao2021_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/Liao2021_scale.csv.zip",
+      "sha256": "0bdd514f1dd923569aa594188f744d88a372a7e73b5e4ef8fd301596616de8d8"
+    },
+    {
+      "file": "Liao_2021_16S.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/Liao_2021_16S.csv.zip",
+      "sha256": "ccd5993f803ba62f36659d8dfacffe4fb8569f90eecbde012091afec49c148e8"
+    },
+    {
+      "file": "Liao_2021_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/Liao_2021_metadata.csv.zip",
+      "sha256": "7f0134087726ec2eff2a1d721b7cb0ff2490faa47b887dbe95b1465dfe9c23a0"
+    },
+    {
+      "file": "PRJNA394877_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA394877_dada2_counts.rds.zip",
+      "sha256": "b1b139c24deced4ed99b89960e1fe516226d99c101f79de2d59b20b8a41b542f"
+    },
+    {
+      "file": "PRJNA394877_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA394877_dada2_counts_withchimeras.rds.zip",
+      "sha256": "b2cfb08a6f33b9baabd3f715a1037f50b8d80a57d4d38324475132481a4abcff"
+    },
+    {
+      "file": "PRJNA394877_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA394877_dada2_taxa.rds.zip",
+      "sha256": "413f37000147767ed2b8e1cc5364583f206f43f037283af5f1e33b9236793467"
+    },
+    {
+      "file": "PRJNA545312_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA545312_dada2_counts.rds.zip",
+      "sha256": "5e07407dbc221814fe9ec4e137318b9b8dbe09fa0131c8ac822af3936e99ede6"
+    },
+    {
+      "file": "PRJNA545312_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA545312_dada2_counts_withchimeras.rds.zip",
+      "sha256": "03ccd1e930a00b292e9a78acc09dbef34f01ed52b42a0773a4e55a2c9d32d2af"
+    },
+    {
+      "file": "PRJNA545312_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA545312_dada2_taxa.rds.zip",
+      "sha256": "fe62f533f3a6cc5c9c3a612d8889bc187a6ec2f35a14586f1a31e79892fc457b"
+    },
+    {
+      "file": "PRJNA548153_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA548153_dada2_counts.rds.zip",
+      "sha256": "98227d9a01b394211490df2b4aa606e68139b93090eccb73d02d088061df8783"
+    },
+    {
+      "file": "PRJNA548153_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA548153_dada2_counts_withchimeras.rds.zip",
+      "sha256": "3007f6fa284e3fca191ad72b55e9cdda2c889a2d2b0c82e742d77bbf62c35b74"
+    },
+    {
+      "file": "PRJNA548153_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA548153_dada2_taxa.rds.zip",
+      "sha256": "cdb72ad4006eae687b72d8e1f8e892af2a6fa07a56054886945ad6d0c7e66116"
+    },
+    {
+      "file": "PRJNA606262_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA606262_dada2_counts.rds.zip",
+      "sha256": "a70ee68c16d1bf57345a37de8e99821a68b23bba2b94f41d2f9c58b0c1d8ec1f"
+    },
+    {
+      "file": "PRJNA606262_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA606262_dada2_counts_withchimeras.rds.zip",
+      "sha256": "2b10efa2e97ebaeddfccd34cdf0e5be260a613aeb1476be786060c1b8bb23761"
+    },
+    {
+      "file": "PRJNA606262_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA606262_dada2_taxa.rds.zip",
+      "sha256": "b637415fab1be872c6302b528da40d087e73213cc781d6f99744055641fa3a86"
+    },
+    {
+      "file": "PRJNA607574_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA607574_dada2_counts.rds.zip",
+      "sha256": "26778aad3f5e0caa6b724b08d032cc45bba923c427c0bcd7fc50fd8ca95a4648"
+    },
+    {
+      "file": "PRJNA607574_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA607574_dada2_counts_withchimeras.rds.zip",
+      "sha256": "b10f03521ae036663fa7611655cb725fc4c5c8aaaa3ba8c286ac1dfeaa701187"
+    },
+    {
+      "file": "PRJNA607574_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/PRJNA607574_dada2_taxa.rds.zip",
+      "sha256": "6d504aa8800a4926eb974bc9391fa3245033152f69aac4ea4e32959a69b1d3ba"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/README.txt.zip",
+      "sha256": "1c6160d67329c25ffb229273d12517cd84a9b5b4814f088dffbd43073fd83cd0"
+    },
+    {
+      "file": "SraRunTable (53).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/SraRunTable%20%2853%29.csv.zip",
+      "sha256": "2eced88ba020f1fd3a0fc823e53e10605eecd9d58142ebbf8151a9ec339f04e3"
+    },
+    {
+      "file": "SraRunTable (54).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/SraRunTable%20%2854%29.csv.zip",
+      "sha256": "24d7ff2dac79d572c035127079faf281e43095c6652b811e9cfb2bf7c39e8652"
+    },
+    {
+      "file": "SraRunTable (55).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/SraRunTable%20%2855%29.csv.zip",
+      "sha256": "35e331056e853c83957ef13d8556dd0c097f4f7bc75fc2263c38f5e25f64bdee"
+    },
+    {
+      "file": "SraRunTable (56).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/SraRunTable%20%2856%29.csv.zip",
+      "sha256": "21da10022d453cd4a421f42417905056a4033d4547711f1bbe71f571e4465780"
+    },
+    {
+      "file": "SraRunTable (57).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/SraRunTable%20%2857%29.csv.zip",
+      "sha256": "e9f153d84dcbbbffcb25dae2958ec1f4fc0eae8e78743542d6fbd4d9128987d2"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/rdp16classified.csv.zip",
+      "sha256": "51d49717e1744b5aa392ad93dc1418a803cfa913584ea208e067f7d2d85babdf"
+    },
+    {
+      "file": "scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/scale.csv.zip",
+      "sha256": "ca99d2d736be836f1b8c7c38e1ef667e3e74adb0fff5cb3117a62718c3f60980"
+    },
+    {
+      "file": "tblASVsamples.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblASVsamples.zip",
+      "sha256": "70d584cb13300d1e3ec7aa31abf496338341239684b3376cb48492874dd58812"
+    },
+    {
+      "file": "tblASVtaxonomy_silva132_v4v5_filter.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblASVtaxonomy_silva132_v4v5_filter.zip",
+      "sha256": "8145bb846dfe18b96b512ee5716c55f27786ae7aad6d72a5f687969de4b6c8e9"
+    },
+    {
+      "file": "tblInfectionsCidPapers.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblInfectionsCidPapers.csv.zip",
+      "sha256": "3442d4396283f38946c5dcfe061c149e80108585df40b9450c90631b9c1ca052"
+    },
+    {
+      "file": "tblVanA.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblVanA.csv.zip",
+      "sha256": "f40110f41a33b8a20e2cf54df9477f1d435c62b4716e702171d433ad1ab88d03"
+    },
+    {
+      "file": "tblcounts_asv_melt.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblcounts_asv_melt.csv.zip",
+      "sha256": "a193cdf94f452ca0425e7ebf1200aaaab77a202b6ceb16c5591e34f5ffc78122"
+    },
+    {
+      "file": "tblcounts_asv_wide.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblcounts_asv_wide.csv.zip",
+      "sha256": "0f81417d27b1b9c0f3393ab751f32c711661828812cbf0117653e03168c3b0fc"
+    },
+    {
+      "file": "tblcounts_class_wide.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblcounts_class_wide.csv.zip",
+      "sha256": "f33a1fa9d9f661caab6211157cf5e693fb13ca40b457873961bcac53275c7b7e"
+    },
+    {
+      "file": "tblcounts_family_wide.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblcounts_family_wide.csv.zip",
+      "sha256": "5b2acbe4740d33e3eaf0f1aaae7ba6c35b092453930cbf8cf40af38fc72f20f5"
+    },
+    {
+      "file": "tblcounts_genus_wide.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblcounts_genus_wide.csv.zip",
+      "sha256": "323f55e7678809aeff7881a390d47735c9c97c3ce2d22597991c60ead9284e4d"
+    },
+    {
+      "file": "tblcounts_order_wide.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblcounts_order_wide.csv.zip",
+      "sha256": "25ec29290df5399ff0886b20b41296731fd9ce23355153dd2cede4f1466ca78c"
+    },
+    {
+      "file": "tblcounts_phylum_wide.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblcounts_phylum_wide.csv.zip",
+      "sha256": "fd3232b05af217491620a0fde644fe047b7eb1b6f60d5d82d6666cff80e12bce"
+    },
+    {
+      "file": "tbldrug.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tbldrug.csv.zip",
+      "sha256": "f7b0b381afcddeb985bfb838a2faa7f579c29a4c99c7ab9a8fbe94c92065d734"
+    },
+    {
+      "file": "tblhctmeta.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblhctmeta.csv.zip",
+      "sha256": "67327365b595dda8b9888d9a3a1a13e13edf8fac9a8cd1a9c8524912b974beff"
+    },
+    {
+      "file": "tblqpcr.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblqpcr.csv.zip",
+      "sha256": "b723d2d30ec7be26942ba47e6f17e74318488ac331f9f2089bf838b26b88d43d"
+    },
+    {
+      "file": "tbltemperature.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tbltemperature.csv.zip",
+      "sha256": "1093fbd6fbef30aa48ace4de3417a367d0223895dd63c604c371b68163393967"
+    },
+    {
+      "file": "tblwbc.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct/tblwbc.csv.zip",
+      "sha256": "b6a229a9302fa19eeaae54e95062bbf7d06bef4ae9a0a1b02d017db37a4ddcde"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": [
+      "VanA",
+      "Consistency",
+      "Pool",
+      "Timepoint"
+    ],
+    "ID": "SampleID",
+    "PMID": "33654104"
+  }
+}

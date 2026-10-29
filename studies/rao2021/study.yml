@@ -1,0 +1,96 @@
+{
+  "sequencing": "16S rRNA",
+  "load": [
+    "Flow Cytometry",
+    "qPCR",
+    "MK_spike"
+  ],
+  "pmid": "33627867",
+  "accessions": [],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC7990694/"
+  ],
+  "study_id": "rao2021",
+  "display_name": "2021 rao nature mkspikeseqmetagenomicmultiplescalequantification",
+  "schema_version": 1,
+  "legacy_id": "2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "paper:https://pmc.ncbi.nlm.nih.gov/articles/PMC7990694/\n\n\nData:41586_2021_3241_MOESM4_ESM.xlsx\n\nSupplemental Table 1. Primers used in the study.\nSupplemental Table 2. Absence of select spike-in taxa in public data depositories.\nSupplemental Table 3. Testing accuracy of MK-SpikeSeq in measuring absolute abundance across kingdoms. (Source data for ED Fig 1/2)\nSupplemental Table 4. Comparison of absolute abundance quantification methods using test samples. (Source data for ED Fig 3)\nSupplemental Table 5. Sensitivity and Robustness of MK-SpikeSeq versus qPCR. (Source data for ED Fig 4)\nSupplemental Table 6. Fungal ITS1 qPCR of NICU 1st phase samples. (Source data for ED Fig 5)\nSupplemental Table 7. NICU cohort stool samples sequenced in the study.\nSupplemental Table 8. Bacteria OTU table in the 1st phase. (Source data for Fig 2, ED Fig 6/7/8)\t\t* \"re\" samples were re-extracted samples\nSupplemental Table 9. Archaea OTU table in the 1st phase. (Source data for Fig 2, ED Fig 6/7/8)\t\t* \"re\" samples were re-extracted samples\nSupplemental Table 10. Fungi OTU table in the 1st phase. (Source data for Fig 2, ED Fig 6/7/8)\t\t* \"re\" samples were re-extracted samples\nSupplemental Table 11. Bacteria OTU table in the 2nd phase. (Source data for Fig 2)\nSupplemental Table 12. Fungi OTU table in the 2nd phase. (Source data for Fig 2)\nSupplemental Table 13. Strains isolated from select NICU subjects.\nSupplemental Table 14. CFU fold growth in in vitro co-culture experiments. (Source data for Fig 3c/e)\nSupplemental Table 15. CFU- and rDNA-based quantification of in vivo co-colonizations. (Source data for Fig 3d/f, ED Fig 10)\t\n15a. Co-colonization of Klebsiella pneumoniae with Staphylococcus epidermidis.\t\ntimeline\t\nday -7\tstart 1g/L Vanc+Metronidazole+Amp water\nday -4\treplace with 1g/L Amp drinking water and refresh every 3 days thereafter\nday -3\t1st gavage Sepi (NICU_203_Sepi_AmpR, ~10^9 CFU, 1ODU grown 37C O/N in BHI broth + 100ug/ml Amp, Cage1/2), PBS (Cage3), 200ul/mouse\nday -1\trepeat Sepi/PBS gavage\nday 0\t2nd gavage Kpneu (NICU_203_Kpneu_AmpR, ~10^6 CFU, 1ODU diluted 1000-fold grown 37C O/N in BHI broth + 100ug/ml Amp, Cage2/3), 200ul/mouse\n\nData Collected and processed by Maxwell Konnaris: 5/3/25\n",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "41586_2021_3241_MOESM4_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/41586_2021_3241_MOESM4_ESM.xlsx.zip",
+      "sha256": "8d48ace1c0daa30280fda850f08f7fde32843f68db2b97ad3ccd36d536765b1c"
+    },
+    {
+      "file": "PRJEB36435_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/PRJEB36435_dada2_counts.rds.zip",
+      "sha256": "b361738b626959b541df6aceb891c9bff32da17b81d48d87a81716350680276d"
+    },
+    {
+      "file": "PRJEB36435_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/PRJEB36435_dada2_counts_withchimeras.rds.zip",
+      "sha256": "883ce609f6581642082bc8b373de7139eed4dc6dc54ba7c166a935692d523eba"
+    },
+    {
+      "file": "PRJEB36435_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/PRJEB36435_dada2_taxa.rds.zip",
+      "sha256": "1572347427a991fc2da98b1ac51afb53590473d3981878361eebb5e02de432d4"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/README.txt.zip",
+      "sha256": "1f63bf8fdb6af17bbf705da3617afe03f93d9ce6e1492023042f7cb99d30fd8f"
+    },
+    {
+      "file": "SI_data1_allMeds_jan2020.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/SI_data1_allMeds_jan2020.xlsx.zip",
+      "sha256": "4616aaa0916478d406e201e3f63a003be04c44b6fccc44372d3b70fdef5fee14"
+    },
+    {
+      "file": "SI_data2_diet_data.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/SI_data2_diet_data.csv.zip",
+      "sha256": "51eb6ef7413b68af3786c276f0e2f7c598ab01c49afeb9aa8d2e6a4ee3246ee0"
+    },
+    {
+      "file": "SI_data3_sex_and_delivery_data.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/SI_data3_sex_and_delivery_data.csv.zip",
+      "sha256": "eb060e9c1a304ff9009a45f4e0a260d3af187e347f24711414b9656a1806afb7"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "68c1b76a55b927b814d695976af04b7b8264f1f81d0e7d1dbd5ebb0eac170f03"
+    },
+    {
+      "file": "combined_p1_p2.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/combined_p1_p2.xlsx.zip",
+      "sha256": "770e2b21eb828d9971019e812ff16db12e6aa2277db5c1c9f2b3c8518f373dde"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification/rdp16classified.csv.zip",
+      "sha256": "adf06f878c1b743adfe7750ca01ab758300c4013e8a6ab75b00c0ab500eac844"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": [
+      "Flow Cytometry",
+      "qPCR",
+      "MK_spike"
+    ],
+    "organismtype": [
+      "Human",
+      "Mouse",
+      "Mock"
+    ],
+    "sampletype": "Fecal",
+    "covariates": "sample_type",
+    "ID": "Sample_name",
+    "PMID": "33627867"
+  }
+}

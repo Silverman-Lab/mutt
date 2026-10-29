@@ -1,0 +1,192 @@
+{
+  "sequencing": "Shotgun Metagenomics",
+  "load": "Flow Cytometry",
+  "pmid": "40038838",
+  "accessions": [],
+  "source_urls": [
+    "https://github.com/dthirupp/DeadOrAlive-SkinMicrobiome",
+    "https://www.researchgate.net/publication/389559063_Absolute_quantification_of_the_living_skin_microbiome_overcomes_relic-DNA_bias_and_reveals_specific_patterns_across_volunteers"
+  ],
+  "study_id": "thiruppathy2025",
+  "display_name": "2025 thiruppathy microbiome relicDNAflow",
+  "schema_version": 1,
+  "legacy_id": "2025_thiruppathy_microbiome_relicDNAflow",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "paper: https://www.researchgate.net/publication/389559063_Absolute_quantification_of_the_living_skin_microbiome_overcomes_relic-DNA_bias_and_reveals_specific_patterns_across_volunteers\n\ncode: https://github.com/dthirupp/DeadOrAlive-SkinMicrobiome\n\nAbsolute bacterial quantification (bacteria/cm2) was measured using flow cytometry on raw (total bacteria) and PMA-treated (live bacteria only) samples (Table S3). Analysis included samples meeting sequencing and flow cytometry gating criteria (n\u2009=\u2009135: 67 PMA treated, 68 untreated).\n\n\nscale = Formula\n(E) =  ((A/B)x(C/D))\n(H) = (E) x (G) / (F)\n\nMaxwell Konnaris collected, cleaned, and wrote parse script 05/06/2025\n",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "40168_2025_2063_MOESM2_ESM (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/40168_2025_2063_MOESM2_ESM%20%281%29.xlsx.zip",
+      "sha256": "ecd2c0680fdc1fae6974e27beb809bf554bd27c4abf2b808bb546d415abfdf5b"
+    },
+    {
+      "file": "40168_2025_2063_MOESM3_ESM (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/40168_2025_2063_MOESM3_ESM%20%281%29.xlsx.zip",
+      "sha256": "625de57e20f625eba4ea7bad3d4a9890e61b620e48cbc8d4ea89e6ac2df5ebec"
+    },
+    {
+      "file": "40168_2025_2063_MOESM3_ESM.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/40168_2025_2063_MOESM3_ESM.csv.zip",
+      "sha256": "a7a06e73cc8d55f46c7d13ae4032cb551cfa3d179fa2ca2f5e4c8d36b85389e8"
+    },
+    {
+      "file": "Final_CellCounts.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Final_CellCounts.tsv.zip",
+      "sha256": "9f028f5b57d57e3c512167d7337eb2187f14bf93c0e6ca0a29e4170004b99584"
+    },
+    {
+      "file": "Final_FlowC_processed.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Final_FlowC_processed.tsv.zip",
+      "sha256": "35bc67d5c5a19be9d4bea80be090607894394b7e72a2a34fde1c739574c22125"
+    },
+    {
+      "file": "Final_FlowC_processed_original.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Final_FlowC_processed_original.tsv.zip",
+      "sha256": "6dc9af655560fd363d32bb8e61ff0ded91125ea01920e4cad7e5270357ad2422"
+    },
+    {
+      "file": "Final_flowC_rawdata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Final_flowC_rawdata.csv.zip",
+      "sha256": "885effcba8943eeae0ff5c486ea0919f8257b76eb5c111f6686b43eea1bb9428"
+    },
+    {
+      "file": "Final_genomelengthnormalized_topspec_relative.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Final_genomelengthnormalized_topspec_relative.tsv.zip",
+      "sha256": "df770a6695e1c034cd37ad6746304ca369ec9c412128198d6a4f2d3d3f83a141"
+    },
+    {
+      "file": "Final_metadata.tsv.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Final_metadata.tsv.csv.zip",
+      "sha256": "ad08660327a88dbfaecdc1cdd3ea4e82c8d0c9d7b8aafd8766eccec726569023"
+    },
+    {
+      "file": "Final_rpca_all.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Final_rpca_all.tsv.zip",
+      "sha256": "590372b72f91bbd68e8dbf538423330e44fdc091162618976553fc110a18be4d"
+    },
+    {
+      "file": "Final_rpca_pma.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Final_rpca_pma.tsv.zip",
+      "sha256": "298a9e16d04abb2fb64367a2f95fbcf3ea70c455e3dc1b7284fab090ad6235c3"
+    },
+    {
+      "file": "Final_rpca_raw.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Final_rpca_raw.tsv.zip",
+      "sha256": "6cf07b19d322d58614597398e049defc9648fa27a15e1bf332d5a44bd1f66f66"
+    },
+    {
+      "file": "Final_rpca_relic.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Final_rpca_relic.tsv.zip",
+      "sha256": "5550c3f0f0806c428be71374c17f7a6073f5b89b36aaf886167c32d4f1f0de13"
+    },
+    {
+      "file": "PRJNA1118035_MetaPhlAn_merged_counts.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/PRJNA1118035_MetaPhlAn_merged_counts.tsv.zip",
+      "sha256": "a422162d21da2c5a3dcc1d9d6dca126d4a36ff85c605e27ac44081f3e3c2755f"
+    },
+    {
+      "file": "PRJNA1118035_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/PRJNA1118035_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "sha256": "9351d4c3889b3baeb1d3ec0746e07b57510f96d39f84a8ffae1bd9708563e1a8"
+    },
+    {
+      "file": "PRJNA1118035_MetaPhlAn_proportions.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/PRJNA1118035_MetaPhlAn_proportions.tsv.zip",
+      "sha256": "039b5644ed832815674c62705f73a3475218c0e2fc69758b6cf905f48e3800a2"
+    },
+    {
+      "file": "PRJNA1118035_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/PRJNA1118035_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "sha256": "5b22aad94cd5fdebf980e2eec0669d0f60b5a32616dae7410febc8ae0a567b83"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/README.txt.zip",
+      "sha256": "c94ec624787ca0a1f326a9680062d2c66bd5b91ee2bec8d7a01487b5ed5157f2"
+    },
+    {
+      "file": "SMGC_60perc_covered_genomes.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/SMGC_60perc_covered_genomes.txt.zip",
+      "sha256": "0dd12ac7be15b2a640be2f5ce1a5c886fecae9008b7326a93c373e7714e3d357"
+    },
+    {
+      "file": "Skin_LiveDead_Zebra_25perc_Classify_Species.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Skin_LiveDead_Zebra_25perc_Classify_Species.tsv.zip",
+      "sha256": "61c8c68bb4ef10b5d6a989fe5ab7162bc378427188c1704d94569df2f954933a"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "f0a5691e894df93eb238203a045b2f310b85aead48870347854111b43644f00e"
+    },
+    {
+      "file": "Table2_cellcounts.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Table2_cellcounts.tsv.zip",
+      "sha256": "f89fa860d9b4ff06fbde27250ac98483cac1346da545e62dabf0ae7acb2a1937"
+    },
+    {
+      "file": "Table3_TaxaAbscounts.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Table3_TaxaAbscounts.tsv.zip",
+      "sha256": "abc43ae8babdb31084c542e91ab38f65c5dc20fc574969e1beb02af8164ba613"
+    },
+    {
+      "file": "Table3_TaxaAbscounts_BS.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Table3_TaxaAbscounts_BS.tsv.zip",
+      "sha256": "8c4dc9219009919954be267681c876f8516fcabb831f2367047a6e5cf5069984"
+    },
+    {
+      "file": "Table_relativeabundance_all_SMGC.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Table_relativeabundance_all_SMGC.csv.zip",
+      "sha256": "2f53ec6363c0a88cd3a1b3db11c975e10ef422df948a1dd08dd61526121b36c2"
+    },
+    {
+      "file": "Table_relativeabundance_all_SMGC.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/Table_relativeabundance_all_SMGC.tsv.zip",
+      "sha256": "0f440c6cd3be26fb061109cb7f7a4a2eb19a5286309bbeb5e8e7fe60c705eb9a"
+    },
+    {
+      "file": "metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/metadata.csv.zip",
+      "sha256": "475c90f9236eb2f067e6325d6fac610ee6dbd8c55681c480d8eccdb53130de29"
+    },
+    {
+      "file": "s2metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/s2metadata.csv.zip",
+      "sha256": "2391a2e3c13a758164d46a06855b12a0f357e588d3323bd1748d218393ad0e82"
+    },
+    {
+      "file": "scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/scale.csv.zip",
+      "sha256": "4cf7e9344762af2ec59ce9a2292cb2ac9e790b44ad72ee814dac9677ae9dc8fd"
+    },
+    {
+      "file": "test.Rmd.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_thiruppathy_microbiome_relicDNAflow/test.Rmd.zip",
+      "sha256": "f827fd915cb9c72b0df4cdff0621570ba38ae73066dbd668b6a8dc4899d03166"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "Shotgun Metagenomics",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Skin",
+    "covariates": [
+      "PME_treated",
+      "BodySite_ID",
+      "Skin_Type",
+      "Face_wash",
+      "Exercise_per_week",
+      "Face_sunscreen",
+      "Body_shower_fq_by_day",
+      "Age",
+      "Sex",
+      "Ethnicity",
+      "Swab_Dimensions_sqcm"
+    ],
+    "ID": "Sample",
+    "PMID": "40038838"
+  }
+}

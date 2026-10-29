@@ -1,0 +1,73 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [
+    "PRJNA31530"
+  ],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC8091617/#_ad93_"
+  ],
+  "study_id": "mancabelli2021_children",
+  "display_name": "2021 mancabelli appliedenvironmentalmicrobiology childrenantibiotictherapyflowfecal",
+  "schema_version": 1,
+  "legacy_id": "2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "Paper:https://pmc.ncbi.nlm.nih.gov/articles/PMC8091617/#_ad93_\n\nData retrieved and processed, genomic processed, and parse script completed by Maxwell Konnaris: 04/11/25\n\n\n",
+  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+  "archived_inputs": [
+    {
+      "file": "AEM.03137-20-s0001.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/AEM.03137-20-s0001.xlsx.zip",
+      "sha256": "c2f84d4eb935f8036bf5eaa6c331437eeb2cd47822eb83911de998dab7092bcc"
+    },
+    {
+      "file": "AEM.03137-20-s0002.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/AEM.03137-20-s0002.xlsx.zip",
+      "sha256": "b8df5a0bd3cc12b68b42a8ca8805aaddcc5be8ee61b2a4763bd3e93f7341cade"
+    },
+    {
+      "file": "AEM.03137-20-s0003.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/AEM.03137-20-s0003.xlsx.zip",
+      "sha256": "e5be3232bc09659fb24b6f83f2874f536f69a0fe26f20d38b62c961d50970daa"
+    },
+    {
+      "file": "AEM.03137-20-s0004.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/AEM.03137-20-s0004.xlsx.zip",
+      "sha256": "534ef55ba0f0b06e43b505991e7bd4382fd9923750c3b4f6b1154f3b1bebbc88"
+    },
+    {
+      "file": "AEM.03137-20-s0005.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/AEM.03137-20-s0005.xlsx.zip",
+      "sha256": "7bf5e75613552d86a089fc06521bd4b4715733177809733d1ae53f9fc156c87e"
+    },
+    {
+      "file": "AEM.03137-20-s0006.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/AEM.03137-20-s0006.xlsx.zip",
+      "sha256": "966e5bd9c802e96158438d1197b9bc374d143e242479adc428458ec778cd01d6"
+    },
+    {
+      "file": "AEM.03137-20-s0007.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/AEM.03137-20-s0007.xlsx.zip",
+      "sha256": "9c01f124eb29be532145aa4d75bff17cd05023848a3d00aa9c135408e672c07f"
+    },
+    {
+      "file": "AEM.03137-20-s0008.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/AEM.03137-20-s0008.xlsx.zip",
+      "sha256": "285145f0f6a7e90acbd836a2e96968db9a57b37d6e5153948d07821bb6970968"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/README.txt.zip",
+      "sha256": "342a7b300198afa4ec436f7293e9384325171f8af2fc27882b2fd3e9e1b0fe89"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "b146d7a1db7e13763faf7791c0987984e697c7e49ff7ae5e8405c170a5bd455c"
+    }
+  ],
+  "legacy_demographics": null
+}

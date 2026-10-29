@@ -1,0 +1,89 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "31927795",
+  "accessions": [
+    "PRJNA531076"
+  ],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC7066463/#mbo3977-sec-0025"
+  ],
+  "study_id": "zemb2020",
+  "display_name": "2020 zemb microOpen spike",
+  "schema_version": 1,
+  "legacy_id": "2020_zemb_microOpen_spike",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "Paper Link: https://pmc.ncbi.nlm.nih.gov/articles/PMC7066463/#mbo3977-sec-0025\nBioProject ID: PRJNA531076\n\nManan (04/09/2025): \n    Won already had collected all the data. Fixed the parse script wrote by Won.\n    Scale, count and metdata were provided by the author. Appended the metadata from SRA Run Selector to author's metdata.       \n",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+  "archived_inputs": [
+    {
+      "file": "PRJNA531076_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/PRJNA531076_dada2_counts.rds.zip",
+      "sha256": "cc6045471210b9ba1089fcd734965b82c3477c4cb6f67be0be2b187fc348ecf3"
+    },
+    {
+      "file": "PRJNA531076_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/PRJNA531076_dada2_counts_withchimeras.rds.zip",
+      "sha256": "9d8ad7ecce4155e994eab66f02aea60aca32a6ec618d5add733366dd133a934d"
+    },
+    {
+      "file": "PRJNA531076_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/PRJNA531076_dada2_taxa.rds.zip",
+      "sha256": "cb20980481be9dd304491589d8548e2d0c892a1d3cadee5605292ba875ae7e53"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/README.txt.zip",
+      "sha256": "d3d6dec2c736caa63754474aaa5d1a29e06331d134dabea39ff2ea2074918944"
+    },
+    {
+      "file": "SraRunTable.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/SraRunTable.csv.zip",
+      "sha256": "4db76c9f7b6e640789a3ac249897ba2e1f072354fcb9b57603d9d8d557665cde"
+    },
+    {
+      "file": "abs_counts.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/abs_counts.csv.zip",
+      "sha256": "1aa5ead6da8c163df1cb1185accd6404539dd9a13a99f4fd429380023cbe45a9"
+    },
+    {
+      "file": "qPCR_submission4.xls.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/qPCR_submission4.xls.zip",
+      "sha256": "9291b171b7bb24dac935b61cc9e4e693ceff852187f4df0d5beb611019e66f3f"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/rdp16classified.csv.zip",
+      "sha256": "a30defac6628f176b75103796cd07f5d2621e0757e71fb6e246a04fd13cc0244"
+    },
+    {
+      "file": "zemb_counts.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/zemb_counts.csv.zip",
+      "sha256": "36c8d360faca8349934d00ac6836e81b430fced983dd398afb7a3962dc3291b8"
+    },
+    {
+      "file": "zemb_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/zemb_metadata.csv.zip",
+      "sha256": "7444c819b514d2fdac0fb21932fae43976ed299039c3f446e1edb883b5153574"
+    },
+    {
+      "file": "zemb_qPCR.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_zemb_microOpen_spike/zemb_qPCR.csv.zip",
+      "sha256": "6b17bbe22525aa76e289be0c547e99f12fed4f5871ba1c2e9a7c92bc0c2b354e"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Pig",
+    "sampletype": "Fecal",
+    "covariates": [
+      "mgfeces",
+      "added_Coli"
+    ],
+    "ID": "Sample.name",
+    "PMID": "31927795"
+  }
+}

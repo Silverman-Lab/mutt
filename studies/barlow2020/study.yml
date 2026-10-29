@@ -1,0 +1,124 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "ddPCR",
+  "pmid": "32444602",
+  "accessions": [],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC7244552/"
+  ],
+  "study_id": "barlow2020",
+  "display_name": "2020 barlow naturecommunications miceGI",
+  "schema_version": 1,
+  "legacy_id": "2020_barlow_naturecommunications_miceGI",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "Data from paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC7244552/\n\nMicrobial Load = dPCR\u00a0concentration \u00d7 elution\u00a0volume \u00d7 dead\u00a0volume\u00a0factor \u00f7 (extraction\u00a0volume \u00d7 sample\u00a0mass )\nDead\u00a0volume\u00a0factor = volume\u00a0recovered / total\u00a0volume\u00a0applied\n\u200b\nEvery sample that underwent dPCR had total microbial load measured. According to the experimental setup described\u200b:\nStool samples were collected before the diet switch (Day 0), and after the switch at Day 4, Day 7, and Day 10.\nGI tract samples (Stomach, Upper Small Intestine, Lower Small Intestine, Cecum, Colon, Mucosa) were collected on Day 10.\nEach mouse had microbial load measured in stool and GI sites.\nThey had 12 mice total (6 ketogenic diet, 6 control diet).\nTherefore, microbial load was measured in:\nAll stool samples (4 timepoints \u00d7 12 mice = 48 stool samples)\nMultiple GI sites at necropsy (Day 10 samples), for mucosal and lumenal samples.\n\nExperimental setup:\n12 mice total (6 ketogenic diet, 6 control diet)\n\nTimepoints:\n\nDay 0 \u2014 stool only (before diet switch)\nDay 4 \u2014 stool only\nDay 7 \u2014 stool only\nDay 10 \u2014 stool and GI tract (euthanized on Day 10)\n\nSample Types:\nStool (Day 0, 4, 7, 10)\n\nGI sites collected at necropsy (Day 10 only):\nStomach contents (lumen)\nUpper small intestine contents (lumen)\nUpper small intestine mucosa (scraping)\nLower small intestine contents (lumen)\nLower small intestine mucosa (scraping)\nCecum contents (lumen)\nColon mucosa (scraping)\n\nNote: Colon mucosa only (they didn't collect colon lumen separately), and stool counts as terminal colon contents.\n\nStool samples:\n4 timepoints \u00d7 12 mice = 48 stool samples\n\nGI tract samples at Day 10:\nEach mouse provides:\n\nStomach lumen\nUpper SI lumen\nUpper SI mucosa\nLower SI lumen\nLower SI mucosa\nCecum lumen\nColon mucosa\n\n\u2192 7 GI site samples per mouse\n\nThus:\n7 \u00d7 12 = 84 GI samples from euthanized mice\n\nTotal samples:\n48 (stool) + 84\u00a0(GI\u00a0Day\u00a010) = 132\u00a0samples\u00a0total\n\nEach sample would have a unique name, generally like:\nM1P_D0_Stool\nM1P_D10_Stomach_Lumen\nM1P_D10_UpperSI_Lumen\nM1P_D10_UpperSI_Mucosa\nM1P_D10_LowerSI_Lumen\nM1P_D10_LowerSI_Mucosa\nM1P_D10_Cecum_Lumen\nM1P_D10_Colon_Mucosa\netc.\n\nwhere:\n\nM1P = Mouse 1, control diet\nM1NP = Mouse 1, ketogenic diet\n\n(P vs NP probably meaning something like Positive/Negative for Keto in their naming.)\n\nSo to summarize:\n\nItem\tCount\nStool (Day 0, 4, 7, 10)\t48 samples\nGI Tract (Stomach, SI, Cecum, Colon, Mucosa, Day 10)\t84 samples\nTotal samples\t132 samples\n",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "Absolute_Abundance_Table.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/Absolute_Abundance_Table.csv.zip",
+      "sha256": "cc9d199b42cca78b84cee38730cac627677a919c6d900b72358422ef623ca000"
+    },
+    {
+      "file": "Fig2A_FigS2_data.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/Fig2A_FigS2_data.xlsx.zip",
+      "sha256": "d74c0cec3540b29d40f55942a89b2b86c5fc76c26337b6bbc4503dc9db78954f"
+    },
+    {
+      "file": "Fig2B_data.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/Fig2B_data.xlsx.zip",
+      "sha256": "1ef5e86a0dbc95c87bc95eb5be9c9406c9fb50126065b934e2904b4c7693e39c"
+    },
+    {
+      "file": "Fig3AB_FigS9_data.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/Fig3AB_FigS9_data.xlsx.zip",
+      "sha256": "2fe0d11d5b611106dc47499e847d6c07f93598bf2e60cf4616c86a971731d015"
+    },
+    {
+      "file": "Fig3C_data.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/Fig3C_data.xlsx.zip",
+      "sha256": "89a50f3134f94a686846e5c4d8dffec8779c38959ada8e11439d12e98eb32e09"
+    },
+    {
+      "file": "Fig4B_data.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/Fig4B_data.xlsx.zip",
+      "sha256": "dd38c5a37d10c2e9b79c04a0d43a40007b22dc9fa8605475de78ee919949d22b"
+    },
+    {
+      "file": "FigS1_data.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/FigS1_data.xlsx.zip",
+      "sha256": "12dcce9ec280a8142c3fbcf45fde1ef6f9f6126dd1dc176a49d840e680e4a5e7"
+    },
+    {
+      "file": "FigS3_data.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/FigS3_data.xlsx.zip",
+      "sha256": "75b82c0b50dfc64d37d18a3d4c2d3d809ce0ad05e28511dab8becb789d42fdc3"
+    },
+    {
+      "file": "PRJNA575097_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/PRJNA575097_dada2_counts.rds.zip",
+      "sha256": "09b7c33477346c5901fd3d8c394a7c6f78b4362b8517ccd131a09dd4186197db"
+    },
+    {
+      "file": "PRJNA575097_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/PRJNA575097_dada2_counts_withchimeras.rds.zip",
+      "sha256": "65ccc24bdb6adfbb60600b9dd217ed3707036ff4eff69df53b1451abd7eed3fe"
+    },
+    {
+      "file": "PRJNA575097_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/PRJNA575097_dada2_taxa.rds.zip",
+      "sha256": "0651c4e2e51f83ea20696e6ce21918c2cbb490b751452537ef141e6b10315b76"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/README.txt.zip",
+      "sha256": "c2594c6f59a0532699493a7b0c17bf07208348502dfae1dbf40ba64248060931"
+    },
+    {
+      "file": "Relative_Abundance_Table.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/Relative_Abundance_Table.csv.zip",
+      "sha256": "335d14d8d3ece71baba33e5d9722b4ef466cb99cc5828aff78b7891a4b83a83f"
+    },
+    {
+      "file": "SraRunTable (32).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/SraRunTable%20%2832%29.csv.zip",
+      "sha256": "60afe6dc96777e6ee43c6467b6e125ea24655b83256ee7b2efdefb84da96ab27"
+    },
+    {
+      "file": "SraRunTable_total_loads.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/SraRunTable_total_loads.csv.zip",
+      "sha256": "0417dcbd9f6d23e8927280c36e980956afb5186bba3d4562510baca994932197"
+    },
+    {
+      "file": "absolute_abundance_calculated.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/absolute_abundance_calculated.csv.zip",
+      "sha256": "2b1ea5cb8891d686783c0e7896ba2ffaf51f6bbef321a23cb1eeb350326480b4"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/rdp16classified.csv.zip",
+      "sha256": "54b70d5707d21fa13b0e7b0926e0469d81a9238b1c9c1c100511f85776f70259"
+    },
+    {
+      "file": "test.Rmd.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_barlow_naturecommunications_miceGI/test.Rmd.zip",
+      "sha256": "25f959f249e6d480b61e4389bd93b71f679189028867834772b67de11d091cea"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "ddPCR",
+    "organismtype": "Mice",
+    "sampletype": "Fecal",
+    "covariates": [
+      "Diet",
+      "Site",
+      "Cage.y",
+      "mouse.y"
+    ],
+    "ID": "Sample",
+    "PMID": "32444602"
+  }
+}

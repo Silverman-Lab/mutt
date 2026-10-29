@@ -1,0 +1,90 @@
+{
+  "sequencing": "Shotgun Metagenomics",
+  "load": "Flow Cytometry",
+  "pmid": "36317886",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "zaramela2022",
+  "display_name": "2022 zaramela msystems synDNA",
+  "schema_version": 1,
+  "legacy_id": "2022_zaramela_msystems_synDNA",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "HMP_frequency_table.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/HMP_frequency_table.tsv.zip",
+      "sha256": "2da43a6eb533b11232ba410bdcb4ce4fe492b9b15cf7a532e0d9636357b5812c"
+    },
+    {
+      "file": "PRJNA870099_MetaPhlAn_merged_counts.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/PRJNA870099_MetaPhlAn_merged_counts.tsv.zip",
+      "sha256": "12fd85ca85feb785d7cd10a64ef8cb03da96b93e3d902eaf355b8ac4e0e8ae98"
+    },
+    {
+      "file": "PRJNA870099_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/PRJNA870099_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "sha256": "20cb3f0542e02e21df82495f0b54cafdc26ffd5428b9ea6980860512e4615469"
+    },
+    {
+      "file": "PRJNA870099_MetaPhlAn_proportions.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/PRJNA870099_MetaPhlAn_proportions.tsv.zip",
+      "sha256": "e3f0b3bd98e0ffed79435b1d1c46cdd3fafa8c0b80a7d9258e8e64a48b1b2de5"
+    },
+    {
+      "file": "PRJNA870099_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/PRJNA870099_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "sha256": "21e7f482a7e1e337b8128e41fd419d900462d22f796856bf56eedba4dfd042cb"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/README.txt.zip",
+      "sha256": "f39c63754313dbe43343c13b44a253199842a87e5c323bfa00243f170cec898c"
+    },
+    {
+      "file": "Saliva_Flow_data.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/Saliva_Flow_data.tsv.zip",
+      "sha256": "e16553d973bfbd77d7058b7da4078bfe4d8918b8abeacb60b3012f09a32b9c77"
+    },
+    {
+      "file": "SraRunTable (34).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/SraRunTable%20%2834%29.csv.zip",
+      "sha256": "d0d1db4d12eb2c654facb615b3a9694cd7cd4c5bace3c608d1dca22047155c31"
+    },
+    {
+      "file": "data.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/data.zip",
+      "sha256": "9fc325246283fe0eac1cf5336c4d301abce4c70421dfeb9296fe81567a20d252"
+    },
+    {
+      "file": "dilutions_metadata_pool_saliva.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/dilutions_metadata_pool_saliva.tsv.zip",
+      "sha256": "42c60f5875fcf18926a872962ab16c1c434fada45422eb43a35a751385ff9fb1"
+    },
+    {
+      "file": "synDNA_metadata_updated.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/synDNA_metadata_updated.tsv.zip",
+      "sha256": "2e822d6d7ff73d5226fa6b55da91a48f20167eb49dce4f3155b26349b095d134"
+    },
+    {
+      "file": "taxaID_length_fulllineage.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_zaramela_msystems_synDNA/taxaID_length_fulllineage.tsv.zip",
+      "sha256": "a8edc617ea220145ad371d39993a23f66e114b0032bd7bec7f923c77542a82ac"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "Shotgun Metagenomics",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Saliva",
+    "covariates": [
+      "gender",
+      "Pool"
+    ],
+    "ID": "ID",
+    "PMID": "36317886"
+  }
+}

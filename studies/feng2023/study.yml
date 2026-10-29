@@ -1,0 +1,82 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "38868437",
+  "accessions": [],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC10989779/"
+  ],
+  "study_id": "feng2023",
+  "display_name": "2023 feng imetawiley chickensegment",
+  "schema_version": 1,
+  "legacy_id": "2023_feng_imetawiley_chickensegment",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "Data from paper:  https://pmc.ncbi.nlm.nih.gov/articles/PMC10989779/",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "16S.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_feng_imetawiley_chickensegment/16S.csv.zip",
+      "sha256": "209566da3cebf92ed8810be9c4dc63008842aa61974a5b15d4c259fa2ffa86fc"
+    },
+    {
+      "file": "ITS.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_feng_imetawiley_chickensegment/ITS.csv.zip",
+      "sha256": "03c5909b40b9e37a60c8d0fa0426bf8eba38acc5ba32dd3a9b74c2ad8311a8a1"
+    },
+    {
+      "file": "PRJNA817429_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_feng_imetawiley_chickensegment/PRJNA817429_dada2_counts.rds.zip",
+      "sha256": "0ddf65ee4f98285723a618c5668a890fbcd9ddfaf2f491da2a0a9c0ebd7b737c"
+    },
+    {
+      "file": "PRJNA817429_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_feng_imetawiley_chickensegment/PRJNA817429_dada2_counts_withchimeras.rds.zip",
+      "sha256": "5ad5ba086a1dc148cfe3b5aecee8b29e8efc250809fc046857441559034a9e77"
+    },
+    {
+      "file": "PRJNA817429_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_feng_imetawiley_chickensegment/PRJNA817429_dada2_taxa.rds.zip",
+      "sha256": "856e1ef0f91c7fd6f629ff6b0c8433dd7bacccb25c0b5833df607f68f4f711c0"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_feng_imetawiley_chickensegment/README.txt.zip",
+      "sha256": "9de3a008e6d0010ae5b02b48eeaf9fef995e7502d8f0fc7b60def0ffa895208a"
+    },
+    {
+      "file": "SraRunTable (34).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_feng_imetawiley_chickensegment/SraRunTable%20%2834%29.csv.zip",
+      "sha256": "c79e6dbc5f0db21dd384d02a5a5969b64c6486f14a5b0f6ab173a78983b89d6d"
+    },
+    {
+      "file": "qPCR.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_feng_imetawiley_chickensegment/qPCR.xlsx.zip",
+      "sha256": "7d8080e9c4e555f6dc88cab24fb994d4798de36e4096dd735d8529e77d6d864a"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_feng_imetawiley_chickensegment/rdp16classified.csv.zip",
+      "sha256": "2d90a0d1395c59ed1152f40d2edbd5da6871bb03849f2f45d616e7e58a731f61"
+    },
+    {
+      "file": "scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_feng_imetawiley_chickensegment/scale.csv.zip",
+      "sha256": "5f247697554959f3bc3b899c0b55a77f3e12b506f725744cee8bb7fdfad7c019"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Chicken",
+    "sampletype": "Gut segment",
+    "covariates": [
+      "Segment",
+      "Date"
+    ],
+    "ID": "Sample",
+    "PMID": "38868437"
+  }
+}

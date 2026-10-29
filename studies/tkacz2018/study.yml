@@ -1,0 +1,64 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "tkacz2018",
+  "display_name": "2018 tkacz microbiome spikeinamplicon",
+  "schema_version": 1,
+  "legacy_id": "2018_tkacz_microbiome_spikeinamplicon",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "",
+  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "PRJEB22042_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_tkacz_microbiome_spikeinamplicon/PRJEB22042_dada2_counts.rds.zip",
+      "sha256": "62d63ca07623e2c8f8010c500b08ae0f56b226efb43df525286ae5387650dbcd"
+    },
+    {
+      "file": "PRJEB22042_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_tkacz_microbiome_spikeinamplicon/PRJEB22042_dada2_counts_withchimeras.rds.zip",
+      "sha256": "c522adea2d8dd332a87d815a459f61867bb7887982dd4b08969923d3227b2b62"
+    },
+    {
+      "file": "PRJEB22042_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_tkacz_microbiome_spikeinamplicon/PRJEB22042_dada2_taxa.rds.zip",
+      "sha256": "e76d7333f813ef567a23cd599cf14f70ede76439e9a18a89a64b55b97125ca56"
+    },
+    {
+      "file": "PRJEB22043_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_tkacz_microbiome_spikeinamplicon/PRJEB22043_dada2_counts.rds.zip",
+      "sha256": "0cd116f7a4bdc7b299c5bc055abfd2c491c24612e9aba176eeee006995ae6a74"
+    },
+    {
+      "file": "PRJEB22043_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_tkacz_microbiome_spikeinamplicon/PRJEB22043_dada2_counts_withchimeras.rds.zip",
+      "sha256": "afc1046767843619b6421d5ef0e4b5d853d9a8ecc1a8adaf0eea21c6e71356ae"
+    },
+    {
+      "file": "PRJEB22043_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_tkacz_microbiome_spikeinamplicon/PRJEB22043_dada2_taxa.rds.zip",
+      "sha256": "5ba0a600346fff7dcbb5fbc4a7d4da2d87901caa9cefd88b1cba25407dd23359"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_tkacz_microbiome_spikeinamplicon/README.txt.zip",
+      "sha256": "bbb5402db493a0ee7a131121b40ae152d9b25127d284576e7c45b7132b4f248b"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_tkacz_microbiome_spikeinamplicon/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "39004c4f0cd2faed7455cd8356bd84da72873d8eca836b12af274bf53bf78c39"
+    },
+    {
+      "file": "SraRunTable (39).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_tkacz_microbiome_spikeinamplicon/SraRunTable%20%2839%29.csv.zip",
+      "sha256": "16f4cad454b13c78687e3e9301e785275f717684c35bda1a7ecc924ffe7127dd"
+    }
+  ],
+  "legacy_demographics": null
+}

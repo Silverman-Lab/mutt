@@ -1,576 +1,464 @@
 {
   "schema_version": 1,
-  "data_release": "2026.07.1",
   "studies": [
     {
-      "study": "2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow",
-      "parser_file": "p001.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "alessandri2024",
+      "display_name": "2024 alessandri microbbiotechnology pcosvaginalmicrobiota",
+      "sequencing": "Shotgun Metagenomics",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2016_stammler_microbiome_micehuman",
-      "parser_file": "p002.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2016_stammler_microbiome_micehuman.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "barlow2020",
+      "display_name": "2020 barlow naturecommunications miceGI",
+      "sequencing": "16S rRNA",
+      "load": "ddPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2017_liu_mbio_penilehivqPCR",
-      "parser_file": "p003.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2017_liu_mbio_penilehivqPCR.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "barlow2021",
+      "display_name": "2021 barlow microbiome reimaginestudypatientsddpcr",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2017_props_isme_longitudinal",
-      "parser_file": "p004.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2017_props_isme_longitudinal.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "caenepeel2024",
+      "display_name": "2024 caenepeel gastroenterology IBD CD flow",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2017_sinha_natureBiotec_spikeinhumanfecalreproducibility",
-      "parser_file": "p005.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "contijoch2019",
+      "display_name": "2019 contijoch elife multispeciesqPCRshotgunandamplicon",
+      "sequencing": "Shotgun Metagenomics",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2017_vandeputte_nature_flow",
-      "parser_file": "p006.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2017_vandeputte_nature_flow.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "cvandevelde2022",
+      "display_name": "2022 cvandevelde ismecommunications culturedflowhumanfecal",
+      "sequencing": "16S rRNA",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2018_piwosz_ismej_spikeinampliconfreshwater",
-      "parser_file": "p007.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2018_piwosz_ismej_spikeinampliconfreshwater.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "dreier2022",
+      "display_name": "2022 dreier bmcmicrobiology cheeseqpcr",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2018_tkacz_microbiome_spikeinamplicon",
-      "parser_file": "p008.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2018_tkacz_microbiome_spikeinamplicon.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "ellegaard2020",
+      "display_name": "2020 ellegaard currbiology honeybeeqPCRshotgunmetagenomics",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2018_tourlousse_scientificreports_soilsewagespikein",
-      "parser_file": "p009.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2018_tourlousse_scientificreports_soilsewagespikein.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "feng2023",
+      "display_name": "2023 feng imetawiley chickensegment",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2019_contijoch_elife_multispeciesqPCRshotgunandamplicon",
-      "parser_file": "p010.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2019_contijoch_elife_multispeciesqPCRshotgunandamplicon.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "forslund2021",
+      "display_name": "2021 forslund nature metacardis",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2019_ji_nature_human_soil",
-      "parser_file": "p011.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2019_ji_nature_human_soil.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "fromentin2022",
+      "display_name": "2022 fromentin naturemedicine metacardissubset",
+      "sequencing": "Shotgun Metagenomics",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein",
-      "parser_file": "p012.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "fu2023",
+      "display_name": "2023 fu imeta wasterwater pathogens",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2019_morton_naturecommunications_songbird_oral",
-      "parser_file": "p013.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2019_morton_naturecommunications_songbird_oral.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "galazzo2020",
+      "display_name": "2020 galazzo frontiersincellularandinfectionmicrobiology flowqPCRddPCRhealthy",
+      "sequencing": "16S rRNA",
+      "load": [
+        "qPCR",
+        "ddPCR",
+        "Flow Cytometry"
+      ],
+      "status": "unavailable"
     },
     {
-      "study": "2019_vieirasilva_naturemicrobiology_pscibd",
-      "parser_file": "p014.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2019_vieirasilva_naturemicrobiology_pscibd.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "galla2023",
+      "display_name": "2023 galla scientificreports spikeinmockvariousorganismssampletypes",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2020_barlow_naturecommunications_miceGI",
-      "parser_file": "p015.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2020_barlow_naturecommunications_miceGI.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "garciamartinez2024_archive",
+      "display_name": "2024 garcia-martinez bmcmicrobiology ckdanddysbiosiswithserum",
+      "sequencing": "unreviewed",
+      "load": "unreviewed",
+      "status": "unavailable"
     },
     {
-      "study": "2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics",
-      "parser_file": "p016.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "garciamartinez2024",
+      "display_name": "2024 garciamartinez bmcmicrobiology ckdanddysbiosiswithserum",
+      "sequencing": "16S rRNA",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy",
-      "parser_file": "p017.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "ji2019",
+      "display_name": "2019 ji nature human soil",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2020_regalado_isme_metagenomicsbacteriaandfungalsequencing",
-      "parser_file": "p018.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "jin2022",
+      "display_name": "2022 jin natureComm technicalReplicates",
+      "sequencing": "16S rRNA",
+      "load": "ddPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2020_tettamantiboshier_msystems_vaginaltimeseries",
-      "parser_file": "p019.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2020_tettamantiboshier_msystems_vaginaltimeseries.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "jin2024",
+      "display_name": "2024 jin pnas semen",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2020_vieirasilva_nature_BMIS",
-      "parser_file": "p020.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2020_vieirasilva_nature_BMIS.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "kallastu2023",
+      "display_name": "2023 kallastu research foodscience food",
+      "sequencing": "16S rRNA",
+      "load": [
+        "Flow Cytometry",
+        "qPCR",
+        "CFU"
+      ],
+      "status": "unavailable"
     },
     {
-      "study": "2020_zemb_microOpen_spike",
-      "parser_file": "p021.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2020_zemb_microOpen_spike.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "krause2024",
+      "display_name": "2024 krause microorganisms notsurethisisgoodviaauthor maybe throw",
+      "sequencing": "unreviewed",
+      "load": "unreviewed",
+      "status": "unavailable"
     },
     {
-      "study": "2021_barlow_microbiome_reimaginestudypatientsddpcr",
-      "parser_file": "p022.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_barlow_microbiome_reimaginestudypatientsddpcr.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "krawczyk2022",
+      "display_name": "2022 krawczyk microbiome tickgeographicaldistributionqpcr",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2021_forslund_nature_metacardis",
-      "parser_file": "p023.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_forslund_nature_metacardis.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "kruger2024",
+      "display_name": "2024 kruger scientificreports ddpcrhealthysubjects",
+      "sequencing": "16S rRNA",
+      "load": "ddPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct",
-      "parser_file": "p024.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "kulkarni2024",
+      "display_name": "2024 kulkarni naturechemicalbiology rhizosphere16sqpcr",
+      "sequencing": "unreviewed",
+      "load": "unreviewed",
+      "status": "unavailable"
     },
     {
-      "study": "2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow",
-      "parser_file": "p025.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "liao2021",
+      "display_name": "2021 liao scientificdata longitudinalmicrobiomeqpcr allohct",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal",
-      "parser_file": "p026.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "lin2019",
+      "display_name": "2019 lin applenvironmicrobiol 16s18smarineecologyflowandspikein",
+      "sequencing": "16S rRNA",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2021_marotz_mSystems_oral_mouthwash",
-      "parser_file": "p027.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_marotz_mSystems_oral_mouthwash.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "liu2017",
+      "display_name": "2017 liu mbio penilehivqPCR",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2021_ott_environmentalmicrobiome_riverwater",
-      "parser_file": "p028.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_ott_environmentalmicrobiome_riverwater.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "maghini2023",
+      "display_name": "2023 maghini naturebiotechnology samplemesurement",
+      "sequencing": "Shotgun Metagenomics",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification",
-      "parser_file": "p029.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "mancabelli2021_children",
+      "display_name": "2021 mancabelli appliedenvironmentalmicrobiology childrenantibiotictherapyflowfecal",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2021_reese_cell_chimpanzee",
-      "parser_file": "p030.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_reese_cell_chimpanzee.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "mancabelli2021_multisite",
+      "display_name": "2021 mancabelli applenvironmicrobiology chickenfecalhumanvaginalshotgunflow",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2021_rolling_naturemicrobiology_allohct_ITS_16s",
-      "parser_file": "p031.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_rolling_naturemicrobiology_allohct_ITS_16s.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "marotz2021",
+      "display_name": "2021 marotz mSystems oral mouthwash",
+      "sequencing": "16S rRNA",
+      "load": [
+        "Flow Cytometry",
+        "qPCR"
+      ],
+      "status": "unavailable"
     },
     {
-      "study": "2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome",
-      "parser_file": "p032.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "morton2019",
+      "display_name": "2019 morton naturecommunications songbird oral",
+      "sequencing": "Shotgun Metagenomics",
+      "load": [
+        "qPCR",
+        "Flow Cytometry"
+      ],
+      "status": "unavailable"
     },
     {
-      "study": "2021_vandeputte_naturecommunications_flow_timeseries",
-      "parser_file": "p033.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2021_vandeputte_naturecommunications_flow_timeseries.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "nishijima2024",
+      "display_name": "2024 nishijima cell galaxy",
+      "sequencing": "Shotgun Metagenomics",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2022_cvandevelde_ismecommunications_culturedflowhumanfecal",
-      "parser_file": "p034.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2022_cvandevelde_ismecommunications_culturedflowhumanfecal.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "ott2021",
+      "display_name": "2021 ott environmentalmicrobiome riverwater",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2022_dreier_bmcmicrobiology_cheeseqpcr",
-      "parser_file": "p035.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2022_dreier_bmcmicrobiology_cheeseqpcr.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "pereira2023",
+      "display_name": "2023 pereira nature nervous",
+      "sequencing": "16S rRNA",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2022_fromentin_naturemedicine_metacardissubset",
-      "parser_file": "p036.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2022_fromentin_naturemedicine_metacardissubset.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "piwosz2018",
+      "display_name": "2018 piwosz ismej spikeinampliconfreshwater",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2022_jin_natureComm_technicalReplicates",
-      "parser_file": "p037.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2022_jin_natureComm_technicalReplicates.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "prochazkova2024",
+      "display_name": "2024 prochazkova naturemicrobiology longitudinalhealthyflowfecal",
+      "sequencing": "16S rRNA",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2022_krawczyk_microbiome_tickgeographicaldistributionqpcr",
-      "parser_file": "p038.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "props2017",
+      "display_name": "2017 props isme longitudinal",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2022_suriano_aps_micefecal",
-      "parser_file": "p039.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2022_suriano_aps_micefecal.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "rao2021",
+      "display_name": "2021 rao nature mkspikeseqmetagenomicmultiplescalequantification",
+      "sequencing": "16S rRNA",
+      "load": [
+        "Flow Cytometry",
+        "qPCR",
+        "MK_spike"
+      ],
+      "status": "unavailable"
     },
     {
-      "study": "2022_zaramela_msystems_synDNA",
-      "parser_file": "p040.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2022_zaramela_msystems_synDNA.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "reese2021",
+      "display_name": "2021 reese cell chimpanzee",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2023_feng_imetawiley_chickensegment",
-      "parser_file": "p041.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2023_feng_imetawiley_chickensegment.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "regalado2020",
+      "display_name": "2020 regalado isme metagenomicsbacteriaandfungalsequencing",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2023_fu_imeta_wasterwater_pathogens",
-      "parser_file": "p042.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2023_fu_imeta_wasterwater_pathogens.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "reyes2013",
+      "display_name": "2013 reyes procnationalacademyscience gnotobioticmousehumangutflow",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2023_galla_scientificreports_spikeinmockvariousorganismssampletypes",
-      "parser_file": "p043.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2023_galla_scientificreports_spikeinmockvariousorganismssampletypes.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "rolling2021",
+      "display_name": "2021 rolling naturemicrobiology allohct ITS 16s",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2023_kallastu_research_foodscience_food",
-      "parser_file": "p044.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2023_kallastu_research_foodscience_food.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "silverman2018",
+      "display_name": "2018 silverman microbiome mallard",
+      "sequencing": "unreviewed",
+      "load": "unreviewed",
+      "status": "unavailable"
     },
     {
-      "study": "2023_maghini_naturebiotechnology_samplemesurement",
-      "parser_file": "p045.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2023_maghini_naturebiotechnology_samplemesurement.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "sinha2017",
+      "display_name": "2017 sinha natureBiotec spikeinhumanfecalreproducibility",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2023_pereira_nature_nervous",
-      "parser_file": "p046.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2023_pereira_nature_nervous.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "stammler2016",
+      "display_name": "2016 stammler microbiome micehuman",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota",
-      "parser_file": "p047.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "sternes2024",
+      "display_name": "2024 sternes frontmicrobiol IBDppiqPCR",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2024_caenepeel_gastroenterology_IBD_CD_flow",
-      "parser_file": "p048.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2024_caenepeel_gastroenterology_IBD_CD_flow.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "suriano2022",
+      "display_name": "2022 suriano aps micefecal",
+      "sequencing": "16S rRNA",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum",
-      "parser_file": "p049.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "tettamantiboshier2020",
+      "display_name": "2020 tettamantiboshier msystems vaginaltimeseries",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2024_jin_pnas_semen",
-      "parser_file": "p050.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2024_jin_pnas_semen.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "thiruppathy2025",
+      "display_name": "2025 thiruppathy microbiome relicDNAflow",
+      "sequencing": "Shotgun Metagenomics",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2024_kruger_scientificreports_ddpcrhealthysubjects",
-      "parser_file": "p051.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2024_kruger_scientificreports_ddpcrhealthysubjects.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "tito2024",
+      "display_name": "2024 tito naturemedicine 165metadatavariables",
+      "sequencing": "unreviewed",
+      "load": "unreviewed",
+      "status": "unavailable"
     },
     {
-      "study": "2024_nishijima_cell_galaxy",
-      "parser_file": "p052.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2024_nishijima_cell_galaxy.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "tkacz2018",
+      "display_name": "2018 tkacz microbiome spikeinamplicon",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal",
-      "parser_file": "p053.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "tourlousse2018",
+      "display_name": "2018 tourlousse scientificreports soilsewagespikein",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2024_sternes_frontmicrobiol_IBDppiqPCR",
-      "parser_file": "p054.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2024_sternes_frontmicrobiol_IBDppiqPCR.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "tunsakul2024",
+      "display_name": "2024 tunsakul peerj aerobicvsanaerobicinhealthyvsobesity",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     },
     {
-      "study": "2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity",
-      "parser_file": "p055.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "vallescolomer2021",
+      "display_name": "2021 vallescolomer naturemicrobiology femalebloodlinefamilialmicrobiome",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
     },
     {
-      "study": "2025_thiruppathy_microbiome_relicDNAflow",
-      "parser_file": "p056.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2025_thiruppathy_microbiome_relicDNAflow.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "vandeputte2017",
+      "display_name": "2017 vandeputte nature flow",
+      "sequencing": "16S rRNA",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
     },
     {
-      "study": "2025_wagner_frontiersinmiccrobiology_flowpiglets",
-      "parser_file": "p057.R",
-      "parser_version": "2026.07.1",
-      "remote_available": false,
-      "url": "https://github.com/Silverman-Lab/mutt/releases/download/data-v2026.07.1/2025_wagner_frontiersinmiccrobiology_flowpiglets.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "redistribution_status": "pending"
+      "study_id": "vandeputte2021",
+      "display_name": "2021 vandeputte naturecommunications flow timeseries",
+      "sequencing": "16S rRNA",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
+    },
+    {
+      "study_id": "vieirasilva2019",
+      "display_name": "2019 vieirasilva naturemicrobiology pscibd",
+      "sequencing": "16S rRNA",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
+    },
+    {
+      "study_id": "vieirasilva2020",
+      "display_name": "2020 vieirasilva nature BMIS",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
+    },
+    {
+      "study_id": "wagner2025",
+      "display_name": "2025 wagner frontiersinmiccrobiology flowpiglets",
+      "sequencing": "unknown",
+      "load": "unknown",
+      "status": "unavailable"
+    },
+    {
+      "study_id": "wirbel2025",
+      "display_name": "2025 wirbel cell ddpcrML",
+      "sequencing": "unreviewed",
+      "load": "unreviewed",
+      "status": "unavailable"
+    },
+    {
+      "study_id": "zaramela2022",
+      "display_name": "2022 zaramela msystems synDNA",
+      "sequencing": "Shotgun Metagenomics",
+      "load": "Flow Cytometry",
+      "status": "unavailable"
+    },
+    {
+      "study_id": "zemb2020",
+      "display_name": "2020 zemb microOpen spike",
+      "sequencing": "16S rRNA",
+      "load": "qPCR",
+      "status": "unavailable"
     }
   ]
 }

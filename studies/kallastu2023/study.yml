@@ -1,0 +1,72 @@
+{
+  "sequencing": "16S rRNA",
+  "load": [
+    "Flow Cytometry",
+    "qPCR",
+    "CFU"
+  ],
+  "pmid": "36691592",
+  "accessions": [
+    "PRJNA861123"
+  ],
+  "source_urls": [
+    "https://pubmed.ncbi.nlm.nih.gov/36691592/"
+  ],
+  "study_id": "kallastu2023",
+  "display_name": "2023 kallastu research foodscience food",
+  "schema_version": 1,
+  "legacy_id": "2023_kallastu_research_foodscience_food",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "Paper Link: https://pubmed.ncbi.nlm.nih.gov/36691592/\nBioProject ID: PRJNA861123\n\nManan (04/12/2025): \n    Scale provided in Table 3 and 4 of main paper. Metadata taken from SRA Run Selector.\n    parse.R is added. Handles Scale and Metadata. \n    The scale returned is KxN as there are K methods used to measure scale. Also for some of synthetic samples not all quantification methods were performed, hence there the values is NA.       ",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+  "archived_inputs": [
+    {
+      "file": "PRJNA861123_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_kallastu_research_foodscience_food/PRJNA861123_dada2_counts.rds.zip",
+      "sha256": "fa57cf5b374dd773e0a71b76dd7b87893469809ddb30c07117f9169b0ab1f36e"
+    },
+    {
+      "file": "PRJNA861123_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_kallastu_research_foodscience_food/PRJNA861123_dada2_counts_withchimeras.rds.zip",
+      "sha256": "329c57cf5753d66045bf5d11ede54863473a4cbecb03aeb984f5f9ea737ed98d"
+    },
+    {
+      "file": "PRJNA861123_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_kallastu_research_foodscience_food/PRJNA861123_dada2_taxa.rds.zip",
+      "sha256": "9c7178e72f6c645a5ce2f473c29bdc52a0fd9ea9ec48d823819deab09738ebde"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_kallastu_research_foodscience_food/README.txt.zip",
+      "sha256": "fdeea85d6666696590a05c61badc74262c7fa113b6fb967325919e7391d2362e"
+    },
+    {
+      "file": "SraRunTable.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_kallastu_research_foodscience_food/SraRunTable.csv.zip",
+      "sha256": "8aad9c1aacb64da77187e159105c666c7f65a163c62029bcd9e8b65831511257"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_kallastu_research_foodscience_food/rdp16classified.csv.zip",
+      "sha256": "ebb9d367441a012c6e557d73f1c225379dcb8191295f2093673822db0b4078f7"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": [
+      "Flow Cytometry",
+      "qPCR",
+      "CFU"
+    ],
+    "organismtype": "Food",
+    "sampletype": "Food",
+    "covariates": [
+      "pma_treatment",
+      "Organism"
+    ],
+    "ID": "Sample",
+    "PMID": "36691592"
+  }
+}

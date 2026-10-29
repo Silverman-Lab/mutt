@@ -1,0 +1,41 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [
+    "https://academic.oup.com/ismej/article/12/11/2640/7475339"
+  ],
+  "study_id": "piwosz2018",
+  "display_name": "2018 piwosz ismej spikeinampliconfreshwater",
+  "schema_version": 1,
+  "legacy_id": "2018_piwosz_ismej_spikeinampliconfreshwater",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "added the fixed amount of E.coli cells to every water sample during the filtration step. The cells were fixed with ethanol and the spike-ins were done using the same amount of fixed E. coli cells. Then we used the number of E.coli reads for normalization.\n\npaper:https://academic.oup.com/ismej/article/12/11/2640/7475339\n\nData collection,cleaning, parser by Maxwell Konnaris 05/05/2025\n",
+  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "41396_2018_213_MOESM5_ESM.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_piwosz_ismej_spikeinampliconfreshwater/41396_2018_213_MOESM5_ESM.csv.zip",
+      "sha256": "295709efad8915cf5490af8b247e325894e8b30c418163ab2e8e45c525167a22"
+    },
+    {
+      "file": "41396_2018_213_MOESM5_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_piwosz_ismej_spikeinampliconfreshwater/41396_2018_213_MOESM5_ESM.xlsx.zip",
+      "sha256": "d79ecef0c0e8742a84e204543ffa0f5ea6cef40c3942750ef8122d150fd0dbbd"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_piwosz_ismej_spikeinampliconfreshwater/README.txt.zip",
+      "sha256": "0c1b18896a767a615b90098c2c8e9a6a7048d76665cdb7be4fe3d34b90e57c7b"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_piwosz_ismej_spikeinampliconfreshwater/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "cd6c97aab7aab8cf4976354ba48e471aee884dfac33dd88b43b2b54a531d887d"
+    }
+  ],
+  "legacy_demographics": null
+}

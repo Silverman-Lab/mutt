@@ -1,0 +1,107 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [
+    "https://www.hmpdacc.org/MBQC/",
+    "https://www.nature.com/articles/nbt.3981#Sec26"
+  ],
+  "study_id": "sinha2017",
+  "display_name": "2017 sinha natureBiotec spikeinhumanfecalreproducibility",
+  "schema_version": 1,
+  "legacy_id": "2017_sinha_natureBiotec_spikeinhumanfecalreproducibility",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "MBQC project - it aims to evaluate methods for measuring human microbiome (protocols for handling human microbiome samples and computational pipelines for microbial data processing). The goal is helping context-dependent protocol choices by identifying the relative effect sizes of individual variables.\n\nThe data include results sequenced by 15 laboratories and analyzed based on 9 bioinformatics protocols. \n\n------\n\nSupplementary Datasets can be found in the paper ; https://www.nature.com/articles/nbt.3981#Sec26\n\n\nSupplementary Data set 1\nExtended literature review and categorization of microbiome protocol studies. (XLSX 117 kb)\n\nSupplementary Data set 2\nHandling protocol variables recorded during the MBQC-base. (XLSX 25 kb)\n\nSupplementary Data set 3\nBioinformatics protocol variable reporting. (XLSX 24 kb)\n\nSupplementary Data set 4\nHandling protocol variables curated from the MBQC-base. (XLSX 16 kb)\n\nSupplementary Data set 5\nRaw read counts per sample. (XLSX 41 kb)\nNote ; 'Blinded sample ID' matches with row names in Supplementary Dataset 6.\n\nSupplementary Data set 6\nMBQC-base OTU table. (ZIP 14543 kb)\nNote ; It has both metadata and OTU counts. \nNote ; Check if this identical to mbqc_integrated_otus.tsv retrieved from mbqc_org_files\nNote ; nt_count seems to be the scale.\n\nSupplementary Data set 7\nAlpha and beta diversities stratified by sample type within and between 175 handling and bioinformatics laboratories. (ZIP 7139 kb)\n\nSupplementary Data set 8\nBeta-diversity divergence from artificial community positive controls; 181 stratified by handling and bioinformatics laboratories. (TXT 2 kb)\n\n\n------\n\nmbqc_org_files are retrieved from https://www.hmpdacc.org/MBQC/\nSeems like they provide the same information as supplementary datasets, but will need to check\n\n",
+  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/README.txt.zip",
+      "sha256": "c876898fb60685f0915d263e049d7549a34485f9bf51e5916062558766855ddf"
+    },
+    {
+      "file": "SRP047083_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/SRP047083_dada2_counts.rds.zip",
+      "sha256": "0b05e7f166a3a3f370f1d4a96a1ee837c4f0e657b6df724cdfe709a3b3545748"
+    },
+    {
+      "file": "SRP047083_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/SRP047083_dada2_counts_withchimeras.rds.zip",
+      "sha256": "7ae68f3527ace61cc0b6a0a76ffb31a32e6841c522e21614edb585e0c9c673bd"
+    },
+    {
+      "file": "SRP047083_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/SRP047083_dada2_taxa.rds.zip",
+      "sha256": "27025da4b7cf4a34c847ce23812711f812486a122ac5f30388ea7225655a9203"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "9a93a2ba3dccb8942f3a979cea1082d550ab7352c92c9fd1063d562d077ead66"
+    },
+    {
+      "file": "counts.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/counts.csv.zip",
+      "sha256": "296e27519dc5ddd1979b4055f46c60059582de39e89537591f0ff83a4eac59fd"
+    },
+    {
+      "file": "mbqc_aliquots.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/mbqc_aliquots.xlsx.zip",
+      "sha256": "1ffa887ee68ec79d88854f972f1eabb686a65836667bf9bd9f6feb057302c871"
+    },
+    {
+      "file": "mbqc_artificial.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/mbqc_artificial.xlsx.zip",
+      "sha256": "714003c79b182819dcfb2ca40e67c39dac0ce0b88c9c6fe43e2c5bd70744e713"
+    },
+    {
+      "file": "mbqc_bioinformatics_blinding.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/mbqc_bioinformatics_blinding.tsv.zip",
+      "sha256": "d5cca0338e1ce6b1565377c643885c1660725082a33837a6d7073574988dd75e"
+    },
+    {
+      "file": "mbqc_bioinformatics_protocols.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/mbqc_bioinformatics_protocols.xlsx.zip",
+      "sha256": "16d119394a5b097e41899b977be0925ba07a0cd0795eef2c2dfd4cd2bf1f4b8e"
+    },
+    {
+      "file": "mbqc_handling_protocols.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/mbqc_handling_protocols.xlsx.zip",
+      "sha256": "20c3568717008d11c1797a20393e569091f0d272c6908ee8cf669e52b0ec7ff0"
+    },
+    {
+      "file": "mbqc_integrated_otus.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/mbqc_integrated_otus.tsv.zip",
+      "sha256": "18dd31078af0aba32cc3eacab2cf0de0b957a6fbbd24b0397d1c521ac3d11818"
+    },
+    {
+      "file": "mbqc_specimens.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/mbqc_specimens.xlsx.zip",
+      "sha256": "4f594588a34313a2ef029cee468e45120e9a64f4ecd70b20b88a6929f81fbd89"
+    },
+    {
+      "file": "metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/metadata.csv.zip",
+      "sha256": "2e7faf612fbfd9b41b56d4c188edda77e21d25bfe971e601a21d907f6f859434"
+    },
+    {
+      "file": "proportions.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/proportions.csv.zip",
+      "sha256": "c7454293e6fa498153e2e018ec78d6618f4c8cb4e7f8ed3d56931ae7791ccc0e"
+    },
+    {
+      "file": "scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/scale.csv.zip",
+      "sha256": "4f2aabdeb6177a635d535fe8d2eb389d3525d292a5cb59c5e07c671fb7eaf26a"
+    },
+    {
+      "file": "tax.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_sinha_natureBiotec_spikeinhumanfecalreproducibility/tax.csv.zip",
+      "sha256": "9aa4db3754b0144f434c8accd70286fea0db0641e2a7243b686ee2146c8769cf"
+    }
+  ],
+  "legacy_demographics": null
+}

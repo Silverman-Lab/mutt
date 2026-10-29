@@ -1,0 +1,67 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "Flow Cytometry",
+  "pmid": "39604623",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "prochazkova2024",
+  "display_name": "2024 prochazkova naturemicrobiology longitudinalhealthyflowfecal",
+  "schema_version": 1,
+  "legacy_id": "2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "41564_2024_1856_MOESM4_ESM_.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal/41564_2024_1856_MOESM4_ESM_.xlsx.zip",
+      "sha256": "f1ede3dcca30122f7c88e287df47aadb0cfbe94b618fa22efd307927ac119dee"
+    },
+    {
+      "file": "PRJNA1044006_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal/PRJNA1044006_dada2_counts.rds.zip",
+      "sha256": "b9115d0a6550b8fb3457b3a3b4e25f217df9d57e99f6ade188d37fd40804813c"
+    },
+    {
+      "file": "PRJNA1044006_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal/PRJNA1044006_dada2_counts_withchimeras.rds.zip",
+      "sha256": "1c7a0f391b3e25563aee4ac1d8c092032fb1df5ae46b502d8bd2883cc06a45e3"
+    },
+    {
+      "file": "PRJNA1044006_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal/PRJNA1044006_dada2_taxa.rds.zip",
+      "sha256": "eee42b1577d1144b6f3678ecab36d9b2ddbda728ed1809ac1e5fa293ebe31ace"
+    },
+    {
+      "file": "SraRunTable.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal/SraRunTable.csv.zip",
+      "sha256": "cae294a1bf9a5eca56d40bdd6cd69e50f46c542c56e1b8288c1cacf0d7c17959"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal/rdp16classified.csv.zip",
+      "sha256": "dbb69b89b31b1c3a6c8f6ea9020454e220611be77b4eaf055866ccb7cbf43458"
+    },
+    {
+      "file": "scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal/scale.csv.zip",
+      "sha256": "63889cbb08114cd95f5251e5178c2ef193efa03213c410324cd81471c3559e61"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": [
+      "Bristol_scale_Mean",
+      "Faecal_pH_Mean",
+      "Stool_freq_Mean",
+      "Stool_moisture_Mean"
+    ],
+    "ID": "ID",
+    "PMID": "39604623"
+  }
+}

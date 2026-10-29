@@ -1,0 +1,30 @@
+{
+  "study_id": "krause2024",
+  "display_name": "2024 krause microorganisms notsurethisisgoodviaauthor maybe throw",
+  "legacy_id": "2024_krause_microorganisms_notsurethisisgoodviaauthor_maybe_throw",
+  "schema_version": 1,
+  "sequencing": "unreviewed",
+  "load": "unreviewed",
+  "pmid": [],
+  "accessions": [],
+  "archived_inputs": [
+    {
+      "file": "PRJNA1068571_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_krause_microorganisms_notsurethisisgoodviaauthor_maybe_throw/PRJNA1068571_dada2_counts_withchimeras.rds.zip",
+      "sha256": "584686be57250343917047f34bb37e3f54a33c631489b4d75c13687d7e4c8261"
+    },
+    {
+      "file": "PRJNA1068571_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_krause_microorganisms_notsurethisisgoodviaauthor_maybe_throw/PRJNA1068571_dada2_counts.rds.zip",
+      "sha256": "38166ad707ec77a6fe704e91d633bb789613deee275987d76bafe8327ada8b55"
+    },
+    {
+      "file": "PRJNA1068571_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_krause_microorganisms_notsurethisisgoodviaauthor_maybe_throw/PRJNA1068571_dada2_taxa.rds.zip",
+      "sha256": "dc5c8e58bd94f8185f5b23d93cf8bf0fdee8fb2e4f3fef3cf7e53dbc335ff109"
+    }
+  ],
+  "source_notes": "Unregistered legacy study directory. No bundled parser or selected harmonized output. Retained for source discovery; do not claim release readiness.",
+  "baseline_status": "unavailable",
+  "source_urls": []
+}

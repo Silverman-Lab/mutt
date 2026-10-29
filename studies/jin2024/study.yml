@@ -1,0 +1,94 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "39359400",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "jin2024",
+  "display_name": "2024 jin pnas semen",
+  "schema_version": 1,
+  "legacy_id": "2024_jin_pnas_semen",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "CFU_data.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/CFU_data.txt.zip",
+      "sha256": "cc2d1292d90164a8808e13df1b5b4db36ad2b7afe75a9851ba378685c1607fe6"
+    },
+    {
+      "file": "PRJNA747100_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/PRJNA747100_dada2_counts.rds.zip",
+      "sha256": "216424bdfafa74c90c38ed3ff5bc6424a9dc8e8bf0599adddea5c75142ffe6ab"
+    },
+    {
+      "file": "PRJNA747100_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/PRJNA747100_dada2_counts_withchimeras.rds.zip",
+      "sha256": "de4cff5530b31734ea78463b4b90c83e50cabb608fe2792ea7350d35d17e371f"
+    },
+    {
+      "file": "PRJNA747100_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/PRJNA747100_dada2_taxa.rds.zip",
+      "sha256": "5b4408bf56f53356532cf17ddb8f53cc19026102262d8f0015df4ef41de39fe9"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "18cd49d68018f64bca369b57d48316cb21f6a5a5d1cceabd580a2345310f17f2"
+    },
+    {
+      "file": "metadata4.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/metadata4.txt.zip",
+      "sha256": "fc42a894bc005810ab5d481280cc59af8a14e775449c97fde8800b5d1d251d42"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/rdp16classified.csv.zip",
+      "sha256": "07d51195d2aadb03a67b432159770a638c995385d0d551923247bf0394e80e2e"
+    },
+    {
+      "file": "table-normalized.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/table-normalized.tsv.zip",
+      "sha256": "6f4cb0cf6df0a6225e702efd5d2ea44e9c9f173eb8c2d66784735d97bdecc41e"
+    },
+    {
+      "file": "table.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/table.tsv.zip",
+      "sha256": "862d53370b813641f13db2734de481926ff838f500adaf2ebdaed863be1a3f40"
+    },
+    {
+      "file": "table_og.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/table_og.tsv.zip",
+      "sha256": "1c9b811a493707465402d273808eaea414c88047b2e44b86f93bbe8bd5739ff6"
+    },
+    {
+      "file": "taxonomy.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/taxonomy.tsv.zip",
+      "sha256": "0f1cce709ec2b530ff7ddcf2b90f717c54c3fa7036a45afa849045015c2d9fd3"
+    },
+    {
+      "file": "tree.nwk.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_jin_pnas_semen/tree.nwk.zip",
+      "sha256": "99ce11a430565a18949facfa323abff945c344de5f2b72bb6257a817455e7df2"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Human",
+    "sampletype": "Semen",
+    "covariates": [
+      "Fertility",
+      "Diagnosis",
+      "Group",
+      "Sperm_concentration",
+      "Sperm_motility",
+      "Age"
+    ],
+    "ID": "Sample",
+    "PMID": "39359400"
+  }
+}

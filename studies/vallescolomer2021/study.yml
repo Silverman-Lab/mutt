@@ -1,0 +1,34 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "vallescolomer2021",
+  "display_name": "2021 vallescolomer naturemicrobiology femalebloodlinefamilialmicrobiome",
+  "schema_version": 1,
+  "legacy_id": "2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "",
+  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "41564_2021_1021_MOESM2_ESM (2).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome/41564_2021_1021_MOESM2_ESM%20%282%29.xlsx.zip",
+      "sha256": "a941b052fc9d1257157216c6f2a8c2f259e90bbc1b36169d3bdeff6bdff79eff"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome/README.txt.zip",
+      "sha256": "af22f43bcbb78ebaf4ebfe03fee041c1142acba88c935e61cb0b1284e34ce798"
+    },
+    {
+      "file": "scalemetadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome/scalemetadata.csv.zip",
+      "sha256": "7a73a62db59a912f38e3e94b4f5a5fe9b12aee90f8f590de80109a62e6e5c7e7"
+    }
+  ],
+  "legacy_demographics": null
+}

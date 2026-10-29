@@ -1,0 +1,75 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "39469457",
+  "accessions": [],
+  "source_urls": [
+    "https://pubmed.ncbi.nlm.nih.gov/39469457/"
+  ],
+  "study_id": "sternes2024",
+  "display_name": "2024 sternes frontmicrobiol IBDppiqPCR",
+  "schema_version": 1,
+  "legacy_id": "2024_sternes_frontmicrobiol_IBDppiqPCR",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "paper: https://pubmed.ncbi.nlm.nih.gov/39469457/\n\n",
+  "baseline_status": "historical saved object; provisional manuscript selection",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "Data Sheet 1 (1).docx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/Data%20Sheet%201%20%281%29.docx.zip",
+      "sha256": "914906800704e43f50c6b5c37e0e4f0242f7d6b4a93b3306b09643cd6ec6e34a"
+    },
+    {
+      "file": "PRJNA1120972_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/PRJNA1120972_dada2_counts.rds.zip",
+      "sha256": "240fd17c2aa7169ae2488499a54d8ad2c0e0ee10746fb6a502f85cb303e227c7"
+    },
+    {
+      "file": "PRJNA1120972_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/PRJNA1120972_dada2_counts_withchimeras.rds.zip",
+      "sha256": "f9e9e41554e57e6f504aa58ff1a3081868c5becbecaff1d3406cbdd555514fcb"
+    },
+    {
+      "file": "PRJNA1120972_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/PRJNA1120972_dada2_taxa.rds.zip",
+      "sha256": "adb5995222c860650ee7617e779518a441c7f2a9c581ffdbe9722c847ba59aa5"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/README.txt.zip",
+      "sha256": "f57b1d97376a525bad8c4db9eaf9de7c69cd113b2192589795010680f26b0b45"
+    },
+    {
+      "file": "SraRunTable (34).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/SraRunTable%20%2834%29.csv.zip",
+      "sha256": "a62e6840991301942e9a3df323ecf11908bae96942b97513693a38076098eb37"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/rdp16classified.csv.zip",
+      "sha256": "aadddaf81e1b10af5e0b72c0751524b66c9d642a8da607313c8805c5f57b6550"
+    },
+    {
+      "file": "scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_sternes_frontmicrobiol_IBDppiqPCR/scale.csv.zip",
+      "sha256": "0069759457a3dfd8efc3b47043a11d8916580b2bfa794ac80917320578e032ab"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Human",
+    "sampletype": "Gastrointestinal mucosa biopsy",
+    "covariates": [
+      "AGE",
+      "Sex",
+      "BMI",
+      "PPI",
+      "NC_total_score"
+    ],
+    "ID": "Sample_name",
+    "PMID": "39469457"
+  }
+}

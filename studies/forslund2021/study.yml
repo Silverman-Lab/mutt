@@ -1,0 +1,64 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "forslund2021",
+  "display_name": "2021 forslund nature metacardis",
+  "schema_version": 1,
+  "legacy_id": "2021_forslund_nature_metacardis",
+  "manuscript_use": "unconfirmed: manuscript/supplement not supplied",
+  "source_notes": "",
+  "baseline_status": "no saved harmonized object selected; current parser requires review",
+  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
+  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "archived_inputs": [
+    {
+      "file": "41586_2021_4177_MOESM3_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_forslund_nature_metacardis/41586_2021_4177_MOESM3_ESM.xlsx.zip",
+      "sha256": "72f96c2b41a7bb83a1eab2a7d84f0c7826982d897a4384f9ce9f615830cc1671"
+    },
+    {
+      "file": "MetaCardis_load.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_forslund_nature_metacardis/MetaCardis_load.tsv.zip",
+      "sha256": "a23aa6cd264c27d889a65b251ca3edf2d593009a73f47be60312a2672ae9226d"
+    },
+    {
+      "file": "MetaCardis_mOTUs_v25.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_forslund_nature_metacardis/MetaCardis_mOTUs_v25.tsv.zip",
+      "sha256": "c95630a3614eeefbb7233ec53bfd4af0e434f646c2ff40fa9ef483c0952d673d"
+    },
+    {
+      "file": "MetaCardis_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_forslund_nature_metacardis/MetaCardis_scale.csv.zip",
+      "sha256": "9680ff4934ae2b87c0d2a21e0b3249a59666ca0aff8971e280709772b2234a80"
+    },
+    {
+      "file": "SraRunTable (34).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_forslund_nature_metacardis/SraRunTable%20%2834%29.csv.zip",
+      "sha256": "e6da69179377ce7af939b8b993ff64aa115386a1fcf41032f21f886a3365227f"
+    },
+    {
+      "file": "SraRunTable (35).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_forslund_nature_metacardis/SraRunTable%20%2835%29.csv.zip",
+      "sha256": "017e0ba312c6dc95a1fe1b4e479611e88a43584d0574b1e8714c11f06c36ca2a"
+    },
+    {
+      "file": "SraRunTable (36).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_forslund_nature_metacardis/SraRunTable%20%2836%29.csv.zip",
+      "sha256": "05019078ab5397adccfa329e8dc2494bb5278470f7187b82914973599461f41a"
+    },
+    {
+      "file": "metaMatMetformin.RData.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_forslund_nature_metacardis/metaMatMetformin.RData.zip",
+      "sha256": "faea13aef091eabcbcd9e782dc432ff00ed31d256c309f730c3c16c7d0c34b37"
+    },
+    {
+      "file": "reduced_feature.RData.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_forslund_nature_metacardis/reduced_feature.RData.zip",
+      "sha256": "246c5a50ffc98f2cb2d1b88df0ab76b81d5d95219849d82090e24c7c29225764"
+    }
+  ],
+  "legacy_demographics": null
+}

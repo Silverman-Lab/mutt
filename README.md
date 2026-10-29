@@ -1,307 +1,115 @@
-# MUTT: <span style="color: green;">M</span>icrobiome analysis <span style="color: green;">U</span>tilizing <span style="color: green;">T</span>otal <span style="color: green;">T</span>axa
+# mutt
 
-MUTT is an R package and data API for microbiome studies that pair sequence-count data with measurements of total microbial abundance. Its only exported function is `mutt()`.
-
-The package contains the parsing and validation code. Large study files remain in Git LFS under `studies/` or, after publication, are downloaded as checksum-verified study bundles into the R user-data directory. Docker contains the software environment but never embeds the study data.
-
-## Install for development
-
-Clone the repository with Git LFS and install the package:
-
-```bash
-git lfs install
-git clone https://github.com/Silverman-Lab/mutt.git
-cd mutt
-git lfs pull
-R CMD INSTALL .
-```
-
-## Study registry and repository conventions
-
-The study registry is maintained here: [study sheet](https://docs.google.com/spreadsheets/d/13b4Toscse0MjyAGYt1zfWoPxSRpyuvENHVGKBLYwAAw/edit?usp=sharing)
-
-It is the working list for study names, metadata, and repository decisions. Use it as the canonical reference when adding a new dataset or checking whether a study already exists in MUTT.
-
-The repository conventions are:
-
-- Use Git LFS for large files: https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage
-- Each dataset gets its own directory with an informative name, all lower-case, using the pattern `year_name_journal_keyword`.
-- Be concise, but not vague. Do not use a year range like `2020-2024` when a single study year is enough.
-- Compress datasets before uploading, and store the archive with Git LFS. The helper script `./zip-push-gitlfs.sh` handles that workflow from the repository root.
-- Study parsers should use file paths relative to the root `mutt` directory.
-- Large shotgun metagenomic tables are kept as processed data tables in this repository rather than as raw uploads.
-
-The parsed data structure for each study should remain easy to inspect:
-
-- `counts`: integer count table, with sample IDs as rows and taxa or sequence IDs as columns.
-- `proportions`: real-valued abundance table with the same row and column alignment as `counts`.
-- `scale`: positive-valued measurement table for total microbial abundance or a related scale variable.
-- `metadata`: sample-level covariate table.
-- `tax`: taxonomy table linking sequence IDs to classified labels and, when available, raw sequence strings.
-- `phylo`: optional phylogenetic tree when a study provides one.
-
-New study-data files must be stored as one-file ZIP archives so the existing `*.zip` Git LFS rule applies. Preview an explicit archive operation first, then apply it:
-
-```bash
-./zip-push-gitlfs.sh studies/STUDY/data.tsv
-./zip-push-gitlfs.sh --apply studies/STUDY/data.tsv
-git add studies/STUDY/data.tsv.zip
-git lfs status
-```
-
-The archiver accepts only explicit paths under `studies/`, validates that each archive reproduces its input byte-for-byte, and refuses to overwrite archives unless `--replace` is explicit. It does not change remotes, stage unrelated files, commit, or push.
-
-Legacy functional cache archives can still be refreshed without removing the working cache:
-
-```bash
-./zip-push-gitlfs.sh --apply --keep-source --replace \
-  studies/STUDY/functional
-git add studies/STUDY/functional.zip
-```
-
-When `functional/` is absent and `functional.zip` is present, `mutt()` restores the archive atomically before checking its cache. Cached PICRUSt2 paths are rebased to the current checkout, so stratified outputs remain readable after a clone or move.
-
-New functional releases separate the complete execution cache from the
-API-facing publication:
-
-- `studies/STUDY/functional/` retains inputs, raw outputs, intermediates, and
-  logs needed for diagnosis or revalidation. It is not published as one Git
-  LFS archive.
-- `studies/STUDY/functional_data/` contains validated final tables, ASV
-  mappings, taxonomy, reconciliation records, provenance, checksums, and a
-  versioned publication manifest.
-
-The publication does not duplicate PICRUSt2 input FASTA/BIOM files or raw
-intermediates. Those stay in the execution cache; the original counts,
-sequences, and taxonomy stay in the study directory.
-
-Maintainers and the HPC finalizer build the publication from an existing
-validated cache with:
-
-```bash
-Rscript scripts/build_functional_bundle.R \
-  --study-dir studies/STUDY \
-  --max-asset-bytes 1900000000
-```
-
-The resulting `functional_data/` directory contains:
-
-- `functional-core.zip`: compact result objects, manifests, mappings,
-  taxonomy, reconciliation records, and provenance;
-- `bundle_manifest.json`: checksums, sizes, roles, and paths for the core and
-  every contribution asset;
-- separately published EC, KO, and MetaCyc contribution tables.
-
-Contribution files below the limit remain single gzip files. Oversized
-contribution tables become independently usable gzip shards, and an oversized
-`result.rds` is represented by reconstructable RDS components inside the core.
-The HPC finalizer stages the core and contribution assets through Git LFS. The
-complete execution cache remains unchanged. Legacy loose `functional_data/`
-publications and `functional.zip` archives remain readable.
-
-MUTT does not create a study-wide monolithic functional RDS. That would make a
-single large table expensive to download and load. The publication manifest is
-the stable logical interface: physical files may be single assets or shards,
-while `mutt()` returns the same branch structure in either case.
-
-## Use the API
-
-Parse one local study:
+`mutt` is a curated library of microbiome studies pairing taxonomic profiles with
+microbial-load measurements. Install a small R package, list studies, and request
+only the processed datasets you need.
 
 ```r
+install.packages("remotes")
+remotes::install_github("Silverman-Lab/mutt")
 library(mutt)
-
-x <- mutt(
-  studies = "2021_vandeputte_naturecommunications_flow_timeseries",
-  base_directory = "/path/to/mutt"
-)
+mutt_studies()
+x <- mutt("vandeputte2017")
+y <- mutt(c("vandeputte2017", "contijoch2019", "morton2019"))
 ```
 
-`base_directory` may be the repository root or its `studies/` directory. When omitted, MUTT checks `MUTT_DATA_DIR`, `./studies`, and its versioned user cache.
+**Release preparation status:** this branch contains the new distribution API.
+The bundled manifest explicitly distinguishes `staged` assets from public
+`available` assets and studies with no usable current output (`unavailable`).
+Staged data require the maintainer upload/publication step before normal downloads
+work. `mutt()` explains this instead of following a fabricated or mutable URL.
 
-Run or reuse functional inference:
+Only requested studies are downloaded. You do not need a repository clone, Git
+LFS, Docker, a bioinformatics environment or any preprocessing tools. Each study
+is pinned to a versioned GitHub Release asset, byte size and SHA-256 checksum.
+Verified data are cached under `tools::R_user_dir("mutt", "cache")`.
 
 ```r
-x <- mutt(
-  studies = "2022_cvandevelde_ismecommunications_culturedflowhumanfecal",
-  functional = TRUE
-)
+x <- mutt("vandeputte2017")                         # reuses verified cache
+x <- mutt("vandeputte2017", refresh = TRUE)         # re-downloads and verifies
+mutt_cache_remove("vandeputte2017")                # explicit removal
 ```
 
-Use `functional = "REBUILD"` only when eligible functional results must be recomputed. Use `functional = "REVALIDATE"` to require retained raw PICRUSt2 output and rebuild validated MUTT results without launching PICRUSt2. Functional outputs are stored under the selected study's `functional/` directory. `MUTT_FUNCTIONAL_PROCESSES` can override automatic PICRUSt2 worker detection.
+`mutt()` always returns a named list, including for one study. A study preserves
+its existing `counts`, `proportions`, `tax`, `scale` and `metadata` fields, other
+scientific fields, and all named nested assay/classifier/cohort branches. Load
+measurements retain their original column names and units. Some fields contain
+NA or heterogeneous representations because the contributing studies differ.
+Choose a representation explicitly for your analysis; no scientific branch is
+silently selected or flattened.
 
-When `functional_data/` is present, `functional = TRUE` verifies and extracts
-the small core into MUTT's user cache, then reads contribution assets directly
-from their single-file or sharded publication. It does this before inspecting
-external tools or execution caches.
-
-## Returned object
-
-The result remains a named list, so existing indexing continues to work:
+The v1 baseline is the output of the previous package at commit `01c648b`, reading
+its stored processed tables, with `rawdata=FALSE`, `align_samples=FALSE` and
+`functional=FALSE`. The empty inferred-function field is intentionally removed.
+Counts, taxon names, sample identifiers, scale, taxonomy and metadata remain
+identical. The old sample-aligned output is stored separately:
 
 ```r
-names(x)
-x[[1]]$counts
-x[[1]]$proportions
-x[[1]]$scale
-x[[1]]$metadata
-x[[1]]$tax
-x[[1]][["function"]]$picrust2
-x[[1]][["function"]]$faprotax
+aligned <- mutt("vandeputte2017", representation = "aligned")
 ```
 
-Each requested study also receives an auditable status record:
+Previous parsers that already failed are listed with their failure reason in the
+migration audit. An older saved object is never silently substituted for current
+data. No DADA2 denoising, taxonomy classification or MetaPhlAn profiling was run
+as part of migration.
+
+## Sources and preprocessing
 
 ```r
-attr(x, "audit")
-attr(x, "provenance")
-attr(x, "validation")
+mutt_source("vandeputte2017")                      # sources, notes, accessions
+mutt_recipe("vandeputte2017")                      # pinned recipe URLs
+mutt_download_raw("vandeputte2017", dest = "inputs") # stored source inputs
+# Explicitly request public FASTQs too; this can be a large download:
+# mutt_download_raw("vandeputte2017", dest = "inputs", reads = TRUE)
 ```
 
-If one parser fails, successful studies remain available and the error is recorded in the audit. PICRUSt2 stratified contribution branches are file-backed; use the base `as.data.frame()` generic on a returned branch and specify `type = "ec"`, `"ko"`, or `"metacyc_abundance"`.
+Source inputs include published tables, supplementary spreadsheets and existing
+processed taxonomic inputs. Exact original inputs are available through
+checksum-pinned historical archive URLs; authoritative references/accessions are
+recorded beside them. Raw sequencing reads are retrieved from ENA when explicitly
+requested, never mirrored in the data release. Some studies do not supply public
+reads or a complete preprocessing recipe; metadata and warnings explain the gap.
 
-The same API works for a single contribution file or many shards:
+Each [study directory](studies) contains `study.yml`, `download.R` and `process.R`.
+JSON syntax is used in YAML files so metadata can be read without another R
+dependency. Existing scientific internals and recovered original source workflows
+remain readable beside each recipe. To modify preprocessing, use a source checkout:
+
+```sh
+Rscript studies/vandeputte2017/download.R --dest /path/to/inputs
+Rscript studies/vandeputte2017/process.R --input /path/to/inputs --output /path/to/staging/vandeputte2017
+```
+
+Recipes may need tidyverse, readxl, DADA2, reference training data or other
+study-specific tools. Their requirements remain in the scripts. The installed
+package needs only digest and jsonlite. Routine users do not run recipes.
+
+## phyloseq and miaverse
+
+Select a single counts branch and provide explicitly identified sample/feature
+tables. These optional conversions retain every count and align tables by names.
+They never guess a branch or merge incompatible taxonomy.
 
 ```r
-branch <- x[[1]][["function"]]$picrust2$asv
-
-selected <- as.data.frame(
-  branch,
-  type = "ko",
-  samples = c("sample_1", "sample_2"),
-  functions = c("K00001", "K00002"),
-  n_max = 100000
-)
-
-complete <- as.data.frame(
-  branch,
-  type = "ko",
-  collect_all = TRUE
-)
+counts <- x$vandeputte2017$counts$original
+# Set metadata/taxonomy row names to the sample/feature identifiers first.
+ps <- mutt_as_phyloseq(counts)
+tse <- mutt_as_miaverse(counts)  # TreeSummarizedExperiment, usable with mia
+# Optional: metadata = sample_table, taxonomy = feature_table
 ```
 
-`as.data.frame()` accepts the same `type`, `samples`, `functions`, `asvs`,
-`n_max`, and `collect_all` arguments. Reading a complete sharded table must be
-explicit; MUTT does not silently reconstruct it.
+Install phyloseq or TreeSummarizedExperiment with BiocManager only if needed.
+Include microbial-load columns in the supplied sample metadata to carry them into
+the converted object.
 
-## Processing flow
+## Contribute a study
 
-```mermaid
-flowchart TD
-    A[Call mutt] --> B[Validate arguments and study IDs]
-    B --> C{Study data available locally?}
-    C -->|Yes| D[Use studies directory or MUTT_DATA_DIR]
-    C -->|No| E[Read versioned release manifest]
-    E --> F[Download selected study bundle]
-    F --> G[Verify SHA-256 and publish cache atomically]
-    D --> H[Load bundled study parser]
-    G --> H
-    H --> I[Run parser in scoped data-root context]
-    I --> J[Validate returned counts, scale, metadata, and taxonomy]
-    J --> K{functional requested?}
-    K -->|No| L[Attach empty functional result]
-    K -->|Yes| M{Published functional_data available?}
-    M -->|Yes| P[Verify and extract functional-core.zip]
-    P --> T[Resolve single-file or sharded contribution descriptors]
-    M -->|No| Q{Legacy archive or execution cache available?}
-    Q -->|Archive| S[Validate and restore functional.zip atomically]
-    Q -->|Directory or none| R[Run or reuse eligible functional methods]
-    S --> R
-    T --> N[Return named mutt_result]
-    L --> N
-    R --> N
-    N --> O[Attach audit, validation, and provenance]
-```
+Create `studies/STUDY_ID/{study.yml,download.R,process.R}`. Record DOI/citation,
+sequencing/load modalities, accession numbers, exact inputs, availability limits
+and processing decisions. Use the standard CLI above; keep scientific decisions
+study-specific. Produce a staged `study.rds` and `provenance.json`, validate it,
+and build a new immutable release. See [maintainer instructions](docs/RELEASING.md)
+and [architecture rules](AGENTS.md).
 
-MUTT does not rarefy, add pseudocounts, close compositions, or log-transform counts during functional inference.
-
-PICRUSt2 requires amplicon count, sequence, and taxonomy ASV identifiers to align. MUTT checks both sequence orientations, uses PICRUSt2's 0.8 minimum alignment threshold, requests coverage and `--stratified` outputs, and retains EC, KO, MetaCyc, NSTI, ASV mapping, taxonomy, and provenance records. If PICRUSt2 omits input samples after ASV placement/filtering, MUTT restores those samples as zero-prediction rows and records every retained and zero-filled sample in `sample_reconciliation` and `sample_reconciliation.tsv`. Unexpected or renamed sample IDs remain a hard error, and raw outputs are retained for diagnosis.
-
-FAPROTAX receives classified amplicon taxonomic abundance tables with formatted lineages. MUTT uses counts whenever that branch has counts and falls back to its proportions only when counts are unavailable. Functional groups can overlap and are ecological annotations rather than directly observed genes.
-
-Functional eligibility is method- and assay-specific. PICRUSt2 requires amplicon ASV-level counts and matching ASV sequences. FAPROTAX requires a branch explicitly identified as amplicon data, classified taxa, and a corresponding abundance table. Shotgun/metagenomic branches are recorded as skipped for both methods until a metagenomic functional workflow is implemented; branches whose modality cannot be established are also skipped rather than guessed.
-
-## Docker
-
-Build the software image:
-
-```bash
-docker build -t mutt:0.1.0 .
-```
-
-Run with a local LFS checkout mounted read/write:
-
-```bash
-docker run --rm -it \
-  --user "$(id -u):$(id -g)" \
-  -v "$PWD/studies:/data/studies" \
-  -e MUTT_DATA_DIR=/data/studies \
-  mutt:0.1.0
-```
-
-For rootless Podman, add `--userns=keep-id`. Mapping the host UID/GID is required when functional caches should be written back to the mounted study directories.
-
-The image provides R 4.5.3, Python 3.12.13, PICRUSt2 2.6.3, FAPROTAX 1.2.12, and parser dependencies. The release image is tested locally with Podman and rebuilt in GitHub Actions.
-
-Main-branch builds are also published to `ghcr.io/silverman-lab/mutt:latest`. On an HPC system with Apptainer:
-
-```bash
-apptainer build mutt.sif docker://ghcr.io/silverman-lab/mutt:latest
-apptainer exec --bind "$PWD:/work" --pwd /work mutt.sif \
-  Rscript --vanilla -e 'library(mutt); print(getNamespaceExports("mutt"))'
-```
-
-The image contains software only. Study data and functional caches are supplied through bind-mounted Git LFS checkouts.
-
-## Data releases
-
-Remote study downloads are disabled until a release asset has a fixed URL, archive size, SHA-256, and documented redistribution status in `inst/extdata/studies.json`. 
-
-Current release state: all 57 local study directories and all 57 bundled parsers are present, but 0 of 57 studies have a verified redistribution decision and 0 of 57 production remote assets are enabled. The remote download, checksum rejection, extraction, and cache path are tested with local release fixtures; production HTTPS download remains intentionally unavailable until the release workflow below is completed.
-
-The pre-restructure validation artifact contains 33 successful study outputs generated with sample alignment enabled. Compatibility checks for that set use `align_samples = TRUE`; the separate default-mode audit uses `align_samples = FALSE`. Failures outside the 33-study historical-success set are not treated as restructuring regressions.
-
-Check all registered study directories, parsers, and redistribution decisions without writing archives:
-
-```bash
-Rscript scripts/build_study_release.R --all --check-only
-```
-
-After every study has documented redistribution evidence and its manifest status is `verified`, the complete staged release can be rebuilt with:
-
-```bash
-Rscript scripts/build_study_release.R --all
-```
-
-The builder stops before writing anything if any selected study is missing, lacks a parser, or is not redistribution-verified. It creates one ZIP per study, `release-assets.json`, and `studies.candidate.json`. The candidate manifest contains checksums and sizes but must not replace the package manifest yet.
-
-Authenticate and upload the staged files as release `data-v2026.07.1`:
-
-```bash
-gh auth login -h github.com
-gh release create data-v2026.07.1 release/data-v2026.07.1/*.zip \
-  --repo Silverman-Lab/mutt \
-  --title "MUTT data 2026.07.1" \
-  --notes "Checksum-verified study bundles for MUTT 0.1.0.9000."
-```
-
-Finally, download every published asset, verify its size, SHA-256, and archive layout, and only then promote the manifest:
-
-```bash
-Rscript scripts/verify_data_release.R \
-  --manifest release/data-v2026.07.1/studies.candidate.json \
-  --remote \
-  --promote-to inst/extdata/studies.json
-```
-
-The release builder refuses to overwrite a nonempty staging directory. The verifier processes remote archives sequentially, so it does not hold the full release in memory or retain a second complete downloaded copy.
-
-## Development checks
-
-```bash
-Rscript --vanilla -e 'devtools::test()'
-R CMD build .
-R CMD check --as-cran mutt_*.tar.gz
-```
-
-Routine tests use tiny fixtures and fake external tools. The completed real 3-sample by 3-ASV PICRUSt2 smoke test is not repeated in routine CI because it required approximately 30 minutes.
+MUTT provides curated taxonomic data. Inferred functions/pathways and general
+downstream microbiome analyses are outside its scope.
