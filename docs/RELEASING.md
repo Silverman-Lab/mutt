@@ -1,132 +1,134 @@
-# Maintaining study data releases
+# Releasing study data
 
-Git stores the R package, study descriptions and processing scripts. GitHub
-Releases store one ZIP per processed study, so users download only what they
-need. Each ZIP contains saved R objects and a `provenance.json` file describing
-where they came from and how their files were checked.
+Use this guide when adding or correcting study data in MUTT. You will package
+prepared R data, upload them to a GitHub release, then update the package's
+study catalog so users can download them. Changes to package code or help alone
+do not require a new data release.
 
-The catalog, `inst/extdata/studies.json`, connects study IDs to data versions,
-download URLs, file sizes and checksums. A checksum lets the package check that
-a downloaded file is exactly the expected file. Data versions such as
-`data-v1.1.0` are independent of R package versions.
+The examples use `data-v1.1.0`. Choose a new version for your release: published
+study files stay available under their original versions, so corrections go in
+a new release rather than replacing files used by earlier analyses.
 
-## Prepare study files
+Run the commands from the repository root. You need R with `digest` and
+`jsonlite`, the `zip` command, and GitHub CLI (`gh`) authenticated with permission
+to create releases in `Silverman-Lab/mutt`.
 
-Prepare new or updated studies with their own processing scripts. Keep temporary
-files in the ignored `.build/` directory. Do not rerun scientific processing
-just to package existing data or test downloads.
+## 1. Collect the prepared studies
 
-Each prepared folder is named by study ID and contains:
+Start with the completed study files produced by the processing scripts in
+`studies/`. The release tools bundle those saved files for download.
 
-- `study.rds`: the default saved study object;
-- `provenance.json`: its study ID, data and format versions, source information,
-  preparation decisions and file checksums;
-- any additional saved versions declared in the file's `variants` entries,
-  with their filenames and checksums.
+For this example, put the studies you want to release under
+`.build/data-v1.1.0/prepared/`, with one folder per study:
 
-In `provenance.json`, `metadata` must supply `display_name`, `sequencing` and
-`load` for the catalog.
-
-Preserve scientific values, names, units, missing values and separate results
-from different methods. When including another saved version, explain its rules
-for matching samples. The name `aligned.rds` alone does not guarantee that every
-table contains the same samples in the same order.
-
-## Check and package
-
-Run these commands from the repository root with R, the `digest` and `jsonlite`
-packages, and the `zip` command installed. Replace `STAGING` with the parent
-folder of the prepared studies, `ASSETS` with a new or empty output folder, and
-`DATA_TAG` with a version such as `data-v1.1.0`. Each study's `provenance.json`
-must record the corresponding `data_version`, such as `1.1.0`.
-
-To check one study before building the release:
-
-```sh
-Rscript scripts/validate-study.R STAGING/vandeputte2017
-Rscript scripts/package-study.R STAGING/vandeputte2017 .build/one-study DATA_TAG
-Rscript scripts/validate-asset.R .build/one-study/vandeputte2017.zip STAGING/vandeputte2017
+```text
+.build/data-v1.1.0/prepared/
+  vandeputte2017/
+    study.rds
+    provenance.json
+  contijoch2019/
+    study.rds
+    provenance.json
 ```
 
-To check and package every study folder in `STAGING`:
+`study.rds` holds the prepared study tables. `provenance.json` records their
+sources, preparation and file checksums. The processing scripts create both
+files. Before packaging, set `data_version` in `provenance.json` to `1.1.0` to
+match the example release tag `data-v1.1.0`. If a study has additional saved RDS
+files listed in `provenance.json`, include those too.
+
+Only include studies being released in this version; the catalog update below
+retains entries for other studies. The `.build/` folder is excluded from Git,
+so these working copies and the ZIPs created next will not be committed with
+package code. If you need copies from an existing release, see recovery below.
+
+## 2. Build the study ZIPs
 
 ```sh
-Rscript scripts/build-release.R --input STAGING --tag DATA_TAG --output ASSETS
+Rscript scripts/build-release.R \
+  --input .build/data-v1.1.0/prepared \
+  --tag data-v1.1.0 \
+  --output .build/data-v1.1.0/release
 ```
 
-The build writes one ZIP per study and `ASSETS/studies.candidate.json`, a proposed
-catalog. Checks cover archive contents, file checksums, extracted bytes and
-study values. Newly packaged studies have status `staged` until public downloads
-have been verified. Existing ZIPs are never overwritten. If a build fails, fix
-the reported problem and retry with a new or empty output folder; a partial
-build cannot be resumed.
+This checks each study, creates one ZIP per study and checks that extracting it
+reproduces the input files and study values. The output folder also contains
+`studies.candidate.json`: the proposed catalog entries with download addresses,
+file sizes and checksums. Its entries have status `staged`, meaning the data
+have been prepared but are not yet ready for public downloads.
 
-## Upload and check a draft
+The output folder must be new or empty. If the build fails, correct the reported
+problem and retry with a new or empty output folder. You can check a particular
+input on its own with `Rscript scripts/validate-study.R PATH_TO_STUDY_FOLDER`.
 
-Push the reviewed source commits first. Authenticate `gh` with permission to
-write releases in `Silverman-Lab/mutt`, then run:
+## 3. Upload a draft for review
+
+Commit and push the source changes that belong with the release before uploading.
+The upload script uses the current commit when creating the draft:
 
 ```sh
-Rscript scripts/publish-draft.R STAGING ASSETS
+Rscript scripts/publish-draft.R \
+  .build/data-v1.1.0/prepared .build/data-v1.1.0/release
 ```
 
-This uploads missing ZIPs to a draft release and downloads every ZIP again to
-check it against the prepared study. It writes `ASSETS/draft-verification.json`
-only when all checks pass. The same command can resume an interrupted upload:
-it checks existing ZIPs rather than replacing them, and refuses a published
-release. If an existing ZIP fails verification, stop and investigate before
-publishing.
+The script uploads missing ZIPs, then downloads each one and compares it with
+your prepared study. Once every check passes, it writes
+`.build/data-v1.1.0/release/draft-verification.json`. The GitHub release remains
+a draft for review.
 
-Keep the small proposed catalog and verification record. Once the uploaded
-files have been verified, local bulk copies can be removed. To recover them
-later without scientific processing, download the ZIPs into the folder with the
-retained `studies.candidate.json`, then restore into a new folder:
+If a transfer fails, rerun the same command. It checks files already uploaded
+and adds missing files. A comparison failure needs investigation before you
+continue: the uploaded file differs from the prepared copy. The script will
+not replace uploaded files or modify a published release.
+
+## 4. Publish and enable downloads in the package
+
+Review the draft's study files and release notes in GitHub Releases, then publish
+it there. Next, check that users can download the files without signing in:
 
 ```sh
-gh release download DATA_TAG --repo Silverman-Lab/mutt --pattern '*.zip' --dir ASSETS
-Rscript scripts/restore-staging.R ASSETS NEW_STAGING
+Rscript scripts/verify-public.R \
+  .build/data-v1.1.0/prepared .build/data-v1.1.0/release \
+  .build/data-v1.1.0/studies.available.json
 ```
 
-Restoration checks the downloads and refuses to overwrite `NEW_STAGING` if it
-already exists. Use the restored folder as `STAGING` in later commands.
+A successful run writes `studies.available.json`, with the checked studies
+marked `available` and the other catalog entries retained. Review that file,
+replace `inst/extdata/studies.json` with it, and commit the package update. Users
+receive the new download information when they update the package.
 
-## Publish and check public downloads
+If a public download fails, the script stops. Keep the existing package catalog
+until the problem is resolved and the command succeeds.
 
-Review the draft in GitHub Releases and publish it there. After publication,
-keep or restore `STAGING` and check the public downloads without authentication:
+## Recover local copies from a release
+
+The upload and public-download checks compare the released files with your
+prepared studies, so keep both local folders until those checks are complete.
+Afterward, retain `studies.candidate.json` and `draft-verification.json`; the
+large ZIPs and prepared copies can be removed to free disk space.
+
+If you later need those copies again, download the ZIPs into the folder containing
+that release's `studies.candidate.json`, then restore the study folders:
 
 ```sh
-Rscript scripts/verify-public.R STAGING ASSETS .build/studies.available.json
+gh release download data-v1.1.0 --repo Silverman-Lab/mutt \
+  --pattern '*.zip' --dir .build/data-v1.1.0/release
+Rscript scripts/restore-staging.R \
+  .build/data-v1.1.0/release .build/data-v1.1.0/restored
 ```
 
-This checks every released study and writes a catalog marking verified studies
-`available`. It retains other catalog entries, including unavailable studies.
-Review the result, replace `inst/extdata/studies.json` with it and commit the
-package update. If a public download fails, leave the package catalog unchanged
-and investigate the failure. Never mark studies available before these checks
-pass.
+Restoration checks each download against the saved catalog. It writes the study
+folders to `restored/`, which must not already exist. Use that folder in place
+of `prepared/` for any further release checks.
 
-Never replace published ZIPs or use a moving `latest` URL. Corrections require
-a new data version and an updated package catalog.
+## Check changes to the release tools
 
-## Check the package and release tools
-
-Run the package tests and build the source package before review:
-
-```sh
-Rscript -e 'testthat::test_local()'
-R CMD build .
-R CMD check --no-manual mutt_VERSION.tar.gz
-```
-
-Replace `mutt_VERSION.tar.gz` with the filename printed by the build. These
-checks use small local examples rather than downloading or rebuilding studies.
-
-Check the maintenance tools separately with `pkgload`, `testthat`, `withr` and
-the package's imported R packages installed, and `zip` available:
+When editing the release scripts, run their tests with `pkgload`, `testthat`,
+`withr`, `digest` and `jsonlite` installed, and the `zip` command available:
 
 ```sh
 Rscript -e 'pkgload::load_all(".", quiet=TRUE); source("tests/testthat/helper-release.R"); testthat::test_dir("scripts/tests", stop_on_failure=TRUE)'
 ```
 
-These tests package and restore small local examples.
+These tests build and restore small example studies on your computer. They do
+not upload files or publish a release.
