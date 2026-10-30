@@ -2,7 +2,7 @@
 % Please edit documentation in R/manifest.R
 \name{mutt_studies}
 \alias{mutt_studies}
-\title{List curated MUTT studies}
+\title{List curated \emph{mutt} studies}
 \usage{
 mutt_studies()
 }

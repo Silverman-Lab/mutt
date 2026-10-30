@@ -10,7 +10,7 @@ mutt_download_raw(study, dest = NULL, reads = FALSE)
 \item{study}{One study ID from \code{\link[=mutt_studies]{mutt_studies()}}.}
 
 \item{dest}{Destination for source files. Defaults to a sources directory
-within MUTT's saved local files (the cache).}
+within \emph{mutt}'s saved local files (the cache).}
 
 \item{reads}{Also retrieve public sequencing reads from ENA. Default FALSE.}
 }

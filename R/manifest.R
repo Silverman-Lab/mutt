@@ -1,7 +1,7 @@
 .mutt_manifest <- function() {
   path <- getOption('mutt.manifest', system.file('extdata', 'studies.json', package='mutt'))
   x <- jsonlite::read_json(path, simplifyVector=FALSE)
-  if (!identical(x$schema_version, 1L) || !length(x$studies)) stop('Invalid MUTT study catalog.')
+  if (!identical(x$schema_version, 1L) || !length(x$studies)) stop('Invalid mutt study catalog.')
   ids <- vapply(x$studies, function(r) r$study_id, character(1))
   if (anyDuplicated(ids) || any(!grepl('^[a-z][a-z0-9_]*$', ids))) stop('Invalid study IDs in catalog.')
   for (r in x$studies) {
@@ -28,7 +28,7 @@
   manifest[studies]
 }
 
-#' List curated MUTT studies
+#' List curated \emph{mutt} studies
 #'
 #' Lists studies without downloading their data. Status "available" means
 #' processed data can be downloaded; "staged" means the data are prepared but

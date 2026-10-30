@@ -1,7 +1,10 @@
-# Working on MUTT
+# Working on *mutt*
 
-MUTT provides processed microbiome study data from R. Users list studies with
+*mutt* provides processed microbiome study data from R. Users list studies with
 `mutt_studies()` and load the ones they need with `mutt(studies)`.
+
+Write the package name as italic lowercase *mutt* in prose. Keep function names,
+paths and other code identifiers unchanged.
 
 ## Project layout
 
@@ -47,7 +50,7 @@ studies available only after publication and successful public-download checks.
 Keep installed dependencies small. Processing dependencies belong in study
 scripts. The installed package must work independently of maintenance scripts.
 Tests use small local examples; routine CI must not download or rebuild studies.
-Functional inference and downstream biological analysis are outside MUTT's scope.
+Functional inference and downstream biological analysis are outside *mutt*'s scope.
 Never rewrite Git history as part of cleanup.
 
 Write API help in the roxygen comments in `R/` and regenerate `man/` with

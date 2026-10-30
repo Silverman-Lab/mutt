@@ -1,4 +1,4 @@
-# mutt 0.1.0.9001
+# *mutt* 0.1.0.9001
 
 * Study data are downloaded separately from the R package. Use `mutt_studies()`
   to find studies and `mutt(studies)` to load the ones you need.

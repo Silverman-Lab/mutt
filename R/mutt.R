@@ -6,7 +6,7 @@
 #'
 #' @param studies One or more study IDs from [mutt_studies()].
 #' @param cache Directory for saved local copies (the cache). If NULL, uses
-#'   `getOption("mutt.cache")` or, if unset, R's user cache directory for MUTT.
+#'   `getOption("mutt.cache")` or, if unset, R's user cache directory for \emph{mutt}.
 #' @param refresh Download and check again. A failed download leaves the previous
 #'   saved copy usable.
 #' @param representation Which saved version to load. "default" keeps the

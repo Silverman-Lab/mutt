@@ -1,7 +1,7 @@
-# mutt
+# *mutt*
 
-MUTT provides processed microbiome study data that pair taxonomic profiles with
-microbial-load measurements. You choose the studies you need, and MUTT downloads
+*mutt* provides processed microbiome study data that pair taxonomic profiles with
+microbial-load measurements. You choose the studies you need, and *mutt* downloads
 them and saves a copy on your computer for later use.
 
 You can load existing study data directly from R. You do not need to download the
@@ -60,7 +60,7 @@ Select the table you need for your analysis.
 
 ### Which samples are included?
 
-By default, MUTT loads the saved study tables with their original sample groups.
+By default, *mutt* loads the saved study tables with their original sample groups.
 The counts, sample information and microbial-load tables may contain different
 samples.
 
@@ -80,7 +80,7 @@ rows by position.
 
 ### Reuse a downloaded study
 
-MUTT checks each download and keeps a local copy, called a cache. Later requests
+*mutt* checks each download and keeps a local copy, called a cache. Later requests
 reuse that copy.
 
 ```r

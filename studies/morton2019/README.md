@@ -1,6 +1,6 @@
 # Source and preparation notes
 
-These notes describe the study inputs. To load prepared data with MUTT, see the
+These notes describe the study inputs. To load prepared data with *mutt*, see the
 [package README](../../README.md).
 
 ## Paper

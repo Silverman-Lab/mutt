@@ -5,7 +5,7 @@
 \alias{mutt-package}
 \title{Curated microbiome studies paired with microbial-load measurements}
 \description{
-Load processed study data directly from R. MUTT downloads only requested
+Load processed study data directly from R. \emph{mutt} downloads only requested
 studies and saves local copies for reuse. Use \code{\link[=mutt_studies]{mutt_studies()}} to find study
 IDs and \code{\link[=mutt]{mutt()}} to load their data.
 }

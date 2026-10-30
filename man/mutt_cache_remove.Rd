@@ -10,7 +10,7 @@ mutt_cache_remove(studies, cache = NULL)
 \item{studies}{Study IDs to remove, including saved copies from older releases.}
 
 \item{cache}{Directory containing saved local copies (the cache). If NULL,
-uses \code{getOption("mutt.cache")} or, if unset, R's user cache directory for MUTT.}
+uses \code{getOption("mutt.cache")} or, if unset, R's user cache directory for \emph{mutt}.}
 }
 \value{
 Removed directory paths, invisibly.

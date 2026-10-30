@@ -10,7 +10,7 @@ mutt(studies, cache = NULL, refresh = FALSE, representation = "default")
 \item{studies}{One or more study IDs from \code{\link[=mutt_studies]{mutt_studies()}}.}
 
 \item{cache}{Directory for saved local copies (the cache). If NULL, uses
-\code{getOption("mutt.cache")} or, if unset, R's user cache directory for MUTT.}
+\code{getOption("mutt.cache")} or, if unset, R's user cache directory for \emph{mutt}.}
 
 \item{refresh}{Download and check again. A failed download leaves the previous
 saved copy usable.}

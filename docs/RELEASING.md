@@ -1,6 +1,6 @@
 # Releasing study data
 
-Use this guide when adding or correcting study data in MUTT. You will package
+Use this guide when adding or correcting study data in *mutt*. You will package
 prepared R data, upload them to a GitHub release, then update the package's
 study catalog so users can download them. Changes to package code or help alone
 do not require a new data release.

@@ -38,7 +38,7 @@ mutt_recipe <- function(study) {
 #' [mutt()]. Source notes describe known gaps in public inputs.
 #' @param study One study ID from [mutt_studies()].
 #' @param dest Destination for source files. Defaults to a sources directory
-#'   within MUTT's saved local files (the cache).
+#'   within \emph{mutt}'s saved local files (the cache).
 #' @param reads Also retrieve public sequencing reads from ENA. Default FALSE.
 #' @return Destination path, invisibly. Missing public reads generate warnings.
 #' @export

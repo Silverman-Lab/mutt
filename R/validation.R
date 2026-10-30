@@ -5,7 +5,7 @@
   required <- c('counts','proportions','tax','scale','metadata')
   if (!is.list(x) || is.data.frame(x) || is.null(names(x)) || anyDuplicated(names(x)) ||
       !all(required %in% names(x))) stop('Invalid study object: expected a named list containing counts, proportions, tax, scale and metadata.')
-  if ('function' %in% names(x)) stop('Inferred functional profiles are outside the MUTT schema.')
+  if ('function' %in% names(x)) stop('Inferred functional profiles are outside the mutt schema.')
   invisible(x)
 }
 

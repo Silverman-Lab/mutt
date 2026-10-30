@@ -46,7 +46,7 @@
 #' copy is in use by another download.
 #' @param studies Study IDs to remove, including saved copies from older releases.
 #' @param cache Directory containing saved local copies (the cache). If NULL,
-#'   uses `getOption("mutt.cache")` or, if unset, R's user cache directory for MUTT.
+#'   uses `getOption("mutt.cache")` or, if unset, R's user cache directory for \emph{mutt}.
 #' @return Removed directory paths, invisibly.
 #' @export
 mutt_cache_remove <- function(studies, cache=NULL) {
