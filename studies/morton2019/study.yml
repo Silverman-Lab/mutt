@@ -1,0 +1,127 @@
+{
+  "sequencing": "Shotgun Metagenomics",
+  "load": [
+    "qPCR",
+    "Flow Cytometry"
+  ],
+  "pmid": "31222023",
+  "accessions": [],
+  "source_urls": [
+    "https://github.com/knightlab-analyses/reference-frames.",
+    "https://www.nature.com/articles/s41467-019-10656-5"
+  ],
+  "study_id": "morton2019",
+  "display_name": "2019 morton naturecommunications songbird oral",
+  "schema_version": 1,
+  "legacy_id": "2019_morton_naturecommunications_songbird_oral",
+  "source_notes": "## Paper\n\nThis is from the songbird paper: https://www.nature.com/articles/s41467-019-10656-5\n\n## Files\n\nThe raw files oral_trimmed_deblur.biom, oral_trimmed_metadata.csv, and taxonomy.tsv were downloaded from https://github.com/knightlab-analyses/reference-frames.\n\nThe file 2019_morton_songbird_oral_counts.RDS is the counts table in a better format than biom,\nthe code for going from biom to counts is:\n\n```R\nlibrary(biomformat)\n## Load sequence count data\nbiom_data <- read_hdf5_biom(\"oral_trimmed_deblur.biom\")\nY <- do.call(rbind, biom_data$data)\nrow.names(Y) <- sapply(biom_data$rows, function(item){item$id})\n```\n\n## Notes on Data\n\n* Metadata: the metadata contains many columns related to the scale including: flow.cell.5min.1, flow.cells.ul.1, and flow.cells.ul.2. The first two are not normalized by saliva sample size and the last two are. The scale is the average of the normalized counts.\n\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "2019_morton_songbird_oral_counts.RDS.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/2019_morton_songbird_oral_counts.RDS.zip",
+      "sha256": "08fcbe321d1e0cde6ca6828ba6af72825fa3798a5465cb531ed2e3683bc7eca5"
+    },
+    {
+      "file": "ERP111447_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/ERP111447_dada2_counts.rds.zip",
+      "sha256": "92712669ca8e6d423d6719aa20b188f041024a526b167fda9720b604f6c86bc2"
+    },
+    {
+      "file": "ERP111447_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/ERP111447_dada2_counts_withchimeras.rds.zip",
+      "sha256": "178759a1273d302432c378bf444dbbdbaba1093a20a555144c68485f1af7749e"
+    },
+    {
+      "file": "ERP111447_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/ERP111447_dada2_taxa.rds.zip",
+      "sha256": "b1f7b82ee872bc923f04e60616d6c576c24310dd34902e40bb734ed23fdcc689"
+    },
+    {
+      "file": "ERP117149_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/ERP117149_dada2_counts.rds.zip",
+      "sha256": "c71cd5083efb6d92bafd1971a451431fc3dde4a13d480230232ae595e3f5215c"
+    },
+    {
+      "file": "ERP117149_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/ERP117149_dada2_counts_withchimeras.rds.zip",
+      "sha256": "acad5f72fa3abc855f057b3b4cd161e642cd49162d6b40110133fff110eda70c"
+    },
+    {
+      "file": "ERP117149_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/ERP117149_dada2_taxa.rds.zip",
+      "sha256": "5a959beb2275ec856fa24e01e0731be9494adebe15c26f71e986cf2b5223e2bb"
+    },
+    {
+      "file": "PRJEB29169_MetaPhlAn_merged_counts.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/PRJEB29169_MetaPhlAn_merged_counts.tsv.zip",
+      "sha256": "0f8a454061fe2bf3bb990e518505fe2eb2711f9ae7fc98d88abbdd39f187c433"
+    },
+    {
+      "file": "PRJEB29169_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/PRJEB29169_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "sha256": "d7c8cc8fee5e3d9f0f30023898941a2f47b9a4168651a8e028e80a68ef56416a"
+    },
+    {
+      "file": "PRJEB29169_MetaPhlAn_proportions.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/PRJEB29169_MetaPhlAn_proportions.tsv.zip",
+      "sha256": "770296670ba0c79269a0299db05f60489c91111583036d69e6db44aa2574dfd8"
+    },
+    {
+      "file": "PRJEB29169_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/PRJEB29169_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "sha256": "c48030dbbbb73f33974f377cc13de8fd0c167c8fe116cb3b69f5c1d83bf58b83"
+    },
+    {
+      "file": "README.md.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/README.md.zip",
+      "sha256": "b6c706cd4046e09448849d3aab9922401d19972e0512a5dd7b19ede9eb3ec47e"
+    },
+    {
+      "file": "SraRunTable (40).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/SraRunTable%20%2840%29.csv.zip",
+      "sha256": "ab2072e200ce62701ec2fe7e7ca56a75f399686dbab2a594c396293db1e2aa4d"
+    },
+    {
+      "file": "oral_trimmed_deblur.biom.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/oral_trimmed_deblur.biom.zip",
+      "sha256": "337a70262ebd4ebc4be5638f1f64d7d834b628b1cb565d5bda52e8167c0a1292"
+    },
+    {
+      "file": "oral_trimmed_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/oral_trimmed_metadata.csv.zip",
+      "sha256": "ebe14a840f54d0d7cfe41c86784ed21623f87e73cf469d545b144b737fe08e0b"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/rdp16classified.csv.zip",
+      "sha256": "98248b99479f7f5f4fe466b24a42faf4ed0d88a33d489c11d7bfd0939fa12b53"
+    },
+    {
+      "file": "taxonomy.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_morton_naturecommunications_songbird_oral/taxonomy.tsv.zip",
+      "sha256": "7fdc3c4a195a49b5788e944e75c854558dbd02302f77880443031823ea9ac0b3"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "Shotgun Metagenomics",
+    "loadtype": [
+      "qPCR",
+      "Flow Cytometry"
+    ],
+    "organismtype": "Human",
+    "sampletype": "Saliva",
+    "covariates": [
+      "processing",
+      "sex",
+      "Host_age",
+      "mouthwash_regularly",
+      "treatment"
+    ],
+    "ID": "Accession",
+    "PMID": "31222023"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

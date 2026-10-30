@@ -1,0 +1,52 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [
+    "http://raeslab.org/software/BMIS/",
+    "https://www.nature.com/articles/s41586-020-2269-x#Sec25"
+  ],
+  "study_id": "vieirasilva2020",
+  "display_name": "2020 vieirasilva nature BMIS",
+  "schema_version": 1,
+  "legacy_id": "2020_vieirasilva_nature_BMIS",
+  "source_notes": "https://www.nature.com/articles/s41586-020-2269-x#Sec25\n\nThe processed microbiome profiles can be downloaded at http://raeslab.org/software/BMIS/  \n\n\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "41586_2020_2269_MOESM3_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_vieirasilva_nature_BMIS/41586_2020_2269_MOESM3_ESM.xlsx.zip",
+      "sha256": "5aaa4da3aef65c0698f340f5775eb6d058f8b2b8cad6760beb85011ec552f3c3"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_vieirasilva_nature_BMIS/README.txt.zip",
+      "sha256": "0ab34d1388f2c6b6f9add93f98f5e83e70fdef423f0159909bd31cd7c17aec47"
+    },
+    {
+      "file": "SraRunTable (34).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_vieirasilva_nature_BMIS/SraRunTable%20%2834%29.csv.zip",
+      "sha256": "b2472f5c1ae61c0e210f0aef3478ea65a7f602d56f98a2e87dea9672af9124a3"
+    },
+    {
+      "file": "qmp_GMM_abundances_BMIS.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_vieirasilva_nature_BMIS/qmp_GMM_abundances_BMIS.tsv.zip",
+      "sha256": "7a61f1c543a3018cdc82178e9bd7defa0d49ede30e43f1e46fce473db1251f7f"
+    },
+    {
+      "file": "qmp_GMM_abundances_BMIS.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_vieirasilva_nature_BMIS/qmp_GMM_abundances_BMIS.zip",
+      "sha256": "93cc99a9377848edc0555698eb4be15e595f7b9249d1ce0aa09cbac09a946a59"
+    },
+    {
+      "file": "qmp_genera_abundances_BMIS.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_vieirasilva_nature_BMIS/qmp_genera_abundances_BMIS.tsv.zip",
+      "sha256": "50ce869f63f273b1eb1bb5bccaf1b879ce4cb0c7b597ce7b3f5b679f01442961"
+    }
+  ],
+  "legacy_demographics": null,
+  "baseline_error": "attempt to select less than one element in get1index",
+  "baseline_warnings": ""
+}

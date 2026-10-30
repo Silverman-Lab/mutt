@@ -1,0 +1,62 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "Flow Cytometry",
+  "pmid": "36516223",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "suriano2022",
+  "display_name": "2022 suriano aps micefecal",
+  "schema_version": 1,
+  "legacy_id": "2022_suriano_aps_micefecal",
+  "source_notes": "",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "PRJEB53668_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_suriano_aps_micefecal/PRJEB53668_dada2_counts.rds.zip",
+      "sha256": "af06e35ef3122c5e392a8a6ef796e98514eccb08fdbcc0f562f76c0c94030c02"
+    },
+    {
+      "file": "PRJEB53668_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_suriano_aps_micefecal/PRJEB53668_dada2_counts_withchimeras.rds.zip",
+      "sha256": "fc41bde8b9fa1e234d5fee080e00cac0237b9592763edb0d352e11b3d1fabf1f"
+    },
+    {
+      "file": "PRJEB53668_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_suriano_aps_micefecal/PRJEB53668_dada2_taxa.rds.zip",
+      "sha256": "aa4a199e5405042fba43c43b79faad3f157990d0fedabc8f713437a80db4105f"
+    },
+    {
+      "file": "SraRunTable.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_suriano_aps_micefecal/SraRunTable.csv.zip",
+      "sha256": "928b33740e2f54683ac38ed092c7adf3bb3e2cebc5900a17cbfdde5c081cc2d6"
+    },
+    {
+      "file": "Supplementary Table 6.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_suriano_aps_micefecal/Supplementary%20Table%206.xlsx.zip",
+      "sha256": "be34902a1f29b568fc05c42d7b97145bad4a6009e8ba42b8a5c8c50d23bbe1b4"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_suriano_aps_micefecal/rdp16classified.csv.zip",
+      "sha256": "37b47108b1edb463cb5e7dba375e8b33d9c57ea2b9a8153158c0f658b8ea4e74"
+    },
+    {
+      "file": "readme.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_suriano_aps_micefecal/readme.txt.zip",
+      "sha256": "c1fa8bbbbe1bd6b754782bcf8659768e21b3a0bbe08f4bb28fc431db8a76d99c"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Mice",
+    "sampletype": "Fecal",
+    "covariates": "Day",
+    "ID": "Sample_name",
+    "PMID": "36516223"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

@@ -1,52 +1,20 @@
 Package: mutt
-Title: A Microbial Scale Repository for Paired Microbiome Sequence Count Data with Total Abundance Measurements
-Version: 0.1.0.9000
-Authors@R:
-    c(
-      person("Maxwell", "Konnaris",
-             email = "mak6930@psu.edu",
-             role = c("aut", "cre")),
-      person("Justin", "Silverman",
-             email = "JustinSilverman@psu.edu",
-             role = c("aut", "ctb"))
-    )
-Author: Maxwell Konnaris [aut, cre],
-    Justin Silverman [aut, ctb]
-Maintainer: Maxwell Konnaris <mak6930@psu.edu>
-Description: Parses and formats individual studies containing microbiome sequence count data
-    paired with total abundance measurements (flow cytometry, ddPCR, qPCR, etc.), and returns
-    a single data object containing selected studies.
+Title: Curated Microbiome Taxonomic Profiles and Microbial Load Measurements
+Version: 0.1.0.9001
+Authors@R: c(person("Maxwell", "Konnaris", email = "mak6930@psu.edu", role = c("aut", "cre")), person("Justin", "Silverman", email = "JustinSilverman@psu.edu", role = c("aut", "ctb")))
+Description: Provides processed microbiome study data pairing taxonomic profiles
+    with microbial-load measurements. Downloads only the studies requested and
+    saves local copies for later use. Downloads are checked before use. Source
+    information and links to processing scripts explain how each study was
+    prepared.
 License: MIT + file LICENSE
 URL: https://github.com/Silverman-Lab/mutt
 BugReports: https://github.com/Silverman-Lab/mutt/issues
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-Imports:
-    digest,
-    reticulate (>= 1.24),
-    optparse,
-    dplyr,
-    fs,
-    jsonlite,
-    purrr,
-    readr,
-    readxl,
-    stringr,
-    tibble,
-    tidyr,
-    tidyverse,
-    withr
-SystemRequirements:
-    Python (>= 3.9), PICRUSt2 (optional functional inference),
-    FAPROTAX 1.2.12 (optional functional inference)
-Suggests:
-    Biostrings,
-    dada2,
-    knitr,
-    matrixStats,
-    R.utils,
-    rmarkdown,
-    testthat (>= 3.0.0)
+Depends: R (>= 4.0.0)
+Imports: digest, jsonlite
+Suggests: testthat (>= 3.0.0), withr, phyloseq,
+    TreeSummarizedExperiment, S4Vectors
 Config/testthat/edition: 3
-VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.0.0

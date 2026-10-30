@@ -1,0 +1,57 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC7342003/",
+    "https://zenodo.org/records/3747314"
+  ],
+  "study_id": "ellegaard2020",
+  "display_name": "2020 ellegaard currbiology honeybeeqPCRshotgunmetagenomics",
+  "schema_version": 1,
+  "legacy_id": "2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics",
+  "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC7342003/\ncode and data: https://zenodo.org/records/3747314\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics/README.txt.zip",
+      "sha256": "32abcad483a15495e7981d14578f6fa9f50ed7cf24cbe473438a8b7f38b9d0f7"
+    },
+    {
+      "file": "SDP_validation.tar.gz",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics/SDP_validation.tar.gz",
+      "sha256": "72a6c27326f871715717466d9d591186c459b72e0591f359a77903c0c9727f68"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "29e07968e075d63e86585b2afb61c4906223902b3e975f832eb17866916b5a7e"
+    },
+    {
+      "file": "mmc2.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics/mmc2.xlsx.zip",
+      "sha256": "7de97dad13f47f70e5d690ba6b33ac6a6cb0c2ac122c088789532751b7f559be"
+    },
+    {
+      "file": "mmc3 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics/mmc3%20%281%29.xlsx.zip",
+      "sha256": "a42701e71c1699bc85559bdc81555546524637e013dd6eeea5495018beb924e7"
+    },
+    {
+      "file": "raw_data_processing (2).tar.gz",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics/raw_data_processing%20%282%29.tar.gz",
+      "sha256": "1cf85ba6804f2da3ae9ee2716e430c742266834c0184e94419f47bbdcb41a57a"
+    },
+    {
+      "file": "software_dependencies.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics/software_dependencies.txt.zip",
+      "sha256": "0c8ea06327a719b297b9fb921f442b7d3ee935f7d74f1205dff3a9790ddeddba"
+    }
+  ],
+  "legacy_demographics": null,
+  "baseline_error": "object 'tax' not found",
+  "baseline_warnings": ""
+}

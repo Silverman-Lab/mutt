@@ -1,0 +1,114 @@
+{
+  "sequencing": "16S rRNA",
+  "load": [
+    "Flow Cytometry",
+    "qPCR"
+  ],
+  "pmid": "33594005",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "marotz2021",
+  "display_name": "2021 marotz mSystems oral mouthwash",
+  "schema_version": 1,
+  "legacy_id": "2021_marotz_mSystems_oral_mouthwash",
+  "source_notes": "",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "2021_marotz_mSystems_oral_mouthwash.RDS.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/2021_marotz_mSystems_oral_mouthwash.RDS.zip",
+      "sha256": "3d15a9e6e96c24176b8f17a7585aea576e48428a92022c932dc3e37ec94615e6"
+    },
+    {
+      "file": "ERP111447_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/ERP111447_dada2_counts.rds.zip",
+      "sha256": "92712669ca8e6d423d6719aa20b188f041024a526b167fda9720b604f6c86bc2"
+    },
+    {
+      "file": "ERP111447_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/ERP111447_dada2_counts_withchimeras.rds.zip",
+      "sha256": "14908f5ab89aba60be9539536cadac0f6420021e899034e106776ac492d89ac4"
+    },
+    {
+      "file": "ERP111447_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/ERP111447_dada2_taxa.rds.zip",
+      "sha256": "b1f7b82ee872bc923f04e60616d6c576c24310dd34902e40bb734ed23fdcc689"
+    },
+    {
+      "file": "ERP117149_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/ERP117149_dada2_counts.rds.zip",
+      "sha256": "3ce314b2768bdcfa74fcbe7a68f3355cbcd6ef7cf9ae6320ac5e8127c177998c"
+    },
+    {
+      "file": "ERP117149_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/ERP117149_dada2_counts_withchimeras.rds.zip",
+      "sha256": "6d90e362eb25962458dd03a5f3c27ef5b569167c2027916baeb623dedc9907e9"
+    },
+    {
+      "file": "ERP117149_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/ERP117149_dada2_taxa.rds.zip",
+      "sha256": "77d0214293d8eca9acd663081f25fd2d1620c9bb02727c584cd9b0dedd2440bc"
+    },
+    {
+      "file": "Marotz2021_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/Marotz2021_scale.csv.zip",
+      "sha256": "5e82cd06a1024be32e0806885bb6262242b5646f2bd3055afd5445e3c0667b02"
+    },
+    {
+      "file": "Marotz_2021_16S.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/Marotz_2021_16S.csv.zip",
+      "sha256": "b7a926b74378dafaab512353055cee7fac1c2f0d046703a3ec3585c39a0781bc"
+    },
+    {
+      "file": "Marotz_2021_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/Marotz_2021_metadata.csv.zip",
+      "sha256": "fedda850a7a3d5c68a65666e97665a427cce3eb7dd8f2de428d43795d2d81fce"
+    },
+    {
+      "file": "SraRunTable (40).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/SraRunTable%20%2840%29.csv.zip",
+      "sha256": "6832ddfde164733b42c6b26f5a1a1714745c82b5722fe7353620c6312e84f7fb"
+    },
+    {
+      "file": "SraRunTable (47).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/SraRunTable%20%2847%29.csv.zip",
+      "sha256": "e4077228824b0f7e7e20b9a5e8e560ba6ff5cf43c586ac5503d90f933f48205b"
+    },
+    {
+      "file": "T3_SRS_metadata_ms.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/T3_SRS_metadata_ms.txt.zip",
+      "sha256": "da442d65729aea1cc8382a7fb88e253057307760bbdd15dfc5464fbc5d2d049e"
+    },
+    {
+      "file": "T4_SRS_final_QF_table_wTaxa.biom.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/T4_SRS_final_QF_table_wTaxa.biom.zip",
+      "sha256": "07c30704e4749eb5c8a25c35bba9f8ec5dd7c0c6df0db0cd89d099a731c146c2"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_marotz_mSystems_oral_mouthwash/rdp16classified.csv.zip",
+      "sha256": "edb4ee248a3530064cbb12af2c02a281f552e76bfc1314d912a851c5bacef03a"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": [
+      "Flow Cytometry",
+      "qPCR"
+    ],
+    "organismtype": "Human",
+    "sampletype": "Saliva",
+    "covariates": [
+      "Treatment_code",
+      "sex",
+      "host_age",
+      "mouthwash_regularly",
+      "processing"
+    ],
+    "ID": "SampleID",
+    "PMID": "33594005"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

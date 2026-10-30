@@ -1,0 +1,24 @@
+{
+  "study_id": "tito2024",
+  "display_name": "2024 tito naturemedicine 165metadatavariables",
+  "legacy_id": "2024_tito_naturemedicine_165metadatavariables",
+  "schema_version": 1,
+  "sequencing": "unreviewed",
+  "load": "unreviewed",
+  "pmid": [],
+  "accessions": [],
+  "archived_inputs": [
+    {
+      "file": "41591_2024_2963_MOESM3_ESM.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tito_naturemedicine_165metadatavariables/41591_2024_2963_MOESM3_ESM.zip",
+      "sha256": "4230e22db18a627fb857a0ec0fb0e9bd47ce0040fcc8185b895fed7d7d562a56"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tito_naturemedicine_165metadatavariables/README.txt.zip",
+      "sha256": "5212f870583effabed1254895b082e68cdf812708730c6a650c4eaa5211c9820"
+    }
+  ],
+  "source_notes": "https://www.nature.com/articles/s41591-024-02963-2#data-availability\n",
+  "source_urls": []
+}

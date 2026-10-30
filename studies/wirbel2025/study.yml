@@ -1,0 +1,24 @@
+{
+  "study_id": "wirbel2025",
+  "display_name": "2025 wirbel cell ddpcrML",
+  "legacy_id": "2025_wirbel_cell_ddpcrML",
+  "schema_version": 1,
+  "sequencing": "unreviewed",
+  "load": "unreviewed",
+  "pmid": [],
+  "accessions": [],
+  "archived_inputs": [
+    {
+      "file": "alloHCT_data.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_wirbel_cell_ddpcrML/alloHCT_data.tsv.zip",
+      "sha256": "8b5b6c94ddaede64d4cd33058a3cb8d5ff823d12acfe4cecb1f046a4bd93eb4d"
+    },
+    {
+      "file": "PD_data.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2025_wirbel_cell_ddpcrML/PD_data.tsv.zip",
+      "sha256": "8f6ebaab06a4493122c75530575dde68e5d42a901196e7a1b6b7bc3faebc2bad"
+    }
+  ],
+  "source_notes": "Unregistered legacy study directory. No bundled parser or selected harmonized output. Retained for source discovery; do not claim release readiness.",
+  "source_urls": []
+}

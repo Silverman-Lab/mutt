@@ -1,0 +1,39 @@
+{
+  "study_id": "silverman2018",
+  "display_name": "2018 silverman microbiome mallard",
+  "legacy_id": "2018_silverman_microbiome_mallard",
+  "schema_version": 1,
+  "sequencing": "unreviewed",
+  "load": "unreviewed",
+  "pmid": [],
+  "accessions": [],
+  "archived_inputs": [
+    {
+      "file": "mallard.RData.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_silverman_microbiome_mallard/mallard.RData.zip",
+      "sha256": "621c22a3bc8f9bf599aa653eb9d22e0ab68655e872e6cacb7ef1dd4164f3ea41"
+    },
+    {
+      "file": "mallard_family (1).RData.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_silverman_microbiome_mallard/mallard_family%20%281%29.RData.zip",
+      "sha256": "c03408090dfdcacf49ac27ec7c2222d30de773c1b9dd64a56c439ba314c45a63"
+    },
+    {
+      "file": "RISK_CCFA.RData.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_silverman_microbiome_mallard/RISK_CCFA.RData.zip",
+      "sha256": "15d056476ed05de0aaac7f19add70cd622b44ce6f740b7d0d2a7ce4a689638eb"
+    },
+    {
+      "file": "readme.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_silverman_microbiome_mallard/readme.txt.zip",
+      "sha256": "37ee4e3d2f776dd8d132e39f43f744d08b985d9156cab8a6868b9c6d3d2a214a"
+    },
+    {
+      "file": "pcrbias_mock.RData.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2018_silverman_microbiome_mallard/pcrbias_mock.RData.zip",
+      "sha256": "2b110bd77570598aa1bc34e2168c3c402ba99f497c41a6cc699af39639e61acf"
+    }
+  ],
+  "source_notes": "Unregistered legacy study directory. No bundled parser or selected harmonized output. Retained for source discovery; do not claim release readiness.",
+  "source_urls": []
+}

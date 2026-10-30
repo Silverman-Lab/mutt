@@ -1,0 +1,36 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [
+    "https://pubmed.ncbi.nlm.nih.gov/24259713/"
+  ],
+  "study_id": "reyes2013",
+  "display_name": "2013 reyes procnationalacademyscience gnotobioticmousehumangutflow",
+  "schema_version": 1,
+  "legacy_id": "2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow",
+  "source_notes": "paper: https://pubmed.ncbi.nlm.nih.gov/24259713/\nsupp files: supp_110_50_20236__index.html \n\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow/README.txt.zip",
+      "sha256": "244850975ee31a58aec13853739511bb025f5c61164c1370ddedfeca821582ff"
+    },
+    {
+      "file": "SraRunTable (33).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow/SraRunTable%20%2833%29.csv.zip",
+      "sha256": "ca4222d4b862c8f584e0375f384e973f714fca9ffbb2728f3b83169aa52b159c"
+    },
+    {
+      "file": "sd01.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow/sd01.xlsx.zip",
+      "sha256": "5dd6b6c3b19d92aa432324cfe8837e9252f89c20b2cfc123a67a5249cfe94866"
+    }
+  ],
+  "legacy_demographics": null,
+  "baseline_error": "duplicate 'row.names' are not allowed",
+  "baseline_warnings": ""
+}

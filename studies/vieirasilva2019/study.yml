@@ -1,0 +1,75 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "Flow Cytometry",
+  "pmid": "31209308",
+  "accessions": [],
+  "source_urls": [
+    "http://raeslab.org/software/QMP2/",
+    "https://github.com/raeslab/QMP/"
+  ],
+  "study_id": "vieirasilva2019",
+  "display_name": "2019 vieirasilva naturemicrobiology pscibd",
+  "schema_version": 1,
+  "legacy_id": "2019_vieirasilva_naturemicrobiology_pscibd",
+  "source_notes": "paper is behind paywall so included here in repo. Assessed the distribution of ( 10.1136/gutjnl-2015-311004 ) 106 previously amplicon-sequenced primary sclerosing cholangitis and/or inflammatory bowel disease (PSC/IBD) faecal samples - (PSC n=18, Crohn\u2019s disease (CD) n=29, ulcerative colitis (UC) n=13, PSC\u2013CD n=20 and PSC\u2013UC n=26) 10 against\na background of non-disease-associated microbiome variation as\nobserved in the Flemish Gut Flora Project cohort (FGFP; n=1,120). On the basis of genus-level inter-individual differences in microbiome composition, the combined patient group was observed to separate from a set of 66 FGFP\nhealthy controls (mHCs) 10 that were matched by age, gender and\nbody mass index with PSC or PSC\u2013IBD diagnosed individuals. 224 individuals with UC or CD (Chron's Disease) were then independently recruited as a validation cohort. \n\ncode for QMP: https://github.com/raeslab/QMP/\ncounts obtained from: http://raeslab.org/software/QMP2/ this includes counts of 161 samples. \n\nMeasured covariates:\nSerum alkaline phosphatase (U/L), Faecal calprotectin (\u00b5g/g), Serum CRP (mg/L)\tAverage faecal cell count (cells/g), Moisture content (%), Predicted DMM Enterotype,\t RMP Observed Richness (N genera)\n\nThis study did not have counts, relative abundances, batch information, or the ASV-Sequences. However, the authors supplied the QMP matrix. It was from the QMP matrix in which we transformed to obtain the relative abundance matrix. \n\nparse script does some weird stuff: \n-requires an NCBI entrez api key because it uses the taxize package to get the corresponding taxa name from the relevant database we need to convert to for MLSCALE study. \n-it then manually corrects some that Maxwell looked up by hand as it cant classify some of the corresponding taxa\n\nSequencing data is not publicly available -- Jeroen Raes study.\n\nall data collected by Maxwell Konnaris\n\nparse.R finished 04/09/25\n\n\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "10.1038@s41564-019-0483-9.pdf.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_vieirasilva_naturemicrobiology_pscibd/10.1038%40s41564-019-0483-9.pdf.zip",
+      "sha256": "f54c0f5a16cf611cb18aebbfc8d817524eb2ccbaacb97a568ab7fa4251d2566c"
+    },
+    {
+      "file": "41564_2019_483_MOESM3_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_vieirasilva_naturemicrobiology_pscibd/41564_2019_483_MOESM3_ESM.xlsx.zip",
+      "sha256": "afed2406239853c98d9df1b8a5d2d751a33955a12e02ee9005e572fdf9cedf2e"
+    },
+    {
+      "file": "QMP.matrix.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_vieirasilva_naturemicrobiology_pscibd/QMP.matrix.tsv.zip",
+      "sha256": "439e8559f20ddcbce5943b73a619587f690806a83fc6fe82591c969426fdadd6"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_vieirasilva_naturemicrobiology_pscibd/README.txt.zip",
+      "sha256": "1a27645127d2f2e4819084a4a1cdced20ec9b32e762d0a8f2ed72974644f3246"
+    },
+    {
+      "file": "Vieira-Silva2019_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_vieirasilva_naturemicrobiology_pscibd/Vieira-Silva2019_scale.csv.zip",
+      "sha256": "4ad608b10b96db44f2e87e545093d919b35cb5d5c880d6498c810073af8aae90"
+    },
+    {
+      "file": "VieiraSilva_2019_16S.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_vieirasilva_naturemicrobiology_pscibd/VieiraSilva_2019_16S.csv.zip",
+      "sha256": "b2961d1cd45fe39be26280ae2343a5fac9d3c06fb31618817115f63a5c48b86d"
+    },
+    {
+      "file": "VieiraSilva_2019_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_vieirasilva_naturemicrobiology_pscibd/VieiraSilva_2019_metadata.csv.zip",
+      "sha256": "453320d0525e79a555aa41ab3170a617edf5f079864a4732f300747aafbbde27"
+    },
+    {
+      "file": "scaleandmetadata.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_vieirasilva_naturemicrobiology_pscibd/scaleandmetadata.xlsx.zip",
+      "sha256": "de79ee34df8999536ebaaac7e53090870ca235e23063be796bcca6cd9719b410"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": [
+      "Diagnosis",
+      "Age",
+      "Gender",
+      "BMI"
+    ],
+    "ID": "ID",
+    "PMID": "31209308"
+  },
+  "baseline_error": "",
+  "baseline_warnings": "Not deleting session-wide tempdir(): /tmp/RtmpKknUpe"
+}

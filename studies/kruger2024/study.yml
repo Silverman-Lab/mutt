@@ -1,0 +1,103 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "ddPCR",
+  "pmid": "39427011",
+  "accessions": [],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC11490648/"
+  ],
+  "study_id": "kruger2024",
+  "display_name": "2024 kruger scientificreports ddpcrhealthysubjects",
+  "schema_version": 1,
+  "legacy_id": "2024_kruger_scientificreports_ddpcrhealthysubjects",
+  "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC11490648/\n\nKruger ended up getting back to us as the corresponding author has left their department and does not assume the contact responsibility for their study anymore. Kruger is on sick leave and still completed our request on 5/28/25 and went the extra mile to supply us with dnaconcentrations for each sample measured in ng/ul.\n\nParticipants collected faecal samples on three consecutive days, or alternatively at three timepoints as close as possible to each other within one week. \nAll faecal sample analyses from the same individual for all measurements were performed within the same batch. 10 replicates of 1\u20132 gram faeces were made from a pooled sample of 15 gram faeces obtained from all ten participants. Afterwards, five replicates were then processed by hammering only, while five replicates were both hammered and mill-homogenised. water content and ph were measured, protein biomarkers through ELISA, and SCFA/BCFAs were measured via GC-MS, also performed untargeted metabolomics through LC-MS, and UHPLC-Q-Orbitrap-MS/MS.\n\n\nSix quality controls (QC), which consisted of a pool of the faecal samples from the participants, were analysed to ensure precision and stability of the LC-MS machine during the whole process of injection. QC samples were injected every after 10 sample injections and was used to assess chromatographic drift and instrumental errors.\n\ndnaconcetrations.csv = \nSample description\t\n1\tMill homogenised samples were extracted in duplicate using the PowerSoil DNA kit from Qiagen\n\t(only the first extracted sample of the duplicates was used for sequencing)\n2\tDNA concentrations were measured with 2ul on the Nanodrop\n3\tEach individual (subject number eg 19) had samples taken on three timepoints -three consecutive days (.1, .2, .3)\n4\tFor all samples on day 1 (.1) , there were additional extractions done with a different sample preparation ( IKA- samples=hammered only)\n\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "41598_2024_75477_MOESM2_ESM.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/41598_2024_75477_MOESM2_ESM.csv.zip",
+      "sha256": "ed2dd15047130b47453de557f69369d91b2710e3ed6d6c545ab3829f949ebbde"
+    },
+    {
+      "file": "41598_2024_75477_MOESM3_ESM.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/41598_2024_75477_MOESM3_ESM.csv.zip",
+      "sha256": "f14300d3af3d9898b5269edfaf1633fa5508e73110cb1f6b98034b35f7705b30"
+    },
+    {
+      "file": "41598_2024_75477_MOESM4_ESM.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/41598_2024_75477_MOESM4_ESM.csv.zip",
+      "sha256": "9a92eb8bf12839ae5847c4c767f431ed4f62666a740235204cff4bd3774561ba"
+    },
+    {
+      "file": "41598_2024_75477_MOESM5_ESM.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/41598_2024_75477_MOESM5_ESM.csv.zip",
+      "sha256": "2ce8773393d0cf8ff8d515916b23e3d3f3418d526583de0a856d2134dbf99c0f"
+    },
+    {
+      "file": "PRJNA1162476_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/PRJNA1162476_dada2_counts.rds.zip",
+      "sha256": "afaeef6b51e0368369acfc1d34578976868a8395b1d6785023dadf57e5331437"
+    },
+    {
+      "file": "PRJNA1162476_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/PRJNA1162476_dada2_counts_withchimeras.rds.zip",
+      "sha256": "a2bbe04f8f8bb07b8478e196c9c8f7d02f6b93f2bd020021ab5c88bda8de48c7"
+    },
+    {
+      "file": "PRJNA1162476_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/PRJNA1162476_dada2_taxa.rds.zip",
+      "sha256": "dc051ec3c2451e6f2b36bbaae3bc87eadacc572c6bbd73552567ada9bcf9ef34"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/README.txt.zip",
+      "sha256": "e59652c51bebf5f5b1889de92ee83f4f63e2096d462855ac4e09888f0099a573"
+    },
+    {
+      "file": "SraRunTable (30).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/SraRunTable%20%2830%29.csv.zip",
+      "sha256": "d95319f2138025579e67622303bf4178ee498ae76db179559dd371d705a7e1ec"
+    },
+    {
+      "file": "Variability dataset_Correct sample IDs and DNA.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/Variability%20dataset_Correct%20sample%20IDs%20and%20DNA.xlsx.zip",
+      "sha256": "cc9b20c970bacafec396fab073a3a112aee5bfe3cdd7fb237c335c3116a844a5"
+    },
+    {
+      "file": "dnaconcentrations.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/dnaconcentrations.csv.zip",
+      "sha256": "22a3808f0e2f3d6e73faf0f1d51107f933653744e8acca95b9fa3476ffb5b853"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/rdp16classified.csv.zip",
+      "sha256": "58628c720ccb34a2a4d00920e9f6f4e650ca667bf06c68640f396340dcc2335d"
+    },
+    {
+      "file": "sampleIDkey.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/sampleIDkey.csv.zip",
+      "sha256": "06cf03468ef031dd80a65ad386aa4b69f454e94211a92acb593e08336da6d82d"
+    },
+    {
+      "file": "somemetadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kruger_scientificreports_ddpcrhealthysubjects/somemetadata.csv.zip",
+      "sha256": "c44faeb0b772f83c3ea6e66dcd933c35a04cf213e1bd69d1152924f5e9b6490e"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "ddPCR",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": [
+      "BristolStoolScale_highest",
+      "Timepoint",
+      "pH"
+    ],
+    "ID": "SampleID",
+    "PMID": "39427011"
+  },
+  "baseline_error": "",
+  "baseline_warnings": "There was 1 warning in `mutate()`.\n\u2139 In argument: `StoolsperDay = as.integer(StoolsperDay)`.\nCaused by warning:\n! NAs introduced by coercion"
+}

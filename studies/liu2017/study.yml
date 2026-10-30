@@ -1,0 +1,81 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "28743816",
+  "accessions": [
+    "PRJNA1233249"
+  ],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC5527312/"
+  ],
+  "study_id": "liu2017",
+  "display_name": "2017 liu mbio penilehivqPCR",
+  "schema_version": 1,
+  "legacy_id": "2017_liu_mbio_penilehivqPCR",
+  "source_notes": "Clinical trial, Maxwell communicated with authors and they uploaded the data publicly as it has been 8 years since trial ended. They also sent the scale. Maxwell wrote a cleanSRA python script that cleans the scraped .xml file and puts it into metadata.csv format. All genomic material processed by Maxwell 04/10/25 and parse.R completed 04/10/25. Bioproject: PRJNA1233249\n\nAuthors did not provide count or relative abundances. \n\nThis is a population of uncircumcised men who became infected by HIV during a 2-year clinical trial had higher levels of penile anaerobes than uncircumcised men who remained HIV negative. They found that having higher levels of penile anaerobes was also associated with higher production of immune factors that recruit HIV target cells to the foreskin, suggesting that anaerobes may modify HIV risk by triggering inflammation. These anaerobes are known to be shared by heterosexual partners and are associated with HIV risk in women. Therefore, penile anaerobes may be a sexually transmissible risk factor for HIV, and modifying the penile microbiome could potentially reduce HIV acquisition in both men and women.\n\n182 human subjects (men) with 1 coronal sculcus swab sample each.\n\nPaper: https://pmc.ncbi.nlm.nih.gov/articles/PMC5527312/\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
+  "archived_inputs": [
+    {
+      "file": "PMID-28743816_samples-v1.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_liu_mbio_penilehivqPCR/PMID-28743816_samples-v1.csv.zip",
+      "sha256": "3a8aacef018b1d0a4978e33686a26f736815b3b960dde255defd59a56a386221"
+    },
+    {
+      "file": "PRJNA1233249_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_liu_mbio_penilehivqPCR/PRJNA1233249_dada2_counts.rds.zip",
+      "sha256": "de0e13eae79bab2d5daf0986e58fe7257a7a37980af7eccf34a4b5fbffb5df19"
+    },
+    {
+      "file": "PRJNA1233249_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_liu_mbio_penilehivqPCR/PRJNA1233249_dada2_counts_withchimeras.rds.zip",
+      "sha256": "38e138c2561e06368c2f5ad9d99c534fea19f66826beb1b2f4afe827110e48bd"
+    },
+    {
+      "file": "PRJNA1233249_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_liu_mbio_penilehivqPCR/PRJNA1233249_dada2_taxa.rds.zip",
+      "sha256": "2a0bbfb0bbc34b9a3021a6fc3e48ef67c6103012f11b994a7b4f3ba27eca24c0"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_liu_mbio_penilehivqPCR/README.txt.zip",
+      "sha256": "21dbe9d2d44023ed1d731b8e4b69b7895c9b8f02f49bf9d1273697de7d5598e8"
+    },
+    {
+      "file": "SraRunTable (40).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_liu_mbio_penilehivqPCR/SraRunTable%20%2840%29.csv.zip",
+      "sha256": "a5d793bdf398fb44ecd0a35acbb97b2ef1aa0a0269892748cd16464a6365a231"
+    },
+    {
+      "file": "biosample_result.xml.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_liu_mbio_penilehivqPCR/biosample_result.xml.zip",
+      "sha256": "cf1d51af87f0aa9b272a0d56fa00dd754a0182a3f970814c8094eab6cbdcd4b4"
+    },
+    {
+      "file": "cleanSRA.ipynb.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_liu_mbio_penilehivqPCR/cleanSRA.ipynb.zip",
+      "sha256": "e7e58f7b1062c556ace286662a394b6530cf61c6a646af6269b1cfedccc468a7"
+    },
+    {
+      "file": "metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_liu_mbio_penilehivqPCR/metadata.csv.zip",
+      "sha256": "ed048eb532a5360d67690272abd96a19a778f55e617973675a11721e8eb54154"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_liu_mbio_penilehivqPCR/rdp16classified.csv.zip",
+      "sha256": "91fc6708314bc4eee1d6a850f1cc0fe530916902d67ac39669e1fa2785d76b34"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Human",
+    "sampletype": "Coronal sculcus",
+    "covariates": "HIV Status",
+    "ID": "Sample_name",
+    "PMID": "28743816"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

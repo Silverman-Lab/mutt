@@ -1,0 +1,19 @@
+{
+  "study_id": "garciamartinez2024_archive",
+  "display_name": "2024 garcia-martinez bmcmicrobiology ckdanddysbiosiswithserum",
+  "legacy_id": "2024_garcia-martinez_bmcmicrobiology_ckdanddysbiosiswithserum",
+  "schema_version": 1,
+  "sequencing": "unreviewed",
+  "load": "unreviewed",
+  "pmid": [],
+  "accessions": [],
+  "archived_inputs": [
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_garcia-martinez_bmcmicrobiology_ckdanddysbiosiswithserum/README.txt.zip",
+      "sha256": "c96fdbad52af7ce01854b40ee9f1f506a9cbccb8c8869283c6d3a80909d3ca43"
+    }
+  ],
+  "source_notes": "paper: https://bmcmicrobiol.biomedcentral.com/articles/10.1186/s12866-024-03590-0\n\nEighty-eight CKD patients stratified as non-dialysis (CKD, n\u2009=\u200924), hemodialysis (HD, n\u2009=\u200922), and transplant patients (Tx, n\u2009=\u200942), as well as 26 healthy controls (HC), were enrolled at the University Hospital Luigi Vanvitelli, Italy.\n\nEach participant provided a fecal and blood sample (generated serum) during their outpatient visit or hospital admission.\n\nDemographic and clinical parameters were retrieved from the subjects\u2019 medical records. Additionally, each participant completed a questionnaire covering lifestyle, bowel habits, and weekly dietary intake over the six months preceding the sample collection. In particular, participants selected the food items they regularly consumed over the six months preceding the sample collection from a list of items typically found in Italian diets. These items were categorized into food groups: eggs, fish and seafood, lean meats, lean poultry, fruits, nuts and seeds, coffee and tea, and alcoholic beverages. \n\nSerum concentrations of lanthionine were quantified \nSerum H2S was quantified using the methylene blue method \n\nCount tables/relative abundances/ASV-sequences processed by Maxwell Konnaris 04/09/25 and not provided by the study.\n\nall data collected by Maxwell Konnaris\n\nparse.R finished 04/09/25\n\n\n\n",
+  "source_urls": []
+}

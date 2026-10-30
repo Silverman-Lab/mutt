@@ -1,0 +1,117 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "Flow Cytometry",
+  "pmid": "39572788",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "pereira2023",
+  "display_name": "2023 pereira nature nervous",
+  "schema_version": 1,
+  "legacy_id": "2023_pereira_nature_nervous",
+  "source_notes": "",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "ASVdata_request_180124.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/ASVdata_request_180124.zip",
+      "sha256": "471e062e32bd46b6ef6a497538acc174dd7c230362f3b7d1eea9feb8e3460a9c"
+    },
+    {
+      "file": "DADA2_counts_as_matrix_Drugs.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/DADA2_counts_as_matrix_Drugs.txt.zip",
+      "sha256": "d683284f05ced7649bff085e8dad06d13053cb1d354b52c176eb28eb513625df"
+    },
+    {
+      "file": "DADA2_counts_as_matrix_FeRecovery.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/DADA2_counts_as_matrix_FeRecovery.txt.zip",
+      "sha256": "131e1e3c5a030ab9245551d2e9f99459b5b62e0ea8926e24a33675984d7410b2"
+    },
+    {
+      "file": "PRJNA1033532_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/PRJNA1033532_dada2_counts.rds.zip",
+      "sha256": "10110c18f55a1a66d49408ffe074f944a245951db56fc1959a92c295b848f270"
+    },
+    {
+      "file": "PRJNA1033532_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/PRJNA1033532_dada2_counts_withchimeras.rds.zip",
+      "sha256": "dde3a89a8b3249ab34aad4ba977ebf7fd5f3a7997a0e61b6670ec4bb682a37a7"
+    },
+    {
+      "file": "PRJNA1033532_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/PRJNA1033532_dada2_taxa.rds.zip",
+      "sha256": "2d7cda741de2723e79a1b8d4c954121651f6c867e2d3269228981b281366a6d0"
+    },
+    {
+      "file": "Pereira2023_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/Pereira2023_scale.csv.zip",
+      "sha256": "cb2794f750f4b3f66df46393577ca525ed2af37b9cecbf680daaca2a450c506c"
+    },
+    {
+      "file": "Pereira_2023_16S.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/Pereira_2023_16S.csv.zip",
+      "sha256": "21c33e0715cc7428fc6fc67a2611416084f7af22832d98cdc700e98267765de6"
+    },
+    {
+      "file": "Pereira_2023_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/Pereira_2023_metadata.csv.zip",
+      "sha256": "340f6ab93cd9221007f19b70f85beb61c296ad77d5f3ac66931e97bd3e064b30"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "1cec6f2800da46ccd5a34cc6e77e8c9a3136ee6179171744060d758a1439dbf7"
+    },
+    {
+      "file": "all-relevant-data.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/all-relevant-data.xlsx.zip",
+      "sha256": "56d4efcfde4ac3a35eb957c7e8929f94275b5926581b4a39ce92a234781c3301"
+    },
+    {
+      "file": "all-relevant-data.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/all-relevant-data.zip",
+      "sha256": "1215506d5ae7512fb22bcb9e4add74c65bb14a094dd0b6af7778cf97e8e6cf16"
+    },
+    {
+      "file": "cleaned_DADA2_ASVs_Drugs.fna.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/cleaned_DADA2_ASVs_Drugs.fna.zip",
+      "sha256": "f4f2f51824de0d6e96a695c11197bb5bb806b3f6a79678092f69092708f6df28"
+    },
+    {
+      "file": "cleaned_DADA2_ASVs_Drugs_FeRecovery.fna.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/cleaned_DADA2_ASVs_Drugs_FeRecovery.fna.zip",
+      "sha256": "55858617fab45544a45ca2263a55a9c21d0d98df5ac099c1906a4706be6b534c"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/rdp16classified.csv.zip",
+      "sha256": "a53e9d22664b6c47233951ffe624103e65ba94d61659d305863783de1b02e01f"
+    },
+    {
+      "file": "rdp16classified_ORIGINAL.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/rdp16classified_ORIGINAL.csv.zip",
+      "sha256": "55ccfdb272c46820310ee573ee4327be53d3280ed02c2006823eb77c31ce0287"
+    },
+    {
+      "file": "rdp19classified_ORIGINAL.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_pereira_nature_nervous/rdp19classified_ORIGINAL.csv.zip",
+      "sha256": "6f922e56cdec1264f916b04c7a8765e560b17f4ceb249a0348b28610ebddce71"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": [
+      "condition",
+      "time_hours",
+      "medium",
+      "replicate"
+    ],
+    "ID": "Sample",
+    "PMID": "39572788"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

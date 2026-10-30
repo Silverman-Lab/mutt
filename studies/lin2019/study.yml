@@ -1,0 +1,99 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "Flow Cytometry",
+  "pmid": "30552195",
+  "accessions": [],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC6384117/"
+  ],
+  "study_id": "lin2019",
+  "display_name": "2019 lin applenvironmicrobiol 16s18smarineecologyflowandspikein",
+  "schema_version": 1,
+  "legacy_id": "2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein",
+  "source_notes": "Authors provided data after correspondence to Maxwell Konnaris.\n\nData collection, genomic processing, and parse scripts written by Maxwell Konnaris. \n\npaper: https://pmc.ncbi.nlm.nih.gov/articles/PMC6384117/ \n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "16S samples_FCM_Chl.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/16S%20samples_FCM_Chl.csv.zip",
+      "sha256": "6e32a29fc09c72b2cdd29008210170e7e308a7c9618c65debddc2d665a9538a8"
+    },
+    {
+      "file": "AEM.02634-18-sd002.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/AEM.02634-18-sd002.xlsx.zip",
+      "sha256": "fbbddf300fab13f3c47790d3329ab72fe86b73ebb7b0adc9ba305873b1ae4a57"
+    },
+    {
+      "file": "AEM.02634-18-sd003.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/AEM.02634-18-sd003.xlsx.zip",
+      "sha256": "4a89b0714cbd1bf8267e5eba1fbb46b16b5033028a76e885f34d19f31cd48103"
+    },
+    {
+      "file": "PRJNA508514_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/PRJNA508514_dada2_counts.rds.zip",
+      "sha256": "e1f1126e0546642849b1c464b2bb8afff565cd24b577205bd54ab2a16fc506cb"
+    },
+    {
+      "file": "PRJNA508514_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/PRJNA508514_dada2_counts_withchimeras.rds.zip",
+      "sha256": "bc3af5cc5ab25013c696c921969b56f82fc031680eb315e7027316f9bb177365"
+    },
+    {
+      "file": "PRJNA508514_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/PRJNA508514_dada2_taxa.rds.zip",
+      "sha256": "607970b826f2896a83b770b1a38fcfa021b63d7cac94306b44ca43292f39454d"
+    },
+    {
+      "file": "PRJNA508517_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/PRJNA508517_dada2_counts.rds.zip",
+      "sha256": "877e9461d1cacccd87a8bf361e3ff588409fd2a1e28a88747362fef1b11ee426"
+    },
+    {
+      "file": "PRJNA508517_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/PRJNA508517_dada2_counts_withchimeras.rds.zip",
+      "sha256": "a665e563eae131946086f94fc041b3f1515fd3f91ff7573f3d64c102b3155484"
+    },
+    {
+      "file": "PRJNA508517_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/PRJNA508517_dada2_taxa.rds.zip",
+      "sha256": "91d43e3a51ec36f0ba203f2383819ee518368835cdc49bbd7f86610911ef7bb5"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/README.txt.zip",
+      "sha256": "de0cb5b8d9f685676cffaa00a60d21cefa8012185ea884efd41bdb33e1c9003f"
+    },
+    {
+      "file": "SraRunTable_16s.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/SraRunTable_16s.csv.zip",
+      "sha256": "9306e1c579390f7539fdf987a69c43649ca7f0cd54b83e787146cc197949e7a0"
+    },
+    {
+      "file": "SraRunTable_18s.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/SraRunTable_18s.csv.zip",
+      "sha256": "efc4c66c62305b9d03d3beb61eb2e333dd81b16e9598d672b3b0bb8002bc6a26"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein/rdp16classified.csv.zip",
+      "sha256": "a988f61b58867c12ea6ecafb593335f2b46b7e4400e983d5a812f33381cbda7c"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Marine",
+    "sampletype": "Seawater",
+    "covariates": [
+      "Station",
+      "Line",
+      "Filtered Seawater Vol [L]",
+      "SurfChl [mg m-3]"
+    ],
+    "ID": "SampleID",
+    "PMID": "30552195"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

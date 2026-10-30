@@ -1,0 +1,54 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "fu2023",
+  "display_name": "2023 fu imeta wasterwater pathogens",
+  "schema_version": 1,
+  "legacy_id": "2023_fu_imeta_wasterwater_pathogens",
+  "source_notes": "",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_fu_imeta_wasterwater_pathogens/README.txt.zip",
+      "sha256": "1c6160d67329c25ffb229273d12517cd84a9b5b4814f088dffbd43073fd83cd0"
+    },
+    {
+      "file": "SraRunTable (30).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_fu_imeta_wasterwater_pathogens/SraRunTable%20%2830%29.csv.zip",
+      "sha256": "d8711416cdf483dc1d97a9c40ed54d3993831d75f8e62a32c3192b40ea25a32c"
+    },
+    {
+      "file": "data.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_fu_imeta_wasterwater_pathogens/data.xlsx.zip",
+      "sha256": "c67106bfa00bcfedac2cdb1897a15554a1c7b65b2ffacbec4f6a38ea9975eb16"
+    },
+    {
+      "file": "mock_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_fu_imeta_wasterwater_pathogens/mock_scale.csv.zip",
+      "sha256": "a42cdcefffffa30cb782ae65d7a065cfd2f79d3bd8ec5b02f7d884797852543d"
+    },
+    {
+      "file": "sheet1_pivoted.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_fu_imeta_wasterwater_pathogens/sheet1_pivoted.csv.zip",
+      "sha256": "437f7a5765d7f80093afff8d34abf76e05c48da65aa17db07f263382b133b8a1"
+    },
+    {
+      "file": "sheet2.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_fu_imeta_wasterwater_pathogens/sheet2.csv.zip",
+      "sha256": "1c8ebccef7948f2fd244807e1e24e1effa7c1d629678b61c8179f39cdc8a9b66"
+    },
+    {
+      "file": "sheet_s5_cleaned.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_fu_imeta_wasterwater_pathogens/sheet_s5_cleaned.csv.zip",
+      "sha256": "3c794031fc627337ae073c69c7b4a69a41dfdf33a131ca60c2bd3f0ec3d09b08"
+    }
+  ],
+  "legacy_demographics": null,
+  "baseline_error": "",
+  "baseline_warnings": "Setting row names on a tibble is deprecated."
+}

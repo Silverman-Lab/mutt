@@ -1,0 +1,68 @@
+{
+  "sequencing": "16S rRNA",
+  "load": [
+    "qPCR",
+    "ddPCR",
+    "Flow Cytometry"
+  ],
+  "pmid": "32850498",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "galazzo2020",
+  "display_name": "2020 galazzo frontiersincellularandinfectionmicrobiology flowqPCRddPCRhealthy",
+  "schema_version": 1,
+  "legacy_id": "2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy",
+  "source_notes": "",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "ERP108719_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy/ERP108719_dada2_counts.rds.zip",
+      "sha256": "c187437dade2060e54b0d7ee588fe2a03e7df9abfe6ec12af9d9627f58e57c9e"
+    },
+    {
+      "file": "ERP108719_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy/ERP108719_dada2_counts_withchimeras.rds.zip",
+      "sha256": "c3b814e4b9e5bf0d964e2409d42a2d648b512ff68b7251328b7a96acd9d0dfab"
+    },
+    {
+      "file": "ERP108719_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy/ERP108719_dada2_taxa.rds.zip",
+      "sha256": "0438c3c134a5e18d1e74aa067389849c4ad00e0b77fe1d0aac169603fdd5dc0e"
+    },
+    {
+      "file": "SraRunTable.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy/SraRunTable.csv.zip",
+      "sha256": "52d4521e1128737825381e55c4c3a6ff5035d59537e8dc9cdd99a3cac27afd16"
+    },
+    {
+      "file": "Table 1.XLSX.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy/Table%201.XLSX.zip",
+      "sha256": "830aa45441ea02639e2a0eafafaf7bef39ee62c8b36e947de2ee1f043707c72f"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy/rdp16classified.csv.zip",
+      "sha256": "0a03e800c261c0a836c6a3286c5a87b0c8d3d4f7dcf15be96b0902130f21be94"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": [
+      "qPCR",
+      "ddPCR",
+      "Flow Cytometry"
+    ],
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": [
+      "sample_treatment",
+      "host_subject_id"
+    ],
+    "ID": "Sample_name",
+    "PMID": "32850498"
+  },
+  "baseline_error": "",
+  "baseline_warnings": "There were 2 warnings in `mutate()`.\nThe first warning was:\n\u2139 In argument: `across(-Sample_name, as.numeric)`.\nCaused by warning:\n! NAs introduced by coercion\n\u2139 Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning."
+}
