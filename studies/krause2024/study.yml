@@ -1,6 +1,6 @@
 {
   "study_id": "krause2024",
-  "display_name": "2024 krause microorganisms notsurethisisgoodviaauthor maybe throw",
+  "display_name": "Krause (2024)",
   "legacy_id": "2024_krause_microorganisms_notsurethisisgoodviaauthor_maybe_throw",
   "schema_version": 1,
   "sequencing": "unreviewed",
@@ -25,7 +25,5 @@
     }
   ],
   "source_notes": "Unregistered legacy study directory. No bundled parser or selected harmonized output. Retained for source discovery; do not claim release readiness.",
-  "baseline_status": "unavailable: unregistered legacy study",
-  "source_urls": [],
-  "manuscript_use": "not used as a selection rule: user requires current API equivalence"
+  "source_urls": []
 }

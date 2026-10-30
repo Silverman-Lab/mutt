@@ -11,11 +11,9 @@
   "display_name": "2025 thiruppathy microbiome relicDNAflow",
   "schema_version": 1,
   "legacy_id": "2025_thiruppathy_microbiome_relicDNAflow",
-  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "paper: https://www.researchgate.net/publication/389559063_Absolute_quantification_of_the_living_skin_microbiome_overcomes_relic-DNA_bias_and_reveals_specific_patterns_across_volunteers\n\ncode: https://github.com/dthirupp/DeadOrAlive-SkinMicrobiome\n\nAbsolute bacterial quantification (bacteria/cm2) was measured using flow cytometry on raw (total bacteria) and PMA-treated (live bacteria only) samples (Table S3). Analysis included samples meeting sequencing and flow cytometry gating criteria (n\u2009=\u2009135: 67 PMA treated, 68 untreated).\n\n\nscale = Formula\n(E) =  ((A/B)x(C/D))\n(H) = (E) x (G) / (F)\n\nMaxwell Konnaris collected, cleaned, and wrote parse script 05/06/2025\n",
-  "baseline_status": "current API exact capture",
-  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
   "archived_inputs": [
     {
       "file": "40168_2025_2063_MOESM2_ESM (1).xlsx.zip",

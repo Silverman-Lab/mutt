@@ -1,5 +1,5 @@
 .mutt_conversion_tables <- function(counts, metadata, taxonomy) {
-  if(!is.matrix(counts) && !is.data.frame(counts)) stop('Select a single counts table from the study branches.')
+  if(!is.matrix(counts) && !is.data.frame(counts)) stop('Supply a single counts matrix or data frame.')
   counts <- as.matrix(counts)
   if(!is.numeric(counts) || anyNA(counts) || any(!is.finite(counts)) || any(counts<0)) stop('Counts must be finite nonnegative numeric values.')
   for(ids in dimnames(counts)) if(is.null(ids) || anyNA(ids) || any(!nzchar(ids)) || anyDuplicated(ids)) stop('Counts need unique sample and feature identifiers.')
@@ -23,8 +23,9 @@
 #' counts are kept. Include microbial-load columns in metadata if desired.
 #' Install the optional phyloseq or TreeSummarizedExperiment package with
 #' BiocManager when using the corresponding converter.
-#' @param counts One numeric count matrix or data frame, with unique sample IDs
-#'   as row names and unique feature IDs as column names.
+#' @param counts One numeric count matrix or data frame, with samples as rows
+#'   and features (such as ASVs or taxa) as columns. Row and column names must
+#'   be unique, nonempty IDs. Values must be finite, nonnegative and not missing.
 #' @param metadata Optional sample table, with sample IDs as row names.
 #' @param taxonomy Optional feature table, with feature IDs as row names.
 #' @return A phyloseq object or a TreeSummarizedExperiment for use with mia/miaverse.

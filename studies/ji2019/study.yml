@@ -11,11 +11,9 @@
   "display_name": "2019 ji nature human soil",
   "schema_version": 1,
   "legacy_id": "2019_ji_nature_human_soil",
-  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "Code: https://github.com/brianwji/DIVERS?tab=readme-ov-file\npaper: https://pubmed.ncbi.nlm.nih.gov/31308552/\n",
-  "baseline_status": "unavailable: existing parser failed",
-  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
   "archived_inputs": [
     {
       "file": "README.txt.zip",

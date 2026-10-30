@@ -3,5 +3,6 @@
 #' Load processed study data directly from R. MUTT downloads only requested
 #' studies and saves local copies for reuse. Use [mutt_studies()] to find study
 #' IDs and [mutt()] to load their data.
+#' @seealso [mutt()], [mutt_studies()]
 #' @keywords internal
 "_PACKAGE"

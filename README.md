@@ -28,7 +28,8 @@ marked `available` can be downloaded.
 | `unavailable` | No processed data are provided for this study in this release. Source information may still be available. |
 
 Listing studies and inspecting their source information does not download study
-data.
+data. The loading examples below require an `available` study. If none are
+available, you can still use the source-information functions.
 
 ## Load study data
 
@@ -54,7 +55,8 @@ the following fields:
 
 Additional fields, including demographics, are included where present. A field
 can contain several named tables for different assays, classifiers or cohorts.
-Inspect the study and select the table you need for your analysis.
+For example, `names(study$counts)` shows the count tables you can choose from.
+Select the table you need for your analysis.
 
 ### Which samples are included?
 
@@ -62,8 +64,8 @@ By default, MUTT loads the saved study tables with their original sample groups.
 The counts, sample information and microbial-load tables may contain different
 samples.
 
-Some studies also have a second saved version that follows the previous package's
-rules for matching samples. Load it with:
+To work with counts and load measurements from the same samples, some studies
+also provide a saved version prepared by matching sample IDs. Request it with:
 
 ```r
 aligned <- mutt("vandeputte2017", representation = "aligned")
@@ -113,20 +115,20 @@ studies and preparing data releases.
 
 ## Use phyloseq or miaverse
 
-Choose a single counts table before converting it:
+Install the optional `phyloseq` or `TreeSummarizedExperiment` package with
+BiocManager before using its converter. For `vandeputte2017`, the original
+counts include results from more than one taxonomic classification. This example
+selects the table named `rdp19`:
 
 ```r
-counts <- study$counts$original
+counts <- study$counts$original$rdp19
 ps <- mutt_as_phyloseq(counts)
 tse <- mutt_as_miaverse(counts)
 ```
 
-Counts must have samples in rows and features in columns. You can also supply
+Counts must have samples in rows and features, such as ASVs or taxa, in columns. You can also supply
 `metadata` and `taxonomy` tables with sample IDs and feature IDs, respectively,
 as row names. These tables must cover all IDs in the selected counts table; the
 converter puts their rows in the corresponding order and keeps all selected
 counts. Include microbial-load columns in the sample metadata if you want them
 in the converted object.
-
-Install the optional `phyloseq` or `TreeSummarizedExperiment` package with
-BiocManager when using its converter.

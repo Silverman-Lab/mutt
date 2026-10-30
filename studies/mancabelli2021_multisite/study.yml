@@ -13,11 +13,9 @@
   "display_name": "2021 mancabelli applenvironmicrobiology chickenfecalhumanvaginalshotgunflow",
   "schema_version": 1,
   "legacy_id": "2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow",
-  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC8091109/\ndata: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA641015\n\nShallow shotgun sequencing. Has relative counts in datasheet 2 from supplemental data\n\ncollected and processed by Maxwell Konnaris: 5/3/25\n",
-  "baseline_status": "unavailable: existing parser failed",
-  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-  "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
   "archived_inputs": [
     {
       "file": "AEM.02899-20-s0001 (1).xlsx.zip",

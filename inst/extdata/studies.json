@@ -38,7 +38,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "Can't rename columns that don't exist.\n\u2716 Column `Run` doesn't exist."
+      "reason": "Processing could not find the column \"Run\" needed to prepare the study data."
     },
     {
       "study_id": "caenepeel2024",
@@ -106,7 +106,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "object 'tax' not found"
+      "reason": "Processing could not find the required tax object."
     },
     {
       "study_id": "feng2023",
@@ -129,7 +129,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "object 'sra_list' not found"
+      "reason": "Processing could not find the required sra_list object."
     },
     {
       "study_id": "fromentin2022",
@@ -186,7 +186,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "Join columns in `y` must be present in the data.\n\u2716 Problem with `fastq ID`."
+      "reason": "Processing could not find the column \"fastq ID\" needed to match input tables."
     },
     {
       "study_id": "garciamartinez2024",
@@ -209,7 +209,7 @@
       "sequencing": "unreviewed",
       "load": "unreviewed",
       "status": "unavailable",
-      "reason": "unavailable: unregistered legacy study"
+      "reason": "Source information is recorded, but no processed study data are provided."
     },
     {
       "study_id": "ji2019",
@@ -217,7 +217,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "Can't rename columns that don't exist.\n\u2716 Column `sample name` doesn't exist."
+      "reason": "Processing could not find the column \"sample name\" needed to prepare the study data."
     },
     {
       "study_id": "jin2022",
@@ -270,11 +270,11 @@
     },
     {
       "study_id": "krause2024",
-      "display_name": "2024 krause microorganisms notsurethisisgoodviaauthor maybe throw",
+      "display_name": "Krause (2024)",
       "sequencing": "unreviewed",
       "load": "unreviewed",
       "status": "unavailable",
-      "reason": "unavailable: unregistered legacy study"
+      "reason": "Source information is recorded, but no processed study data are provided."
     },
     {
       "study_id": "krawczyk2022",
@@ -312,7 +312,7 @@
       "sequencing": "unreviewed",
       "load": "unreviewed",
       "status": "unavailable",
-      "reason": "unavailable: unregistered legacy study"
+      "reason": "Source information is recorded, but no processed study data are provided."
     },
     {
       "study_id": "liao2021",
@@ -380,7 +380,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "zip file '2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal/' cannot be opened"
+      "reason": "Processing could not open a required ZIP archive."
     },
     {
       "study_id": "mancabelli2021_multisite",
@@ -388,7 +388,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "argument \"x\" is missing, with no default"
+      "reason": "Processing stopped because a required input was not supplied."
     },
     {
       "study_id": "marotz2021",
@@ -447,7 +447,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "Can't rename columns that don't exist.\n\u2716 Column `run` doesn't exist."
+      "reason": "Processing could not find the column \"run\" needed to prepare the study data."
     },
     {
       "study_id": "pereira2023",
@@ -470,7 +470,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "Can't rename columns that don't exist.\n\u2716 Column `Run` doesn't exist."
+      "reason": "Processing could not find the column \"Run\" needed to prepare the study data."
     },
     {
       "study_id": "prochazkova2024",
@@ -493,7 +493,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "Can't select columns that don't exist.\n\u2716 Column `Cell.density.sd (cells/mL` doesn't exist."
+      "reason": "Processing could not find the column \"Cell.density.sd (cells/mL\" needed to prepare the study data."
     },
     {
       "study_id": "rao2021",
@@ -535,7 +535,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "object 'metadata_16s_zip' not found"
+      "reason": "Processing could not find the required metadata_16s_zip object."
     },
     {
       "study_id": "reyes2013",
@@ -543,7 +543,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "duplicate 'row.names' are not allowed"
+      "reason": "Processing encountered duplicate row identifiers."
     },
     {
       "study_id": "rolling2021",
@@ -566,7 +566,7 @@
       "sequencing": "unreviewed",
       "load": "unreviewed",
       "status": "unavailable",
-      "reason": "unavailable: unregistered legacy study"
+      "reason": "Source information is recorded, but no processed study data are provided."
     },
     {
       "study_id": "sinha2017",
@@ -574,7 +574,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "missing values in 'row.names' are not allowed"
+      "reason": "Processing encountered missing row identifiers."
     },
     {
       "study_id": "stammler2016",
@@ -657,7 +657,7 @@
       "sequencing": "unreviewed",
       "load": "unreviewed",
       "status": "unavailable",
-      "reason": "unavailable: unregistered legacy study"
+      "reason": "Source information is recorded, but no processed study data are provided."
     },
     {
       "study_id": "tkacz2018",
@@ -665,7 +665,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "error in evaluating the argument 'x' in selecting a method for function 'XStringSet': object 'counts_reprocessed' not found"
+      "reason": "Processing could not find the required counts_reprocessed object."
     },
     {
       "study_id": "tourlousse2018",
@@ -673,7 +673,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "object 'counts_original' not found"
+      "reason": "Processing could not find the required counts_original object."
     },
     {
       "study_id": "tunsakul2024",
@@ -696,7 +696,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "Can't rename columns that don't exist.\n\u2716 Column `Sample ID` doesn't exist."
+      "reason": "Processing could not find the column \"Sample ID\" needed to prepare the study data."
     },
     {
       "study_id": "vandeputte2017",
@@ -749,7 +749,7 @@
       "sequencing": "unknown",
       "load": "unknown",
       "status": "unavailable",
-      "reason": "attempt to select less than one element in get1index"
+      "reason": "Processing could not select a required item from the input data."
     },
     {
       "study_id": "wagner2025",
@@ -772,7 +772,7 @@
       "sequencing": "unreviewed",
       "load": "unreviewed",
       "status": "unavailable",
-      "reason": "unavailable: unregistered legacy study"
+      "reason": "Source information is recorded, but no processed study data are provided."
     },
     {
       "study_id": "zaramela2022",

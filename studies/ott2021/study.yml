@@ -11,11 +11,9 @@
   "display_name": "2021 ott environmentalmicrobiome riverwater",
   "schema_version": 1,
   "legacy_id": "2021_ott_environmentalmicrobiome_riverwater",
-  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "paper: https://environmentalmicrobiome.biomedcentral.com/articles/10.1186/s40793-021-00391-0\npaper comments by author: https://osf.io/m9buz?view_only=90e614c2c6b64483aa503694af113789 \n\nDr. Ott and Dr. Graham are no longer at Newcastle and these were the comments I received in return email:\n\nDear Maxwell,\n\nAmelie Ott left Newcastle University a number of years ago and I am not sure where the data are archived. I also am not at Newcastle anymore, except in an Emeritus role. I am now at Durham University.\n\nWith this background, I have cc:d Marcos Quintela-Baluja who worked with Amelie on the manuscript and is now a professor at Durham University. I am not sure whether Marcos can help. I also provide an email Amelie in her position in Brussels, but I am not sure what she will have access to data either. However, maybe.\n\nHopefully, they might be able to answer questions.\n\nGood luck,\nDavid Graham \n\n\n\n\n",
-  "baseline_status": "unavailable: existing parser failed",
-  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
   "archived_inputs": [
     {
       "file": "Metadata paper (2).xlsx.zip",

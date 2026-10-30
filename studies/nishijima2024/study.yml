@@ -17,11 +17,9 @@
   "display_name": "2024 nishijima cell galaxy",
   "schema_version": 1,
   "legacy_id": "2024_nishijima_cell_galaxy",
-  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "",
-  "baseline_status": "current API exact capture",
-  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-  "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
   "archived_inputs": [
     {
       "file": "GALAXY_load.tsv.zip",

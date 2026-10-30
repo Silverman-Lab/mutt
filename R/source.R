@@ -2,12 +2,17 @@
   jsonlite::read_json(system.file('extdata','sources.json',package='mutt'))
 }
 
-#' Inspect study sources
+#' Inspect study sources and processing scripts
 #'
-#' Shows source notes and input information without downloading source files.
-#' @param study One study ID.
-#' @return Source information, including accession numbers, archived input files,
-#'   original notes and known limits on public inputs or processing instructions.
+#' [mutt_source()] shows source notes and input information without downloading
+#' files. [mutt_recipe()] returns links to processing scripts for maintaining or
+#' extending the collection.
+#' @param study One study ID from [mutt_studies()].
+#' @return [mutt_source()] returns source information, including accession
+#'   numbers, archived input files, original notes and known limits on public
+#'   inputs or processing instructions. [mutt_recipe()] returns named URLs for
+#'   `study.yml`, `download.R` and `process.R` at the recorded source version.
+#' @seealso [mutt_studies()], [mutt_download_raw()]
 #' @export
 mutt_source <- function(study) {
   .mutt_select(study)
@@ -15,12 +20,7 @@ mutt_source <- function(study) {
   .mutt_sources()[[study]]
 }
 
-#' Find study processing scripts
-#'
-#' Returns links to the scripts and metadata for the study's recorded source
-#' version. These scripts are for maintaining or extending the collection.
-#' @param study One study ID.
-#' @return Named URLs for study.yml, download.R and process.R.
+#' @rdname mutt_source
 #' @export
 mutt_recipe <- function(study) {
   meta <- mutt_source(study)
@@ -36,7 +36,7 @@ mutt_recipe <- function(study) {
 #' processed data. With reads = TRUE, also downloads public sequencing reads
 #' from ENA. These files can be much larger than the processed data returned by
 #' [mutt()]. Source notes describe known gaps in public inputs.
-#' @param study One study ID.
+#' @param study One study ID from [mutt_studies()].
 #' @param dest Destination for source files. Defaults to a sources directory
 #'   within MUTT's saved local files (the cache).
 #' @param reads Also retrieve public sequencing reads from ENA. Default FALSE.

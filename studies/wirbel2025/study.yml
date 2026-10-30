@@ -20,7 +20,5 @@
     }
   ],
   "source_notes": "Unregistered legacy study directory. No bundled parser or selected harmonized output. Retained for source discovery; do not claim release readiness.",
-  "baseline_status": "unavailable: unregistered legacy study",
-  "source_urls": [],
-  "manuscript_use": "not used as a selection rule: user requires current API equivalence"
+  "source_urls": []
 }

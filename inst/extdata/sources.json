@@ -11,11 +11,9 @@
     "display_name": "2024 sternes frontmicrobiol IBDppiqPCR",
     "schema_version": 1,
     "legacy_id": "2024_sternes_frontmicrobiol_IBDppiqPCR",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://pubmed.ncbi.nlm.nih.gov/39469457/\n\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "Data Sheet 1 (1).docx.zip",
@@ -89,11 +87,9 @@
     "display_name": "2024 kruger scientificreports ddpcrhealthysubjects",
     "schema_version": 1,
     "legacy_id": "2024_kruger_scientificreports_ddpcrhealthysubjects",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC11490648/\n\nKruger ended up getting back to us as the corresponding author has left their department and does not assume the contact responsibility for their study anymore. Kruger is on sick leave and still completed our request on 5/28/25 and went the extra mile to supply us with dnaconcentrations for each sample measured in ng/ul.\n\nParticipants collected faecal samples on three consecutive days, or alternatively at three timepoints as close as possible to each other within one week. \nAll faecal sample analyses from the same individual for all measurements were performed within the same batch. 10 replicates of 1\u20132 gram faeces were made from a pooled sample of 15 gram faeces obtained from all ten participants. Afterwards, five replicates were then processed by hammering only, while five replicates were both hammered and mill-homogenised. water content and ph were measured, protein biomarkers through ELISA, and SCFA/BCFAs were measured via GC-MS, also performed untargeted metabolomics through LC-MS, and UHPLC-Q-Orbitrap-MS/MS.\n\n\nSix quality controls (QC), which consisted of a pool of the faecal samples from the participants, were analysed to ensure precision and stability of the LC-MS machine during the whole process of injection. QC samples were injected every after 10 sample injections and was used to assess chromatographic drift and instrumental errors.\n\ndnaconcetrations.csv = \nSample description\t\n1\tMill homogenised samples were extracted in duplicate using the PowerSoil DNA kit from Qiagen\n\t(only the first extracted sample of the duplicates was used for sequencing)\n2\tDNA concentrations were measured with 2ul on the Nanodrop\n3\tEach individual (subject number eg 19) had samples taken on three timepoints -three consecutive days (.1, .2, .3)\n4\tFor all samples on day 1 (.1) , there were additional extractions done with a different sample preparation ( IKA- samples=hammered only)\n\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41598_2024_75477_MOESM2_ESM.csv.zip",
@@ -193,11 +189,9 @@
     "display_name": "2016 stammler microbiome micehuman",
     "schema_version": 1,
     "legacy_id": "2016_stammler_microbiome_micehuman",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "\nAdditional file 1: Table S1:\nSpecies-specific and total 16S rDNA quantitative realtime-PCR measurements. (XLSX 13 kb)\nHas total 16s rDNA copies per sample (sample65 ~ sample102 : mice)\n\nAdditional file 2: Table S2:\nDesign of dilution experiment. (XLSX 16 kb)\nHas information about amount of spiked 16S rRNA copies per sample\n\nAdditional file 3: Table S3:\nPools of bacterial mock communities containing S. ruber, A. acidiphilus and R. radiobacter. (XLSX 13 kb)\nHas information about the amount of three bacteria spiked into each pool. \n\nAdditional file 4: Table S4:\nPrimers and hydrolysis probes used in this study. (XLSX 13 kb)\n\nAdditional file 5:\n16S rDNA reference sequences of S. ruber, A. acidiphilus and R. radiobacter. (FASTA 4 kb)\n\nAdditional file 6:\nR-Script for reproduction of analysis and figures of this study. (R 39 kb)\n\nAdditional file 7:\nDilution experiment mapping file as used for reproduction. (TXT 3 kb)\nNote : sample ID is MID01 - MID40. Check Additional file 11 to check mapping to sample(65-102)\n\nAdditional file 8:\nASCT experiment mapping file as used for reproduction. (TXT 1 kb)\nSampleID : MID26-43, but don't confuse this with samples from Additional file 7. Additional file 8 is human data (ASCT experiment) and Additional file 7 is mice data (dilution experiment).\n\nAdditional file 9:\nDilution experiment OTU table as used for reproduction. (TXT 460 kb)\n\nAdditional file 10:\nASCT experiment OTU table as used for reproduction. (TXT 621 kb)\n\nAdditional file 11:\nTotal 16S rDNA qRT-PCR measurements as used for reproduction. (CSV 1 kb)\nNote : this data matches with total 16S rDNA copies from Additional file 1. Also gives mapping to Sample (65-102) and SampleID (MID1-MID40) used in dilution experiment. Sample 87 and 88 are missing from this mapping. \n\nAdditional file 12:\nSpike-in concentrations by design as used for reproduction. (CSV 1 kb)\n\n\n\n\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "Archive/40168_2016_175_MOESM10_ESM.txt.zip",
@@ -324,11 +318,9 @@
     "display_name": "2022 fromentin naturemedicine metacardissubset",
     "schema_version": 1,
     "legacy_id": "2022_fromentin_naturemedicine_metacardissubset",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Paper: https://www.nature.com/articles/s41591-022-01688-4\n\nThis study encompassed 372 individuals with IHD, including 112 with acute coronary syndrome (ACS), 158 with chronic ischemic heart disease (CIHD) and 102 with IHD and heart failure (HF). Included 275 healthy controls (HCs) matched on demographics, age and sex and 222 untreated metabolically matched controls (UMMCs)\u2014that is, individuals with features of the metabolic syndrome and at increased risk of IHD but receiving no lipid-lowering or anti-diabetic or anti-hypertensive drugs. Included 372 controls matched with individuals with IHD in terms of T2D status and body mass index (BMI), thereafter termed metabolically matched controls (MMCs). They profiled their serum and urine metabolome (1,558 metabolites and lipids) and examined their intestinal microbiome, considering inter-individual variations in absolute fecal bacterial cell density, a factor potentially reflecting the disease state and obscuring genuine microbiome involvement.\n\nCode: https://github.com/TillBirkner/metadeconfoundR\n\nI think data can be downloaded straight from repo R folder or from package: install.packages(\"metadeconfoundR\") in R \n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41591_2022_1688_MOESM3_ESM.xlsx.zip",
@@ -418,11 +410,9 @@
     "display_name": "2025 wagner frontiersinmiccrobiology flowpiglets",
     "schema_version": 1,
     "legacy_id": "2025_wagner_frontiersinmiccrobiology_flowpiglets",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Paper: https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2025.1481197/full#SM1 \n\nData retrieval and proessing, Genomic processing, and Parser completed by Maxwell: 04/11/25\n\nOriginal data included:\n\n\n\n\nMethods info from papers:\n\n\nPiglet feeding trial A with tylosin application\nFour weeks old female pigs obtained from the M\u00f6rsdorfer Agrar GmbH (M\u00f6rsdorf, Thuringia, Germany) were maintained in the animal facility of the Friedrich-Loeffler-Institute (Jena, Germany) in separate pens. After 2\u202fweeks of acclimatization, piglets (n\u202f=\u202f2 per group in pre-trial, n\u202f=\u202f4 per group in main trial, 12 animals in total, 10.77\u202f\u00b1\u202f1.39\u202fkg live weight) were fed about 5\u202fg of either pure peanut butter (Netto American Style, Netto Marken-Discount Stiftung & Co. KG, Maxh\u00fctte-Haidhof, Germany) or peanut butter supplemented with tylosin tartrate (Sigma-Aldrich Chemie GmbH, Taufkirchen, Germany) at a concentration of 10\u202fmg/kg bodyweight per piglet. Each feeding was done twice in an interval of 24\u202fh. Individual faecal samples were collected before (d0) and 30\u202fh (d1), 48\u202fh (d2), 72\u202fh (d3), and 96\u202fh (d4) after antibiotic treatment. Samples were homogenized, and aliquots were stored either at room temperature (RT) in 600\u202f\u03bcL DNA stabilization solution (INVITEK Molecular, Berlin, Germany) for sequencing, or at \u221220\u00b0C without additives.\n\nPiglet feeding trial B with tulathromycin application\nEighty weaned barrows (6.39\u202f\u00b1\u202f1.1\u202fkg live weight) were group-housed (four piglets/pen) and equally assigned to one of four diets with graded copper levels (five pens/diet) during 5\u202fweeks of rearing. At the end of the fourth experimental week, piglets of each dietary group were subdivided into half and were subjected to intramuscular injection of the antibiotic (DRAXXIN\u00ae Zoetis, 2.5\u202fmg tulathromycin/kg BW) or a placebo (0.9% NaCl). Individual faecal samples obtained via manual rectal stimulation were collected directly before and 24\u202fh after the respective injection. Faecal material was snap-frozen in liquid nitrogen immediately after collection and stored at \u221280\u00b0C until further processing. Six piglets (antibiotic-treated individuals) of the dietary groups with 150\u202fmg Cu/kg feed were chosen for further analysis in this study for total bacterial counts and sequencing.\n\nSequencing and raw read processing\nIsolation of total DNA and sequencing of 16S rRNA gene amplicons was carried out at the Core Facility Microbiome of the Technical University of Munich (Freising, Germany) as described previously (Reitmeier et al., 2020) with slight modifications. Briefly, DNA was isolated using a MaxWell (Promega, Walldorf, Germany) after bead-beating and used in a 2-step PCR to generate sequencing libraries. The first PCR used primers specific for the V3 and V4 regions (i.e., 341F, CCT ACG GGN GGC WGC AG; 785R, GAC TAC HVG GGT ATC TAA TCC) that contain an overhang for the subsequent PCR for sample barcoding. Cleaned libraries were sequenced PE300 on a MiSeq (Illumina). Spike-in of synthetic full-length 16S rRNA genes was done as described by Tourlousse et al. (2018, 2017). Here, 6\u202fng of spike DNA, consisting of an equimolar mixture of 13 linearized plasmids, each of which contains an artificial 16S rRNA gene, was added to 600\u202f\u03bcL of the faeces-stabilizer mix. In each artificial \u201cgene\u201d, the invariant regions of the 16S rRNA were left untouched, while the variable regions were swapped with artificial sequences. Thus, spike reads are clearly distinguishable from true bacterial reads in analysis. Sample weight (i.e., gram of faecal material) was recorded in order to obtain 16S rRNA GCN per gram sample.\n\nRaw reads were processed with pipeline DADA2 (Callahan et al., 2016). Sequences were demultiplexed and filtered, and amplicons with an expected error\u202f>\u202f2 were excluded. To limit the analysis of regions with higher error values, reads were trimmed to sequence lengths of 250\u202fbp and 200\u202fbp, respectively, for forward and reverse reads. Remaining reads were merged to paired end reads. Amplicon sequence variants (ASVs) were clustered at 97% sequence identity, and their sample-wise abundances were calculated after removing substitution and chimera errors. Taxonomies were assigned at 80% confidence level by considering results from both the Ribosomal Database Project (RDP) classifier (Wang et al., 2007) and the SILVA Incremental Aligner (SINA; v1.2.11) (Pruesse et al., 2012). Taxon names were verified manually in accordance to the nomenclature defined by the List of Prokaryotic names with Standing in Nomenclature (LPSN) (Parte, 2013; Parte, 2018; Parte et al., 2020; Euz\u00e9by, 1997).\n\n16S rRNA GCN correction and synthetic spike-in\nASVs were analysed using parts of the PICRUSt2 pipeline (Douglas et al., 2020) as follows. HMMER version v3.3.21 places ASVs, EPA-ng (Barbera et al., 2018) determined the optimal position of these ASVs in a reference phylogeny, and GAPPA (Czech and Stamatakis, 2019) outputs a new tree incorporating ASV placements. This adjusted reference phylogeny allowed for the prediction of 16S rRNA GCN. The IMNGS output ASVs tables were corrected within the PICRUSt2 pipeline by dividing the original read counts by the predicted GCN.\n\nTo obtain a more intuitive comparability of both methods, we harmonized absolute abundances obtained by a flow cytometry method, FACS, and the spike-in approach as follows. Since the spike-in method gives only relative numbers of 16S rRNA gene copies between samples, cell counts of piglet 7 determined by FACS on day 0 were used as a reference. Subsequently, read counts for the spikes of this sample were scaled to the cell numbers within this sample using an arbitrary factor. The factor was chosen such that the relative amount of spike in this sample could be converted into the cell number found by FACS. The other samples gave relative numbers of gene copies that were multiplied by this factor in order to calculate cell number equivalents.\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "README.txt.zip",
@@ -527,10 +517,8 @@
       }
     ],
     "source_notes": "Unregistered legacy study directory. No bundled parser or selected harmonized output. Retained for source discovery; do not claim release readiness.",
-    "baseline_status": "unavailable: unregistered legacy study",
     "source_urls": [],
-    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence"
+    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a"
   },
   "reyes2013": {
     "sequencing": "unknown",
@@ -544,11 +532,9 @@
     "display_name": "2013 reyes procnationalacademyscience gnotobioticmousehumangutflow",
     "schema_version": 1,
     "legacy_id": "2013_reyes_procnationalacademyscience_gnotobioticmousehumangutflow",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://pubmed.ncbi.nlm.nih.gov/24259713/\nsupp files: supp_110_50_20236__index.html \n\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "README.txt.zip",
@@ -584,11 +570,9 @@
     "display_name": "2017 sinha natureBiotec spikeinhumanfecalreproducibility",
     "schema_version": 1,
     "legacy_id": "2017_sinha_natureBiotec_spikeinhumanfecalreproducibility",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "MBQC project - it aims to evaluate methods for measuring human microbiome (protocols for handling human microbiome samples and computational pipelines for microbial data processing). The goal is helping context-dependent protocol choices by identifying the relative effect sizes of individual variables.\n\nThe data include results sequenced by 15 laboratories and analyzed based on 9 bioinformatics protocols. \n\n------\n\nSupplementary Datasets can be found in the paper ; https://www.nature.com/articles/nbt.3981#Sec26\n\n\nSupplementary Data set 1\nExtended literature review and categorization of microbiome protocol studies. (XLSX 117 kb)\n\nSupplementary Data set 2\nHandling protocol variables recorded during the MBQC-base. (XLSX 25 kb)\n\nSupplementary Data set 3\nBioinformatics protocol variable reporting. (XLSX 24 kb)\n\nSupplementary Data set 4\nHandling protocol variables curated from the MBQC-base. (XLSX 16 kb)\n\nSupplementary Data set 5\nRaw read counts per sample. (XLSX 41 kb)\nNote ; 'Blinded sample ID' matches with row names in Supplementary Dataset 6.\n\nSupplementary Data set 6\nMBQC-base OTU table. (ZIP 14543 kb)\nNote ; It has both metadata and OTU counts. \nNote ; Check if this identical to mbqc_integrated_otus.tsv retrieved from mbqc_org_files\nNote ; nt_count seems to be the scale.\n\nSupplementary Data set 7\nAlpha and beta diversities stratified by sample type within and between 175 handling and bioinformatics laboratories. (ZIP 7139 kb)\n\nSupplementary Data set 8\nBeta-diversity divergence from artificial community positive controls; 181 stratified by handling and bioinformatics laboratories. (TXT 2 kb)\n\n\n------\n\nmbqc_org_files are retrieved from https://www.hmpdacc.org/MBQC/\nSeems like they provide the same information as supplementary datasets, but will need to check\n\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "README.txt.zip",
@@ -694,11 +678,9 @@
     "display_name": "2021 ott environmentalmicrobiome riverwater",
     "schema_version": 1,
     "legacy_id": "2021_ott_environmentalmicrobiome_riverwater",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://environmentalmicrobiome.biomedcentral.com/articles/10.1186/s40793-021-00391-0\npaper comments by author: https://osf.io/m9buz?view_only=90e614c2c6b64483aa503694af113789 \n\nDr. Ott and Dr. Graham are no longer at Newcastle and these were the comments I received in return email:\n\nDear Maxwell,\n\nAmelie Ott left Newcastle University a number of years ago and I am not sure where the data are archived. I also am not at Newcastle anymore, except in an Emeritus role. I am now at Durham University.\n\nWith this background, I have cc:d Marcos Quintela-Baluja who worked with Amelie on the manuscript and is now a professor at Durham University. I am not sure whether Marcos can help. I also provide an email Amelie in her position in Brussels, but I am not sure what she will have access to data either. However, maybe.\n\nHopefully, they might be able to answer questions.\n\nGood luck,\nDavid Graham \n\n\n\n\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "Metadata paper (2).xlsx.zip",
@@ -753,7 +735,7 @@
   },
   "krause2024": {
     "study_id": "krause2024",
-    "display_name": "2024 krause microorganisms notsurethisisgoodviaauthor maybe throw",
+    "display_name": "Krause (2024)",
     "legacy_id": "2024_krause_microorganisms_notsurethisisgoodviaauthor_maybe_throw",
     "schema_version": 1,
     "sequencing": "unreviewed",
@@ -778,10 +760,8 @@
       }
     ],
     "source_notes": "Unregistered legacy study directory. No bundled parser or selected harmonized output. Retained for source discovery; do not claim release readiness.",
-    "baseline_status": "unavailable: unregistered legacy study",
     "source_urls": [],
-    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence"
+    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a"
   },
   "galazzo2020": {
     "sequencing": "16S rRNA",
@@ -797,11 +777,9 @@
     "display_name": "2020 galazzo frontiersincellularandinfectionmicrobiology flowqPCRddPCRhealthy",
     "schema_version": 1,
     "legacy_id": "2020_galazzo_frontiersincellularandinfectionmicrobiology_flowqPCRddPCRhealthy",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "ERP108719_dada2_counts.rds.zip",
@@ -868,11 +846,9 @@
     "display_name": "2017 liu mbio penilehivqPCR",
     "schema_version": 1,
     "legacy_id": "2017_liu_mbio_penilehivqPCR",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Clinical trial, Maxwell communicated with authors and they uploaded the data publicly as it has been 8 years since trial ended. They also sent the scale. Maxwell wrote a cleanSRA python script that cleans the scraped .xml file and puts it into metadata.csv format. All genomic material processed by Maxwell 04/10/25 and parse.R completed 04/10/25. Bioproject: PRJNA1233249\n\nAuthors did not provide count or relative abundances. \n\nThis is a population of uncircumcised men who became infected by HIV during a 2-year clinical trial had higher levels of penile anaerobes than uncircumcised men who remained HIV negative. They found that having higher levels of penile anaerobes was also associated with higher production of immune factors that recruit HIV target cells to the foreskin, suggesting that anaerobes may modify HIV risk by triggering inflammation. These anaerobes are known to be shared by heterosexual partners and are associated with HIV risk in women. Therefore, penile anaerobes may be a sexually transmissible risk factor for HIV, and modifying the penile microbiome could potentially reduce HIV acquisition in both men and women.\n\n182 human subjects (men) with 1 coronal sculcus swab sample each.\n\nPaper: https://pmc.ncbi.nlm.nih.gov/articles/PMC5527312/\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
     "archived_inputs": [
       {
         "file": "PMID-28743816_samples-v1.csv.zip",
@@ -948,11 +924,9 @@
     "display_name": "2024 prochazkova naturemicrobiology longitudinalhealthyflowfecal",
     "schema_version": 1,
     "legacy_id": "2024_prochazkova_naturemicrobiology_longitudinalhealthyflowfecal",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41564_2024_1856_MOESM4_ESM_.xlsx.zip",
@@ -1018,11 +992,9 @@
     "display_name": "2022 cvandevelde ismecommunications culturedflowhumanfecal",
     "schema_version": 1,
     "legacy_id": "2022_cvandevelde_ismecommunications_culturedflowhumanfecal",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "Metadata.txt.zip",
@@ -1110,11 +1082,9 @@
     "display_name": "2023 galla scientificreports spikeinmockvariousorganismssampletypes",
     "schema_version": 1,
     "legacy_id": "2023_galla_scientificreports_spikeinmockvariousorganismssampletypes",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Paper: https://www.nature.com/articles/s41598-023-30916-1?fromPaywallRec=false#Sec8\n\nBovine fecal samples (heifers):\nSubjects: 8 heifers.\nSamples: 3 pooled samples (BP1, BP2, BP3), with each pool further split into:\nHigh Biomass (HBM): 3 subsamples per pool \u2192 \n3\u00d73=9 subsamples.\nLow Biomass (LBM): 3 subsamples per pool \u2192 \n3\u00d73=9 subsamples.\n\nTotal samples from bovine feces: \n9+9=18.\n\nRhizosphere soil:\nSubjects: Single soil sample.\nSamples: 9 technical replicates.\n\nGround beetles (Carabidae spp.):\nSubjects: 3 individuals.\nSamples: 3 technical replicates per individual \u2192 \n3\u00d73=9.\n\nEarthworms (Lumbricus spp.):\nSubjects: 3 individuals.\nSamples: 3 technical replicates per individual \u2192 \n3\u00d73=9.\n\nSpringtails (Collembola):\nSubjects: Pool of 6 individuals.\nSamples: 6 technical replicates.\n\nRoundworms (Nematoda spp.):\nSubjects: 9 pools (30 individuals per pool).\nSamples: 9 technical replicates.\n\nRed deer (Cervus elaphus) fecal pellets:\nSubjects: 3 fecal pellets.\nSamples: 3 technical replicates per pellet \u2192 \n3\u00d73=9.\n\nEuropean brown hare (Lepus europaeus) fecal pellets:\nSubjects: 2 fecal pellets.\n\nTotal: 30 Subjects\n\t75 Samples\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41598_2023_30916_MOESM3_ESM.xlsx.zip",
@@ -1161,11 +1131,9 @@
     "display_name": "2020 zemb microOpen spike",
     "schema_version": 1,
     "legacy_id": "2020_zemb_microOpen_spike",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Paper Link: https://pmc.ncbi.nlm.nih.gov/articles/PMC7066463/#mbo3977-sec-0025\nBioProject ID: PRJNA531076\n\nManan (04/09/2025): \n    Won already had collected all the data. Fixed the parse script wrote by Won.\n    Scale, count and metdata were provided by the author. Appended the metadata from SRA Run Selector to author's metdata.       \n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
     "archived_inputs": [
       {
         "file": "PRJNA531076_dada2_counts.rds.zip",
@@ -1254,11 +1222,9 @@
     "display_name": "2021 mancabelli applenvironmicrobiology chickenfecalhumanvaginalshotgunflow",
     "schema_version": 1,
     "legacy_id": "2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC8091109/\ndata: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA641015\n\nShallow shotgun sequencing. Has relative counts in datasheet 2 from supplemental data\n\ncollected and processed by Maxwell Konnaris: 5/3/25\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
     "archived_inputs": [
       {
         "file": "AEM.02899-20-s0001 (1).xlsx.zip",
@@ -1326,11 +1292,9 @@
     "display_name": "2024 jin pnas semen",
     "schema_version": 1,
     "legacy_id": "2024_jin_pnas_semen",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "CFU_data.txt.zip",
@@ -1426,11 +1390,9 @@
     "display_name": "2020 vieirasilva nature BMIS",
     "schema_version": 1,
     "legacy_id": "2020_vieirasilva_nature_BMIS",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "https://www.nature.com/articles/s41586-020-2269-x#Sec25\n\nThe processed microbiome profiles can be downloaded at http://raeslab.org/software/BMIS/  \n\n\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41586_2020_2269_MOESM3_ESM.xlsx.zip",
@@ -1490,10 +1452,8 @@
       }
     ],
     "source_notes": "Unregistered legacy study directory. No bundled parser or selected harmonized output. Retained for source discovery; do not claim release readiness.",
-    "baseline_status": "unavailable: unregistered legacy study",
     "source_urls": [],
-    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence"
+    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a"
   },
   "dreier2022": {
     "sequencing": "16S rRNA",
@@ -1517,11 +1477,9 @@
     "display_name": "2022 dreier bmcmicrobiology cheeseqpcr",
     "schema_version": 1,
     "legacy_id": "2022_dreier_bmcmicrobiology_cheeseqpcr",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://bmcmicrobiol.biomedcentral.com/articles/10.1186/s12866-022-02451-y\ncode: https://github.com/biologger/htqpcr_ngs_data\n\nCheese from different locations.\n\nData collection, parser, and reprocessed by Maxwell.\n\nAuthor correspondence:\n\nDear Maxwell,\n\nI am happy to answer your questions. I am pleased to support the objective of enhancing the reproducibility of microbiome analyses. I have gained valuable insights over the years and would make several improvements today to ensure reproducibility and accessibility to data.\n\n1) \nAll samples were subjected to sequencing on a single chip, precluding the likelihood of batch effects. The cheese samples were of a uniform type, namely Raclette du Valais PDO, produced from raw cow's milk, and collected from 21 distinct cheesemakers. As the samples were PDO, their production was undertaken in accordance with the specified guidelines, but there is known variation between the cheese dairies. Furthermore, the starter cultures, the milk, and the production environment were different, which indicates that these are sources of variation between samples. However, detailed metadata from the cheese makers was not collected, as they typically maintain the confidentiality of their precise recipes. The name of the manufacturer or the exact location could not be provided, but the region in Switzerland where the cheeses were produced is documented in the biosample records on NCBI: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA786903\nExample from the Full (text) summary from NCBI:\nhttps://www.ncbi.nlm.nih.gov/biosample?Db=biosample&DbFrom=bioproject&Cmd=Link&LinkName=bioproject_biosample&LinkReadableName=BioSample&ordinalpos=1&IdsFromResult=786903\n\n2: Metagenome or environmental sample from food fermentation metagenome\nIdentifiers: BioSample: SAMN23733339; Sample name: RdVEH20; SRA: SRS11245430\nOrganism: food fermentation metagenome\nAttributes:\n    /isolation source=\"cheese\"\n    /collection date=\"2018-03-29\"\n    /geographic location=\"Switzerland: Simplon-Dorf\"\n    /latitude and longitude=\"missing\"\nDescription:\nRaclette du Valais sample S20\nAccession: SAMN23733339         ID: 23733339\n\n2)\n\nIf I understand correctly, you are referring to the \"copydict.json\" file.\n\nUnfortunately, I no longer have access to the pipeline output, but I can assist you in obtaining the connection from the IDs to the labels. Within the csv file, we find analogous information: ASV_ID as ID, the ASV sequence as Sequence, and the taxonomy hierarchy from the classification using the DAIRYdb-IDTAXA pipeline (https://github.com/marcomeola/DAIRYdb) with the following columns: \"Kingdom\", \"Phylum\", \"Class\", \"Order\", \"Family\", \"Genus\", \"Species\".\n\nAs demonstrated in the Jupyter Notebook used for the analysis (https://github.com/biologger/htqpcr_ngs_data/blob/main/htqpcr_ngs_comparison_R.ipynb), we never worked on the ASV level (because we did not assume strain level resolution using the V1-V2 rRNA partial sequence), we worked on the species level. We aggregated the ASVs to the species level (after filtering) for the comparison with the qPCR data by using the function:\n\nngs_count = hf().asv_to_speciestable(rac_data)\n\nThis functions similarly to the tax_glom function in phyloseq if you are familiar with this package:\nhttps://www.rdocumentation.org/packages/phyloseq/versions/1.16.2/topics/tax_glom\n\nWe implemented this by taking only the Species column in the csv file into consideration and sums all the counts for each ASV with the same Species value in a new dataframe with a species name. We then additionally added a conversion of the old lactobacilli taxonomy to the new one introduced in 2020 (https://doi.org/10.1128/AEM.02116-15).\n\nThese species names were then mapped to the copydict.json file.\n\nI have created a JSON file that maps the species names used in the paper and in copydict.json back to the ASVs and the 16S rRNA gene copy number (if it was available). I will attach this to the email (species_to_asv_dict.json).The code to reproduce it in Python is here: (run the script in the hqpcr_ngs_data directory of the original repo).\n\n\n#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\n\nimport json\nimport pandas as pd\n\ndef newtax_dict():\n    # dictionary for new taxonomic classification of Lactobacillus group\n    with open('rawdata/new_species_names_dict.json') as f:\n        for line in f:\n            ntax_dict = json.loads(line)\n    return ntax_dict\n\ndef new_species_labels(specieslist):\n    ntax_dict = newtax_dict()\n    newlabel = []\n    for label in specieslist:\n        newl = \" \".join(label.split(\"_\"))\n        if newl in ntax_dict:\n            newl = ntax_dict[newl]\n            if 'subsp.' in newl:\n                newl = newl.split(' subsp.')[0]\n        newlabel.append(newl)\n    return newlabel\ndef asv_to_speciestable(df):\n    # Combine ASVs to species\n    species = list(set(df[\"Species\"]))\n    spec_dict = {}\n    for spec in species:\n        q = df[df[\"Species\"] == spec]\n        spec_dict.update({spec: q.iloc[:, 9:].sum()})\n\n    ngs_count = pd.DataFrame.from_dict(spec_dict).T\n    ngs_count.index = new_species_labels(ngs_count.index)\n    return ngs_count\n\n# all paths are relative to the main directory of the original repo \n# load copy number dictionary\nwith open(\"rawdata/copydict.json\", \"r\") as f:\n    for line in f:\n        copy_dict = json.loads(line)\n\n# load raw reads data\nraw_reads_df = pd.read_csv(\"rawdata/V18-22-21_ASV_counts_table.csv\", header=0, index_col=0)\n\n# convert ASV to species table (aggregate ASVs to species)\ndf = asv_to_speciestable(raw_reads_df)\n\n# replace underscores with spaces\nasv_dict = raw_reads_df[\"Species\"].str.split(\"_\").str.join(\" \").to_dict()\n\n# load new taxonomic classification dictionary\nntax_dict = newtax_dict()\n\n# take unique species names with spaces instead of underscores\nspecies_list = raw_reads_df[\"Species\"].str.split(\"_\").str.join(\" \").unique()\n\n# create a dictionary of species to ASVs and copy numbers\nspecies_to_asv_dict = {}\nfor species in species_list:\n    if species in ntax_dict.keys():\n        # convert the names to new taxonomic classification\n        species = ntax_dict[species]\n\n    for k,v in asv_dict.items():\n        if species in v:\n            if species in species_to_asv_dict.keys():\n                species_to_asv_dict[species][\"asvs\"].append(k)\n            else:\n                if species in copy_dict.keys():\n                    species_to_asv_dict.update({species: {\"copy_number\": copy_dict[species]}})\n\n                else:\n                    species_to_asv_dict.update({species: {\"copy_number\": \"unknown\"}})\n                species_to_asv_dict[species].update({\"asvs\": [k]})\n\n# save the dictionary\nwith open(\"species_to_asv_dict.json\", \"w\") as f:\n    json.dump(species_to_asv_dict, f)\n# print the species to ASV mapping\nfor k, v in species_to_asv_dict.items():\n    print(f\"{k}:\")\n    print(v[\"asvs\"])\n\n\n 3)\n\nThe reads in the SRA archive are the raw data that were solely primer trimmed using cutadapt. There was no Host removal step.\n\nThe Method described in \u201cReference sequence alignments\u201d only applies to the sequences used in Supplementary Figure S1: the alignment of the 16S rRNA gene V1-V2 partial sequences.\n\nThe representative genomes are:\n\nhttps://www.ncbi.nlm.nih.gov/datasets/genome/?taxon=1590,60520,1589&reference_only=true\n\nL. pentosus: GCF_003641185.1\nL. paraplantarum: GCF_029025825.1\nL. plantarum: GCF_009913655.1 \n\n\n\nI hope this helps and feel free to ask if you need more information. \n\n\n\nBest regards,\nMatthias\n\n\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
     "archived_inputs": [
       {
         "file": "16S_copy_number_table.csv.zip",
@@ -1637,11 +1595,9 @@
     "display_name": "2017 props isme longitudinal",
     "schema_version": 1,
     "legacy_id": "2017_props_isme_longitudinal",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper:https://www.nature.com/articles/ismej2016117\nFlow cytometry data (.fcs format) are available on the FlowRepository archive under repository ID FR-FCM-ZZNA and the Dryad Digital Repository (http://dx.doi.org/10.5061/dryad.m1c04). Sequences are available on the NCBI Sequence Read Archive (SRA) under accession number SRP066190.\nCase study data used in MEASURING THE BIODIVERSITY OF MICROBIAL COMMUNITIES BY FLOW CYTOMETRY by Ruben Props, Pieter Monsieurs, Mohamed Mysara, Lieven Clement and Nico Boon\n\nData provided by Nico Boon, email: <Nico.Boon@UGent.be>.\nSee Materials and Methods of the paper for detailed information about the data.\nThe file metadata folder contains additional information that was collected concurrently with the flow cytometry analysis:\n1. Denoising strategy that was used on the flow cytometry data. Explanation for this can be found in SI figure 1 of the paper.\n\n2. Extra metadata\n- Cycle: the number of the survey (1 or 2)\n- Reactor phase: phase of the reactor operation\n- Conductivity, pH and temperature of the ecosystem\n- Timepoint of sampling relative to the start-up of the reactors for each respective cycle\n- D2.tax/D1.tax/D0.tax: Hill species diversities based on the 16S rRNA gene amplicon sequencing. Further description of these parameters is available in the materials and methods section of the paper.\n- D2.fcm/D1.fcm/D0.fcm: Hill diversities calculated from the flow cytometry data. Calculation is described in materials and methods of the paper.\n- D2.fcm.sd/D1.fcm.sd/D0.fcm.sd: standard deviations on the above diversity estimates based on triplicate measurements.\n- Cell.density: total cell density of the community as calculated by flow cytometry\n- Cell.density.sd: standard deviation on the total cell density measurements based on triplicate measurements.\n\n\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
     "archived_inputs": [
       {
         "file": "README.txt.zip",
@@ -1709,11 +1665,9 @@
     "display_name": "2021 rolling naturemicrobiology allohct ITS 16s",
     "schema_version": 1,
     "legacy_id": "2021_rolling_naturemicrobiology_allohct_ITS_16s",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "NIHMS1742510-supplement-Source_Data_1.xlsx.zip",
@@ -2012,11 +1966,9 @@
     "display_name": "2019 morton naturecommunications songbird oral",
     "schema_version": 1,
     "legacy_id": "2019_morton_naturecommunications_songbird_oral",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "## Paper\n\nThis is from the songbird paper: https://www.nature.com/articles/s41467-019-10656-5\n\n## Files\n\nThe raw files oral_trimmed_deblur.biom, oral_trimmed_metadata.csv, and taxonomy.tsv were downloaded from https://github.com/knightlab-analyses/reference-frames.\n\nThe file 2019_morton_songbird_oral_counts.RDS is the counts table in a better format than biom,\nthe code for going from biom to counts is:\n\n```R\nlibrary(biomformat)\n## Load sequence count data\nbiom_data <- read_hdf5_biom(\"oral_trimmed_deblur.biom\")\nY <- do.call(rbind, biom_data$data)\nrow.names(Y) <- sapply(biom_data$rows, function(item){item$id})\n```\n\n## Notes on Data\n\n* Metadata: the metadata contains many columns related to the scale including: flow.cell.5min.1, flow.cells.ul.1, and flow.cells.ul.2. The first two are not normalized by saliva sample size and the last two are. The scale is the average of the normalized counts.\n\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "2019_morton_songbird_oral_counts.RDS.zip",
@@ -2140,11 +2092,9 @@
     "display_name": "2018 tourlousse scientificreports soilsewagespikein",
     "schema_version": 1,
     "legacy_id": "2018_tourlousse_scientificreports_soilsewagespikein",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Paper: https://www.nature.com/articles/s41598-018-27314-3#citeas\n\nGithub: https://github.com/aistBMRG/SampleTrackeR \n\nAuthors developed a spike-in control method for sample tracking and detection of cross-contamination in microbiome community analysis by 16S rRNA gene amplicon sequencing across samples from different sources -- soil and sewage. \n\nTwo different STMs were added to DNA extracted from two contrasting microbiota, namely from sewage (DNA spiked with stm88) and soil (DNA spiked with stm89). Artificially contaminated samples were then prepared by mixing both STM-tagged samples in varying ratios, from 50% to 0.01% of soil DNA diluted in sewage DNA.\n\n\n\n\n\n\n\n## Contents\n\nThis repository describes `SampleTrackeR`, an R script for sample assurance in multiplexed sequencing experiments, based on tagging of samples with synthetic spike-in control mixtures (STMs).\n\nThe following files are available in this repository.\n\n1. \"SampleTrackeR.R\", source code.\n\n2. Data files for results presented in Tourlousse *et al.* (see citation), namely \"sample_plate_layout1.txt\", \"sample_plate_layout2.txt\", \"sample_plate_layout3.txt\", \"read_count_table1.txt\", \"read_count_table2.txt\", \"read_count_table3.txt\" and \"stm_compositions.txt\".\n\n3. \"SampleTrackeR.nb.html\", an HTML file demonstrating the usage of `SampleTrackeR` using the above data sets.\n\n## Using SampleTrackeR\n\n### Prerequisites\n\n`SampleTrackeR` depends on a small number of external R packages that need to be installed and loaded.\n\n```\nlibrary(magrittr)\nlibrary(dplyr)\nlibrary(tidyr)\nlibrary(ggplot2)\n```\n\n`SampleTrackeR` consists of a single script that can be loaded by sourcing the code.\n\n```\nsource(\"/absolute/path/to/SampleTrackeR.R\")\n```\n\nNote that the script automatically sets the current directory as search path when looking for input files (internally, `input.search.path <- getwd()`). All input files thus need to be present in the current directory.\n\n### Description of input files\n\n#### sample_plate_layout\n\nThis tab-delimited file describes the experimental setup, namely plate layout and STM added to each of the samples. Samples lacking STMs can be added using a *mock* STM (designated *e.g.* stm00); the mock STM composition should also be present in the `stm_compositions` file (see below for details). \n\nThe following columns and matching names are required.\n\n  + `libID`: name of the sample or sequencing library.\n\n  + `stmID`: identifier of the STM to added to the sample.\n\n  + `row`: row identifier (should be integer).\n\n  + `column`: column identifier (should be integer).\n\nOther columns can be present (*e.g.*, *description* in the example table below); these are however ignored and not included in any of the generated output files.\n\n| libID | stmID | row | column | description |\n| ------|-------|-----|--------| --------|\n| lib1 | stm01 | 1 | 1 | soil_stm01 |\n| lib2 | stm02 | 2 | 1 | sludge_stm20 |\n| lib3 | stm03 | 3 | 1 | feces_stm03 |\n| ... | ...  | ... | ... |\n| lib4 | stm00 | 6 | 12 | soil |\n| lib5 | stm00 | 7 | 12 | sludge |\n| lib6 | stm00 | 8 | 12 | feces |\n\n#### read_count_table\n\nThis tab-delimited file represent a typical OTU read count table. Read counts for both the individual spike-in controls, as in the `stm_compositions` file (see below), and sample OTUs can be present. A column with name `otuID` is mandatory. The other column names represent sample identifiers as in the `sample_plate_layout` file (see above).\n\n| otuID | lib1 | lib2 | ... |\n| ------|-------|-----|--------|\n| control1 | 101 | 231 | ... |\n| control2 | 3  | 10 | ... |\n| control3 | 0 | 1 | ... |\n| ... | ...  | ... | ... |\n| OTU1 | 0  | 5 | ... |\n| OTU2 | 6  | 567 | ... |\n| ... | ...  | ... | ... |\n\n#### stm_compositions\n\nThis tab-delimited file represents a long-format table with the composition of the STMs.\n\nThe following columns and matching names are required.\n\n  + `stmID`: identifier of the STM\n  \n  + `controlID`: identifier of the spike-in control\n\n  + `value`: value indicating wether the spike-in control is present in the STM (1: present and 0: absent)\n  \n| stmID | controlID | value | \n| ------|-------|-----|\n| stm01 | control1 | 1 | \n| stm01 | control2  | 1 | \n| stm01 | control3  | 0 | \n| stm02 | control1 | 1 | \n| stm02 | control2  | 0 | \n| stm02 | control3  | 1 |  \n| stm03 | control1 | 0 | \n| stm03 | control2  | 1 | \n| stm03 | control3  | 1 | \n| ... | ...  | ... | \n| stm00 | control1  | 0 | \n| stm00 | control2  | 0 | \n| stm00 | control3  | 0 | \n\nFor the mock STM (here stm00) for samples without added STMs, all values should be set to 0, as shown in the above table.\n\n### General usage, output and terminology\n\n```\nout <- SampleTrackeR(sample_plate_layout = \"sample_plate_layout.txt\",\n                     read_count_table = \"read_count_table.txt\", \n                     stm_compositions = \"stm_compositions.txt\",\n                     read.threshold = 1,\n                     fraction.threshold = 1)\n```\n\n#### Description input arguments\n\n  + `sample_plate_layout` (*required*) Name of tab-delimited file of sample layout.\n  \n  + `read_count_table` (*required*) Name of tab-delimited file with read count data, including both synthetic spike-in controls and sample OTUs.\n  \n  + `stm_compositions` (*required*) Name of tab-delimited file with STM compositions.\n  \n  + `read.threshold` (*optional*) Minimum number of reads for a given spike-in control to be scored as present (default 1).\n  \n  + `fraction.threshold` (*optional*) Minimum fraction of spike-in controls for a given STM to be scored as present in order for the STM to be scored as present (default 1).\n\n#### Description outputs\n\nThe output of `SampleTrackeR` is a list with four different objects. Assuming that the output list is called `out`, the resultant list contains the following:\n\n  + `out$tab1`, a data frame containing a summary of sample identification based on majority STMs.\n\n  + `out$plot1`, a ggplot2 object visualizing the output of the sample identification portion of the script.\n\n  + `out$tab2`, a data frame containing a summary of between-sample carry-over based on minority STMs.\n\n  + `out$plot2`, a ggplot2 object visualizing the output of the between-sample carry-over portion of the script.\n  \nNote that `out$tab2` and `out$plot2` are *not* generated when no minority STMs are identified in any of the samples. In this case, a message will be output stating that between-sample carry-over was not evaluated, and hence assumed to be minimal based on the lack of minority STMs.\n\n####  Terminology\n\n  + `majority_STM`, refers to the STM with the highest cumulative read count in a given sample. The majority STM is used to assign sample identity and detect/resolve potential sample swaps.\n\n  + `minority_STM`, refers to STMs present in a sample, excluding the majority STM. A sample can contain multiple minority STMs and these are used for assessment of between-sample carry-over (that is, cross-contamination).\n\n  + `distinguishing_controls`, refers to the number of individual spike-in controls that are not shared between two different STMs. For evaluation of between-sample carry-over, the number of distinguishing controls is the number of spike-in controls present in the minority STM but absent in the majority STM.\n\n  + `percent_carryover`, refers to the estimated amount of sample carry-over between two samples, as quantified based on minority STMs.\n\n### Citation\n\nDieter M. Tourlousse, Akiko Ohashi, Yuji Sekiguchi (2018) Sample tracking in microbiome community profiling assays using synthetic 16S rRNA gene spike-in controls. *Scientific Reports* 8:9095.\nDOI: https://doi.org/10.1038/s41598-018-27314-3\n\n### Contact\n\nDieter Tourlousse: dieter.tourlousse@aist.go.jp\n\n\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41598_2018_27314_MOESM1_ESM.pdf.zip",
@@ -2222,11 +2172,9 @@
     "display_name": "2024 caenepeel gastroenterology IBD CD flow",
     "schema_version": 1,
     "legacy_id": "2024_caenepeel_gastroenterology_IBD_CD_flow",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "README.txt.zip",
@@ -2383,11 +2331,9 @@
     "display_name": "2024 nishijima cell galaxy",
     "schema_version": 1,
     "legacy_id": "2024_nishijima_cell_galaxy",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
     "archived_inputs": [
       {
         "file": "GALAXY_load.tsv.zip",
@@ -2437,11 +2383,9 @@
     "display_name": "2021 mancabelli appliedenvironmentalmicrobiology childrenantibiotictherapyflowfecal",
     "schema_version": 1,
     "legacy_id": "2021_mancabelli_appliedenvironmentalmicrobiology_childrenantibiotictherapyflowfecal",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Paper:https://pmc.ncbi.nlm.nih.gov/articles/PMC8091617/#_ad93_\n\nData retrieved and processed, genomic processed, and parse script completed by Maxwell Konnaris: 04/11/25\n\n\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
     "archived_inputs": [
       {
         "file": "AEM.03137-20-s0001.xlsx.zip",
@@ -2509,11 +2453,9 @@
     "display_name": "2019 contijoch elife multispeciesqPCRshotgunandamplicon",
     "schema_version": 1,
     "legacy_id": "2019_contijoch_elife_multispeciesqPCRshotgunandamplicon",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "library(biomformat)\nlibrary(readr)\nparse_2019_contijoch_eLife_metagenomic <- function(paths = NULL) {\n  local <- file.path(\"~/2019_contijoch_eLife_5data16S/\")\n  \n  # data associated with FMT in patients with rCDI : metagenomic data (data 4) n=15\n  metadata <- read_table(paste0(local,\"metagenomics_sample_metadata.txt\"))\n\n  counts <- as.data.frame(read_table(paste0(local, \"metagenomics_combined_full.txt\")))\n  \n  # Define the ranks in order\n  ranks <- c(\"kingdom\", \"phylum\", \"class\", \"order\", \"family\", \"genus\", \"species\")\n\n  # Split strings into components\n  tax_split <- strsplit(counts$Taxa, \"\\\\|\")\n\n  # Create a matrix with 7 columns\n  tax_matrix <- do.call(rbind, lapply(tax_split, function(entry) {\n    # Extract ranks, ensuring a length of 7 (filling with NA if missing)\n    ranks <- sapply(ranks, function(rank) {\n      matched <- grep(paste0(\"^\", substr(rank, 1, 1), \"__\"), entry, value = TRUE)\n      if (length(matched) == 0) return(NA) else return(sub(\"^[a-z]__\", \"\", matched))\n    })\n    return(ranks)\n  }))\n\n  # Convert to data frame for better visualization\n  tax <- as.data.frame(tax_matrix, stringsAsFactors = FALSE)\n  colnames(tax) <- ranks\n  rownames(tax) <- paste0(\"seq\", 1:nrow(counts))\n  \n  rownames(counts) <- rownames(tax)\n  counts <- counts[,-1]\n  \n  scale <- data.frame(total = metadata$sample_mass_mg * (metadata$sample_microbial_density_ug_per_mg * 10^-6) / (10^-15))\n  rownames(scale) <- metadata$Sample_ID\n  \n  all.equal(colnames(counts), metadata$Sample_ID)\n  all.equal(rownames(scale), metadata$Sample_ID)\n\n  return(list(scale=scale, metadata=metadata, counts=counts, tax=tax))\n}\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "2019_contijoch_eLife_5data16S/Archive.zip",
@@ -2923,11 +2865,9 @@
     "display_name": "2021 rao nature mkspikeseqmetagenomicmultiplescalequantification",
     "schema_version": 1,
     "legacy_id": "2021_rao_nature_mkspikeseqmetagenomicmultiplescalequantification",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper:https://pmc.ncbi.nlm.nih.gov/articles/PMC7990694/\n\n\nData:41586_2021_3241_MOESM4_ESM.xlsx\n\nSupplemental Table 1. Primers used in the study.\nSupplemental Table 2. Absence of select spike-in taxa in public data depositories.\nSupplemental Table 3. Testing accuracy of MK-SpikeSeq in measuring absolute abundance across kingdoms. (Source data for ED Fig 1/2)\nSupplemental Table 4. Comparison of absolute abundance quantification methods using test samples. (Source data for ED Fig 3)\nSupplemental Table 5. Sensitivity and Robustness of MK-SpikeSeq versus qPCR. (Source data for ED Fig 4)\nSupplemental Table 6. Fungal ITS1 qPCR of NICU 1st phase samples. (Source data for ED Fig 5)\nSupplemental Table 7. NICU cohort stool samples sequenced in the study.\nSupplemental Table 8. Bacteria OTU table in the 1st phase. (Source data for Fig 2, ED Fig 6/7/8)\t\t* \"re\" samples were re-extracted samples\nSupplemental Table 9. Archaea OTU table in the 1st phase. (Source data for Fig 2, ED Fig 6/7/8)\t\t* \"re\" samples were re-extracted samples\nSupplemental Table 10. Fungi OTU table in the 1st phase. (Source data for Fig 2, ED Fig 6/7/8)\t\t* \"re\" samples were re-extracted samples\nSupplemental Table 11. Bacteria OTU table in the 2nd phase. (Source data for Fig 2)\nSupplemental Table 12. Fungi OTU table in the 2nd phase. (Source data for Fig 2)\nSupplemental Table 13. Strains isolated from select NICU subjects.\nSupplemental Table 14. CFU fold growth in in vitro co-culture experiments. (Source data for Fig 3c/e)\nSupplemental Table 15. CFU- and rDNA-based quantification of in vivo co-colonizations. (Source data for Fig 3d/f, ED Fig 10)\t\n15a. Co-colonization of Klebsiella pneumoniae with Staphylococcus epidermidis.\t\ntimeline\t\nday -7\tstart 1g/L Vanc+Metronidazole+Amp water\nday -4\treplace with 1g/L Amp drinking water and refresh every 3 days thereafter\nday -3\t1st gavage Sepi (NICU_203_Sepi_AmpR, ~10^9 CFU, 1ODU grown 37C O/N in BHI broth + 100ug/ml Amp, Cage1/2), PBS (Cage3), 200ul/mouse\nday -1\trepeat Sepi/PBS gavage\nday 0\t2nd gavage Kpneu (NICU_203_Kpneu_AmpR, ~10^6 CFU, 1ODU diluted 1000-fold grown 37C O/N in BHI broth + 100ug/ml Amp, Cage2/3), 200ul/mouse\n\nData Collected and processed by Maxwell Konnaris: 5/3/25\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41586_2021_3241_MOESM4_ESM.xlsx.zip",
@@ -3018,11 +2958,9 @@
     "display_name": "2019 lin applenvironmicrobiol 16s18smarineecologyflowandspikein",
     "schema_version": 1,
     "legacy_id": "2019_lin_applenvironmicrobiol_16s18smarineecologyflowandspikein",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Authors provided data after correspondence to Maxwell Konnaris.\n\nData collection, genomic processing, and parse scripts written by Maxwell Konnaris. \n\npaper: https://pmc.ncbi.nlm.nih.gov/articles/PMC6384117/ \n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "16S samples_FCM_Chl.csv.zip",
@@ -3121,11 +3059,9 @@
     "display_name": "2021 barlow microbiome reimaginestudypatientsddpcr",
     "schema_version": 1,
     "legacy_id": "2021_barlow_microbiome_reimaginestudypatientsddpcr",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "links to data: https://data.caltech.edu/records/5egd5-m5915\npaper: https://pmc.ncbi.nlm.nih.gov/articles/PMC8561862/\n\n\"Concentration\" is the copies/uL readout from the digital PCR machine. \"Corrected Concentration\" is the \"Concentration\" column multiplied by whatever sample dilution was used before digital PCR.\n\n\"_Duo\" means the sample was from the duodenum and \"_Sal\" means the samples was from saliva. These annotations are only in the paired sheet because the other sheet just has duodenum samples. The sample number is a patient ID number that is unique.\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "20210810_2 -  Quantification Cq Results_0.csv.zip",
@@ -3323,11 +3259,9 @@
     "display_name": "2021 reese cell chimpanzee",
     "schema_version": 1,
     "legacy_id": "2021_reese_cell_chimpanzee",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "1-s2.0-S0960982220316523-mmc3.xlsx.zip",
@@ -3396,11 +3330,9 @@
     "display_name": "2017 vandeputte nature flow",
     "schema_version": 1,
     "legacy_id": "2017_vandeputte_nature_flow",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "The files to assign taxaonomy can be obtained here:  https://doi.org/10.5281/zenodo.4310151\n\nFormal citation: Callahan, B. (2020). RDP taxonomic training data formatted for DADA2 (RDP trainset 18/release 11.5) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4310151\n\nTRANSFERRED FROM SCALE IN ALDEX2 REPO FROM MICHELLE NIXON: https://github.com/michellepistner/scale-in-aldex2/tree/main/Vandputte\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41586_2017_BFnature24460_MOESM10_ESM.zip",
@@ -3521,11 +3453,9 @@
     "display_name": "2022 zaramela msystems synDNA",
     "schema_version": 1,
     "legacy_id": "2022_zaramela_msystems_synDNA",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "HMP_frequency_table.tsv.zip",
@@ -3614,11 +3544,9 @@
     "display_name": "2024 tunsakul peerj aerobicvsanaerobicinhealthyvsobesity",
     "schema_version": 1,
     "legacy_id": "2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: \ncode:\n\n9 healthy and 11 fat-metabolic disorder Thai adults aged 23\u201343 years with qPCR total microbial load measurements. The 40 fecal samples were split into anaerobic and aerobic sample processing and evaluated (2 samples from each patient, 1 goes to aerobic collection and the other goes to anaerobic collection).  \"employed metagenomics followed by 16S rRNA gene sequencing and 16S rRNA gene qPCR, to analyze taxonomic composition, alpha diversity, beta diversity, bacterial quantification, Pearson's correlation with clinical factors for fat-metabolic disorder, and the microbial community and species potential metabolic functions\"\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "PRJNA1020208_dada2_counts.rds.zip",
@@ -3691,11 +3619,9 @@
     "display_name": "2023 feng imetawiley chickensegment",
     "schema_version": 1,
     "legacy_id": "2023_feng_imetawiley_chickensegment",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Data from paper:  https://pmc.ncbi.nlm.nih.gov/articles/PMC10989779/",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "16S.csv.zip",
@@ -3776,11 +3702,9 @@
     "display_name": "2020 tettamantiboshier msystems vaginaltimeseries",
     "schema_version": 1,
     "legacy_id": "2020_tettamantiboshier_msystems_vaginaltimeseries",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "https://pubmed.ncbi.nlm.nih.gov/32265316/\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "PRJNA549339_dada2_counts.rds.zip",
@@ -3856,11 +3780,9 @@
     "display_name": "2021 vallescolomer naturemicrobiology femalebloodlinefamilialmicrobiome",
     "schema_version": 1,
     "legacy_id": "2021_vallescolomer_naturemicrobiology_femalebloodlinefamilialmicrobiome",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41564_2021_1021_MOESM2_ESM (2).xlsx.zip",
@@ -3893,11 +3815,9 @@
     "display_name": "2021 liao scientificdata longitudinalmicrobiomeqpcr allohct",
     "schema_version": 1,
     "legacy_id": "2021_liao_scientificdata_longitudinalmicrobiomeqpcr_allohct",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "Liao2021_scale.csv.zip",
@@ -4140,11 +4060,9 @@
     "display_name": "2023 maghini naturebiotechnology samplemesurement",
     "schema_version": 1,
     "legacy_id": "2023_maghini_naturebiotechnology_samplemesurement",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Data from paper: https://www.nature.com/articles/s41587-023-01754-3\n\nTinghua:\n\nCollected data.\n\n### **NOTE:**\n1. Download and unzip the file.\n2. Copy the folder path and use it in the function:\n   `parse_2023_maghini_naturebio_metagenomic(YourFolderPaths = PATH)`\n3. The author uploaded count data at different taxonomic levels, which I merged into a list. As a result, this function does not output taxa directly. If you wish to use the genus-level counts, access them with `count$genus`. To extract taxa names, use `rownames(count$genus)`.\n4. Metadata/modeling information from author:\n    + D## = the donor number.\n    + N = no preservative\n    + O = Omni preservative\n    + Z = Zymo preservative\n    + F = Frozen (-80C) right away\n    + H = hot temperature (40C)\n    + R = room temperature (23C)\n    + R1 = replicate 1\n    + R2 = replicate 2\n    + R3 = replicate 3\n    + Note: In the GEE model, no other covariates was included in the analysis. (Quto \"No covariates, it was really the simplest\u00a0thing. As we say in the stats methods section, we used an \"\"unadjusted regression model with fixed effects for the seven conditions and an exchangeable correlation structure between the participant-level clusters to account for repeat measurements.\"\u00a0 So, for instance, if we were modeling the log of the total abundance, the model would have just been log_total_abundance ~ C(Sample_Type).\")\n\n\nMaxwell:\n\n### **NOTE:** \n\nTinghuas work is great, but does not accomplish the goals we need and should not \nbe used. The below is the current working usage.\n\nCleaned data and Built parser 05/05/25\n\nWe only care about the lowest classified counts across all taxonomic levels.\nSo therefore we need the entire lineage. I use taxizedb to obtain this and then \nparse the dataset to obtain the correct counts. \n\ninstall.packages(\"remotes\")\nremotes::install_github(\"ropensci/taxizedb\")\n\nlibrary(taxizedb)\nlibrary(dplyr)\nlibrary(tidyr)\nlibrary(purrr)\n\ntaxizedb::db_download_ncbi()\nfile.copy(taxizedb::db_path(\"ncbi\"), \"ncbi_taxonomy.sqlite\")\n\nThis is now stored as a zip file in the data directory and is used accordingly\nin the parser. \n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "Maghini2023_scale.csv.zip",
@@ -4291,11 +4209,9 @@
     "display_name": "2019 ji nature human soil",
     "schema_version": 1,
     "legacy_id": "2019_ji_nature_human_soil",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Code: https://github.com/brianwji/DIVERS?tab=readme-ov-file\npaper: https://pubmed.ncbi.nlm.nih.gov/31308552/\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "README.txt.zip",
@@ -4353,11 +4269,9 @@
     "display_name": "2023 fu imeta wasterwater pathogens",
     "schema_version": 1,
     "legacy_id": "2023_fu_imeta_wasterwater_pathogens",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "README.txt.zip",
@@ -4413,11 +4327,9 @@
     "display_name": "2019 vieirasilva naturemicrobiology pscibd",
     "schema_version": 1,
     "legacy_id": "2019_vieirasilva_naturemicrobiology_pscibd",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper is behind paywall so included here in repo. Assessed the distribution of ( 10.1136/gutjnl-2015-311004 ) 106 previously amplicon-sequenced primary sclerosing cholangitis and/or inflammatory bowel disease (PSC/IBD) faecal samples - (PSC n=18, Crohn\u2019s disease (CD) n=29, ulcerative colitis (UC) n=13, PSC\u2013CD n=20 and PSC\u2013UC n=26) 10 against\na background of non-disease-associated microbiome variation as\nobserved in the Flemish Gut Flora Project cohort (FGFP; n=1,120). On the basis of genus-level inter-individual differences in microbiome composition, the combined patient group was observed to separate from a set of 66 FGFP\nhealthy controls (mHCs) 10 that were matched by age, gender and\nbody mass index with PSC or PSC\u2013IBD diagnosed individuals. 224 individuals with UC or CD (Chron's Disease) were then independently recruited as a validation cohort. \n\ncode for QMP: https://github.com/raeslab/QMP/\ncounts obtained from: http://raeslab.org/software/QMP2/ this includes counts of 161 samples. \n\nMeasured covariates:\nSerum alkaline phosphatase (U/L), Faecal calprotectin (\u00b5g/g), Serum CRP (mg/L)\tAverage faecal cell count (cells/g), Moisture content (%), Predicted DMM Enterotype,\t RMP Observed Richness (N genera)\n\nThis study did not have counts, relative abundances, batch information, or the ASV-Sequences. However, the authors supplied the QMP matrix. It was from the QMP matrix in which we transformed to obtain the relative abundance matrix. \n\nparse script does some weird stuff: \n-requires an NCBI entrez api key because it uses the taxize package to get the corresponding taxa name from the relevant database we need to convert to for MLSCALE study. \n-it then manually corrects some that Maxwell looked up by hand as it cant classify some of the corresponding taxa\n\nSequencing data is not publicly available -- Jeroen Raes study.\n\nall data collected by Maxwell Konnaris\n\nparse.R finished 04/09/25\n\n\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "10.1038@s41564-019-0483-9.pdf.zip",
@@ -4585,10 +4497,8 @@
       }
     ],
     "source_notes": "paper: https://www.nature.com/articles/s41589-023-01462-8\n",
-    "baseline_status": "unavailable: unregistered legacy study",
     "source_urls": [],
-    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence"
+    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a"
   },
   "alessandri2024": {
     "sequencing": "Shotgun Metagenomics",
@@ -4602,11 +4512,9 @@
     "display_name": "2024 alessandri microbbiotechnology pcosvaginalmicrobiota",
     "schema_version": 1,
     "legacy_id": "2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC11450379/#sec25\n\n\n10 subjects: faecal and vaginal samples were collected from 10 healthy women who had not taken prebiotics, probiotics or drugs during the 3\u2009months prior to sample collection.Faecal samples were inoculated in a human gut environment\u2010simulating growth medium, based on a previously described composition (Fehlbaum et al., 2015; Macfarlane et al., 1998).The same protocol was used for the cultivation of vaginal samples. However, in this case, a culture medium mimicking the human vaginal environment, that is, the simulated vaginal fluid, with a pH adjusted to 4.5, as previously described (Pan et al., 2019), was employed. Faecal and vaginal samples were cultivated for 19 and 24\u2009h, respectively, under anaerobic conditions at 37\u00b0C. Furthermore, for each of the two matrices, samples were cultured in the presence and absence of 2% \u03b1\u2010LA.\n\n(ClinicalTrials.gov identifier NCT05674318)\n\nTen patients with clinical signs of PCOS were enrolled for the in vivo pilot study at Agunco Obstetric and Gynecologic Centre (Rome, Italy). evaluate the possible impact of orally administrated \u03b1\u2010LA on vaginal microbiota in such patients, all the women underwent a 30\u2010day oral administration of \u03b1\u2010LA (300\u2009mg/twice a day), and two vaginal swabs were collected from each patient: one before (baseline\u2014T0) and one after (T1) \u03b1\u2010LA administration.\n\nCount tables/relative abundances/ASV-sequences processed by Maxwell Konnaris 04/09/25. Count tables and taxa sequences not provided by the study.\n\nRelative Abundances are provided by the study, but Maxwell reprocessed. Theirs is in Table S9\n\nall data collected by Maxwell Konnaris\n\nparse.R finished 04/09/25\n\n\n\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "Alessandri2024_scale.csv.zip",
@@ -4693,11 +4601,9 @@
     "display_name": "2021 forslund nature metacardis",
     "schema_version": 1,
     "legacy_id": "2021_forslund_nature_metacardis",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41586_2021_4177_MOESM3_ESM.xlsx.zip",
@@ -4762,11 +4668,9 @@
     "display_name": "2024 garciamartinez bmcmicrobiology ckdanddysbiosiswithserum",
     "schema_version": 1,
     "legacy_id": "2024_garciamartinez_bmcmicrobiology_ckdanddysbiosiswithserum",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://bmcmicrobiol.biomedcentral.com/articles/10.1186/s12866-024-03590-0\n\nEighty-eight CKD patients stratified as non-dialysis (CKD, n\u2009=\u200924), hemodialysis (HD, n\u2009=\u200922), and transplant patients (Tx, n\u2009=\u200942), as well as 26 healthy controls (HC), were enrolled at the University Hospital Luigi Vanvitelli, Italy.\n\nEach participant provided a fecal and blood sample (generated serum) during their outpatient visit or hospital admission.\n\nDemographic and clinical parameters were retrieved from the subjects\u2019 medical records. Additionally, each participant completed a questionnaire covering lifestyle, bowel habits, and weekly dietary intake over the six months preceding the sample collection. In particular, participants selected the food items they regularly consumed over the six months preceding the sample collection from a list of items typically found in Italian diets. These items were categorized into food groups: eggs, fish and seafood, lean meats, lean poultry, fruits, nuts and seeds, coffee and tea, and alcoholic beverages. \n\nSerum concentrations of lanthionine were quantified \nSerum H2S was quantified using the methylene blue method \n\nCount tables/relative abundances/ASV-sequences processed by Maxwell Konnaris 04/09/25 and not provided by the study.\n\nall data collected by Maxwell Konnaris\n\nparse.R finished 04/09/25\n\n\n\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "12866_2024_3590_MOESM1_ESM.xlsx.zip",
@@ -4827,11 +4731,9 @@
     "display_name": "2023 pereira nature nervous",
     "schema_version": 1,
     "legacy_id": "2023_pereira_nature_nervous",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "ASVdata_request_180124.zip",
@@ -4949,11 +4851,9 @@
     "display_name": "2022 krawczyk microbiome tickgeographicaldistributionqpcr",
     "schema_version": 1,
     "legacy_id": "2022_krawczyk_microbiome_tickgeographicaldistributionqpcr",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC9351266/\n\nmale and female tick samples, three negative controls were sequenced: two that went through the same processes as tick samples including crushing, extraction, and amplification and one included by the sequencing company. pooled samples.\n\nA wide range of bacterial loads was found. Accurate quantification of low microbial biomass samples permitted comparisons to high biomass samples, despite the presence of contaminating DNA. The bacterial communities of ticks were associated with geographical location rather than life stage, and differences in Rickettsia abundance determined this association.\n\nexplored the geographical distribution of four vertically transmitted symbionts identified in the microbiome analysis. screened 16,555 nymphs from 19 forest sites for R. helvetica, Rickettsiella spp., Midichloria mitochondrii, and Spiroplasma ixodetis.\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "40168_2022_1276_MOESM1_ESM.zip",
@@ -5075,11 +4975,9 @@
     "display_name": "2025 thiruppathy microbiome relicDNAflow",
     "schema_version": 1,
     "legacy_id": "2025_thiruppathy_microbiome_relicDNAflow",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://www.researchgate.net/publication/389559063_Absolute_quantification_of_the_living_skin_microbiome_overcomes_relic-DNA_bias_and_reveals_specific_patterns_across_volunteers\n\ncode: https://github.com/dthirupp/DeadOrAlive-SkinMicrobiome\n\nAbsolute bacterial quantification (bacteria/cm2) was measured using flow cytometry on raw (total bacteria) and PMA-treated (live bacteria only) samples (Table S3). Analysis included samples meeting sequencing and flow cytometry gating criteria (n\u2009=\u2009135: 67 PMA treated, 68 untreated).\n\n\nscale = Formula\n(E) =  ((A/B)x(C/D))\n(H) = (E) x (G) / (F)\n\nMaxwell Konnaris collected, cleaned, and wrote parse script 05/06/2025\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "40168_2025_2063_MOESM2_ESM (1).xlsx.zip",
@@ -5267,11 +5165,9 @@
     "display_name": "2018 tkacz microbiome spikeinamplicon",
     "schema_version": 1,
     "legacy_id": "2018_tkacz_microbiome_spikeinamplicon",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "PRJEB22042_dada2_counts.rds.zip",
@@ -5336,11 +5232,9 @@
     "display_name": "2020 barlow naturecommunications miceGI",
     "schema_version": 1,
     "legacy_id": "2020_barlow_naturecommunications_miceGI",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Data from paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC7244552/\n\nMicrobial Load = dPCR\u00a0concentration \u00d7 elution\u00a0volume \u00d7 dead\u00a0volume\u00a0factor \u00f7 (extraction\u00a0volume \u00d7 sample\u00a0mass )\nDead\u00a0volume\u00a0factor = volume\u00a0recovered / total\u00a0volume\u00a0applied\n\u200b\nEvery sample that underwent dPCR had total microbial load measured. According to the experimental setup described\u200b:\nStool samples were collected before the diet switch (Day 0), and after the switch at Day 4, Day 7, and Day 10.\nGI tract samples (Stomach, Upper Small Intestine, Lower Small Intestine, Cecum, Colon, Mucosa) were collected on Day 10.\nEach mouse had microbial load measured in stool and GI sites.\nThey had 12 mice total (6 ketogenic diet, 6 control diet).\nTherefore, microbial load was measured in:\nAll stool samples (4 timepoints \u00d7 12 mice = 48 stool samples)\nMultiple GI sites at necropsy (Day 10 samples), for mucosal and lumenal samples.\n\nExperimental setup:\n12 mice total (6 ketogenic diet, 6 control diet)\n\nTimepoints:\n\nDay 0 \u2014 stool only (before diet switch)\nDay 4 \u2014 stool only\nDay 7 \u2014 stool only\nDay 10 \u2014 stool and GI tract (euthanized on Day 10)\n\nSample Types:\nStool (Day 0, 4, 7, 10)\n\nGI sites collected at necropsy (Day 10 only):\nStomach contents (lumen)\nUpper small intestine contents (lumen)\nUpper small intestine mucosa (scraping)\nLower small intestine contents (lumen)\nLower small intestine mucosa (scraping)\nCecum contents (lumen)\nColon mucosa (scraping)\n\nNote: Colon mucosa only (they didn't collect colon lumen separately), and stool counts as terminal colon contents.\n\nStool samples:\n4 timepoints \u00d7 12 mice = 48 stool samples\n\nGI tract samples at Day 10:\nEach mouse provides:\n\nStomach lumen\nUpper SI lumen\nUpper SI mucosa\nLower SI lumen\nLower SI mucosa\nCecum lumen\nColon mucosa\n\n\u2192 7 GI site samples per mouse\n\nThus:\n7 \u00d7 12 = 84 GI samples from euthanized mice\n\nTotal samples:\n48 (stool) + 84\u00a0(GI\u00a0Day\u00a010) = 132\u00a0samples\u00a0total\n\nEach sample would have a unique name, generally like:\nM1P_D0_Stool\nM1P_D10_Stomach_Lumen\nM1P_D10_UpperSI_Lumen\nM1P_D10_UpperSI_Mucosa\nM1P_D10_LowerSI_Lumen\nM1P_D10_LowerSI_Mucosa\nM1P_D10_Cecum_Lumen\nM1P_D10_Colon_Mucosa\netc.\n\nwhere:\n\nM1P = Mouse 1, control diet\nM1NP = Mouse 1, ketogenic diet\n\n(P vs NP probably meaning something like Positive/Negative for Keto in their naming.)\n\nSo to summarize:\n\nItem\tCount\nStool (Day 0, 4, 7, 10)\t48 samples\nGI Tract (Stomach, SI, Cecum, Colon, Mucosa, Day 10)\t84 samples\nTotal samples\t132 samples\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "Absolute_Abundance_Table.csv.zip",
@@ -5463,11 +5357,9 @@
     "display_name": "2020 regalado isme metagenomicsbacteriaandfungalsequencing",
     "schema_version": 1,
     "legacy_id": "2020_regalado_isme_metagenomicsbacteriaandfungalsequencing",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Paper: https://academic.oup.com/ismej/article/14/8/2116/7474856\n\nShotgun sequencing supplies information on the total DNA content of microorganisms as opposed to a specific locus, which in principle enables the functional characterization of reads, de novo assembly of genes, and in the best cases, leads to the recovery of entire metagenome assembled genomes [8, 18\u201320].\nWe estimated absolute microbial load as the ratio of microbial reads to plant chromosomal reads in each sample, and observed that the microbial load varied across samples from <1% to up to 77% of plant reads. We used the bacterial load calculated from the metagenome data to similarly scale the 16S data.\n\n\n\n\n\n\n\n\n\n\nDear Maxwell,\n\nWe intended to put these types of files in an organized way in a public Dryad directory but sadly that's not operational. For expediency I am giving you the files directly from my laptop, as I used them for the analysis (therefore, the file names are all in the original shorthand instead). I give you a key of what's what below. I also attached the R script I used to integrate these data for the publication. Again, this R script is not unfortunately well-annotated as a public document, but it may be helpful. I can easily imagine some further confusion or clarification will arise - feel welcome to reach out to me and I'll try to help you get going.\n\nGreetings,\nDerek\n\n\n>16S OTU table, taxonomy, and metadata respectively:\n515_blackblue_all_Zotutab_20181206.txt\n515_blackblue_all_zotus.tax\n515_blackblue_metadata.txt\n\n>ITS OTU table, taxonomy, and metadata respectively:\n\n\nAgITS1blackblue_READ1_271_all_Zotutab.txt\nAgITS1blackblue_READ1_271_all_zotus.tax\nITS_blackblue_metadata_v2.txt\n\n>Metagenome count tables at various taxonomic limits:\nBacteriaGenusRaw.txt\nFungiGenusRaw.txt\nBacteriaFamilyRaw.txt\nFungiFamilyRaw.txt\nBacteriaPhylumRaw.txt\n\n>Metagenome total reads for each sample (needed for any normalization of metagenome data)\ntotal_seq.txt\n\n>Metagenome reads assigned to the plant chromosome\nchromCountsNew.txt\n\n>Unassignable metagenome reads per sample\nnumUnaligned.txt\n\n>The rather messy R script I used to integrate these data and prepare the figures, not written to be read easily or followed, but still perhaps useful:\ncorrect_16S_load.R\n\n>A metadata table of the metagenomes that connects the IDs from ENA to the IDs used throughout these other files\nMetadata_PRJEB31530.xlsx\n\n\n\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41396_2020_665_MOESM1_ESM.rtf.zip",
@@ -5580,11 +5472,9 @@
     "display_name": "2022 jin natureComm technicalReplicates",
     "schema_version": 1,
     "legacy_id": "2022_jin_natureComm_technicalReplicates",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Look at Supplementary Data 8 for counts, and scale. Note that each sample has three technical replicates to check reproducibility. \n\nGroup(condition) can be identified by sample name. How to interpret sample name;\n- First two letter indicates group; 1) three 6-week old mice (CEa, CEb, CEc); maintained by balanced diet for full life span, 2) four 8-week-old (VSa, VSb, VSc, VSd), 3) four mice (VDa, VDb, Vdc, VDd). \n- Super script 'dist' and 'prox' indicates location of cecum it was collected (distal and proximal, Fig 1b). \n- Number indicates technical replicates (i.e., CEa^dist1, CEa^dist2, CEa^dist3 are the three technical replicates from the same mice collected at same cecum location). \n\nCheck Supplementary Table 5 in 'Supplementary Information file' for more detailed description of names.\n\n\n\nFile Name: Supplementary Data 1\nDescription: BarBIQ-identified sequences (Bar sequences).\n\nFile Name: Supplementary Data 2\nDescription: Sanger sequencing-identified 16S rRNA sequences (San sequences).\n\nFile Name: Supplementary Data 3 \nDescription: Sequences of amplicon sequence variants (ASVs).                                                   \n\nFile Name: Supplementary Data 4 \nDescription: Representative sequences of operational taxonomic units (OTU-RepSeqs).\n\nFile Name: Supplementary Data 5 \nDescription: Sequencing-determined abundances of amplicon sequence variants (ASVs).\n\nFile Name: Supplementary Data 6 \nDescription: cOTU abundances of the mock community and the control M0.\n\nFile Name: Supplementary Data 7 \nDescription: Sequencing-determined abundances of operational taxonomic units (OTUs).\n\nFile Name: Supplementary Data 8 \nDescription: cOTU abundances of cecal samples.\nOTU and taxonomy ; Sheet \"Sequencing-determined counts\"\nScale ; Sheet \"Absolute total abundance\"\nAbsolute abundance ; Sheet \"Absolute abundance\"\n\nFile Name: Source Data\nDescription: Source data for figures in main text and Supplementary Information.\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "PRJNA639639_dada2_counts.rds.zip",
@@ -5762,10 +5652,8 @@
       }
     ],
     "source_notes": "https://www.nature.com/articles/s41591-024-02963-2#data-availability\n",
-    "baseline_status": "unavailable: unregistered legacy study",
     "source_urls": [],
-    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence"
+    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a"
   },
   "kallastu2023": {
     "sequencing": "16S rRNA",
@@ -5785,11 +5673,9 @@
     "display_name": "2023 kallastu research foodscience food",
     "schema_version": 1,
     "legacy_id": "2023_kallastu_research_foodscience_food",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "Paper Link: https://pubmed.ncbi.nlm.nih.gov/36691592/\nBioProject ID: PRJNA861123\n\nManan (04/12/2025): \n    Scale provided in Table 3 and 4 of main paper. Metadata taken from SRA Run Selector.\n    parse.R is added. Handles Scale and Metadata. \n    The scale returned is KxN as there are K methods used to measure scale. Also for some of synthetic samples not all quantification methods were performed, hence there the values is NA.       ",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
     "archived_inputs": [
       {
         "file": "PRJNA861123_dada2_counts.rds.zip",
@@ -5855,11 +5741,9 @@
     "display_name": "2020 ellegaard currbiology honeybeeqPCRshotgunmetagenomics",
     "schema_version": 1,
     "legacy_id": "2020_ellegaard_currbiology_honeybeeqPCRshotgunmetagenomics",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC7342003/\ncode and data: https://zenodo.org/records/3747314\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "README.txt.zip",
@@ -5915,11 +5799,9 @@
     "display_name": "2021 marotz mSystems oral mouthwash",
     "schema_version": 1,
     "legacy_id": "2021_marotz_mSystems_oral_mouthwash",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "2021_marotz_mSystems_oral_mouthwash.RDS.zip",
@@ -6029,11 +5911,9 @@
     "display_name": "2022 suriano aps micefecal",
     "schema_version": 1,
     "legacy_id": "2022_suriano_aps_micefecal",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "PRJEB53668_dada2_counts.rds.zip",
@@ -6096,11 +5976,9 @@
     "display_name": "2021 vandeputte naturecommunications flow timeseries",
     "schema_version": 1,
     "legacy_id": "2021_vandeputte_naturecommunications_flow_timeseries",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "https://www.nature.com/articles/s41467-021-27098-7\n",
-    "baseline_status": "current API exact capture",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41467_2021_27098_MOESM3_ESMx.xlsx.zip",
@@ -6168,11 +6046,9 @@
     "display_name": "2018 piwosz ismej spikeinampliconfreshwater",
     "schema_version": 1,
     "legacy_id": "2018_piwosz_ismej_spikeinampliconfreshwater",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence",
     "source_notes": "added the fixed amount of E.coli cells to every water sample during the filtration step. The cells were fixed with ethanol and the spike-ins were done using the same amount of fixed E. coli cells. Then we used the number of E.coli reads for normalization.\n\npaper:https://academic.oup.com/ismej/article/12/11/2640/7475339\n\nData collection,cleaning, parser by Maxwell Konnaris 05/05/2025\n",
-    "baseline_status": "unavailable: existing parser failed",
-    "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-    "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+    "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+    "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
     "archived_inputs": [
       {
         "file": "41396_2018_213_MOESM5_ESM.csv.zip",
@@ -6217,9 +6093,7 @@
       }
     ],
     "source_notes": "paper: https://bmcmicrobiol.biomedcentral.com/articles/10.1186/s12866-024-03590-0\n\nEighty-eight CKD patients stratified as non-dialysis (CKD, n\u2009=\u200924), hemodialysis (HD, n\u2009=\u200922), and transplant patients (Tx, n\u2009=\u200942), as well as 26 healthy controls (HC), were enrolled at the University Hospital Luigi Vanvitelli, Italy.\n\nEach participant provided a fecal and blood sample (generated serum) during their outpatient visit or hospital admission.\n\nDemographic and clinical parameters were retrieved from the subjects\u2019 medical records. Additionally, each participant completed a questionnaire covering lifestyle, bowel habits, and weekly dietary intake over the six months preceding the sample collection. In particular, participants selected the food items they regularly consumed over the six months preceding the sample collection from a list of items typically found in Italian diets. These items were categorized into food groups: eggs, fish and seafood, lean meats, lean poultry, fruits, nuts and seeds, coffee and tea, and alcoholic beverages. \n\nSerum concentrations of lanthionine were quantified \nSerum H2S was quantified using the methylene blue method \n\nCount tables/relative abundances/ASV-sequences processed by Maxwell Konnaris 04/09/25 and not provided by the study.\n\nall data collected by Maxwell Konnaris\n\nparse.R finished 04/09/25\n\n\n\n",
-    "baseline_status": "unavailable: unregistered legacy study",
     "source_urls": [],
-    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a",
-    "manuscript_use": "not used as a selection rule: user requires current API equivalence"
+    "recipe_commit": "25ce5c21bde8e2e811fdbfd7f2c828f61bb7415a"
   }
 }

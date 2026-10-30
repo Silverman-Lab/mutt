@@ -49,3 +49,6 @@ scripts. The installed package must work independently of maintenance scripts.
 Tests use small local examples; routine CI must not download or rebuild studies.
 Functional inference and downstream biological analysis are outside MUTT's scope.
 Never rewrite Git history as part of cleanup.
+
+Write API help in the roxygen comments in `R/` and regenerate `man/` with
+`roxygen2::roxygenise(roclets = "rd")`. Do not edit generated help separately.

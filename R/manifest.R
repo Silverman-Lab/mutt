@@ -35,7 +35,10 @@
 #' cannot yet be downloaded; and "unavailable" means this release provides no
 #' processed data for the study.
 #' @return A data frame with study IDs, names, sequencing and load-measurement
-#'   methods, availability, data versions, release tags and download sizes.
+#'   methods, availability, data versions, release tags and download sizes:
+#'   `study_id`, `display_name`, `sequencing`, `load`, `status`, `release_tag`,
+#'   `data_version` and `size_bytes`.
+#' @seealso [mutt()], [mutt_source()]
 #' @export
 mutt_studies <- function() {
   rows <- .mutt_manifest()

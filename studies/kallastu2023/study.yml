@@ -16,11 +16,9 @@
   "display_name": "2023 kallastu research foodscience food",
   "schema_version": 1,
   "legacy_id": "2023_kallastu_research_foodscience_food",
-  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "Paper Link: https://pubmed.ncbi.nlm.nih.gov/36691592/\nBioProject ID: PRJNA861123\n\nManan (04/12/2025): \n    Scale provided in Table 3 and 4 of main paper. Metadata taken from SRA Run Selector.\n    parse.R is added. Handles Scale and Metadata. \n    The scale returned is KxN as there are K methods used to measure scale. Also for some of synthetic samples not all quantification methods were performed, hence there the values is NA.       ",
-  "baseline_status": "current API exact capture",
-  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-  "raw_availability": "Accession records supplied; availability must be checked at retrieval time.",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
   "archived_inputs": [
     {
       "file": "PRJNA861123_dada2_counts.rds.zip",

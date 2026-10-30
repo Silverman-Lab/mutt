@@ -11,11 +11,9 @@
   "display_name": "2017 vandeputte nature flow",
   "schema_version": 1,
   "legacy_id": "2017_vandeputte_nature_flow",
-  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "The files to assign taxaonomy can be obtained here:  https://doi.org/10.5281/zenodo.4310151\n\nFormal citation: Callahan, B. (2020). RDP taxonomic training data formatted for DADA2 (RDP trainset 18/release 11.5) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4310151\n\nTRANSFERRED FROM SCALE IN ALDEX2 REPO FROM MICHELLE NIXON: https://github.com/michellepistner/scale-in-aldex2/tree/main/Vandputte\n",
-  "baseline_status": "current API exact capture",
-  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
   "archived_inputs": [
     {
       "file": "41586_2017_BFnature24460_MOESM10_ESM.zip",

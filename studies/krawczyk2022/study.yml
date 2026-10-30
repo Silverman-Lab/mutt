@@ -10,11 +10,9 @@
   "display_name": "2022 krawczyk microbiome tickgeographicaldistributionqpcr",
   "schema_version": 1,
   "legacy_id": "2022_krawczyk_microbiome_tickgeographicaldistributionqpcr",
-  "manuscript_use": "not used as a selection rule: user requires current API equivalence",
   "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC9351266/\n\nmale and female tick samples, three negative controls were sequenced: two that went through the same processes as tick samples including crushing, extraction, and amplification and one included by the sequencing company. pooled samples.\n\nA wide range of bacterial loads was found. Accurate quantification of low microbial biomass samples permitted comparisons to high biomass samples, despite the presence of contaminating DNA. The bacterial communities of ticks were associated with geographical location rather than life stage, and differences in Rickettsia abundance determined this association.\n\nexplored the geographical distribution of four vertically transmitted symbionts identified in the microbiome analysis. screened 16,555 nymphs from 19 forest sites for R. helvetica, Rickettsiella spp., Midichloria mitochondrii, and Spiroplasma ixodetis.\n",
-  "baseline_status": "current API exact capture",
-  "preprocessing_notes": "Study-specific parser preserved. Optional raw/classification paths require maintainer bioinformatics dependencies; never run for normal dataset requests.",
-  "raw_availability": "No public sequencing accession established from stored notes; published tables may be available.",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
   "archived_inputs": [
     {
       "file": "40168_2022_1276_MOESM1_ESM.zip",

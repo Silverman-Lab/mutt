@@ -17,3 +17,4 @@ Suggests: testthat (>= 3.0.0), withr, phyloseq,
     TreeSummarizedExperiment, S4Vectors
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.0.0

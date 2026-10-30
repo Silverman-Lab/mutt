@@ -24,6 +24,9 @@ Each prepared folder is named by study ID and contains:
 - any additional saved versions declared in the file's `variants` entries,
   with their filenames and checksums.
 
+In `provenance.json`, `metadata` must supply `display_name`, `sequencing` and
+`load` for the catalog.
+
 Preserve scientific values, names, units, missing values and separate results
 from different methods. When including another saved version, explain its rules
 for matching samples. The name `aligned.rds` alone does not guarantee that every
@@ -31,23 +34,32 @@ table contains the same samples in the same order.
 
 ## Check and package
 
-Run these commands from the repository root. Replace `STAGING` with the prepared
-study folders, `ASSETS` with a new empty output folder and `DATA_TAG` with a
-version such as `data-v1.1.0`. Each study's `provenance.json` must record the
-corresponding `data_version`, such as `1.1.0`. Packaging requires the `zip` command.
+Run these commands from the repository root with R, the `digest` and `jsonlite`
+packages, and the `zip` command installed. Replace `STAGING` with the parent
+folder of the prepared studies, `ASSETS` with a new or empty output folder, and
+`DATA_TAG` with a version such as `data-v1.1.0`. Each study's `provenance.json`
+must record the corresponding `data_version`, such as `1.1.0`.
+
+To check one study before building the release:
 
 ```sh
 Rscript scripts/validate-study.R STAGING/vandeputte2017
 Rscript scripts/package-study.R STAGING/vandeputte2017 .build/one-study DATA_TAG
 Rscript scripts/validate-asset.R .build/one-study/vandeputte2017.zip STAGING/vandeputte2017
+```
+
+To check and package every study folder in `STAGING`:
+
+```sh
 Rscript scripts/build-release.R --input STAGING --tag DATA_TAG --output ASSETS
 ```
 
-The first three commands check one study. The last command checks and packages
-all prepared studies and writes `ASSETS/studies.candidate.json`, a proposed
+The build writes one ZIP per study and `ASSETS/studies.candidate.json`, a proposed
 catalog. Checks cover archive contents, file checksums, extracted bytes and
-study values. Existing output files are never overwritten. Newly packaged
-studies have status `staged` until public downloads have been verified.
+study values. Newly packaged studies have status `staged` until public downloads
+have been verified. Existing ZIPs are never overwritten. If a build fails, fix
+the reported problem and retry with a new or empty output folder; a partial
+build cannot be resumed.
 
 ## Upload and check a draft
 
@@ -62,7 +74,8 @@ This uploads missing ZIPs to a draft release and downloads every ZIP again to
 check it against the prepared study. It writes `ASSETS/draft-verification.json`
 only when all checks pass. The same command can resume an interrupted upload:
 it checks existing ZIPs rather than replacing them, and refuses a published
-release.
+release. If an existing ZIP fails verification, stop and investigate before
+publishing.
 
 Keep the small proposed catalog and verification record. Once the uploaded
 files have been verified, local bulk copies can be removed. To recover them
@@ -74,12 +87,13 @@ gh release download DATA_TAG --repo Silverman-Lab/mutt --pattern '*.zip' --dir A
 Rscript scripts/restore-staging.R ASSETS NEW_STAGING
 ```
 
-Restoration checks the downloads and will not overwrite an existing study folder.
+Restoration checks the downloads and refuses to overwrite `NEW_STAGING` if it
+already exists. Use the restored folder as `STAGING` in later commands.
 
 ## Publish and check public downloads
 
-A maintainer publishes the draft explicitly after review. After publication,
-check the public downloads without authentication:
+Review the draft in GitHub Releases and publish it there. After publication,
+keep or restore `STAGING` and check the public downloads without authentication:
 
 ```sh
 Rscript scripts/verify-public.R STAGING ASSETS .build/studies.available.json
@@ -87,24 +101,32 @@ Rscript scripts/verify-public.R STAGING ASSETS .build/studies.available.json
 
 This checks every released study and writes a catalog marking verified studies
 `available`. It retains other catalog entries, including unavailable studies.
-Review the result, use it to update `inst/extdata/studies.json` and commit the
-package update. Never mark studies available before these public checks pass.
+Review the result, replace `inst/extdata/studies.json` with it and commit the
+package update. If a public download fails, leave the package catalog unchanged
+and investigate the failure. Never mark studies available before these checks
+pass.
 
 Never replace published ZIPs or use a moving `latest` URL. Corrections require
 a new data version and an updated package catalog.
 
 ## Check the package and release tools
 
-Run the package tests and an R source-package build and check before review.
-Routine CI uses small local examples; it must not download study data or run
-scientific processing. Optional converters do not add requirements for ordinary
-study loading.
+Run the package tests and build the source package before review:
 
-Check the maintenance tools separately:
+```sh
+Rscript -e 'testthat::test_local()'
+R CMD build .
+R CMD check --no-manual mutt_VERSION.tar.gz
+```
+
+Replace `mutt_VERSION.tar.gz` with the filename printed by the build. These
+checks use small local examples rather than downloading or rebuilding studies.
+
+Check the maintenance tools separately with `pkgload`, `testthat`, `withr` and
+the package's imported R packages installed, and `zip` available:
 
 ```sh
 Rscript -e 'pkgload::load_all(".", quiet=TRUE); source("tests/testthat/helper-release.R"); testthat::test_dir("scripts/tests", stop_on_failure=TRUE)'
 ```
 
-These tests package and restore small local examples. Installed-package tests
-must not depend on maintenance scripts excluded from the source package.
+These tests package and restore small local examples.
