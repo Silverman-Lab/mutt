@@ -1,104 +1,178 @@
-# Pre-migration audit
+# Scientific migration audit
 
-Baseline: `01c648b1f736b1af019d1c0f0231b73de2c21e49`, package
-`0.1.0.9000`, branch `work` (remote main has the same SHA). Working tree was
-clean before materializing LFS objects. No history rewrite is planned.
+This audit explains what “preserved” means in the MUTT migration and identifies
+the evidence for that claim. The migration stores the previous API's study
+objects in downloadable assets. It changes data delivery while retaining the
+scientific contents of those objects.
 
-The public export is `mutt(studies=NULL, base_directory=NULL, rawdata=FALSE,
-align_samples=FALSE, save_to=NULL, verbose=FALSE, functional=FALSE)`, plus its
-print method and a PICRUSt data-frame method. It executes heterogeneous parsers
-at load time. `inst/parsers/index.csv` registers 57 studies. The old manifest pins
-`2026.07.1` but every remote asset is disabled; GitHub has no data releases.
+## Reference and preservation rule
 
-The tracked inventory is in `baseline-files.txt`; `baseline-studies.json` records
-every registered parser, available artifacts, source notes/URLs/accessions,
-sequencing/load modalities and unresolved manuscript selection. The separate
-`baseline-artifacts.csv` records original file hashes, sizes and LFS status.
-933 tracked LFS files include processed tables, supplementary sources, reference
-training sets and unwanted functional products. The non-functional study files
-were materialized for migration (about 589 MB), without denoising or profiling.
+The reference is package `0.1.0.9000` at commit
+`01c648b1f736b1af019d1c0f0231b73de2c21e49`. The previous public call was:
 
-## Scientific baseline and uncertainty
+```r
+mutt(studies = NULL, base_directory = NULL, rawdata = FALSE,
+     align_samples = FALSE, save_to = NULL, verbose = FALSE,
+     functional = FALSE)
+```
 
-There is no manuscript or supplement in the supplied attachments or checkout.
-There is no manuscript-tagged branch; remote main is the only branch. Exact
-manuscript use and branch selection cannot be certified from the request alone.
-No selection should be described as manuscript-confirmed until that evidence is
-provided. Keep all legitimate alternate representations.
+The default reference uses `rawdata=FALSE`, `align_samples=FALSE` and
+`functional=FALSE`. A second reference uses `align_samples=TRUE`. Captures read
+the stored processed inputs through the previous API. Only its deliberately
+removed empty `function` field is stripped. Counts, proportions, taxon names,
+taxonomy, load measurements, sample identifiers, metadata, demographics, missing
+values, attributes and nested scientific representations otherwise remain part
+of the complete-object comparison.
 
-A real combined object, `datasetsfromrepo.RData`, exists in historical commit
-`53a5406` (Git blob `5ef175e49c7eec8b4725cf33ac5aa2bf087bbbc8`, 37,627,162
-bytes). It has 37 named five-field study lists: counts, proportions, taxonomy,
-scale and metadata. It was deleted in `ebbdc08`; it is not a current-tree artifact.
-This is a candidate baseline, not proof of the manuscript version. Current
-processed inputs and parsers are also retained separately before cleanup.
-Historical July 2026 checks report 33/33 structural matches (alignment TRUE),
-whereas checks of all 57 parsers report 38 successes and 19 failures (alignment
-FALSE). Structural agreement does not establish equality of values. Recent
-commits correct Galazzo load labels and NA taxon-name handling; those differences
-must be reported rather than silently replacing historical scientific data.
+The reference is the current API at that commit, rather than a reconstruction
+of a manuscript dataset. Manuscript and supplementary descriptions provide
+context for original/reprocessed, RDP16, MetaPhlAn and mOTU-derived branches;
+they do not establish that one branch should replace the others. Legitimate
+alternate representations are retained.
 
-## Infrastructure review
+No denoising, taxonomy classification, MetaPhlAn profiling or other scientific
+preprocessing was rerun. The one-time capture script guards DADA2 classification
+and denoising entry points so that a missing profile fails explicitly. Some
+parsers still require the DADA2 namespace to read existing tables; that
+dependency does not establish that scientific preprocessing ran. Existing
+parser failures were recorded rather than repaired with new profiles or older
+complete study objects.
 
-`R/functional*.R`, functional tests, FAPROTAX resources, functional release/HPC
-scripts and `analysis/hpc_functional` implement unsolicited inferred functions.
-They are removable. Original count/taxonomy/sequence inputs are scientific data
-and must be preserved independently.
+## Source preservation and study accounting
 
-`R/helpers.R` mixes genuine study helpers with Python conversion and annotations.
-Scientific helpers belong with maintainer recipes, not the installed download API.
-Parsers mostly read stored count/taxonomy tables; some optionally call DADA2 for
-missing taxonomy. Migration must prevent those calls and fail explicitly instead.
-Only Caenepeel has a standalone Slurm DADA2 workflow in the current tree. Other
-study-specific preprocessing is sometimes archived inside source ZIPs. Source
-availability varies; accession references alone do not establish that all original
-inputs remain publicly obtainable.
+[baseline-files.txt](baseline-files.txt) records the tracked inventory.
+[baseline-studies.json](baseline-studies.json) records registered parsers,
+artifacts, source notes, URLs, accessions and study modalities.
+[baseline-artifacts.csv](baseline-artifacts.csv) contains hashes, sizes and LFS
+status for 847 original study artifacts. All 847 original artifact hashes match
+the preserved source inputs. Historical archive references and unchanged Git
+history preserve access to those inputs outside the small package source tree.
+An accession reference alone does not establish that every original input is
+publicly obtainable; availability limits remain in the source metadata.
 
-Actions currently check four R/OS combinations and build a large Docker image
-on PRs/pushes, publishing images on main. Docker/Apptainer exist mainly for
-functional inference and will be removed; routine CI will use tiny local release
-fixtures, no study/raw downloads, and cancel superseded runs.
+The old parser index registered 57 studies. Both representations were attempted
+for every registered study: 40 succeeded and 17 failed in each form. The
+[default parser report](current-default-parser-report.csv) and
+[aligned parser report](current-aligned-parser-report.csv) retain the full
+warnings and errors. The later release capture reproduced the same success and
+failure accounting.
 
-## Target representation
+Six additional legacy directories were not registered with the old API.
+[unregistered-studies.json](unregistered-studies.json) and
+[unregistered-source-inventory.json](unregistered-source-inventory.json) record
+them as sources without selected harmonized outputs. The catalog therefore has
+63 source records: 40 with packaged processed data, 17 with existing parser
+failures and six unregistered sources. No processed output was invented for the
+last two groups.
 
-Preserve each named scientific study list as `study.rds`, without flattening
-nested branches, adding invented assays or changing numerical values. Store
-provenance separately in `provenance.json`. One ZIP per study, pinned tag
-`data-v1.0.0`, SHA-256 and size in the small installed manifest. A one-time
-legacy migration may know old paths; permanent release tools may read only
-staged objects and provenance. Draft data must not be advertised as public until
-uploaded and independently verified.
+## Complete-object and loader comparisons
 
-## Clarification and reference documents received during implementation
+[current-object-comparison.csv](current-object-comparison.csv) records exact
+comparison results for both forms of all 40 usable studies, along with
+serialized-file and scientific-object SHA-256 values for the default form. These committed results
+describe the original reference capture. They establish agreement of complete
+objects rather than structural agreement alone.
 
-The user clarified that exact agreement with **current mutt** is the acceptance
-test: counts, metadata, taxon names and other scientific values must not change;
-interface edits are acceptable. Manuscript reconstruction is unnecessary.
-Consequently, the selected baseline is current API output at `01c648b`, not the
-historical combined RData. Both default (`rawdata=FALSE, align_samples=FALSE`)
-and sample-aligned (`align_samples=TRUE`) forms are captured with functional
-inference disabled. Only the deliberately removed empty `function` field is
-removed. All other content, including demographics and missing values, is kept.
+[loader-comparison.csv](loader-comparison.csv) records exact comparisons for all
+40 default and all 40 aligned objects through the production downloader,
+checksum verification, extraction and cache paths. Local ZIP transfers supplied
+the archives for this test. Each study required one transfer for its two stored
+forms. The release validation repeated complete-object loader comparisons for
+all 80 forms and confirmed that all 40 default scientific hashes matched the
+committed reference, with the bounded Dreier reconstruction described below.
 
-The subsequently supplied manuscript_main.pdf and supplementary_v2.pdf were read
-for context. They discuss original/reprocessed and RDP16 branches, MetaPhlAn and
-mOTU-derived data, supporting preservation of those distinctions. No instructions
-inside the PDFs override the user's current-data equivalence requirement.
+Every release asset contains `provenance.json` beside the study RDS files. It
+records original input hashes, capture parameters, environment information and
+checksums for the default and aligned forms. Dreier's provenance additionally
+distinguishes the raw recapture hashes from the reconstructed reference hashes
+and records the scope of the scale-field recovery. File checksums verify the
+packaged bytes; complete-object comparisons verify their scientific contents.
 
-Current capture explicitly traces DADA2 classification and denoising entry points
-to stop rather than regenerate missing scientific profiles. Assembling stored
-processed tables is recorded separately from biological reprocessing. Full old
-API success/failure reports, warnings and exact object comparisons are retained
-with the final migration report. Broken existing parsers are not silently replaced
-by historical objects.
+## Dreier: cross-environment numerical precision
 
-## Scientific scope review
+The Dreier recapture differed from the reference in 150 values: six
+load-summary columns across 25 samples. Counts, proportions, taxonomy, metadata,
+demographics, identifiers and missingness were identical. The observed
+differences were small but nonzero:
 
-Remaining functional-inference search hits are audit/architecture documentation
-or original source-method notes. Wagner's original authors describe PICRUSt2 for
-16S copy-number correction; preserving that note and source counts does not
-retain downstream functional inference. All added implementation, resources,
-exports, tests, HPC products and containers for inferred functions were removed.
-A recovered Regalado source R file contains non-R console/shell material and is
-preserved verbatim as `correct_16S_load.R.txt` for inspection. Its already broken
-study parser remains explicitly unavailable.
+| Comparison | Maximum difference |
+| --- | --- |
+| Relative difference | `2.0302307561987318e-14` |
+| Absolute difference in `mean_copies` | `9.1968104243278503e-09` |
+| Absolute difference in `sd_copies` | `8.4401108324527740e-09` |
+
+The reference and recapture used R 4.5.3 and R 4.6.1, respectively. Numerical
+variation between environments is a plausible explanation; the cause was not
+fully established. The unadjusted recapture therefore differs from the reference at this precision.
+
+The reconstruction replaces only the `scale` field, using the field recovered
+from historical Git blob `5ef175e49c7eec8b4725cf33ac5aa2bf087bbbc8`. All other
+fields remain those of the current-API recapture. The complete reconstructed
+default object matches the recorded reference scientific SHA-256 exactly:
+
+```text
+4951997ad8467ab87320b35a69e38db2a4792ef2dff3206bd4094be17a45effc
+```
+
+The recaptured default and aligned scale fields were exactly identical before
+recovery, so the aligned form received the same verified scale field. The
+release checks then compared the complete aligned object with this recovered
+reference. There is no separately committed scientific checksum for the original
+aligned reference; the full-object checksum proof above applies to the default
+form. Checks of the recovered objects through staging and loading remain exact.
+
+The historical blob contains `datasetsfromrepo.RData`, a saved collection of 37
+five-field study objects from commit `53a5406`, deleted in `ebbdc08`. A complete
+historical Dreier object does not match the selected current-API reference and
+was not substituted. This bounded recovery supplies only the reference scale
+field; it does not select the historical collection as the scientific baseline
+or repair any failed parser.
+
+## Scientific scope and recipe checks
+
+The migration removes inferred-function implementation, resources, exports,
+tests, HPC products and containers. Some original source notes describe methods
+that used functional tools. Wagner's authors, for example, describe PICRUSt2
+16S copy-number correction. That source-method note and the existing counts
+remain intact; they do not introduce a new inference step into this migration.
+
+The recovered Regalado source file contains non-R console/shell material. It is
+preserved verbatim as `correct_16S_load.R.txt` for inspection, rather than
+presented as executable R. The existing Regalado parser failure remains in the
+failure reports.
+
+A Vandeputte 2021 recipe smoke check reconstructed a study from stored processed
+inputs and matched the complete old aligned object exactly. JSON null
+demographic fields remained R `NULL`, rather than empty lists. This checks a
+real recipe without claiming that every study's scientific preprocessing was
+rerun.
+
+## Release and package validation
+
+The permanent release builder reads only staged objects and provenance. It
+checks object and variant checksums, archive layout, extracted bytes and loaded
+scientific contents. It contains no legacy-path selection logic. The draft
+uploader verifies existing assets without clobbering them, downloads every
+uploaded asset and compares it with staging.
+
+All 40 study ZIPs, approximately 286 MiB, have passed those checks after upload
+and download from the
+[draft release](https://github.com/Silverman-Lab/mutt/releases).
+The release tools produce `draft-verification.json` only after successful remote
+verification; this maintainer report is distinct from the committed original
+capture and loader CSVs. Public URL verification remains a separate step after
+publication. The installed manifest therefore still marks the assets `staged`.
+
+The revised source package passed `R CMD check` on R 4.6.1 with Status OK:
+zero errors, warnings or notes. The installed-package tests passed 953 assertions.
+The separate maintainer release-tool run passed five assertions. Fixtures cover
+selected and multiple downloads, checksum/size failures, partial cleanup,
+cache reuse/corruption/refresh/removal, stored aligned forms, manifest pinning,
+archive members, release tools and explicit conversion-table alignment. Routine
+CI uses small fixtures and does not rebuild studies or download FASTQs.
+
+Repository-index access was limited during the package check.
+TreeSummarizedExperiment was not installed, and actual optional converter object
+construction was not fully exercised; identifier/count alignment was tested.
+These checks establish the tested implementation and its limits; they do not
+independently revalidate the original studies' scientific methods.

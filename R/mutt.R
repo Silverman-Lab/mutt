@@ -1,15 +1,16 @@
 #' Obtain processed microbiome studies
 #'
-#' Downloads only requested studies from a pinned immutable data release.
-#' Every asset is checksum verified and cached in the R user cache directory.
-#' All scientific representations inside each stored study are preserved.
+#' Retrieves saved study objects from a specific versioned data release.
+#' Only requested studies are downloaded. Each download is checked against its
+#' recorded file size and SHA-256 checksum, then saved for reuse in R's user cache.
+#' Study tables and their named scientific branches are retained.
 #'
 #' @param studies One or more study IDs from [mutt_studies()].
 #' @param cache Optional cache directory.
 #' @param refresh Download and verify again, replacing the cached copy on success.
-#' @param representation Stored processing form. Default preserves the old API's
-#'   rawdata=FALSE, align_samples=FALSE output. Use "aligned" for its
-#'   align_samples=TRUE output, when available.
+#' @param representation Which stored form to load. "default" retains the
+#'   original sample sets, which can differ between tables. "aligned" retrieves
+#'   the previous package's study-specific sample-aligned form, when available.
 #' @return A named list of study objects, even for a single study. Each study
 #'   contains counts, proportions, tax, scale and metadata; these may contain
 #'   named nested representations. No assay branch is selected implicitly.

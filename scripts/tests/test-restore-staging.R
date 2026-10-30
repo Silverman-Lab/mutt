@@ -1,4 +1,4 @@
-test_that('handoff restoration verifies existing assets without rebuilding them', {
+test_that('staging restoration verifies existing assets without rebuilding them', {
   f <- fixture_release('tiny');on.exit(unlink(f$root,recursive=TRUE))
   project <- normalizePath(test_path('..','..'))
   e <- new.env(parent=globalenv())
