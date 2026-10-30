@@ -13,8 +13,10 @@ features as columns. Both dimensions require unique nonempty identifiers.}
 measurements as columns here to carry them into the converted object.}
 \item{taxonomy}{Optional feature table with feature IDs as row names.}
 }
-\description{Choose a scientific branch explicitly. Conversion retains all counts
-and aligns tables by identifiers without selecting taxa or samples implicitly.
-Install the optional Bioconductor phyloseq or TreeSummarizedExperiment package
-only when using the corresponding conversion.}
+\description{Select one counts table before converting. Metadata must include
+every sample ID in the counts; taxonomy must include every feature ID. The
+converter matches these tables by their row names and puts them in the counts
+table's order. All selected counts are kept. Include microbial-load columns in
+metadata if desired. Install the optional phyloseq or TreeSummarizedExperiment
+package with BiocManager when using the corresponding converter.}
 \value{A phyloseq object, or a TreeSummarizedExperiment usable with mia/miaverse.}

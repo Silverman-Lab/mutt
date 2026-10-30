@@ -76,7 +76,7 @@ test_that('manifest rejects mutable, duplicate or incomplete entries', {
   manifest <- jsonlite::read_json(f$manifest)
   manifest$studies[[1]]$release_tag <- 'latest'
   jsonlite::write_json(manifest,f$manifest,auto_unbox=TRUE)
-  expect_error(mutt_studies(),'Invalid pinned')
+  expect_error(mutt_studies(),'Invalid download information in study catalog')
 })
 
 test_that('draft assets are listed but never advertised as public downloads', {
@@ -85,5 +85,5 @@ test_that('draft assets are listed but never advertised as public downloads', {
   jsonlite::write_json(manifest,f$manifest,auto_unbox=TRUE)
   withr::local_options(mutt.manifest=f$manifest)
   expect_identical(mutt_studies()$status,'staged')
-  expect_error(mutt('tiny',cache=f$cache),'no verified public data release')
+  expect_error(mutt('tiny',cache=f$cache),'this study is not yet available for download')
 })

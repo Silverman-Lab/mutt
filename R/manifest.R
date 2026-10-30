@@ -1,11 +1,11 @@
 .mutt_manifest <- function() {
   path <- getOption('mutt.manifest', system.file('extdata', 'studies.json', package='mutt'))
   x <- jsonlite::read_json(path, simplifyVector=FALSE)
-  if (!identical(x$schema_version, 1L) || !length(x$studies)) stop('Invalid MUTT manifest.')
+  if (!identical(x$schema_version, 1L) || !length(x$studies)) stop('Invalid MUTT study catalog.')
   ids <- vapply(x$studies, function(r) r$study_id, character(1))
-  if (anyDuplicated(ids) || any(!grepl('^[a-z][a-z0-9_]*$', ids))) stop('Invalid study IDs in manifest.')
+  if (anyDuplicated(ids) || any(!grepl('^[a-z][a-z0-9_]*$', ids))) stop('Invalid study IDs in catalog.')
   for (r in x$studies) {
-    if (!r$status %in% c('available','staged','unavailable')) stop('Invalid release status.')
+    if (!r$status %in% c('available','staged','unavailable')) stop('Invalid study availability in catalog.')
     if (r$status != 'unavailable') {
       fields <- c('release_tag','url','sha256','size_bytes','data_version',
                   'study_rds_sha256','provenance_sha256')
@@ -14,7 +14,7 @@
           !is.numeric(r$size_bytes) || length(r$size_bytes)!=1L || !is.finite(r$size_bytes) || r$size_bytes<=0 ||
           any(!vapply(r[c('sha256','study_rds_sha256','provenance_sha256')],
                       function(s) is.character(s) && length(s)==1L && grepl('^[a-f0-9]{64}$',s),logical(1))))
-        stop('Invalid pinned asset for ', r$study_id)
+        stop('Invalid download information in study catalog for ', r$study_id)
     }
   }
   stats::setNames(x$studies, ids)
@@ -29,7 +29,13 @@
 }
 
 #' List curated MUTT studies
-#' @return A data frame with identifiers, modalities, release versions and availability.
+#'
+#' Lists studies without downloading their data. Status "available" means
+#' processed data can be downloaded; "staged" means the data are prepared but
+#' cannot yet be downloaded; and "unavailable" means this release provides no
+#' processed data for the study.
+#' @return A data frame with study IDs, names, sequencing and load-measurement
+#'   methods, availability, data versions, release tags and download sizes.
 #' @export
 mutt_studies <- function() {
   rows <- .mutt_manifest()

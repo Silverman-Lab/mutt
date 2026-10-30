@@ -85,7 +85,7 @@ publish_draft <- function(input, output, repo='Silverman-Lab/mutt') {
   if(!length(matching)) {
     target <- system2('git',c('rev-parse','HEAD'),stdout=TRUE)
     notes <- tempfile();on.exit(unlink(notes),add=TRUE)
-    writeLines('Curated processed taxonomic study assets preserving the current mutt API at 01c648b. See per-study provenance and the migration audit for exact default/aligned comparisons and existing parser failures.',notes)
+    writeLines('Processed microbiome study data. Each ZIP contains saved study tables and a record of their sources and file checks. See the package README for loading data and docs/RELEASING.md for maintaining releases.',notes)
     .gh(c('release','create',tag,'--repo',repo,'--draft','--target',target,
           '--title',tag,'--notes-file',notes))
   }

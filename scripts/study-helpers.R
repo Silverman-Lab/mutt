@@ -371,68 +371,6 @@ function (output)
     }
     result
 }
-validate_output_structure <-
-function (output, study_name = NULL) 
-{
-    if (!is.list(output)) {
-        stop(sprintf("%s: Output must be a list", ifelse(is.null(study_name), 
-            "", study_name)))
-    }
-    required_elements <- c("counts", "proportions", "tax", "scale", 
-        "metadata")
-    missing_elements <- required_elements[!required_elements %in% 
-        names(output)]
-    if (length(missing_elements) > 0 && !is.null(study_name)) {
-        warning(sprintf("%s: Missing required elements: %s", 
-            study_name, paste(missing_elements, collapse = ", ")))
-    }
-    get_structure <- function(obj, name = "") {
-        tryCatch({
-            if (is.null(obj)) {
-                return("NULL")
-            }
-            else if (is.matrix(obj)) {
-                return(sprintf("MATRIX(%d x %d)", nrow(obj), 
-                  ncol(obj)))
-            }
-            else if (is.data.frame(obj)) {
-                return(sprintf("DATAFRAME(%d x %d)", nrow(obj), 
-                  ncol(obj)))
-            }
-            else if (is.list(obj)) {
-                if (length(obj) == 0) 
-                  return("EMPTY_LIST")
-                nested <- sapply(names(obj), function(n) {
-                  paste(n, "=", get_structure(obj[[n]], n))
-                })
-                return(sprintf("LIST={%s}", paste(nested, collapse = ", ")))
-            }
-            else if (is.logical(obj) && all(is.na(obj))) {
-                return("NULL")
-            }
-            else if (is.vector(obj)) {
-                return(sprintf("VECTOR(length=%d)", length(obj)))
-            }
-            else {
-                return(class(obj)[1])
-            }
-        }, error = function(e) {
-            return(sprintf("ERROR: %s", e$message))
-        })
-    }
-    result <- list()
-    for (elem in required_elements) {
-        if (elem %in% names(output)) {
-            result[[elem]] <- get_structure(output[[elem]], elem)
-        }
-    }
-    other_elements <- setdiff(names(output), required_elements)
-    for (elem in other_elements) {
-        result[[elem]] <- get_structure(output[[elem]], elem)
-    }
-    return(result)
-}
-
 # Final harmonization previously performed by mutt(), retained with the recipes.
 remove_all_na_fields <- function(x) {
   if(is.data.frame(x)) return(x[,vapply(x,function(column)!all(is.na(column)),logical(1)),drop=FALSE])

@@ -1,14 +1,14 @@
 .mutt_cache_root <- function(cache=NULL) {
   if (is.null(cache)) cache <- getOption('mutt.cache', tools::R_user_dir('mutt','cache'))
-  if (!is.character(cache) || length(cache)!=1L || is.na(cache) || !nzchar(cache)) stop('Invalid cache directory.')
+  if (!is.character(cache) || length(cache)!=1L || is.na(cache) || !nzchar(cache)) stop('Invalid directory for saved study copies.')
   normalizePath(cache,mustWork=FALSE)
 }
 
 .mutt_fetch <- function(row, cache, refresh, representation='default') {
   if (row$status != 'available') stop('Study ',row$study_id,' is ',row$status,
-    '; no verified public data release is available. ',
+    '; this study is not yet available for download. ',
     if(!is.null(row$reason)) paste0(row$reason,'. ') else '',
-    'See mutt_source() and docs/migration.',call.=FALSE)
+    'See mutt_source() for sources and availability.',call.=FALSE)
   parent <- file.path(cache,row$release_tag)
   target <- file.path(parent,paste0(row$study_id,'-',row$sha256))
   if (dir.exists(target) && !refresh) return(.mutt_validate_directory(target,row,representation))
@@ -26,10 +26,10 @@
   value <- .mutt_validate_directory(extracted,row,representation)
   # Keep a verified existing cache usable if refresh fails. Both renames share a filesystem.
   backup <- file.path(stage,'previous')
-  if (dir.exists(target) && !file.rename(target,backup)) stop('Could not move the previous cache.')
+  if (dir.exists(target) && !file.rename(target,backup)) stop('Could not move the previous saved study copy.')
   if (!file.rename(extracted,target)) {
     if(dir.exists(backup)) file.rename(backup,target)
-    stop('Could not atomically publish verified study cache.')
+    stop('Could not save the verified study copy.')
   }
   value
 }
@@ -38,10 +38,15 @@
   utils::download.file(url,destination,mode='wb',quiet=TRUE)
 }
 
-#' Remove cached processed studies
-#' @param studies Character vector of study IDs to remove, across pinned release versions.
-#' @param cache Optional cache directory; defaults to the R user cache.
-#' @return Removed cache paths, invisibly.
+#' Remove saved local study data
+#'
+#' Removes downloaded study copies from your computer. Original input files
+#' downloaded separately with [mutt_download_raw()] are kept. A later call to
+#' [mutt()] will download the requested study again.
+#' @param studies Study IDs to remove, including saved copies from older releases.
+#' @param cache Directory containing saved local copies (the cache). Defaults
+#'   to R's user cache directory for MUTT.
+#' @return Removed directory paths, invisibly.
 #' @export
 mutt_cache_remove <- function(studies, cache=NULL) {
   rows <- .mutt_select(studies)
@@ -51,7 +56,7 @@ mutt_cache_remove <- function(studies, cache=NULL) {
     unlist(lapply(candidates,function(p) list.files(p,pattern=paste0('^',id,'-[a-f0-9]{64}$'),full.names=TRUE)))
   }),use.names=FALSE)
   for(p in paths) {
-    if(dir.exists(paste0(p,'.lock'))) stop('Study cache is in use: ',p)
+    if(dir.exists(paste0(p,'.lock'))) stop('Saved study copy is in use: ',p)
     unlink(p,recursive=TRUE)
   }
   invisible(paths)

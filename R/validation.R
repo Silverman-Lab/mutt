@@ -17,22 +17,22 @@
       !grepl('^[a-z][a-z0-9_]*$',p$study_id) ||
       is.null(p$data_version) || !nzchar(p$data_version) ||
       is.null(p$selection) || !nzchar(p$selection) ||
-      !identical(p$study_rds_sha256,.mutt_sha256(files[[1]]))) stop('Invalid study provenance or RDS checksum.')
+      !identical(p$study_rds_sha256,.mutt_sha256(files[[1]]))) stop('Invalid study source record or data checksum.')
   if (!is.null(row)) {
     if (!identical(p$study_id,row$study_id) || !identical(p$data_version,row$data_version) ||
         !identical(.mutt_sha256(files[[1]]),row$study_rds_sha256) ||
-        !identical(.mutt_sha256(files[[2]]),row$provenance_sha256)) stop('Cached study differs from pinned manifest.')
+        !identical(.mutt_sha256(files[[2]]),row$provenance_sha256)) stop('Saved study copy does not match the version in the study catalog.')
   }
   variants <- p$variants
   if(length(variants)) for(name in names(variants)) {
     v <- variants[[name]]
     if(!grepl('^[a-z][a-z0-9_]*$',name) || !grepl('^[a-z][a-z0-9_]*[.]rds$',v$file) ||
-       !identical(.mutt_sha256(file.path(path,v$file)),v$sha256)) stop('Invalid study representation checksum.')
+       !identical(.mutt_sha256(file.path(path,v$file)),v$sha256)) stop('Invalid checksum for a saved study form.')
     .mutt_validate_object(readRDS(file.path(path,v$file)))
   }
   selected <- files[[1]]
   if(representation != 'default') {
-    if(!representation %in% names(variants)) stop('Representation unavailable: ',representation)
+    if(!representation %in% names(variants)) stop('Requested study form is unavailable: ',representation)
     selected <- file.path(path,variants[[representation]]$file)
   }
   x <- readRDS(selected)
@@ -42,16 +42,16 @@
 
 .mutt_extract_asset <- function(archive, destination, row=NULL) {
   if (!is.null(row) && (!identical(unname(file.info(archive)$size),as.numeric(row$size_bytes)) ||
-      !identical(.mutt_sha256(archive),row$sha256))) stop('Asset size or SHA-256 verification failed.')
+      !identical(.mutt_sha256(archive),row$sha256))) stop('Downloaded file size or SHA-256 verification failed.')
   entries <- utils::unzip(archive,list=TRUE)$Name
   if (!all(c('study.rds','provenance.json') %in% entries) || anyDuplicated(entries) ||
       any(!grepl('^(provenance[.]json|[a-z][a-z0-9_]*[.]rds)$',entries)))
-    stop('Invalid archive: unexpected member names.')
+    stop('Invalid archive: required files are missing or file names are unexpected or repeated.')
   dir.create(destination,recursive=TRUE,showWarnings=FALSE)
   utils::unzip(archive,exdir=destination)
   value <- .mutt_validate_directory(destination,row)
   p <- jsonlite::read_json(file.path(destination,'provenance.json'))
   expected <- unique(c('study.rds','provenance.json',vapply(p$variants,function(v)v$file,character(1))))
-  if(!setequal(entries,expected)) stop('Invalid archive: unlisted study representations.')
+  if(!setequal(entries,expected)) stop('Invalid archive: files do not match the study source record.')
   value
 }

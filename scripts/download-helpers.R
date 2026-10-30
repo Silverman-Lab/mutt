@@ -7,7 +7,7 @@ download_checked <- function(url, path, sha256) {
   if (!identical(status,0L) || !identical(digest::digest(temp,algo='sha256',file=TRUE),sha256))
     stop('Source download or checksum verification failed: ',url)
   if(file.exists(path)) stop('Refusing to overwrite a different source file: ',path)
-  if(!file.rename(temp,path)) stop('Could not publish source file: ',path)
+  if(!file.rename(temp,path)) stop('Could not save source file: ',path)
   invisible(path)
 }
 
@@ -30,7 +30,7 @@ download_ena_reads <- function(accession, dest) {
         if(file.exists(path)) stop('Existing FASTQ checksum mismatch: ',path)
         status <- utils::download.file(paste0('https://',sub('^ftp://','',paths[[j]])),tmp,mode='wb')
         if(!identical(status,0L) || !identical(unname(tools::md5sum(tmp)),hashes[[j]])) stop('FASTQ checksum mismatch')
-        if(!file.rename(tmp,path)) stop('Could not publish FASTQ')
+        if(!file.rename(tmp,path)) stop('Could not save FASTQ file')
       },finally=unlink(tmp))
     }
   }

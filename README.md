@@ -1,57 +1,36 @@
 # mutt
 
-MUTT brings together microbiome studies that pair taxonomic profiles with
-microbial-load measurements. It provides processed study data, source information
-and the study-specific scripts used to assemble those data.
+MUTT provides processed microbiome study data that pair taxonomic profiles with
+microbial-load measurements. You choose the studies you need, and MUTT downloads
+them and saves a copy on your computer for later use.
 
-This update makes the package easier to install and use. The R package contains
-the study catalog and loading functions. Processed data are stored separately,
-with one downloadable ZIP per study. You request the studies you need, and MUTT
-keeps a checked copy on your computer for later use.
+You can load existing study data directly from R. You do not need to download the
+whole project or run read-processing tools.
 
-The existing scientific data are preserved. Changing how a study is downloaded
-does not rerun its sequencing analysis or choose among its scientific results.
-
-## Status of this update
-
-The 40 study ZIPs have been uploaded to the [draft data release](https://github.com/Silverman-Lab/mutt/releases)
-and downloaded again for verification. All 80 default and aligned study objects
-passed complete-object comparisons. The release remains a draft for review, so
-public study downloads are not enabled in the package yet.
-
-For an overview of the changes and suggested review order, start with the
-[review guide](docs/migration/FINAL.md). The [scientific audit](docs/migration/AUDIT.md)
-contains the detailed preservation checks.
-
-## Install and explore the catalog
-
-While reviewing this update, install its branch:
+## Install and find studies
 
 ```r
 install.packages("remotes")
-remotes::install_github("Silverman-Lab/mutt", ref = "codex/mutt-v1-release")
+remotes::install_github("Silverman-Lab/mutt")
 library(mutt)
 
 studies <- mutt_studies()
 studies[, c("study_id", "display_name", "status")]
 ```
 
-The catalog uses short study IDs, such as `vandeputte2017`. It also records
-whether processed data can be downloaded:
+Use the short study IDs, such as `vandeputte2017`, to request data. Only studies
+marked `available` can be downloaded.
 
 | Status | Meaning |
 | --- | --- |
-| `available` | The published download has been verified and can be requested. |
-| `staged` | The processed data are prepared for release; public downloads are not enabled yet. |
-| `unavailable` | This release has no usable processed object for the study. Source information may still be available. |
+| `available` | Processed study data can be downloaded. |
+| `staged` | Processed study data are prepared but cannot yet be downloaded. |
+| `unavailable` | No processed data are provided for this study in this release. Source information may still be available. |
 
 Listing studies and inspecting their source information does not download study
-data. The current catalog contains 40 prepared studies, 17 studies whose previous
-parsers failed, and six additional source records without processed outputs.
+data.
 
-## Load a processed study
-
-Once a study is marked `available`, request it by ID:
+## Load study data
 
 ```r
 x <- mutt("vandeputte2017")
@@ -62,8 +41,8 @@ names(study)
 y <- mutt(c("vandeputte2017", "contijoch2019", "morton2019"))
 ```
 
-`mutt()` returns a named list, including when you request a single study. The
-study objects retain their existing fields:
+`mutt()` returns a named list, even when you request one study. Each study contains
+the following fields:
 
 | Field | Contents |
 | --- | --- |
@@ -73,39 +52,40 @@ study objects retain their existing fields:
 | `scale` | Microbial-load measurements, with their original names and units. |
 | `metadata` | Sample information. |
 
-Additional fields, including demographics, are retained where present. A field
+Additional fields, including demographics, are included where present. A field
 can contain several named tables for different assays, classifiers or cohorts.
-Those alternatives remain separate so you can select the appropriate one for
-your analysis.
+Inspect the study and select the table you need for your analysis.
 
-### Sample alignment
+### Which samples are included?
 
-The default form retains the sample sets in the previous package's unaligned
-output. Counts, metadata and load tables can therefore contain different samples.
-To retrieve the previous package's sample-aligned form, use:
+By default, MUTT loads the saved study tables with their original sample groups.
+The counts, sample information and microbial-load tables may contain different
+samples.
+
+Some studies also have a second saved version that follows the previous package's
+rules for matching samples. Load it with:
 
 ```r
 aligned <- mutt("vandeputte2017", representation = "aligned")
 ```
 
-This preserves each study's existing alignment behavior. Check sample identifiers
-when combining its tables. The [scientific audit](docs/migration/AUDIT.md)
-explains how both forms were compared with the previous package.
+Here, “aligned” refers to matching sample IDs between tables, not aligning DNA
+sequences. For example, if counts contain samples A, B and C but load measurements
+exist only for A and C, this version may limit the counts to A and C. The rules
+vary by study: they do not guarantee that every table contains the same samples
+in the same order. Check sample IDs when combining tables, rather than matching
+rows by position.
 
 ### Reuse a downloaded study
 
-Each download is checked against its recorded size and SHA-256 checksum, a
-fingerprint of the file's exact contents. The checked data are kept in R's user
-cache, so repeated requests reuse the saved copy.
+MUTT checks each download and keeps a local copy, called a cache. Later requests
+reuse that copy.
 
 ```r
-x <- mutt("vandeputte2017")                 # reuse the checked copy
+x <- mutt("vandeputte2017")                 # reuse the saved copy
 x <- mutt("vandeputte2017", refresh = TRUE) # download and check again
 mutt_cache_remove("vandeputte2017")        # remove the saved copy
 ```
-
-Routine loading needs neither a repository checkout nor scientific preprocessing
-software. The package's required R dependencies are `digest` and `jsonlite`.
 
 ## Inspect sources and processing scripts
 
@@ -114,7 +94,7 @@ mutt_source("vandeputte2017") # source notes, accessions and input information
 mutt_recipe("vandeputte2017") # links to the study's processing scripts
 ```
 
-If you need the original inputs, request them separately:
+If you need the original inputs, download them separately:
 
 ```r
 mutt_download_raw("vandeputte2017", dest = "inputs")
@@ -123,14 +103,13 @@ mutt_download_raw("vandeputte2017", dest = "inputs")
 ```
 
 Despite its name, `mutt_download_raw()` can retrieve published tables and stored
-processed inputs as well as raw sequencing reads. Reads are fetched from ENA only
-when `reads = TRUE`. Some studies lack public reads or complete processing
-instructions; their source information describes these limits.
+processed inputs as well as raw sequencing reads. Reads are downloaded from ENA
+only when `reads = TRUE`. Source notes describe missing public inputs and gaps in
+processing instructions.
 
-Each [study directory](studies) contains metadata in `study.yml`, a `download.R`
-script and a `process.R` script. These scripts are for maintaining or extending
-the collection. Their study-specific dependencies, such as DADA2 or readxl, are
-separate from the dependencies needed to load released data.
+The scripts in each [study directory](studies) are for maintaining or extending
+the collection. See the [maintainer instructions](docs/RELEASING.md) for adding
+studies and preparing data releases.
 
 ## Use phyloseq or miaverse
 
@@ -143,21 +122,11 @@ tse <- mutt_as_miaverse(counts)
 ```
 
 Counts must have samples in rows and features in columns. You can also supply
-`metadata` and `taxonomy` tables with the corresponding identifiers as row names.
-Include microbial-load columns in the sample metadata if you want them in the
-converted object. Conversion keeps the selected counts and matches the other
-tables by identifier.
+`metadata` and `taxonomy` tables with sample IDs and feature IDs, respectively,
+as row names. These tables must cover all IDs in the selected counts table; the
+converter puts their rows in the corresponding order and keeps all selected
+counts. Include microbial-load columns in the sample metadata if you want them
+in the converted object.
 
 Install the optional `phyloseq` or `TreeSummarizedExperiment` package with
 BiocManager when using its converter.
-
-## Review or contribute
-
-The [review guide](docs/migration/FINAL.md) introduces the package changes and
-points to the relevant code. The [scientific audit](docs/migration/AUDIT.md)
-records data coverage, exact comparisons and the Dreier numerical precision
-note. [Maintainer instructions](docs/RELEASING.md) describe adding a study and
-preparing a data release.
-
-MUTT focuses on curated taxonomic profiles and microbial-load measurements.
-Functional inference and downstream biological analyses are outside this scope.

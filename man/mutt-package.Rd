@@ -2,6 +2,7 @@
 \alias{mutt-package}
 \docType{package}
 \title{Curated microbiome studies paired with microbial-load measurements}
-\description{A small R package for obtaining independently downloadable,
-checksum-verified and cached processed microbiome study datasets.}
+\description{Load processed study data directly from R. MUTT downloads only
+requested studies and saves local copies for reuse. Use \code{mutt_studies()} to
+find study IDs and \code{mutt()} to load their data.}
 \seealso{\code{\link{mutt}}, \code{\link{mutt_studies}}}

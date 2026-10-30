@@ -16,12 +16,15 @@
 
 #' Convert a selected counts table to phyloseq or miaverse
 #'
-#' Select a scientific branch explicitly before converting. Counts have samples
-#' in rows and features in columns. Set metadata/taxonomy row names to their
-#' identifiers; all counts are retained and tables are reordered by identifier.
-#' Include microbial-load columns in metadata if desired. Conversion never
-#' substitutes proportions for counts or infers missing taxonomy.
-#' @param counts One numeric count matrix or data frame.
+#' Select one counts table before converting. Counts have samples in rows and
+#' features in columns. Metadata must include every sample ID in the counts;
+#' taxonomy must include every feature ID. The converter matches these tables
+#' by their row names and puts them in the counts table's order. All selected
+#' counts are kept. Include microbial-load columns in metadata if desired.
+#' Install the optional phyloseq or TreeSummarizedExperiment package with
+#' BiocManager when using the corresponding converter.
+#' @param counts One numeric count matrix or data frame, with unique sample IDs
+#'   as row names and unique feature IDs as column names.
 #' @param metadata Optional sample table, with sample IDs as row names.
 #' @param taxonomy Optional feature table, with feature IDs as row names.
 #' @return A phyloseq object or a TreeSummarizedExperiment for use with mia/miaverse.

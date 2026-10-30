@@ -4,10 +4,14 @@
 ^work$
 ^studies$
 ^scripts$
-^analysis$
 ^docs$
 ^AGENTS\.md$
 ^CODE_OF_CONDUCT\.md$
 ^LICENSE\.md$
 ^mutt_.*\.tar\.gz$
 ^.*\.Rcheck$
+^\.agent-shell$
+^\.agents$
+^\.codex$
+^\.aws$
+^plan\.org$
