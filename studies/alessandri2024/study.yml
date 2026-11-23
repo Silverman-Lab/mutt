@@ -1,0 +1,90 @@
+{
+  "sequencing": "Shotgun Metagenomics",
+  "load": "Flow Cytometry",
+  "pmid": "39364592",
+  "accessions": [],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC11450379/#sec25"
+  ],
+  "study_id": "alessandri2024",
+  "display_name": "2024 alessandri microbbiotechnology pcosvaginalmicrobiota",
+  "schema_version": 1,
+  "legacy_id": "2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota",
+  "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC11450379/#sec25\n\n\n10 subjects: faecal and vaginal samples were collected from 10 healthy women who had not taken prebiotics, probiotics or drugs during the 3\u2009months prior to sample collection.Faecal samples were inoculated in a human gut environment\u2010simulating growth medium, based on a previously described composition (Fehlbaum et al., 2015; Macfarlane et al., 1998).The same protocol was used for the cultivation of vaginal samples. However, in this case, a culture medium mimicking the human vaginal environment, that is, the simulated vaginal fluid, with a pH adjusted to 4.5, as previously described (Pan et al., 2019), was employed. Faecal and vaginal samples were cultivated for 19 and 24\u2009h, respectively, under anaerobic conditions at 37\u00b0C. Furthermore, for each of the two matrices, samples were cultured in the presence and absence of 2% \u03b1\u2010LA.\n\n(ClinicalTrials.gov identifier NCT05674318)\n\nTen patients with clinical signs of PCOS were enrolled for the in vivo pilot study at Agunco Obstetric and Gynecologic Centre (Rome, Italy). evaluate the possible impact of orally administrated \u03b1\u2010LA on vaginal microbiota in such patients, all the women underwent a 30\u2010day oral administration of \u03b1\u2010LA (300\u2009mg/twice a day), and two vaginal swabs were collected from each patient: one before (baseline\u2014T0) and one after (T1) \u03b1\u2010LA administration.\n\nCount tables/relative abundances/ASV-sequences processed by Maxwell Konnaris 04/09/25. Count tables and taxa sequences not provided by the study.\n\nRelative Abundances are provided by the study, but Maxwell reprocessed. Theirs is in Table S9\n\nall data collected by Maxwell Konnaris\n\nparse.R finished 04/09/25\n\n\n\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "Alessandri2024_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/Alessandri2024_scale.csv.zip",
+      "sha256": "026d54e1bf364468d24eb22183cd4538b6efc69644dd39baf169cd46885053d6"
+    },
+    {
+      "file": "Alessandri_2024_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/Alessandri_2024_metadata.csv.zip",
+      "sha256": "20f49a3f5438bce42ec9ca9d66a06f1832a5524f4776b4c9cabb53c05e2fcc59"
+    },
+    {
+      "file": "Alessandri_2024_shotgunmetagenomics.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/Alessandri_2024_shotgunmetagenomics.csv.zip",
+      "sha256": "9012077410b4d995173e782bba5c126ade997435ecd673bf7ac78d12bb599bfd"
+    },
+    {
+      "file": "MBT2-17-e14540-s002 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/MBT2-17-e14540-s002%20%281%29.xlsx.zip",
+      "sha256": "6d826cd80e73c44e6369a173fc9c9269805ce0b0969f26f4237a68777b08ff2d"
+    },
+    {
+      "file": "PRJNA1075117_MetaPhlAn_merged_counts.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/PRJNA1075117_MetaPhlAn_merged_counts.tsv.zip",
+      "sha256": "dcd9aa21a493fb7361c57a268dedc38e23388c69b7f79ae72b33e6867ec36956"
+    },
+    {
+      "file": "PRJNA1075117_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/PRJNA1075117_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "sha256": "7f0f6965ace2964483e3c7481a871dc65b362cbf668bf174b5557ac108ee4d7c"
+    },
+    {
+      "file": "PRJNA1075117_MetaPhlAn_proportions.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/PRJNA1075117_MetaPhlAn_proportions.tsv.zip",
+      "sha256": "fed2e0be9809994d190f7791d8376910c7c207b00261b044ba975e38267e1a79"
+    },
+    {
+      "file": "PRJNA1075117_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/PRJNA1075117_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "sha256": "260e97ff285f6b2de6686c958d13ecbcfa1c42734beb76022e41066a32b799b2"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/README.txt.zip",
+      "sha256": "063208da4c8ca18c701b452308f293647163995c893d7a0984811405154fc03f"
+    },
+    {
+      "file": "SraRunTable (1).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/SraRunTable%20%281%29.csv.zip",
+      "sha256": "792809b441402185f618b9fd531f3b44b1807dadf12b8e4067a5384172eae1bb"
+    },
+    {
+      "file": "merged_metaphlan_profiles (2).txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota/merged_metaphlan_profiles%20%282%29.txt.zip",
+      "sha256": "471e0327bc802d2c949978b64ea1315b5be8d2eb1560176dd4f1bf85f32ca961"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "Shotgun Metagenomics",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": [
+      "Fecal",
+      "Vaginal"
+    ],
+    "covariates": [
+      "treatmentfromlibraryname",
+      "env_broad_scale"
+    ],
+    "ID": "Sample",
+    "PMID": "39364592"
+  },
+  "baseline_error": "",
+  "baseline_warnings": "\n2024_alessandri_microbbiotechnology_pcosvaginalmicrobiota | No matching accessions found between counts_reprocessed and metadata"
+}

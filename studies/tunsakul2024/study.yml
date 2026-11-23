@@ -1,0 +1,72 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "38650647",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "tunsakul2024",
+  "display_name": "2024 tunsakul peerj aerobicvsanaerobicinhealthyvsobesity",
+  "schema_version": 1,
+  "legacy_id": "2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity",
+  "source_notes": "paper: \ncode:\n\n9 healthy and 11 fat-metabolic disorder Thai adults aged 23\u201343 years with qPCR total microbial load measurements. The 40 fecal samples were split into anaerobic and aerobic sample processing and evaluated (2 samples from each patient, 1 goes to aerobic collection and the other goes to anaerobic collection).  \"employed metagenomics followed by 16S rRNA gene sequencing and 16S rRNA gene qPCR, to analyze taxonomic composition, alpha diversity, beta diversity, bacterial quantification, Pearson's correlation with clinical factors for fat-metabolic disorder, and the microbial community and species potential metabolic functions\"\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "PRJNA1020208_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity/PRJNA1020208_dada2_counts.rds.zip",
+      "sha256": "a1d9605b61333526cb3ef6bec5fa5fcb291b474badc445f8544255a0db12be11"
+    },
+    {
+      "file": "PRJNA1020208_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity/PRJNA1020208_dada2_counts_withchimeras.rds.zip",
+      "sha256": "b82d562ef924522f2c5ac511344796d9032f6017cb90d402e7755111c042f966"
+    },
+    {
+      "file": "PRJNA1020208_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity/PRJNA1020208_dada2_taxa.rds.zip",
+      "sha256": "8aeccb180ebd7e0e18a7b6c5043dfc034e6196e4d2050a233eb44d5d8652aa9b"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity/README.txt.zip",
+      "sha256": "8742a824b5676b94fb3fd862d862e2edf6d04d534d60cbc7700caac12ad1ed5d"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "5bb326ded252b710eb82fda892b65d30bbfc3fded850e4f5eccd61268051267d"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity/rdp16classified.csv.zip",
+      "sha256": "783b17f5eded9b27e2eab0e69af73d7e717cf1cb59f73cb8d71b14dca43b3b7a"
+    },
+    {
+      "file": "scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity/scale.csv.zip",
+      "sha256": "5237a5aeb9f4426af0b0bc8ca03b0c87cb5280ae1842502c9cd1c2e951c6f8a1"
+    },
+    {
+      "file": "scalepic.pdf.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity/scalepic.pdf.zip",
+      "sha256": "cd6b4f3bd6efa59a9dd8f9394ca2da0540e91f71cad4882f1ece50a4c1120ef9"
+    },
+    {
+      "file": "scalepic.pptx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_tunsakul_peerj_aerobicvsanaerobicinhealthyvsobesity/scalepic.pptx.zip",
+      "sha256": "154d4d64181c3e7f18fe8b0b7823349f96244ea87f69516f36a1669b9671056a"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": "environment",
+    "ID": "Sample",
+    "PMID": "38650647"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

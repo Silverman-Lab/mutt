@@ -1,0 +1,96 @@
+{
+  "sequencing": "Shotgun Metagenomics",
+  "load": "Flow Cytometry",
+  "pmid": [
+    "35177860",
+    "39541968",
+    "34880489"
+  ],
+  "accessions": [],
+  "source_urls": [
+    "https://github.com/TillBirkner/metadeconfoundR",
+    "https://www.nature.com/articles/s41591-022-01688-4"
+  ],
+  "study_id": "fromentin2022",
+  "display_name": "2022 fromentin naturemedicine metacardissubset",
+  "schema_version": 1,
+  "legacy_id": "2022_fromentin_naturemedicine_metacardissubset",
+  "source_notes": "Paper: https://www.nature.com/articles/s41591-022-01688-4\n\nThis study encompassed 372 individuals with IHD, including 112 with acute coronary syndrome (ACS), 158 with chronic ischemic heart disease (CIHD) and 102 with IHD and heart failure (HF). Included 275 healthy controls (HCs) matched on demographics, age and sex and 222 untreated metabolically matched controls (UMMCs)\u2014that is, individuals with features of the metabolic syndrome and at increased risk of IHD but receiving no lipid-lowering or anti-diabetic or anti-hypertensive drugs. Included 372 controls matched with individuals with IHD in terms of T2D status and body mass index (BMI), thereafter termed metabolically matched controls (MMCs). They profiled their serum and urine metabolome (1,558 metabolites and lipids) and examined their intestinal microbiome, considering inter-individual variations in absolute fecal bacterial cell density, a factor potentially reflecting the disease state and obscuring genuine microbiome involvement.\n\nCode: https://github.com/TillBirkner/metadeconfoundR\n\nI think data can be downloaded straight from repo R folder or from package: install.packages(\"metadeconfoundR\") in R \n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "41591_2022_1688_MOESM3_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_fromentin_naturemedicine_metacardissubset/41591_2022_1688_MOESM3_ESM.xlsx.zip",
+      "sha256": "3b99f8510843b65ddf3c22df8ed459180803415a117eb81e5aae6b6e9ac4b4ed"
+    },
+    {
+      "file": "MetaCardis_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_fromentin_naturemedicine_metacardissubset/MetaCardis_scale.csv.zip",
+      "sha256": "006bc80c24b5cb1704fd8d82103d3960b0b22331a48361ac31528078ceb02b1f"
+    },
+    {
+      "file": "MetaCardis_shotgunmetagenomics.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_fromentin_naturemedicine_metacardissubset/MetaCardis_shotgunmetagenomics.csv.zip",
+      "sha256": "b473b39a0e43f9eab6940fbc6bd662de6a4da53e385124b18ce8878062b435b5"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_fromentin_naturemedicine_metacardissubset/README.txt.zip",
+      "sha256": "b4506333a498c4a9fc742cbb2e7e479398936a9a6c0fd039939d0ccf5d630c6c"
+    },
+    {
+      "file": "SraRunTable (36).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_fromentin_naturemedicine_metacardissubset/SraRunTable%20%2836%29.csv.zip",
+      "sha256": "b27f1845ed91554222da72fd83c56cfc004f90efc707af44587a1ca5b65cbc42"
+    },
+    {
+      "file": "SraRunTable (40).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_fromentin_naturemedicine_metacardissubset/SraRunTable%20%2840%29.csv.zip",
+      "sha256": "a8aaa4f5e75522909b37051bb12b3068caa56ac4513715c5ecdf22f9d0bd4adb"
+    },
+    {
+      "file": "SraRunTable (41).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_fromentin_naturemedicine_metacardissubset/SraRunTable%20%2841%29.csv.zip",
+      "sha256": "74ac8e3fa25e26a553db5d4319b0e9ae95cbdaa9f6368dc698d3b131f8680144"
+    },
+    {
+      "file": "SraRunTable (42).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_fromentin_naturemedicine_metacardissubset/SraRunTable%20%2842%29.csv.zip",
+      "sha256": "11c48abf4af3296cb36b8da4c7041de82a76d332be15bc2bc1991ffa56e1f71a"
+    },
+    {
+      "file": "metaMatMetformin (1).RData.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_fromentin_naturemedicine_metacardissubset/metaMatMetformin%20%281%29.RData.zip",
+      "sha256": "a29b93b1c433327dfc0cb78c48586e4ddd49a010944a3e7911fee18df77a3230"
+    },
+    {
+      "file": "reduced_feature (1).RData.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_fromentin_naturemedicine_metacardissubset/reduced_feature%20%281%29.RData.zip",
+      "sha256": "dc455917101c54f9da859d93111d30f9de75165f0dbb51c24d1bccf564b9024a"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "Shotgun Metagenomics",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": [
+      "PatientGroup",
+      "SMOKE",
+      "Gender",
+      "CENTER",
+      "AGE",
+      "cohort",
+      "pa_work_2cl"
+    ],
+    "ID": "Sample",
+    "PMID": [
+      "35177860",
+      "39541968",
+      "34880489"
+    ]
+  },
+  "baseline_error": "",
+  "baseline_warnings": "NAs introduced by coercion"
+}

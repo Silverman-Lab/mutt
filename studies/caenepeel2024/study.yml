@@ -1,0 +1,149 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "caenepeel2024",
+  "display_name": "2024 caenepeel gastroenterology IBD CD flow",
+  "schema_version": 1,
+  "legacy_id": "2024_caenepeel_gastroenterology_IBD_CD_flow",
+  "source_notes": "",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/README.txt.zip",
+      "sha256": "1633214b6cb30d5ae8b5ed1d545eb7d4979ceb92ec569751eb269318d2ceb5db"
+    },
+    {
+      "file": "SraRunTable (40).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/SraRunTable%20%2840%29.csv.zip",
+      "sha256": "752be173578f22c989554bee14a8218971ffec83995cf35d82ded6ff375ff771"
+    },
+    {
+      "file": "asv_counts_by_run.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/asv_counts_by_run.tsv.zip",
+      "sha256": "8729862cc0d06f3723e301c1309b2b29455cc1879b27288f10f28c4817d53b41"
+    },
+    {
+      "file": "asv_counts_by_sample_accession.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/asv_counts_by_sample_accession.tsv.zip",
+      "sha256": "6eadbc5d3c52f278d4f93f0b1ed6ba37f0e094448b03b85dccbc4d60d4bd436f"
+    },
+    {
+      "file": "asv_sequences.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/asv_sequences.tsv.zip",
+      "sha256": "d449dfdb2a54b0e2f40bfbfdc94e3b50a77e08c5dec6550c0cbdcd40532ec38c"
+    },
+    {
+      "file": "orientation_repair/asv_counts_by_run.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/asv_counts_by_run.tsv.zip",
+      "sha256": "82186c103329bb98bac25cdd8f8a00a89f76da9ef51d274d546f0f03bb09e172"
+    },
+    {
+      "file": "orientation_repair/asv_counts_by_sample_accession.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/asv_counts_by_sample_accession.tsv.zip",
+      "sha256": "dfe22c43addde2972ad580e128fe95e86f0928c6f69d1d5f47cd3d5a63baf984"
+    },
+    {
+      "file": "orientation_repair/asv_orientation_map.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/asv_orientation_map.tsv.zip",
+      "sha256": "a9163de6a0a683c7841cee5f206941082782b2c06a73c10c05241edb2cdd369a"
+    },
+    {
+      "file": "orientation_repair/asv_orientation_qc.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/asv_orientation_qc.tsv.zip",
+      "sha256": "d7673c08a5a603548ae166547e114d6b8f8a8ed4367825658f2521b4a15921c4"
+    },
+    {
+      "file": "orientation_repair/asv_sequences.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/asv_sequences.tsv.zip",
+      "sha256": "e92b30d22951ccfcf5705d1e3265cb7319b4d568659fae595a9964807c118718"
+    },
+    {
+      "file": "orientation_repair/orientation_audit.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/orientation_audit.tsv.zip",
+      "sha256": "82ad6dd09b463794d20d0fcd23156ac17b0d7a0dbf0b2f250399eef04fa89207"
+    },
+    {
+      "file": "orientation_repair/seqtab_nochim_asv_columns.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/seqtab_nochim_asv_columns.rds.zip",
+      "sha256": "695b99936d10dbc94adf3fa053e3b28c89905bb0bbe726b1de334723b432c1d8"
+    },
+    {
+      "file": "orientation_repair/seqtab_nochim_sequence_columns.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/seqtab_nochim_sequence_columns.rds.zip",
+      "sha256": "8fca6dcbc8a98128916c6bcf2da761588446ef7f4f5acaa5ff4d9599a4b9715b"
+    },
+    {
+      "file": "orientation_repair/source_file_manifest.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/source_file_manifest.tsv.zip",
+      "sha256": "8d12249ef5604e8caf417b7594a802cd1bcea7330890cc5929218d4cffa80d89"
+    },
+    {
+      "file": "orientation_repair/taxonomy_rdp16_bootstraps.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/taxonomy_rdp16_bootstraps.tsv.zip",
+      "sha256": "04f3187d699ca5e6288dd5a154bcdf0ca8b3cf383e217d85594128011c27d877"
+    },
+    {
+      "file": "orientation_repair/taxonomy_rdp16_toGenus.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/taxonomy_rdp16_toGenus.tsv.zip",
+      "sha256": "4ac58132513e06d441ce722310cf8f9a89eef0ba279756ece50aba8925d1c811"
+    },
+    {
+      "file": "orientation_repair/taxonomy_rdp16_toGenus_sequence_rownames.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/taxonomy_rdp16_toGenus_sequence_rownames.rds.zip",
+      "sha256": "602668aa50d441cb216a3bbe8075dc08491b2a62aebb0638717e7440682c3ca4"
+    },
+    {
+      "file": "orientation_repair/taxonomy_rdp19_bootstraps.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/taxonomy_rdp19_bootstraps.tsv.zip",
+      "sha256": "35a760626939008601df0718e70f2ddb9e2598e24a251d22d8e84a02cf193d6c"
+    },
+    {
+      "file": "orientation_repair/taxonomy_rdp19_toGenus.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/taxonomy_rdp19_toGenus.tsv.zip",
+      "sha256": "6d13b41baaf8aef733885f24cf5f848927272eb49a6588309461a75002d1884e"
+    },
+    {
+      "file": "orientation_repair/taxonomy_rdp19_toGenus_sequence_rownames.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/orientation_repair/taxonomy_rdp19_toGenus_sequence_rownames.rds.zip",
+      "sha256": "88811f7ea17c0db7e8b46751e7d486c0f7eea763f993367cdbd7385289c4f164"
+    },
+    {
+      "file": "seqtab_nochim_asv_columns.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/seqtab_nochim_asv_columns.rds.zip",
+      "sha256": "bcb64f78fdd78d2a3459cd4a314b2d310111dc0bea701dbe1c659c5624fb542e"
+    },
+    {
+      "file": "seqtab_nochim_sequence_columns.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/seqtab_nochim_sequence_columns.rds.zip",
+      "sha256": "8275ef2837c4da56bf7d0ef44e5b1babf6d9a2b270a55adbf295ea8f754a2a33"
+    },
+    {
+      "file": "taxonomy_rdp16_toGenus.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/taxonomy_rdp16_toGenus.tsv.zip",
+      "sha256": "8bf19d6afb2949e7647a90bd3dbddcf18dabc90e1aad786e77c41837b2f59cb7"
+    },
+    {
+      "file": "taxonomy_rdp16_toGenus_sequence_rownames.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/taxonomy_rdp16_toGenus_sequence_rownames.rds.zip",
+      "sha256": "f28a212ae21c4c786b093ba2edb9662d5a5219f731f1aba33b16c9ac8dd6a908"
+    },
+    {
+      "file": "taxonomy_rdp19_toGenus.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/taxonomy_rdp19_toGenus.tsv.zip",
+      "sha256": "d9854e97a42124b13186cf78e74a282dd09a16f31f0912afe1a1a9e5877de8a7"
+    },
+    {
+      "file": "taxonomy_rdp19_toGenus_sequence_rownames.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_caenepeel_gastroenterology_IBD_CD_flow/taxonomy_rdp19_toGenus_sequence_rownames.rds.zip",
+      "sha256": "fe06c51e513500256df37822b927ff7e9344aadfd050624e56f74aefd6b1b3e6"
+    }
+  ],
+  "legacy_demographics": null,
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

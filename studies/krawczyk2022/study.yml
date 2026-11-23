@@ -1,0 +1,122 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "35927748",
+  "accessions": [],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC9351266/"
+  ],
+  "study_id": "krawczyk2022",
+  "display_name": "2022 krawczyk microbiome tickgeographicaldistributionqpcr",
+  "schema_version": 1,
+  "legacy_id": "2022_krawczyk_microbiome_tickgeographicaldistributionqpcr",
+  "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC9351266/\n\nmale and female tick samples, three negative controls were sequenced: two that went through the same processes as tick samples including crushing, extraction, and amplification and one included by the sequencing company. pooled samples.\n\nA wide range of bacterial loads was found. Accurate quantification of low microbial biomass samples permitted comparisons to high biomass samples, despite the presence of contaminating DNA. The bacterial communities of ticks were associated with geographical location rather than life stage, and differences in Rickettsia abundance determined this association.\n\nexplored the geographical distribution of four vertically transmitted symbionts identified in the microbiome analysis. screened 16,555 nymphs from 19 forest sites for R. helvetica, Rickettsiella spp., Midichloria mitochondrii, and Spiroplasma ixodetis.\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "40168_2022_1276_MOESM1_ESM.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/40168_2022_1276_MOESM1_ESM.zip",
+      "sha256": "041cde6e621c9a5da51d70850ef3b9ddbf0e645854d017c4a6bce299e0c0d8d5"
+    },
+    {
+      "file": "40168_2022_1276_MOESM3_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/40168_2022_1276_MOESM3_ESM.xlsx.zip",
+      "sha256": "564dbae75de1f04e5e6f7cc567be7188804cf08ed8f03d8ad55c2d65fd26cd0d"
+    },
+    {
+      "file": "40168_2022_1276_MOESM3_ESM.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/40168_2022_1276_MOESM3_ESM.zip",
+      "sha256": "5c0763d3d2065fac1d63fce50464465bfec16b7964910845ef333e7b3717bba7"
+    },
+    {
+      "file": "40168_2022_1276_MOESM4_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/40168_2022_1276_MOESM4_ESM.xlsx.zip",
+      "sha256": "ff9eb3ff4ae84746e3a80a7202df00108811ba71149b7ff30b83de7a9782602b"
+    },
+    {
+      "file": "Krawczyk2022_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/Krawczyk2022_scale.csv.zip",
+      "sha256": "1b000380ca3bcd5d29bce142b787164c61bc5139eb4c7293df298a647c7e7f52"
+    },
+    {
+      "file": "Krawczyk_2022_16S.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/Krawczyk_2022_16S.csv.zip",
+      "sha256": "d22e089c7489acffbc5d2b6fddfd768476830b525a57943724375b30e6d18e31"
+    },
+    {
+      "file": "Krawczyk_2022_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/Krawczyk_2022_metadata.csv.zip",
+      "sha256": "a59a84ca09d1d165e65d7ad9d390f008ea9ce032f1b42b24c470dc133bb02a78"
+    },
+    {
+      "file": "PRJNA813158_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/PRJNA813158_dada2_counts.rds.zip",
+      "sha256": "b16e4a905de9c4b51c4e3c7c027697305790cc78e4e2d489c132a034fa1fac94"
+    },
+    {
+      "file": "PRJNA813158_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/PRJNA813158_dada2_counts_withchimeras.rds.zip",
+      "sha256": "3fd96125a2ae71bd20f8cdc8143a80ce98667ae27ed27c14a45da08663bf7242"
+    },
+    {
+      "file": "PRJNA813158_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/PRJNA813158_dada2_taxa.rds.zip",
+      "sha256": "298bd6a681213c1f09c1dba08a6c86006db9b7a39ed2b6ba72786ff9f7045212"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/README.txt.zip",
+      "sha256": "2968dd3904f6a7e2a66ff6c92eae6c2e5b224c042797e161e0f48026412a3464"
+    },
+    {
+      "file": "SraRunTable (30).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/SraRunTable%20%2830%29.csv.zip",
+      "sha256": "71ead067dc0149acd36e6892fdcad094995dddfc06f019bdf44b2340423837b8"
+    },
+    {
+      "file": "grouped_by_genus_relative_abundances.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/grouped_by_genus_relative_abundances.zip",
+      "sha256": "35e78dfbf9bc768471f0804da402a6aa70c331b7a3ec7a49f9e3d395c6d1ad49"
+    },
+    {
+      "file": "originalcounts.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/originalcounts.csv.zip",
+      "sha256": "9b2f9317be301a3432e4aeeabdc20fa78a3419b2804faf050a2abbf7702da245"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/rdp16classified.csv.zip",
+      "sha256": "bbbc7e9511e3404af00976fc168753a8f1e62139db3efcdae1b8c59f977a13e9"
+    },
+    {
+      "file": "scale_qpcr.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/scale_qpcr.csv.zip",
+      "sha256": "f82500eb767498888c9274ac27ac30c18691883f6456df88eacedd76a17c2276"
+    },
+    {
+      "file": "taxawsilvaandrdp.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/taxawsilvaandrdp.csv.zip",
+      "sha256": "98b3109f001bcd0384dab8cb125d8717b5512fcfb3bafd13f9307cfd79d75a4c"
+    },
+    {
+      "file": "taxawsilvaandrdp2.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_krawczyk_microbiome_tickgeographicaldistributionqpcr/taxawsilvaandrdp2.csv.zip",
+      "sha256": "6bdae8bf23cdd5ab1a3d100f846b6eca8876cfcae5772d59e00dcae7b413ccd0"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Tick",
+    "sampletype": "Whole Organism",
+    "covariates": [
+      "Life stage",
+      "Location"
+    ],
+    "ID": "Sample_name",
+    "PMID": "35927748"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

@@ -1,0 +1,167 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "ddPCR",
+  "pmid": "35194029",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "jin2022",
+  "display_name": "2022 jin natureComm technicalReplicates",
+  "schema_version": 1,
+  "legacy_id": "2022_jin_natureComm_technicalReplicates",
+  "source_notes": "Look at Supplementary Data 8 for counts, and scale. Note that each sample has three technical replicates to check reproducibility. \n\nGroup(condition) can be identified by sample name. How to interpret sample name;\n- First two letter indicates group; 1) three 6-week old mice (CEa, CEb, CEc); maintained by balanced diet for full life span, 2) four 8-week-old (VSa, VSb, VSc, VSd), 3) four mice (VDa, VDb, Vdc, VDd). \n- Super script 'dist' and 'prox' indicates location of cecum it was collected (distal and proximal, Fig 1b). \n- Number indicates technical replicates (i.e., CEa^dist1, CEa^dist2, CEa^dist3 are the three technical replicates from the same mice collected at same cecum location). \n\nCheck Supplementary Table 5 in 'Supplementary Information file' for more detailed description of names.\n\n\n\nFile Name: Supplementary Data 1\nDescription: BarBIQ-identified sequences (Bar sequences).\n\nFile Name: Supplementary Data 2\nDescription: Sanger sequencing-identified 16S rRNA sequences (San sequences).\n\nFile Name: Supplementary Data 3 \nDescription: Sequences of amplicon sequence variants (ASVs).                                                   \n\nFile Name: Supplementary Data 4 \nDescription: Representative sequences of operational taxonomic units (OTU-RepSeqs).\n\nFile Name: Supplementary Data 5 \nDescription: Sequencing-determined abundances of amplicon sequence variants (ASVs).\n\nFile Name: Supplementary Data 6 \nDescription: cOTU abundances of the mock community and the control M0.\n\nFile Name: Supplementary Data 7 \nDescription: Sequencing-determined abundances of operational taxonomic units (OTUs).\n\nFile Name: Supplementary Data 8 \nDescription: cOTU abundances of cecal samples.\nOTU and taxonomy ; Sheet \"Sequencing-determined counts\"\nScale ; Sheet \"Absolute total abundance\"\nAbsolute abundance ; Sheet \"Absolute abundance\"\n\nFile Name: Source Data\nDescription: Source data for figures in main text and Supplementary Information.\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "PRJNA639639_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA639639_dada2_counts.rds.zip",
+      "sha256": "d8dc3285c98cef63361539b95b51eb4e0202d1f2c18f9d29077133d2ff55eeba"
+    },
+    {
+      "file": "PRJNA639639_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA639639_dada2_counts_withchimeras.rds.zip",
+      "sha256": "1c4018590eb53fc8322ddb66d3071c07bbde9a79348b48c567d22e009c70a1aa"
+    },
+    {
+      "file": "PRJNA639639_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA639639_dada2_taxa.rds.zip",
+      "sha256": "994094d7e9bc68db6199afb523a0b889e14b0638146919a943a270172e2b03c0"
+    },
+    {
+      "file": "PRJNA639647_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA639647_dada2_counts.rds.zip",
+      "sha256": "92cc9efa04cab2f4c0c0cdc671194d3105683314708c35cc78a05c12d430574a"
+    },
+    {
+      "file": "PRJNA639647_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA639647_dada2_counts_withchimeras.rds.zip",
+      "sha256": "26ea843413363beaa7641ecbf205e72d80261a193156e1a2740728750dc9a638"
+    },
+    {
+      "file": "PRJNA639647_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA639647_dada2_taxa.rds.zip",
+      "sha256": "cebc4cf5d99329a0ad1c4d220c9b41d5dc7676cf1e0a6f9c4bb8f53224bfda0a"
+    },
+    {
+      "file": "PRJNA780331_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA780331_dada2_counts.rds.zip",
+      "sha256": "14e07b029108ed4ba622172259682a1a7376f8b34ec1059713aca1bbd6f14464"
+    },
+    {
+      "file": "PRJNA780331_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA780331_dada2_counts_withchimeras.rds.zip",
+      "sha256": "024de1b1c541fbeecc97153b891637d02a004e73de96b9a771e745e0f6472c95"
+    },
+    {
+      "file": "PRJNA780331_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA780331_dada2_taxa.rds.zip",
+      "sha256": "1077ac0bdff4b03af3dd23b15faec5b8ddbcbf83ab5594debbdbfdc0facae3d5"
+    },
+    {
+      "file": "PRJNA780361_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA780361_dada2_counts.rds.zip",
+      "sha256": "98f31aa2369b1d160614778f980f4d78c8aab70de184a9d229289625e491fac9"
+    },
+    {
+      "file": "PRJNA780361_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA780361_dada2_counts_withchimeras.rds.zip",
+      "sha256": "c27b40cab58b756258f64751a98bc9072cdefa56393de8e7fd5ad83720cdf5a6"
+    },
+    {
+      "file": "PRJNA780361_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/PRJNA780361_dada2_taxa.rds.zip",
+      "sha256": "8a6866d395617ed0cd16a95619f53110352704a1373f4f8ef167e25660e64e9f"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/README.txt.zip",
+      "sha256": "0d6ffb793fe0ece7c2b373f26bc338ac93154253c41bee55248e39266562a86c"
+    },
+    {
+      "file": "SraRunTable (40).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/SraRunTable%20%2840%29.csv.zip",
+      "sha256": "53cfa86b822721846b66c052da3862d7519544b8aff3714775d5bf42645d06af"
+    },
+    {
+      "file": "SraRunTable (41).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/SraRunTable%20%2841%29.csv.zip",
+      "sha256": "1ae993bafa75e38c80afbc108012a840daac993d23421c0a43c1ea4685f0799e"
+    },
+    {
+      "file": "SraRunTable (42).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/SraRunTable%20%2842%29.csv.zip",
+      "sha256": "c4b7346df490b2a220e98d1595f3a39fd90791e156d21ec91323d65423055741"
+    },
+    {
+      "file": "SraRunTable (43).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/SraRunTable%20%2843%29.csv.zip",
+      "sha256": "0c9f5423ebb5da368eb8627ee46031b3106ba29bdf44522ab81d0db58b5ce979"
+    },
+    {
+      "file": "Supplementary Data 1.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/Supplementary%20Data%201.xlsx.zip",
+      "sha256": "390c323e31e833f01850a4c780ac11aadf39d699bd52837ea71db6bb3f094faf"
+    },
+    {
+      "file": "Supplementary Data 2.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/Supplementary%20Data%202.xlsx.zip",
+      "sha256": "4ab23a3053885bce235b82e46c3d87e09dfa46d5ec85c32192e35d9eb1084ce3"
+    },
+    {
+      "file": "Supplementary Data 3.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/Supplementary%20Data%203.xlsx.zip",
+      "sha256": "5d00b1eeb18e9fa725cb5bb8a8535b2bb4acdcb60978d25e061fb42f9ec2607b"
+    },
+    {
+      "file": "Supplementary Data 4.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/Supplementary%20Data%204.xlsx.zip",
+      "sha256": "910d7c235db5d72f607ba4447cc753d9a9fec7ceb710003069b1b447ba57fad9"
+    },
+    {
+      "file": "Supplementary Data 5.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/Supplementary%20Data%205.xlsx.zip",
+      "sha256": "06716d400f4b297fcea21bf99d7a0bd617c4a380577531dee9ad8615d47e9d93"
+    },
+    {
+      "file": "Supplementary Data 6.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/Supplementary%20Data%206.xlsx.zip",
+      "sha256": "bae17599cf4d308e35ed2a1b1b3818b7924b13b84d495e45c0b836a4900d4549"
+    },
+    {
+      "file": "Supplementary Data 7.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/Supplementary%20Data%207.xlsx.zip",
+      "sha256": "b1400b16d2c2b524d62fce1d0f9c4bdffd7cf5951fff1f2a5b999149822af3ca"
+    },
+    {
+      "file": "Supplementary Data 8.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/Supplementary%20Data%208.xlsx.zip",
+      "sha256": "5dc63c9ed80e8e17ee0e58663c7910b40c9175a853360e29c74141c1a4f21fa3"
+    },
+    {
+      "file": "Supplementary Data 9.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/Supplementary%20Data%209.xlsx.zip",
+      "sha256": "a3054c60cb1049c63add385eddc6a2161fed2bffeac437dcf4bfa359de80baf1"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2022_jin_natureComm_technicalReplicates/rdp16classified.csv.zip",
+      "sha256": "28711e3baa67614f369e6326838f41be31e45bf05986d0bdec5f1e6d976e9cda"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "ddPCR",
+    "organismtype": "Mice",
+    "sampletype": "Cecum content",
+    "covariates": [
+      "diet",
+      "location",
+      "sample_type",
+      "subject"
+    ],
+    "ID": "Sample",
+    "PMID": "35194029"
+  },
+  "baseline_error": "",
+  "baseline_warnings": "NAs introduced by coercion | Setting row names on a tibble is deprecated."
+}

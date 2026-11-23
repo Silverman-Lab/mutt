@@ -1,0 +1,116 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [
+    "https://academic.oup.com/ismej/article/14/8/2116/7474856"
+  ],
+  "study_id": "regalado2020",
+  "display_name": "2020 regalado isme metagenomicsbacteriaandfungalsequencing",
+  "schema_version": 1,
+  "legacy_id": "2020_regalado_isme_metagenomicsbacteriaandfungalsequencing",
+  "source_notes": "Paper: https://academic.oup.com/ismej/article/14/8/2116/7474856\n\nShotgun sequencing supplies information on the total DNA content of microorganisms as opposed to a specific locus, which in principle enables the functional characterization of reads, de novo assembly of genes, and in the best cases, leads to the recovery of entire metagenome assembled genomes [8, 18\u201320].\nWe estimated absolute microbial load as the ratio of microbial reads to plant chromosomal reads in each sample, and observed that the microbial load varied across samples from <1% to up to 77% of plant reads. We used the bacterial load calculated from the metagenome data to similarly scale the 16S data.\n\n\n\n\n\n\n\n\n\n\nDear Maxwell,\n\nWe intended to put these types of files in an organized way in a public Dryad directory but sadly that's not operational. For expediency I am giving you the files directly from my laptop, as I used them for the analysis (therefore, the file names are all in the original shorthand instead). I give you a key of what's what below. I also attached the R script I used to integrate these data for the publication. Again, this R script is not unfortunately well-annotated as a public document, but it may be helpful. I can easily imagine some further confusion or clarification will arise - feel welcome to reach out to me and I'll try to help you get going.\n\nGreetings,\nDerek\n\n\n>16S OTU table, taxonomy, and metadata respectively:\n515_blackblue_all_Zotutab_20181206.txt\n515_blackblue_all_zotus.tax\n515_blackblue_metadata.txt\n\n>ITS OTU table, taxonomy, and metadata respectively:\n\n\nAgITS1blackblue_READ1_271_all_Zotutab.txt\nAgITS1blackblue_READ1_271_all_zotus.tax\nITS_blackblue_metadata_v2.txt\n\n>Metagenome count tables at various taxonomic limits:\nBacteriaGenusRaw.txt\nFungiGenusRaw.txt\nBacteriaFamilyRaw.txt\nFungiFamilyRaw.txt\nBacteriaPhylumRaw.txt\n\n>Metagenome total reads for each sample (needed for any normalization of metagenome data)\ntotal_seq.txt\n\n>Metagenome reads assigned to the plant chromosome\nchromCountsNew.txt\n\n>Unassignable metagenome reads per sample\nnumUnaligned.txt\n\n>The rather messy R script I used to integrate these data and prepare the figures, not written to be read easily or followed, but still perhaps useful:\ncorrect_16S_load.R\n\n>A metadata table of the metagenomes that connects the IDs from ENA to the IDs used throughout these other files\nMetadata_PRJEB31530.xlsx\n\n\n\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "41396_2020_665_MOESM1_ESM.rtf.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/41396_2020_665_MOESM1_ESM.rtf.zip",
+      "sha256": "cf576207bbde1d015db68ef177a092ba68a7f30087752000fdc965bc80f2f25b"
+    },
+    {
+      "file": "515_blackblue_all_Zotutab_20181206.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/515_blackblue_all_Zotutab_20181206.txt.zip",
+      "sha256": "7abc040c8214ae34d0cacd620d43c3f249b4195ea52e0447c77bcbc50fcef230"
+    },
+    {
+      "file": "515_blackblue_all_zotus_20181207.tax.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/515_blackblue_all_zotus_20181207.tax.zip",
+      "sha256": "ecd5b74dbdff94d12f05e76de5ce849318e50b11525d19d30a5cde92bd78e411"
+    },
+    {
+      "file": "515_blackblue_metadata.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/515_blackblue_metadata.txt.zip",
+      "sha256": "6e1d79189a99351b4d143c3b59f19228ffa13ffc6b6973515975a6dc4d461237"
+    },
+    {
+      "file": "AgITS1blackblue_READ1_271_all_Zotutab.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/AgITS1blackblue_READ1_271_all_Zotutab.txt.zip",
+      "sha256": "3c676553b0637c171b1ceacf7eb42b09a1f070d2518dae79210670b53b8364e7"
+    },
+    {
+      "file": "AgITS1blackblue_READ1_271_all_zotus.fa.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/AgITS1blackblue_READ1_271_all_zotus.fa.zip",
+      "sha256": "d9a00061a5d714c89384ddd1042ceae6f5a25d8649ae21da89d277799db1e347"
+    },
+    {
+      "file": "AgITS1blackblue_READ1_271_all_zotus.tax.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/AgITS1blackblue_READ1_271_all_zotus.tax.zip",
+      "sha256": "f0fa556ce078be840a9948adeafb34e9f7e48ad280ced9a47af41c732354c82c"
+    },
+    {
+      "file": "BacteriaFamilyRaw.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/BacteriaFamilyRaw.txt.zip",
+      "sha256": "6aebb3039bb82a849f42e0f1d6a2c6ff8066f65e5bc226be7f77bc357df73101"
+    },
+    {
+      "file": "BacteriaGenusRaw.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/BacteriaGenusRaw.txt.zip",
+      "sha256": "38a38c4380b3af1251c5b72c70f2e1d48334c955e7e9c58f142dbc9cd5ee7fae"
+    },
+    {
+      "file": "FungiFamilyRaw.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/FungiFamilyRaw.txt.zip",
+      "sha256": "2c70e9f926e5b86d781843dd121808430de6e917b4e747994a70541a9ed05d47"
+    },
+    {
+      "file": "FungiGenusRaw.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/FungiGenusRaw.txt.zip",
+      "sha256": "3e9b6283e50c68241f7d6b67501eb91881545e40be1e2baf8f7c09c189193942"
+    },
+    {
+      "file": "ITS_blackblue_metadata_v2.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/ITS_blackblue_metadata_v2.txt.zip",
+      "sha256": "a2fffd2cbb2141a515b9dbd0b30f44c4ace915fdd2a10a2231c43bbf2a98f754"
+    },
+    {
+      "file": "Metadata_PRJEB31530.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/Metadata_PRJEB31530.csv.zip",
+      "sha256": "c5b0cb7fbcbcfee2efbe6e7c299c700be19888fcb85516f4c294d1c19063adb5"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/README.txt.zip",
+      "sha256": "bdb833660e88aa6492104a7580217713993e463ff45e872ac44b63c8d1c9af6d"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "d6f4f3f015d88e46aa76b061ac0b6f048519281695d32f1874397fc42eed3549"
+    },
+    {
+      "file": "chromCountsNew.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/chromCountsNew.txt.zip",
+      "sha256": "87b7cb072a8a14bda0ba73f9df5f2c14ab97fb14e4f70bd96db3e9f44cbafb04"
+    },
+    {
+      "file": "correct_16S_load.R.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/correct_16S_load.R.zip",
+      "sha256": "6e5cba0336f8890fa6d347857ba5502f6ac0243cc9bd97d1acbfef2d39593514"
+    },
+    {
+      "file": "numUnaligned.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/numUnaligned.txt.zip",
+      "sha256": "eb6c0217e6adbfcc14292b98c608e0e0010af379ea525b5c2dbc160b260f97e4"
+    },
+    {
+      "file": "total_seq.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2020_regalado_isme_metagenomicsbacteriaandfungalsequencing/total_seq.txt.zip",
+      "sha256": "4b1debe90eac72d76df635c6b34adfae27c42c32329464197e5f73b52b3eb60b"
+    }
+  ],
+  "legacy_demographics": null,
+  "baseline_error": "object 'metadata_16s_zip' not found",
+  "baseline_warnings": ""
+}

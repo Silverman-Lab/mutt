@@ -1,0 +1,202 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [
+    "https://data.caltech.edu/records/5egd5-m5915",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC8561862/"
+  ],
+  "study_id": "barlow2021",
+  "display_name": "2021 barlow microbiome reimaginestudypatientsddpcr",
+  "schema_version": 1,
+  "legacy_id": "2021_barlow_microbiome_reimaginestudypatientsddpcr",
+  "source_notes": "links to data: https://data.caltech.edu/records/5egd5-m5915\npaper: https://pmc.ncbi.nlm.nih.gov/articles/PMC8561862/\n\n\"Concentration\" is the copies/uL readout from the digital PCR machine. \"Corrected Concentration\" is the \"Concentration\" column multiplied by whatever sample dilution was used before digital PCR.\n\n\"_Duo\" means the sample was from the duodenum and \"_Sal\" means the samples was from saliva. These annotations are only in the paired sheet because the other sheet just has duodenum samples. The sample number is a patient ID number that is unique.\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "20210810_2 -  Quantification Cq Results_0.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/20210810_2%20-%20%20Quantification%20Cq%20Results_0.csv.zip",
+      "sha256": "b43f905642662dc5642897c871dd75718aeff2d9b7a55ad1b1252733bf3a2b10"
+    },
+    {
+      "file": "Colony counts.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/Colony%20counts.xlsx.zip",
+      "sha256": "522a49226193d1bc2c394d890262b6dde766278edb03ecc68a4729c5f4309c14"
+    },
+    {
+      "file": "PRJNA674353_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/PRJNA674353_dada2_counts.rds.zip",
+      "sha256": "5c044f9b810bd3a291ce3565c4017f1409efd6b0de99fc06e061a22a7412b78e"
+    },
+    {
+      "file": "PRJNA674353_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/PRJNA674353_dada2_counts_withchimeras.rds.zip",
+      "sha256": "ca6f9e7074da5b09a1d27a857f0d0a7b6336c9e62617e1b122704e3e28f5bc26"
+    },
+    {
+      "file": "PRJNA674353_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/PRJNA674353_dada2_taxa.rds.zip",
+      "sha256": "bde071bbaab955f9b17399be0c5ea91682c218d36ad1862e2be78dcac0e6a95b"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/README.txt.zip",
+      "sha256": "2707dce0f017daccbf27f3efd1c5da0ab469c97b2adb392a129c15470bbe1eaf"
+    },
+    {
+      "file": "SraRunTable (33).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/SraRunTable%20%2833%29.csv.zip",
+      "sha256": "182b1b8696c50f75a0f1e3bcc7abd10daae9625ddc49da7d5c33da2b77280c85"
+    },
+    {
+      "file": "aerobicity_lookup_file.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/aerobicity_lookup_file.csv.zip",
+      "sha256": "8d75133aad71217647f9083af0e28fed12e8e7a0715713aba21006149a30d1f4"
+    },
+    {
+      "file": "col_names_lod_list.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/col_names_lod_list.xlsx.zip",
+      "sha256": "f931d706285a00cd7c45990b8cbd37b016e1a38ff88f1008c3b7327c4c1d148a"
+    },
+    {
+      "file": "col_names_lod_list_paired.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/col_names_lod_list_paired.xlsx.zip",
+      "sha256": "5e0a31319d96c01b350c39cd9edaf9f6a2150036bd60b009060274cc0aaeee33"
+    },
+    {
+      "file": "convert_pkl.py.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/convert_pkl.py.zip",
+      "sha256": "52c0b22b52cb1ef51b0263ad1dc50672ec04315f21025a30a64ea981ae6438fe"
+    },
+    {
+      "file": "coprophagy_data.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/coprophagy_data.csv.zip",
+      "sha256": "943dcc15de3f7320dc6d466a8fa8ad627667a9f672de007d8978ba50bb106b3f"
+    },
+    {
+      "file": "dPCR data.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/dPCR%20data.zip",
+      "sha256": "751b807390138c681cbdd67caf8bd5680fe777a5b6551c7c62a00df79522722c"
+    },
+    {
+      "file": "dPCR_total_loads_duodenum.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/dPCR_total_loads_duodenum.csv.zip",
+      "sha256": "66bf5b63a4a147d08715afca371735fa74309c071fb5a9074b0bbbf661ccc0b5"
+    },
+    {
+      "file": "dPCR_total_loads_paired.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/dPCR_total_loads_paired.csv.zip",
+      "sha256": "66e72dfb6ef50efeb36e7cccc90a53a4cc2a09ceff5f431dcf913d58a754e759"
+    },
+    {
+      "file": "data_files.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/data_files.zip",
+      "sha256": "1d6155573a5ba0472c12ef29b66d06359331cf293590de69e61f6a7883acbf71"
+    },
+    {
+      "file": "metadata_all.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/metadata_all.csv.zip",
+      "sha256": "fb57575261e1bb31c8a9a6e5cd8285ad161f1de85ecaf7209299ac93c2bd78d8"
+    },
+    {
+      "file": "metadata_comp.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/metadata_comp.csv.zip",
+      "sha256": "2e7a8049d2e8c87457ddd64af93f3aba2028003f5508a97489a94da5812f74d8"
+    },
+    {
+      "file": "metadata_comp_aerobicity.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/metadata_comp_aerobicity.csv.zip",
+      "sha256": "62d6ae9634b91979e0c1da7f8b3ac5c249096dada832a4179a289ca29b96f1c1"
+    },
+    {
+      "file": "metadata_comp_aerobicity_disruptor.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/metadata_comp_aerobicity_disruptor.csv.zip",
+      "sha256": "c21afc9408fd8d2957a2d865ffd00d9d7afc990426fb5f4f1f21aec3ef2ab32f"
+    },
+    {
+      "file": "metadata_raw.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/metadata_raw.xlsx.zip",
+      "sha256": "5b39a4763f46657f04e9973fcb748161da497db33f87f2ee9a9c127659925d32"
+    },
+    {
+      "file": "pickle_files.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/pickle_files.zip",
+      "sha256": "cb0c0f860755a4023040bee29cc610e2498946b82dcd025b046bcf8e6c5568ea"
+    },
+    {
+      "file": "pseudo_abs_sort_lod_list.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/pseudo_abs_sort_lod_list.xlsx.zip",
+      "sha256": "9bc13174fdaa3ab7f9f24701e322dd25c2890a317b066bbc0724c6ce9b0d7f24"
+    },
+    {
+      "file": "pseudo_abs_sort_lod_list_paired.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/pseudo_abs_sort_lod_list_paired.xlsx.zip",
+      "sha256": "49c8bab3fe886ee6a090029b1c740de445b0fe4dd95e046edf51985f48f3ac94"
+    },
+    {
+      "file": "pseudo_rel_sort_lod_list.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/pseudo_rel_sort_lod_list.xlsx.zip",
+      "sha256": "9b90648e6910f9dcef20003a0d3d51eaac74d20857db570827383a0b79465381"
+    },
+    {
+      "file": "pseudo_rel_sort_lod_list_paired.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/pseudo_rel_sort_lod_list_paired.xlsx.zip",
+      "sha256": "b6c82ab9bdf322f91fb444a76fb460922800056913fa689a8dba6632b7316f80"
+    },
+    {
+      "file": "rel_sort_lod_list.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/rel_sort_lod_list.xlsx.zip",
+      "sha256": "70210b2992b97f97d54ed9658d5f59bb0efb1a2f74c16445d462b39834173c10"
+    },
+    {
+      "file": "rel_sort_lod_list_paired.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/rel_sort_lod_list_paired.xlsx.zip",
+      "sha256": "160c115244acaf891ec160f9e0994ce3596baccba28a6db66dac55cf34ce2afe"
+    },
+    {
+      "file": "sample weights.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/sample%20weights.csv.zip",
+      "sha256": "d73da71c30118ae37dfac639857b1759964ae42b12653b2441a0b2137e3e6d19"
+    },
+    {
+      "file": "seq_dilution_paired.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/seq_dilution_paired.csv.zip",
+      "sha256": "6c4c0d3a6439c21c4f3b7cf52bbacf9ab7728effce20c0ed3fc3095c24a2a902"
+    },
+    {
+      "file": "seq_duodenum_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/seq_duodenum_metadata.csv.zip",
+      "sha256": "54d8e47fa18ea5307a5451dbcc8608139144b43257b1f53fe65c5ed870a2b828"
+    },
+    {
+      "file": "seq_paired_metadata_paired.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/seq_paired_metadata_paired.csv.zip",
+      "sha256": "6c7f2651ceae0172115940a26a1877a8c36291c29c2c700c4192c25580fe7729"
+    },
+    {
+      "file": "species_counts_duodenum_45386.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/species_counts_duodenum_45386.csv.zip",
+      "sha256": "cb82df93035bae0f21cb503482dba80b56db3e783e4e7e14302c3a9ced6dc341"
+    },
+    {
+      "file": "species_counts_paired_43922.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/species_counts_paired_43922.csv.zip",
+      "sha256": "ef3af9777b434d421ae94ea2540664e114f2441703c4bc200997bb3280900ee0"
+    },
+    {
+      "file": "total_load_duodenum.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/total_load_duodenum.csv.zip",
+      "sha256": "0ba7b6c91f20abdb8cdd369e2effada571e0687ecb3d5cf9949e1db4cf428e60"
+    },
+    {
+      "file": "total_load_paired.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_barlow_microbiome_reimaginestudypatientsddpcr/total_load_paired.csv.zip",
+      "sha256": "5d95c0d611ec1cc1d86e2deaa09ea2722aaa763daeb3177d1f6d36baccad8c2c"
+    }
+  ],
+  "legacy_demographics": null,
+  "baseline_error": "Can't rename columns that don't exist.\n\u2716 Column `Run` doesn't exist.",
+  "baseline_warnings": ""
+}

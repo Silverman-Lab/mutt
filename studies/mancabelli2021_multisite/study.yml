@@ -1,0 +1,74 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [
+    "PRJNA641015"
+  ],
+  "source_urls": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC8091109/",
+    "https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA641015"
+  ],
+  "study_id": "mancabelli2021_multisite",
+  "display_name": "2021 mancabelli applenvironmicrobiology chickenfecalhumanvaginalshotgunflow",
+  "schema_version": 1,
+  "legacy_id": "2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow",
+  "source_notes": "paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC8091109/\ndata: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA641015\n\nShallow shotgun sequencing. Has relative counts in datasheet 2 from supplemental data\n\ncollected and processed by Maxwell Konnaris: 5/3/25\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
+  "archived_inputs": [
+    {
+      "file": "AEM.02899-20-s0001 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow/AEM.02899-20-s0001%20%281%29.xlsx.zip",
+      "sha256": "1f686835321fe70d879037e9f274960b905a15ce7cf1d8a82c48a2dd84e8ee04"
+    },
+    {
+      "file": "AEM.02899-20-s0003 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow/AEM.02899-20-s0003%20%281%29.xlsx.zip",
+      "sha256": "8b010f3557b1e5eb9fe1c75431bdf0a784603f4b6055ecd3e7eddcb2535e60db"
+    },
+    {
+      "file": "AEM.02899-20-s0004 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow/AEM.02899-20-s0004%20%281%29.xlsx.zip",
+      "sha256": "a054164700f6d58bec195790b31f362c9786b67568ff25967a2acee502e6aff7"
+    },
+    {
+      "file": "AEM.02899-20-s0005 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow/AEM.02899-20-s0005%20%281%29.xlsx.zip",
+      "sha256": "1ebf8b4c7338f2c1324b445bd93bd38eec29b4df07d0e17a5e11f85d30a4e350"
+    },
+    {
+      "file": "AEM.02899-20-s0006 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow/AEM.02899-20-s0006%20%281%29.xlsx.zip",
+      "sha256": "ae2a103061621bd1ff7cddf67fa1a12c9be52e962eabde8d72388390d9be31eb"
+    },
+    {
+      "file": "AEM.02899-20-s0007 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow/AEM.02899-20-s0007%20%281%29.xlsx.zip",
+      "sha256": "7c0a5881b375c19037eb4dd68bee6bb783b16832b2300d4c7efdddd440cf977a"
+    },
+    {
+      "file": "AEM.02899-20-s0008 (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow/AEM.02899-20-s0008%20%281%29.xlsx.zip",
+      "sha256": "c593b6dc72f55a6554f98c857ec6fb896fbfda0480b404fd595eda025305e46c"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow/README.txt.zip",
+      "sha256": "7f0e61f8d5081f50e35eb72496b09fd5b449921cc20e112ed63442d48f4fde05"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "52ade7b48008a0653c1119c0a04a47dd6b3d5ed7c3cf0a7155395cbe7cc0d382"
+    },
+    {
+      "file": "proportions_original.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_mancabelli_applenvironmicrobiology_chickenfecalhumanvaginalshotgunflow/proportions_original.csv.zip",
+      "sha256": "ed215fd057d631f5d88370deb860852d30a7990f2794100268033d8da79966e4"
+    }
+  ],
+  "legacy_demographics": null,
+  "baseline_error": "argument \"x\" is missing, with no default",
+  "baseline_warnings": ""
+}

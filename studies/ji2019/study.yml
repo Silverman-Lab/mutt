@@ -1,0 +1,62 @@
+{
+  "sequencing": "unknown",
+  "load": "unknown",
+  "pmid": [],
+  "accessions": [],
+  "source_urls": [
+    "https://github.com/brianwji/DIVERS?tab=readme-ov-file",
+    "https://pubmed.ncbi.nlm.nih.gov/31308552/"
+  ],
+  "study_id": "ji2019",
+  "display_name": "2019 ji nature human soil",
+  "schema_version": 1,
+  "legacy_id": "2019_ji_nature_human_soil",
+  "source_notes": "Code: https://github.com/brianwji/DIVERS?tab=readme-ov-file\npaper: https://pubmed.ncbi.nlm.nih.gov/31308552/\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_ji_nature_human_soil/README.txt.zip",
+      "sha256": "1a76343aa1446b842cbbcc078b16cbfd1571b350d9f6f37e1cbefd1e3462bb53"
+    },
+    {
+      "file": "absolute_abundances/data_X.txt.gz",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_ji_nature_human_soil/absolute_abundances/data_X.txt.gz",
+      "sha256": "04aa7e3f8633ea62f35f92f7c349fd9d7f0832abd1701843dd000cdddf721ab8"
+    },
+    {
+      "file": "absolute_abundances/data_Y.txt.gz",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_ji_nature_human_soil/absolute_abundances/data_Y.txt.gz",
+      "sha256": "4358b170a026bb635eee769d82dfa5ea725195592cc77af0286633e3d8e6ee3d"
+    },
+    {
+      "file": "absolute_abundances/data_Z.txt.gz",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_ji_nature_human_soil/absolute_abundances/data_Z.txt.gz",
+      "sha256": "19e48b4e5159d76b0d91196f958fef2db628a6e4b11d4213b9465d62907cae27"
+    },
+    {
+      "file": "metadata/Gut_Metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_ji_nature_human_soil/metadata/Gut_Metadata.csv.zip",
+      "sha256": "7a03bc76edc6bf8a55eee84ac27afec0515463eeb6e850f98af4ff619b7ee75a"
+    },
+    {
+      "file": "metadata/SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_ji_nature_human_soil/metadata/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "c487704b5f789b720c4835283a09cf2ec7a79e88608fd0d5d445694df9ccd07a"
+    },
+    {
+      "file": "raw_abundances/gut_table.txt.gz",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_ji_nature_human_soil/raw_abundances/gut_table.txt.gz",
+      "sha256": "d141181e28630776c07e78f8f6fb2c36c8323eb0c214874b1d37fb6efc1afc7f"
+    },
+    {
+      "file": "readme.md.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2019_ji_nature_human_soil/readme.md.zip",
+      "sha256": "f3c95b5184309b312bbc703bb1545c93e7128fdbccabe708dfc3e59bacfe678d"
+    }
+  ],
+  "legacy_demographics": null,
+  "baseline_error": "Can't rename columns that don't exist.\n\u2716 Column `sample name` doesn't exist.",
+  "baseline_warnings": ""
+}

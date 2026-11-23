@@ -1,0 +1,147 @@
+{
+  "sequencing": "Shotgun Metagenomics",
+  "load": "qPCR",
+  "pmid": "37106038",
+  "accessions": [],
+  "source_urls": [
+    "https://www.nature.com/articles/s41587-023-01754-3"
+  ],
+  "study_id": "maghini2023",
+  "display_name": "2023 maghini naturebiotechnology samplemesurement",
+  "schema_version": 1,
+  "legacy_id": "2023_maghini_naturebiotechnology_samplemesurement",
+  "source_notes": "Data from paper: https://www.nature.com/articles/s41587-023-01754-3\n\nTinghua:\n\nCollected data.\n\n### **NOTE:**\n1. Download and unzip the file.\n2. Copy the folder path and use it in the function:\n   `parse_2023_maghini_naturebio_metagenomic(YourFolderPaths = PATH)`\n3. The author uploaded count data at different taxonomic levels, which I merged into a list. As a result, this function does not output taxa directly. If you wish to use the genus-level counts, access them with `count$genus`. To extract taxa names, use `rownames(count$genus)`.\n4. Metadata/modeling information from author:\n    + D## = the donor number.\n    + N = no preservative\n    + O = Omni preservative\n    + Z = Zymo preservative\n    + F = Frozen (-80C) right away\n    + H = hot temperature (40C)\n    + R = room temperature (23C)\n    + R1 = replicate 1\n    + R2 = replicate 2\n    + R3 = replicate 3\n    + Note: In the GEE model, no other covariates was included in the analysis. (Quto \"No covariates, it was really the simplest\u00a0thing. As we say in the stats methods section, we used an \"\"unadjusted regression model with fixed effects for the seven conditions and an exchangeable correlation structure between the participant-level clusters to account for repeat measurements.\"\u00a0 So, for instance, if we were modeling the log of the total abundance, the model would have just been log_total_abundance ~ C(Sample_Type).\")\n\n\nMaxwell:\n\n### **NOTE:** \n\nTinghuas work is great, but does not accomplish the goals we need and should not \nbe used. The below is the current working usage.\n\nCleaned data and Built parser 05/05/25\n\nWe only care about the lowest classified counts across all taxonomic levels.\nSo therefore we need the entire lineage. I use taxizedb to obtain this and then \nparse the dataset to obtain the correct counts. \n\ninstall.packages(\"remotes\")\nremotes::install_github(\"ropensci/taxizedb\")\n\nlibrary(taxizedb)\nlibrary(dplyr)\nlibrary(tidyr)\nlibrary(purrr)\n\ntaxizedb::db_download_ncbi()\nfile.copy(taxizedb::db_path(\"ncbi\"), \"ncbi_taxonomy.sqlite\")\n\nThis is now stored as a zip file in the data directory and is used accordingly\nin the parser. \n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "Maghini2023_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/Maghini2023_scale.csv.zip",
+      "sha256": "74529c3842948fd0d0cb616d5651a77b0357696e57387a8aa1d9421ef14b2299"
+    },
+    {
+      "file": "Maghini_2023_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/Maghini_2023_metadata.csv.zip",
+      "sha256": "023ac00e7ec8b7f69e4a033d985ae091350305b41d06d4a2566851c6c57e61b8"
+    },
+    {
+      "file": "Maghini_2023_shotgunmetagenomics.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/Maghini_2023_shotgunmetagenomics.csv.zip",
+      "sha256": "4655e1ab4d5cf546fc098126ec305b2e21a1fdab787414d58ab07db4910eefcc"
+    },
+    {
+      "file": "PRJNA940499_MetaPhlAn_merged_counts.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/PRJNA940499_MetaPhlAn_merged_counts.tsv.zip",
+      "sha256": "d327e22941943e6ee944adea72cce26b84d868475fdc6b26801edeaea06906b6"
+    },
+    {
+      "file": "PRJNA940499_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/PRJNA940499_MetaPhlAn_merged_counts_gtdb.tsv.zip",
+      "sha256": "c0c59dba95c3329144c525d3de43fd26097aeb0e50d65bc53098ade4793ff64c"
+    },
+    {
+      "file": "PRJNA940499_MetaPhlAn_proportions.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/PRJNA940499_MetaPhlAn_proportions.tsv.zip",
+      "sha256": "ae702d44792e36077778576dfe703871f15e9382e4209d0ab3dc87f89f75ab6d"
+    },
+    {
+      "file": "PRJNA940499_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/PRJNA940499_MetaPhlAn_proportions_gtdb.tsv.zip",
+      "sha256": "78b4da57e02c615d4603783ee45eca6689004bbbdb5b6350e6907c4e625e0f47"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/README.txt.zip",
+      "sha256": "71a9985804d88541aafb457f07370bb114a12c025dcf370d70a1e682bb45fce7"
+    },
+    {
+      "file": "SraRunTable (3).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/SraRunTable%20%283%29.csv.zip",
+      "sha256": "8c8f7f77307118bd938880e8ac5f95acf059645c89a296292299fec623669d65"
+    },
+    {
+      "file": "bracken_class_reads.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/bracken_class_reads.txt.zip",
+      "sha256": "7366d7358658e145424779d65c5b544d980a92c539cdf1d1b98d27d54925e084"
+    },
+    {
+      "file": "bracken_family_reads.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/bracken_family_reads.txt.zip",
+      "sha256": "31b54508dc71d79ea74fbd8ab1565543f9e5356c0f440400c8622bb68d16d5a6"
+    },
+    {
+      "file": "bracken_genus_reads.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/bracken_genus_reads.txt.zip",
+      "sha256": "75849d136058541ca16e463d576ff7e89f6ed44601a671c3f97c3622904936a6"
+    },
+    {
+      "file": "bracken_kingdom_reads.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/bracken_kingdom_reads.txt.zip",
+      "sha256": "13ceb71a38301b9833d305a334de8d89fbd1004ce2c909eeab261e24b05e2f2a"
+    },
+    {
+      "file": "bracken_order_reads.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/bracken_order_reads.txt.zip",
+      "sha256": "f05ae135fb45bdda93458ead12281e2d00598ba45d10deb8f53c4ad2f1376315"
+    },
+    {
+      "file": "bracken_phylum_reads.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/bracken_phylum_reads.txt.zip",
+      "sha256": "dc04a4b6b1093cd6eeeb1ca4f9436bd7bcb41fb630dd28ef19056ea45fb2dc95"
+    },
+    {
+      "file": "bracken_species_reads.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/bracken_species_reads.txt.zip",
+      "sha256": "004015730697a62703b924035bd790811b420790319bee625e35b596162b8811"
+    },
+    {
+      "file": "qPCR_plate1.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/qPCR_plate1.csv.zip",
+      "sha256": "40d00f17f3145863ea09ea0e11b0d2d1872126afeae779c38a28f1f216aaa10f"
+    },
+    {
+      "file": "qPCR_plate2.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/qPCR_plate2.csv.zip",
+      "sha256": "cf65a23c600e9c24cfbf898b8fd50eb4bfee5674c0e6899b3b5fac0952510bc4"
+    },
+    {
+      "file": "qPCR_plate3.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/qPCR_plate3.csv.zip",
+      "sha256": "c30ffd56dea2bf3569a004dcd102d56382d9a5a00a96fd0c79d10db2a3e13455"
+    },
+    {
+      "file": "qPCR_plate4.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/qPCR_plate4.csv.zip",
+      "sha256": "a896140088062fdfd17ddbc76900b06fe74ef7fe1aeebebb40b4b908f1c4e754"
+    },
+    {
+      "file": "qPCR_plate5.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/qPCR_plate5.csv.zip",
+      "sha256": "2946c430c8696f50cb3dcf2ee888d6cbd599f5e371512ad40784b57467c0a739"
+    },
+    {
+      "file": "raw_data_dna_full.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/raw_data_dna_full.csv.zip",
+      "sha256": "9a9c48c988c5de0bef2ec33c2b5f69b2033fec38b1a6b9781fce6894f92b3e7c"
+    },
+    {
+      "file": "raw_data_rna_full.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2023_maghini_naturebiotechnology_samplemesurement/raw_data_rna_full.csv.zip",
+      "sha256": "0c2b40c66adec8b37f1b1cac820ed104f35b2fe6c85341e42160cb3df81dddd0"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "Shotgun Metagenomics",
+    "loadtype": "qPCR",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": [
+      "Condition",
+      "Donor"
+    ],
+    "ID": "ID",
+    "PMID": "37106038"
+  },
+  "baseline_error": "",
+  "baseline_warnings": "Expected 3 pieces. Additional pieces discarded in 181 rows [2, 8, 9, 10, 11,\n12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, ...]."
+}

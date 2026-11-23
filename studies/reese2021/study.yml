@@ -1,0 +1,67 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "33232664",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "reese2021",
+  "display_name": "2021 reese cell chimpanzee",
+  "schema_version": 1,
+  "legacy_id": "2021_reese_cell_chimpanzee",
+  "source_notes": "",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "1-s2.0-S0960982220316523-mmc3.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_reese_cell_chimpanzee/1-s2.0-S0960982220316523-mmc3.xlsx.zip",
+      "sha256": "5c9feb57f1fd45b19dd4a855b7a006963b18f2dbc9779ff45c3b555405a538bd"
+    },
+    {
+      "file": "PRJEB39807_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_reese_cell_chimpanzee/PRJEB39807_dada2_counts.rds.zip",
+      "sha256": "d495349d86ff8f1b32eb717a740129239631df1a2fd5dba81d13bd8a67b36af1"
+    },
+    {
+      "file": "PRJEB39807_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_reese_cell_chimpanzee/PRJEB39807_dada2_counts_withchimeras.rds.zip",
+      "sha256": "3ea2120fd7074b6128741caae324de7e34187daf44bff68c07dd7d1622cd7f73"
+    },
+    {
+      "file": "PRJEB39807_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_reese_cell_chimpanzee/PRJEB39807_dada2_taxa.rds.zip",
+      "sha256": "ebb5e0747b9c80c0397f5033a657ed8bb76c6fd551200436007ddf6dc1ccf1fe"
+    },
+    {
+      "file": "SraRunTable.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_reese_cell_chimpanzee/SraRunTable.csv.zip",
+      "sha256": "a250503c7fb101072b8b26477bda30893d9f1d726ff2d0eb21e2df75860f729d"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_reese_cell_chimpanzee/rdp16classified.csv.zip",
+      "sha256": "f4f7ae0352719748df2f6ee727b05bd8c56dfc4517f9b3644348426b120d431b"
+    },
+    {
+      "file": "readme.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_reese_cell_chimpanzee/readme.txt.zip",
+      "sha256": "5eb6ffeaf03eb589f8bb03750c409b9bfc500687a01baf0ace6fa0e99f5d4a06"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Chimpanzee",
+    "sampletype": "Fecal",
+    "covariates": [
+      "Age group",
+      "Community",
+      "Sex",
+      "YearQuarter"
+    ],
+    "ID": "Sample_name",
+    "PMID": "33232664"
+  },
+  "baseline_error": "",
+  "baseline_warnings": "There was 1 warning in `mutate()`.\n\u2139 In argument: `16S copies per g feces = as.numeric(`16S copies per g feces`)`.\nCaused by warning:\n! NAs introduced by coercion"
+}

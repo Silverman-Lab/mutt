@@ -1,0 +1,125 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "Flow Cytometry",
+  "pmid": "29143816",
+  "accessions": [],
+  "source_urls": [
+    "https://doi.org/10.5281/zenodo.4310151",
+    "https://github.com/michellepistner/scale-in-aldex2/tree/main/Vandputte"
+  ],
+  "study_id": "vandeputte2017",
+  "display_name": "2017 vandeputte nature flow",
+  "schema_version": 1,
+  "legacy_id": "2017_vandeputte_nature_flow",
+  "source_notes": "The files to assign taxaonomy can be obtained here:  https://doi.org/10.5281/zenodo.4310151\n\nFormal citation: Callahan, B. (2020). RDP taxonomic training data formatted for DADA2 (RDP trainset 18/release 11.5) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4310151\n\nTRANSFERRED FROM SCALE IN ALDEX2 REPO FROM MICHELLE NIXON: https://github.com/michellepistner/scale-in-aldex2/tree/main/Vandputte\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "41586_2017_BFnature24460_MOESM10_ESM.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/41586_2017_BFnature24460_MOESM10_ESM.zip",
+      "sha256": "82dd00f2cfdbc1309028f655a76d7f307a01a74e3fa8e3bc75c0e1850277492d"
+    },
+    {
+      "file": "41586_2017_BFnature24460_MOESM11_ESM.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/41586_2017_BFnature24460_MOESM11_ESM.zip",
+      "sha256": "0a744a3aaa0d6667057ce400c7d4ca6573e783c2498b584bcfefe7971b765e4f"
+    },
+    {
+      "file": "41586_2017_BFnature24460_MOESM2_ESM.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/41586_2017_BFnature24460_MOESM2_ESM.zip",
+      "sha256": "9f1df07db66907f80769f2e9af73d2a7041d1bd11c493a7363e8fee041896fe5"
+    },
+    {
+      "file": "OTU_nochim.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/OTU_nochim.csv.zip",
+      "sha256": "651260cf2df913d16bf78a24ea12f7ee5020602e67e8c6416598681b923ca419"
+    },
+    {
+      "file": "PRJEB21504_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/PRJEB21504_dada2_counts.rds.zip",
+      "sha256": "c3475d53d1c07ee1270f4c4107c2c52a3f98e3efa6a3e4745eab7a2f4c25e378"
+    },
+    {
+      "file": "PRJEB21504_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/PRJEB21504_dada2_counts_withchimeras.rds.zip",
+      "sha256": "e476db856113c97c26cae2b08cffacae08476041b1e3e672c3a5383c78a7e46d"
+    },
+    {
+      "file": "PRJEB21504_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/PRJEB21504_dada2_taxa.rds.zip",
+      "sha256": "56e7975c89b303ec6d1395a5a753417b5638c9c24e91149a21271848b361322b"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/README.txt.zip",
+      "sha256": "b9fe2237877578c630137e19f347cff55c43051093fb2d2c575c57942a501adc"
+    },
+    {
+      "file": "SraRunTable (39).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/SraRunTable%20%2839%29.csv.zip",
+      "sha256": "eac00dea813f6b7a68e4de6608b1cc4fd3a1714a4fa958d05ef178c60df1fac2"
+    },
+    {
+      "file": "Vandeputte_2017_16S.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/Vandeputte_2017_16S.zip",
+      "sha256": "0f5f66b59280953a0b6d0e66ca2aa67c24c29d2e31577c767ce6ab2310d9b565"
+    },
+    {
+      "file": "Vandeputte_2017_load.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/Vandeputte_2017_load.zip",
+      "sha256": "73a52887c286a51997f09c4f1c3593320f449e77c861900622c6d973ce4d76be"
+    },
+    {
+      "file": "Vandeputte_2017_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/Vandeputte_2017_metadata.csv.zip",
+      "sha256": "1d9aca1cd67df762c5d5aa7487701386405e1b759517d251c289fdedd53df9a3"
+    },
+    {
+      "file": "cellcountstotal.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/cellcountstotal.csv.zip",
+      "sha256": "251c23189b70cd3299923615f4ec88e1c747ebe6b93cf917665f5ac7fd11030c"
+    },
+    {
+      "file": "old.Rmd.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/old.Rmd.zip",
+      "sha256": "b5cc216e6f3b1597032cf95b6413dd4fca82fdb2b4463dfea511031d903613eb"
+    },
+    {
+      "file": "otu_taxonomy_rdp.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/otu_taxonomy_rdp.csv.zip",
+      "sha256": "54283c8e6ba593a5c72989bc70b44a5757d2b50deb29aa5e15bd8be69a012efa"
+    },
+    {
+      "file": "otu_taxonomy_rdp16.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/otu_taxonomy_rdp16.csv.zip",
+      "sha256": "a4379866fb66b575f9ffd0a617bc7bb0a30645b367d511206d50a5a0e170d515"
+    },
+    {
+      "file": "otu_taxonomy_silva.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/otu_taxonomy_silva.csv.zip",
+      "sha256": "6206663200aa2d406360f05eae7637b217ca6d9f72235ae9256f7f1120ba2c1e"
+    },
+    {
+      "file": "rdp16classified.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/rdp16classified.csv.zip",
+      "sha256": "14dce8b74dd065c08b850c24e0a1e46c2b1205c76597604197a3c85d8ce38afd"
+    },
+    {
+      "file": "taxa_assignments.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2017_vandeputte_nature_flow/taxa_assignments.zip",
+      "sha256": "32cd1884d4845374833389767b888921628a12bb72577e67e9d2013ac9ef8b03"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": "Status",
+    "ID": "Sample",
+    "PMID": "29143816"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

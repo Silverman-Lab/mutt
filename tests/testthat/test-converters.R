@@ -1,0 +1,13 @@
+test_that('conversion aligns by identifiers without discarding counts', {
+  counts <- matrix(1:4,2,dimnames=list(c('S1','S2'),c('A','B')))
+  meta <- data.frame(group=c('two','one'),row.names=c('S2','S1'))
+  tax <- data.frame(genus=c('b','a'),row.names=c('B','A'))
+  x <- mutt:::.mutt_conversion_tables(counts,meta,tax)
+  expect_identical(x$counts,counts)
+  expect_identical(x$metadata$group,c('one','two'))
+  expect_identical(x$taxonomy$genus,c('a','b'))
+  expect_error(mutt:::.mutt_conversion_tables(counts,meta[1,,drop=FALSE],NULL),'include all')
+  expect_error(mutt:::.mutt_conversion_tables(list(counts),NULL,NULL),'single counts')
+  colnames(counts) <- c('A','A')
+  expect_error(mutt:::.mutt_conversion_tables(counts,NULL,NULL),'unique')
+})

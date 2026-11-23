@@ -3,17 +3,14 @@
 \docType{package}
 \name{mutt-package}
 \alias{mutt-package}
-\title{MUTT package internals}
+\title{Curated microbiome studies paired with microbial-load measurements}
 \description{
-Parses and formats individual studies containing microbiome sequence count data paired with total abundance measurements (flow cytometry, ddPCR, qPCR, etc.), and returns a single data object containing selected studies.
+Load processed study data directly from R. \emph{mutt} downloads only requested
+studies and saves local copies for reuse. Use \code{\link[=mutt_studies]{mutt_studies()}} to find study
+IDs and \code{\link[=mutt]{mutt()}} to load their data.
 }
 \seealso{
-Useful links:
-\itemize{
-  \item \url{https://github.com/Silverman-Lab/mutt}
-  \item Report bugs at \url{https://github.com/Silverman-Lab/mutt/issues}
-}
-
+\code{\link[=mutt]{mutt()}}, \code{\link[=mutt_studies]{mutt_studies()}}
 }
 \author{
 \strong{Maintainer}: Maxwell Konnaris \email{mak6930@psu.edu}

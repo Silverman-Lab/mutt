@@ -1,0 +1,69 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "Flow Cytometry",
+  "pmid": "34795283",
+  "accessions": [],
+  "source_urls": [
+    "https://www.nature.com/articles/s41467-021-27098-7"
+  ],
+  "study_id": "vandeputte2021",
+  "display_name": "2021 vandeputte naturecommunications flow timeseries",
+  "schema_version": 1,
+  "legacy_id": "2021_vandeputte_naturecommunications_flow_timeseries",
+  "source_notes": "https://www.nature.com/articles/s41467-021-27098-7\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "41467_2021_27098_MOESM3_ESMx.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vandeputte_naturecommunications_flow_timeseries/41467_2021_27098_MOESM3_ESMx.xlsx.zip",
+      "sha256": "9e073d5fc71625b9c54ad43815b36e5472a5245721f30565027691fa630f77f2"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vandeputte_naturecommunications_flow_timeseries/README.txt.zip",
+      "sha256": "01d0f218d8fd4902e2a527db5c759ab3423361e104525921d238f7cfb2138d87"
+    },
+    {
+      "file": "Vandeputte_2021_16S.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vandeputte_naturecommunications_flow_timeseries/Vandeputte_2021_16S.tsv.zip",
+      "sha256": "5e2669b3c239769cdfe2875ce7781e455973fc5498d64cbb4fff9fce5478b3b8"
+    },
+    {
+      "file": "Vandeputte_2021_load.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vandeputte_naturecommunications_flow_timeseries/Vandeputte_2021_load.tsv.zip",
+      "sha256": "0ccccab3a4ba2d82c27e5279a383a65abc2f2b2f165c71a18a66edbb15f874f3"
+    },
+    {
+      "file": "metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vandeputte_naturecommunications_flow_timeseries/metadata.csv.zip",
+      "sha256": "6006cb25eebf3fe4af6ce48691d3065ecba67262287d709ff4b807723250a207"
+    },
+    {
+      "file": "sourcedata_vandeputte2021_16s_noexplainationofwhatthistableis.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vandeputte_naturecommunications_flow_timeseries/sourcedata_vandeputte2021_16s_noexplainationofwhatthistableis.xlsx.zip",
+      "sha256": "a5130c6f9f87cb084cf661f8558778e10e4faeee7c7efed34a76b52359c31e31"
+    },
+    {
+      "file": "sourcedata_vandeputte2021_16s_noexplainationofwhatthistableis.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vandeputte_naturecommunications_flow_timeseries/sourcedata_vandeputte2021_16s_noexplainationofwhatthistableis.zip",
+      "sha256": "11b8a770f31e6271b25fe34a6f91e590e9e70024dd605bd52de136e7ef616d2b"
+    },
+    {
+      "file": "tax.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2021_vandeputte_naturecommunications_flow_timeseries/tax.csv.zip",
+      "sha256": "d2fc60a0954c0aba0169e207b671b1ece214f76f97857762dd26022d71c4a0d1"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": null,
+    "ID": "Sample_ID",
+    "PMID": "34795283"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

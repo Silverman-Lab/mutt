@@ -1,0 +1,109 @@
+{
+  "study_id": "kulkarni2024",
+  "display_name": "2024 kulkarni naturechemicalbiology rhizosphere16sqpcr",
+  "legacy_id": "2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr",
+  "schema_version": 1,
+  "sequencing": "unreviewed",
+  "load": "unreviewed",
+  "pmid": [],
+  "accessions": [],
+  "archived_inputs": [
+    {
+      "file": "41589_2023_1462_MOESM6_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM6_ESM.xlsx.zip",
+      "sha256": "534c182e3fe52d025c474b874304543edd08babd8a26c8478e36644a29a2c9ef"
+    },
+    {
+      "file": "41589_2023_1462_MOESM8_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM8_ESM.xlsx.zip",
+      "sha256": "3df6a4e52bd5a2cfdd588b2e63a3d66b10436868c446a61e6839cebcef868b82"
+    },
+    {
+      "file": "41589_2023_1462_MOESM9_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM9_ESM.xlsx.zip",
+      "sha256": "c11e2a4f1fbaa9b6e68bd7680085ae5bc08d078be50122ec523b36ade591cc3c"
+    },
+    {
+      "file": "41589_2023_1462_MOESM2_ESM (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM2_ESM%20%281%29.xlsx.zip",
+      "sha256": "5017029be5333b9f8d382721d17907055f22a9965da8a747b4dbcecc7e83a65d"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/README.txt.zip",
+      "sha256": "7f419b6ff2994ec392368bfd71762fd9c9850dc2cd99aa353702bc35640d4609"
+    },
+    {
+      "file": "41589_2023_1462_MOESM7_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM7_ESM.xlsx.zip",
+      "sha256": "e6b4b9b025ff2676fff73f5755963a44b9cb8707b79e39b4ac8355c4dca76ec7"
+    },
+    {
+      "file": "41589_2023_1462_MOESM4_ESM (1).xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM4_ESM%20%281%29.xlsx.zip",
+      "sha256": "ea5aa939babeae126877e82b718d339d117c5ab6598329f3b7f60afbad894f57"
+    },
+    {
+      "file": "41589_2023_1462_MOESM13_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM13_ESM.xlsx.zip",
+      "sha256": "64279b2b2ac7da12c0a83091ca4fcaa109326221ea5b36689a075f2450b378e6"
+    },
+    {
+      "file": "41589_2023_1462_MOESM15_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM15_ESM.xlsx.zip",
+      "sha256": "a3f63e677d69c153dd047cd46c5adcec8015e53981be4fdd4cdc7e0b9246542c"
+    },
+    {
+      "file": "PRJNA868804_dada2_counts.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/PRJNA868804_dada2_counts.rds.zip",
+      "sha256": "d473be563b362929b049b650df011922ac4137e1a79b8bc608c3ce5e81b95940"
+    },
+    {
+      "file": "41589_2023_1462_MOESM5_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM5_ESM.xlsx.zip",
+      "sha256": "209877164affb14fac5bf419d4a1d3858a5147a567b1d375eb4d81fa470aabbb"
+    },
+    {
+      "file": "PRJNA868804_dada2_counts_withchimeras.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/PRJNA868804_dada2_counts_withchimeras.rds.zip",
+      "sha256": "dc59ff9e344087e20ee3f97fb80204bf8922841595bd6f4f509cd989b8276b1f"
+    },
+    {
+      "file": "SraRunTable (34).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/SraRunTable%20%2834%29.csv.zip",
+      "sha256": "75cd7a3bd7037f968245a408274003dc9e7791b93d05968e6c6dd26f98577361"
+    },
+    {
+      "file": "41589_2023_1462_MOESM14_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM14_ESM.xlsx.zip",
+      "sha256": "d6e7e1629e8ffeba58756a9f5af4a23fe501a7f06102c7ee8fe98f541ea73b6f"
+    },
+    {
+      "file": "41589_2023_1462_MOESM10_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM10_ESM.xlsx.zip",
+      "sha256": "e5cfb26c211b3fef1e8456831182a23f452fcbf370d9989ef59c7d82291bd450"
+    },
+    {
+      "file": "PRJNA868804_dada2_taxa.rds.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/PRJNA868804_dada2_taxa.rds.zip",
+      "sha256": "cacedb76cc5942bbdcb1a8b5fea4128ffd8658f8d0d1b3c092c6a21196a6fffe"
+    },
+    {
+      "file": "41589_2023_1462_MOESM16_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM16_ESM.xlsx.zip",
+      "sha256": "d6598f4fd032d71a3533507659031cfee88f64e691f82f35cf27b6653d7ee6ff"
+    },
+    {
+      "file": "41589_2023_1462_MOESM11_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM11_ESM.xlsx.zip",
+      "sha256": "6f8be39578f1f62b9621da223f07c9a7e33eef48ba184c9a7315d67bafec73dd"
+    },
+    {
+      "file": "41589_2023_1462_MOESM12_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_kulkarni_naturechemicalbiology_rhizosphere16sqpcr/41589_2023_1462_MOESM12_ESM.xlsx.zip",
+      "sha256": "46afcfc07afd3b9024e21a8f0eb692621fdbfe9b2457284f4dd1adfe772d274a"
+    }
+  ],
+  "source_notes": "paper: https://www.nature.com/articles/s41589-023-01462-8\n",
+  "source_urls": []
+}

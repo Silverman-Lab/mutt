@@ -1,0 +1,121 @@
+{
+  "sequencing": "16S rRNA",
+  "load": "qPCR",
+  "pmid": "27329048",
+  "accessions": [],
+  "source_urls": [],
+  "study_id": "stammler2016",
+  "display_name": "2016 stammler microbiome micehuman",
+  "schema_version": 1,
+  "legacy_id": "2016_stammler_microbiome_micehuman",
+  "source_notes": "\nAdditional file 1: Table S1:\nSpecies-specific and total 16S rDNA quantitative realtime-PCR measurements. (XLSX 13 kb)\nHas total 16s rDNA copies per sample (sample65 ~ sample102 : mice)\n\nAdditional file 2: Table S2:\nDesign of dilution experiment. (XLSX 16 kb)\nHas information about amount of spiked 16S rRNA copies per sample\n\nAdditional file 3: Table S3:\nPools of bacterial mock communities containing S. ruber, A. acidiphilus and R. radiobacter. (XLSX 13 kb)\nHas information about the amount of three bacteria spiked into each pool. \n\nAdditional file 4: Table S4:\nPrimers and hydrolysis probes used in this study. (XLSX 13 kb)\n\nAdditional file 5:\n16S rDNA reference sequences of S. ruber, A. acidiphilus and R. radiobacter. (FASTA 4 kb)\n\nAdditional file 6:\nR-Script for reproduction of analysis and figures of this study. (R 39 kb)\n\nAdditional file 7:\nDilution experiment mapping file as used for reproduction. (TXT 3 kb)\nNote : sample ID is MID01 - MID40. Check Additional file 11 to check mapping to sample(65-102)\n\nAdditional file 8:\nASCT experiment mapping file as used for reproduction. (TXT 1 kb)\nSampleID : MID26-43, but don't confuse this with samples from Additional file 7. Additional file 8 is human data (ASCT experiment) and Additional file 7 is mice data (dilution experiment).\n\nAdditional file 9:\nDilution experiment OTU table as used for reproduction. (TXT 460 kb)\n\nAdditional file 10:\nASCT experiment OTU table as used for reproduction. (TXT 621 kb)\n\nAdditional file 11:\nTotal 16S rDNA qRT-PCR measurements as used for reproduction. (CSV 1 kb)\nNote : this data matches with total 16S rDNA copies from Additional file 1. Also gives mapping to Sample (65-102) and SampleID (MID1-MID40) used in dilution experiment. Sample 87 and 88 are missing from this mapping. \n\nAdditional file 12:\nSpike-in concentrations by design as used for reproduction. (CSV 1 kb)\n\n\n\n\n",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "No public sequencing accession is recorded for this study. Archived inputs are listed separately.",
+  "archived_inputs": [
+    {
+      "file": "Archive/40168_2016_175_MOESM10_ESM.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM10_ESM.txt.zip",
+      "sha256": "97326e491b35aef1f2c9c5fff81bc07ee3fb897cf766c9222ea3a7b68c8bc1fe"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM11_ESM.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM11_ESM.csv.zip",
+      "sha256": "dc5dc55c33b622bb460b5a29534c156e2dbdf8d975e908d698fc3819c33c19e6"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM12_ESM.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM12_ESM.csv.zip",
+      "sha256": "f027bc1a0e22e53dd19eb5c9167cea839d35cf59faab723693901ab572579b0b"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM1_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM1_ESM.xlsx.zip",
+      "sha256": "81429b4f2a47715f56fe4f2ad07554e44d08e61f62cc247b2d7e1aa56e9976b0"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM2_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM2_ESM.xlsx.zip",
+      "sha256": "61eb3ed3d09e7a0a798f42a10d988b9060bee643aa1aa77078e7bc3b9337041b"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM3_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM3_ESM.xlsx.zip",
+      "sha256": "54f069e4fc2ee9b32390f4e7eca0fc5f3f7e32f212a39173a5e1222af7fdecf1"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM4_ESM.xlsx.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM4_ESM.xlsx.zip",
+      "sha256": "ac76078c1809ea1aec5dfa7e28bd7214547e1389a1f74bcf859e0d04d1636db6"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM5_ESM.fasta.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM5_ESM.fasta.zip",
+      "sha256": "da4de43c0407653393d63dbc703e4a6c76e21ff39bd7d233c3cbdc56a217ec72"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM6_ESM.r.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM6_ESM.r.zip",
+      "sha256": "a3cb9caea7c0edfd5bc7d7aae26c851fb5692a8efc4b30d1b600aba509765551"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM7_ESM.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM7_ESM.txt.zip",
+      "sha256": "d741996e73d0d3d657b0abbb921f55ce6a470f20833f0dcd5228f6080befed9e"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM8_ESM.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM8_ESM.txt.zip",
+      "sha256": "3e027b1a0698cd71937e09b36179a6ed35994c5402e330ef6e45fd701051af53"
+    },
+    {
+      "file": "Archive/40168_2016_175_MOESM9_ESM.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/40168_2016_175_MOESM9_ESM.txt.zip",
+      "sha256": "ceb570242f10c3e7fa11c7994aa1d6548c70347b78bcf8b79bcdb948252f8290"
+    },
+    {
+      "file": "Archive/won_parse.R.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Archive/won_parse.R.zip",
+      "sha256": "285ca37a7b6ca8a87499804c42fc6f6a2ebd328c7bf96490ec93ddc0d34d6378"
+    },
+    {
+      "file": "README.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/README.txt.zip",
+      "sha256": "e4c80075e046cc03104a34fe9ad3890cc6badcdb63a9e8d63d1eb97921725ae9"
+    },
+    {
+      "file": "SraRunTable (38).csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/SraRunTable%20%2838%29.csv.zip",
+      "sha256": "7850d63ed8f90e9dcd9b611a662c5fa094340908f184fc0ab76bce9645b322bc"
+    },
+    {
+      "file": "Stammler2016_scale.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Stammler2016_scale.csv.zip",
+      "sha256": "3214b577f1ad05cfed5c5ab452a2ac30ffd1018912ff8e5240ddf7995ee408d0"
+    },
+    {
+      "file": "Stammler_2016_16S.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Stammler_2016_16S.csv.zip",
+      "sha256": "7c32380dcf6d7b80625c97e530af6c62469023aafcac85f7c2e3992059d5ffc8"
+    },
+    {
+      "file": "Stammler_2016_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2016_stammler_microbiome_micehuman/Stammler_2016_metadata.csv.zip",
+      "sha256": "2657cde25527a9ca5f4d31953e9de56a27c997404bde540dda71975bd616d9f3"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "16S rRNA",
+    "loadtype": "qPCR",
+    "organismtype": "Mice",
+    "sampletype": "Fecal",
+    "covariates": [
+      "Treatment",
+      "Dilution",
+      "Background"
+    ],
+    "ID": "SampleID",
+    "PMID": "27329048"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}

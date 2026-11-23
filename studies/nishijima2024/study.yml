@@ -1,0 +1,56 @@
+{
+  "sequencing": "Shotgun Metagenomics",
+  "load": "Flow Cytometry",
+  "pmid": "39541968",
+  "accessions": [
+    "PRJEB76661",
+    "PRJEB76662",
+    "PRJEB76664",
+    "PRJEB76666",
+    "PRJEB76667",
+    "PRJEB76668",
+    "PRJEB81697",
+    "PRJEB81698"
+  ],
+  "source_urls": [],
+  "study_id": "nishijima2024",
+  "display_name": "2024 nishijima cell galaxy",
+  "schema_version": 1,
+  "legacy_id": "2024_nishijima_cell_galaxy",
+  "source_notes": "",
+  "preprocessing_notes": "Processing scripts are for preparing study data and may require additional bioinformatics software. Loading prepared data with mutt() does not run them.",
+  "raw_availability": "Public sequencing accessions are recorded for this study. Whether their sequencing reads can be downloaded is checked when reads are requested.",
+  "archived_inputs": [
+    {
+      "file": "GALAXY_load.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_nishijima_cell_galaxy/GALAXY_load.tsv.zip",
+      "sha256": "647c85b3243d16f6cdb2fc087bca3ebf527eb843ae076b3184d4af77221bcfc9"
+    },
+    {
+      "file": "GALAXY_mOTUs_v25.tsv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_nishijima_cell_galaxy/GALAXY_mOTUs_v25.tsv.zip",
+      "sha256": "4eaa8da1db647aa131a2b4874669ba809a18fd371ed3eb52425da81a5b544fe9"
+    },
+    {
+      "file": "GALAXY_metadata.csv.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_nishijima_cell_galaxy/GALAXY_metadata.csv.zip",
+      "sha256": "9fad5a34ff42270e8f007fb40a0d6ac299ecfbae70a29234abbca90baefde32d"
+    },
+    {
+      "file": "motus2GTDB.txt.zip",
+      "url": "https://media.githubusercontent.com/media/Silverman-Lab/mutt/01c648b1f736b1af019d1c0f0231b73de2c21e49/studies/2024_nishijima_cell_galaxy/motus2GTDB.txt.zip",
+      "sha256": "e6bf0f060526624af590b8c7d438cfd50729b3d03790f8f4c941a911eadc9c93"
+    }
+  ],
+  "legacy_demographics": {
+    "sequencingtype": "Shotgun Metagenomics",
+    "loadtype": "Flow Cytometry",
+    "organismtype": "Human",
+    "sampletype": "Fecal",
+    "covariates": "cohort",
+    "ID": "ID",
+    "PMID": "39541968"
+  },
+  "baseline_error": "",
+  "baseline_warnings": ""
+}
